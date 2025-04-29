@@ -1,0 +1,3 @@
+/home/bert/OneDrive/dev/cpp/KAAD_cpp/build/CMakeFiles/main.dir
+/home/bert/OneDrive/dev/cpp/KAAD_cpp/build/CMakeFiles/edit_cache.dir
+/home/bert/OneDrive/dev/cpp/KAAD_cpp/build/CMakeFiles/rebuild_cache.dir

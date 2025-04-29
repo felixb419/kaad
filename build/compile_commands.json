@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/bert/OneDrive/dev/cpp/KAAD_cpp/build",
+  "command": "/usr/bin/c++   -g -std=gnu++20 -o CMakeFiles/main.dir/main.cpp.o -c /home/bert/OneDrive/dev/cpp/KAAD_cpp/main.cpp",
+  "file": "/home/bert/OneDrive/dev/cpp/KAAD_cpp/main.cpp"
+}
+]
