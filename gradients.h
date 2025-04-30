@@ -11,6 +11,11 @@
 template <typename T>
 struct Gradients : Operations<T> {
     using Operations<T>::flexAdd_inplace;
+    using Operations<T>::flexSub_inplace;
+    using Operations<T>::flexMul;
+    using Operations<T>::flexMul_inplace;
+    using Operations<T>::flexDiv;
+    using Operations<T>::flexPow;
     using Operations<T>::matmul;
     using Operations<T>::batch_matmul;
 
