@@ -353,17 +353,33 @@ struct Gradients : Operations<T> {
     // dC/dA = B^T
     // dC/dB = A^T
     static void matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
-        T* cache = new T[seed->len];
-        tView<T> in1_cache = *in1;
+        // Allocate separate caches for each intermediate result
+        size_t cacheLen = max(max(in1->len, in2->len), seed->len);
+        T* cache = new T[cacheLen];
+    
+        tView<T> in1_cache(*in1);
         in1_cache.val = cache;
-        tView<T> in2_cache = *in2;
+    
+        tView<T> in2_cache(*in2);
         in2_cache.val = cache;
     
-        tView<T> in1_T = *in1;
+        int* shapeBlock = new int[in1->shapeLen * 2 + in2->shapeLen * 2];
+        // Transposed view of in1
+        tView<T> in1_T(*in1);
+        in1_T.shape = shapeBlock;
+        in1_T.stride = shapeBlock + in1->shapeLen;
+        std::copy(in1->shape, in1->shape + in1->shapeLen, in1_T.shape);
+        std::copy(in1->stride, in1->stride + in1->shapeLen, in1_T.stride);
         transp(in1_T.shape, in1_T.stride, in1_T.shapeLen);
-        tView<T> in2_T = *in2;
+    
+        // Transposed view of in2
+        tView<T> in2_T(*in2);
+        in2_T.shape = in1_T.stride + in1->shapeLen;
+        in2_T.stride = in2_T.shape + in1->shapeLen;
+        std::copy(in2->shape, in2->shape + in2->shapeLen, in2_T.shape);
+        std::copy(in2->stride, in2->stride + in2->shapeLen, in2_T.stride);
         transp(in2_T.shape, in2_T.stride, in2_T.shapeLen);
-        
+    
         // d_in1 += seed * in2_T
         matmul(seed, &in2_T, &in1_cache);
         for (size_t i = 0; i < in1->len; i++) {
@@ -375,10 +391,16 @@ struct Gradients : Operations<T> {
         for (size_t i = 0; i < in2->len; i++) {
             d_in2->val[i] += in2_cache.val[i];
         }
+    
+        // Cleanup
+        delete[] cache;
+        delete[] shapeBlock;
     }
+    
     static void batch_matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
         // allocate memory
-        T* cache = new T[seed->len];
+        size_t cacheLen = max(max(in1->len, in2->len), seed->len);
+        T* cache = new T[cacheLen];
     
         size_t big_len1 = max(seed->shapeLen, in2->shapeLen);
         size_t big_len2 = max(in1->shapeLen, seed->shapeLen);
