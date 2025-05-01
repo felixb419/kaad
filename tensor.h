@@ -151,10 +151,10 @@ class Tensor {
 
         // build off of array
         Tensor(int* shapeArr, size_t shapeLength, T* value, size_t valueLen)
-        : shapeLen(shapeLength), len(1), val(value) {
+        : shapeLen(shapeLength), len(1) {
             shapeBlock = new int[shapeLen * 2];
             shape = shapeBlock;
-            stride = shape + shapeLen;
+            stride = shapeBlock + shapeLen;
         
             int i = shapeLen - 1;
         
@@ -170,6 +170,9 @@ class Tensor {
             if (len != valueLen) {
                 throw invalid_argument("array size suggested by shape does not match valueLen argument");
             }
+
+            val = new T[len];
+            copy(value, value + len, val);
         }
         
         // build off of scalar
