@@ -67,6 +67,8 @@ struct tView {
     tView(int* _shape, int* _stride, size_t _shapeLen, T* _val, size_t _len)
     : shape(_shape), stride(_stride), shapeLen(_shapeLen), val(_val), len(_len) {}
 
+    tView(tView& other) : shape(other.shape), stride(other.stride), shapeLen(other.shapeLen), val(other.val), len(other.len) {}
+
     tView() : shape(nullptr), stride(nullptr), shapeLen(0), val(nullptr), len(0) {}
 
     friend ostream& operator<<(ostream& stream, tView<T> view) requires printable<T> {
