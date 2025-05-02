@@ -127,7 +127,7 @@ struct Gradients : Operations<T> {
     }
     static void flexMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
         T* cache = new T[seed->len];
-        tView<T> seed_cache = *seed;
+        tView<T> seed_cache(*seed);
         seed_cache.val = cache;
     
         // d_in1 += seed * in2
@@ -181,9 +181,9 @@ struct Gradients : Operations<T> {
     }
     static void flexDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
         T* cache = new T[seed->len];
-        tView<T> seed_cache = *seed;
+        tView<T> seed_cache(*seed);
         seed_cache.val = cache;
-        tView<T> in2_cache = *in2;
+        tView<T> in2_cache (*in2);
         in2_cache.val = cache;
     
         // d_in1 += seed * (1 / in2)
@@ -261,12 +261,12 @@ struct Gradients : Operations<T> {
         T* cache = new T[seed->len + seed->len];
         // alt cache to astatic void cache conflict in flexible operation
         T* cache2 = cache + seed->len;
-        tView<T> seed_cache = *seed;
+        tView<T> seed_cache(seed);
         seed_cache.val = cache;
     
-        tView<T> in1_cache = *in1;
+        tView<T> in1_cache (*in1);
         in1_cache.val = cache2;
-        tView<T> in2_cache = *in2;
+        tView<T> in2_cache (*in2);
         in2_cache.val = cache2;
     
         // d_in1 += seed * (in2 * (in1^(in2 - 1)))
@@ -349,7 +349,7 @@ struct Gradients : Operations<T> {
         }
     }
     
-    // gradient for f(A,B) = AB
+    // f(A,B) = AB
     // dC/dA = B^T
     // dC/dB = A^T
     static void matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
