@@ -486,4 +486,13 @@ struct Gradients : Operations<T> {
         delete[] cache;
         delete[] shapeBlock;
     }
+    
+    // f(A) = sum(A)
+    // df_dA = tensor with shape of A filled with 1
+    static void sum_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
+       // d_in1 += seed[0]
+       for (size_t i = 0; i < d_in1->len; i++) {
+           d_in1->val[i] += seed->val[0];
+       }
+    }
 };

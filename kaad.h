@@ -239,3 +239,13 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
     
     return recLen;
 }
+
+template <typename T>
+int sum(Recorder<T>& rec, int indA) {
+    int recLen = rec.nodes.size();
+    
+    int newShape[] = {1};
+    rec.nodes.emplace_back(Operations<T>::sum, Gradients<T>::sum_grad, recLen, indA, -1, newShape, 1);
+
+    return recLen;
+}

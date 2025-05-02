@@ -734,4 +734,12 @@ struct Operations {
         }    
         delete[] effstrideA;
     }
+    
+    // adds every element of A to out
+    // B has to be a scalar
+    static void sum(const tView<T>* A, const tView<T>* _, tView<T>* out) {
+        for (size_t i = 0; i < A->len; i++) {
+            out->val[0] += A->val[i];
+        }
+    }
 };
