@@ -399,9 +399,6 @@ struct Gradients : Operations<T> {
     
     static void batch_matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
         // allocate memory
-        size_t cacheLen = max(max(in1->len, in2->len), seed->len);
-        T* cache = new T[cacheLen];
-    
         size_t big_len1 = max(seed->shapeLen, in2->shapeLen);
         size_t big_len2 = max(in1->shapeLen, seed->shapeLen);
     
@@ -447,31 +444,34 @@ struct Gradients : Operations<T> {
     
         // make in1_big
         combine_matrix(seed->shape, seed->shapeLen, in2_T.shape, in2_T.shapeLen, big_shape1, big_len1);
-        size_t valLen = 1;
+        size_t valLen1 = 1;
     
-        valLen *= big_shape1[big_len1 - 1];
+        valLen1 *= big_shape1[big_len1 - 1];
         big_stride1[big_len1 - 1] = 1;
         for (int i = big_len1 - 2; i >= 0; i--) {
-            valLen *= big_shape1[i];
+            valLen1 *= big_shape1[i];
             big_stride1[i] = big_stride1[i + 1] * big_shape1[i + 1];
         }
     
-        tView<T> in1_big(big_shape1, big_stride1, big_len1, cache, valLen);
+        tView<T> in1_big(big_shape1, big_stride1, big_len1, nullptr, valLen1);
     
     
         // make in2_big
         combine_matrix(in1_T.shape, in1_T.shapeLen, seed->shape, seed->shapeLen, big_shape2, big_len2);
-        valLen = 1;
+        size_t valLen2 = 1;
     
-        valLen *= big_shape2[big_len2 - 1];
+        valLen2 *= big_shape2[big_len2 - 1];
         big_stride2[big_len2 - 1] = 1;
         for (int i = big_len2 - 2; i >= 0; i--) {
-            valLen *= big_shape2[i];
+            valLen2 *= big_shape2[i];
             big_stride2[i] = big_stride2[i + 1] * big_shape2[i + 1];
         }
     
-        tView<T> in2_big(big_shape2, big_stride2, big_len2, cache, valLen);
-    
+        tView<T> in2_big(big_shape2, big_stride2, big_len2, nullptr, valLen2);
+
+        T* cache = new T[max(valLen1, valLen2)];
+        in1_big.val = cache;
+        in2_big.val = cache;
     
     
     
