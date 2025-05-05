@@ -495,4 +495,8 @@ struct Gradients : Operations<T> {
            d_in1->val[i] += seed->val[0];
        }
     }
+
+    static void sum_dim_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
+        //
+    }
 };

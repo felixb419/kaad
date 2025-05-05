@@ -742,4 +742,11 @@ struct Operations {
             out->val[0] += A->val[i];
         }
     }
+    
+    // sums tensor along dimension
+    // out must be same shape as A with one dimension missing
+    // dimensions index over which is summed is saved in B.shape
+    static void sum_dim(const tView<T>* A, const tView<T>* B, tView<T>* out) {
+        //
+    }
 };
