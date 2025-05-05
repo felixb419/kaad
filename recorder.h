@@ -37,8 +37,6 @@ struct Node {
         Node(tensorOP<T> operation, gradientOP<T> derivative, int current_index, int in1_index, int in2_index, int* shape, size_t shapeLen)
         : in1(in1_index), in2(in2_index), index(current_index), op(operation), grad_op(derivative),
         evaluated(false), value(shape, shapeLen, 0.0), hasInputs(true), gradient(value) {}
-
-
 };
 
 template <typename T>
@@ -101,7 +99,6 @@ class Recorder {
         }
 
     private:
-        
         tView<T> eval(int index) {
             Node<T>& cur = nodes[index];
             if (cur.evaluated) return cur.value.view();
