@@ -349,7 +349,7 @@ void _print_flat(ostream& stream, int* cords, const Tensor<T>& tensor, int ind) 
 }
 
 template <typename T>
-void print_flat(const Tensor<T>& tensor, ostream& stream) {
+void print_flat(const Tensor<T>& tensor, ostream& stream=cout) {
     int* cords = new int[tensor.shapeLen];
     fill(cords, cords + tensor.shapeLen, 0);
     
@@ -359,10 +359,10 @@ void print_flat(const Tensor<T>& tensor, ostream& stream) {
     delete[] cords;
 }
 
-inline void print_arr(int* arr, size_t len, ostream& stream) {
+inline void print_arr(int* arr, size_t len, ostream& stream=cout) {
     stream << "(";
     for (size_t i = 0; i < len; i++) {
         stream << arr[i] << ",";
     }
-    stream << ")";
+    stream << ")" << endl;
 }
