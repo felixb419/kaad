@@ -746,7 +746,42 @@ struct Operations {
     // sums tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void sum_dim(const tView<T>* A, const tView<T>* B, tView<T>* out) {
-        //
+    static void sum_dim(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+        
+        fill(C->val, C->val + C->len, 0);
+
+        int k = B->shape[0];
+        int* effstride = new int[A->shapeLen * 2];
+        copy(A->stride, A->stride + A->shapeLen, effstride);
+        effstride[k] = 0;
+        for (int i = 0; i < k; i++) {
+            effstride[i] /= A->shape[k];
+        }
+
+        int indA = 0, indC = 0; 
+        int* cords = effstride + A->shapeLen;
+        fill(cords, cords + A->shapeLen, 0);
+
+        for (int i = 0; i < A->len; i++) {
+            
+            C->val[indC] += A->val[indA];
+
+            for (int dim = A->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += A->stride[dim];
+                indC += effstride[dim];
+
+                if (cords[dim] < A->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= A->stride[dim] * A->shape[dim];
+                    indC -= effstride[dim] * A->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
     }
 };
