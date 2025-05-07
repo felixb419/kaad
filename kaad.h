@@ -258,7 +258,7 @@ int sum(Recorder<T>& rec, int indA, int dim) {
     int* newShape = new int[newLen];
     copy(rec.nodes[indA].value.shape, rec.nodes[indA].value.shape + dim, newShape);
     for (int i = dim; i < newLen; i++) {
-        newShape[dim] = rec.nodes[indA].value.shape[dim + 1];
+        newShape[i] = rec.nodes[indA].value.shape[i + 1];
     }
     
     // save dim into node
@@ -267,6 +267,37 @@ int sum(Recorder<T>& rec, int indA, int dim) {
     
 
     rec.nodes.emplace_back(Operations<T>::sum_dim, Gradients<T>::sum_dim_grad, recLen, indA, recLen - 1, newShape, newLen);
+
+    return recLen;
+}
+
+template <typename T>
+int mean(Recorder<T>& rec, int indA) {
+    int recLen = rec.nodes.size();
+    
+    int newShape[] = {1};
+    rec.nodes.emplace_back(Operations<T>::mean, Gradients<T>::mean_grad, recLen, indA, -1, newShape, 1);
+
+    return recLen;
+}
+
+template <typename T>
+int mean(Recorder<T>& rec, int indA, int dim) {
+    int recLen = rec.nodes.size();
+
+    size_t newLen = rec.nodes[indA].value.shapeLen - 1;
+    int* newShape = new int[newLen];
+    copy(rec.nodes[indA].value.shape, rec.nodes[indA].value.shape + dim, newShape);
+    for (int i = dim; i < newLen; i++) {
+        newShape[i] = rec.nodes[indA].value.shape[i + 1];
+    }
+    
+    // save dim into node
+    Tensor<T> temp({dim}, 0);
+    rec.nodes.emplace_back(move(temp), recLen++);
+    
+
+    rec.nodes.emplace_back(Operations<T>::mean_dim, Gradients<T>::mean_dim_grad, recLen, indA, recLen - 1, newShape, newLen);
 
     return recLen;
 }

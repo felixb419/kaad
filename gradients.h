@@ -498,5 +498,89 @@ struct Gradients : Operations<T> {
 
     static void sum_dim_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
         //
+        fill(d_in1->val, d_in1->val + d_in1->len, 0);
+
+        int k = in2->shape[0];
+        int* effstride = new int[in1->shapeLen * 2];
+        copy(in1->stride, in1->stride + in1->shapeLen, effstride);
+        effstride[k] = 0;
+        for (int i = 0; i < k; i++) {
+            effstride[i] /= in1->shape[k];
+        }
+
+        int ind1 = 0, indSeed = 0; 
+        int* cords = effstride + in1->shapeLen;
+        fill(cords, cords + in1->shapeLen, 0);
+
+        for (int i = 0; i < in1->len; i++) {
+            
+            d_in1->val[ind1] += seed->val[indSeed];
+
+            for (int dim = in1->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                ind1 += in1->stride[dim];
+                indSeed += effstride[dim];
+
+                if (cords[dim] < in1->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    ind1 -= in1->stride[dim] * in1->shape[dim];
+                    indSeed -= effstride[dim] * in1->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
+    }
+
+    // f(A) = sum(A)
+    // df_dA = tensor with shape of A filled with 1 / (len of A)
+    static void mean_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
+       // d_in1 += seed[0]
+       T inv = seed->val[0] / seed->len;
+       for (size_t i = 0; i < d_in1->len; i++) {
+           d_in1->val[i] += inv;
+       }
+    }
+    
+    static void mean_dim_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
+        //
+        fill(d_in1->val, d_in1->val + d_in1->len, 0);
+
+        int k = in2->shape[0];
+        int* effstride = new int[in1->shapeLen * 2];
+        copy(in1->stride, in1->stride + in1->shapeLen, effstride);
+        effstride[k] = 0;
+        for (int i = 0; i < k; i++) {
+            effstride[i] /= in1->shape[k];
+        }
+
+        int ind1 = 0, indSeed = 0; 
+        int* cords = effstride + in1->shapeLen;
+        fill(cords, cords + in1->shapeLen, 0);
+
+        for (int i = 0; i < in1->len; i++) {
+            
+            d_in1->val[ind1] += seed->val[indSeed] / in1->shape[k];
+
+            for (int dim = in1->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                ind1 += in1->stride[dim];
+                indSeed += effstride[dim];
+
+                if (cords[dim] < in1->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    ind1 -= in1->stride[dim] * in1->shape[dim];
+                    indSeed -= effstride[dim] * in1->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
     }
 };
