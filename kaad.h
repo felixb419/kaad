@@ -301,3 +301,15 @@ int mean(Recorder<T>& rec, int indA, int dim) {
 
     return recLen;
 }
+
+template <typename T>
+int transpose(Recorder<T>& rec, int indA, int dim) {
+    int recLen = rec.nodes.size();
+
+    int* newShape = new int[rec.nodes[indA].value.shapeLen];
+    transp(newShape, rec.nodes[indA].value.shapeLen);
+
+    rec.nodes.emplace_back(Operations<T>::transp, Gradients<T>::transp_dim, recLen, indA, -1, newShape, rec.nodes[indA].value.shapeLen);
+
+    return recLen;
+}
