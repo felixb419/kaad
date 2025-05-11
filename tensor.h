@@ -98,191 +98,139 @@ class Tensor {
         T* val;
         size_t len;
 
-        // default constructor
-        Tensor()
-        : shapeBlock(nullptr), shape(nullptr), stride(nullptr), shapeLen(0), val(nullptr), len(0) {}
+        Tensor() : shape(nullptr), stride(nullptr), shapeLen(0), val(nullptr), len(0) {}
 
-
-        // build off of shape
-        Tensor(int* shapeArr, size_t shapeLength, T _fill=0)
-        : shapeLen(shapeLength), len(1) {
-            shapeBlock = new int[shapeLen * 2];
-            shape = shapeBlock;
-            stride = shape + shapeLen;
-        
-            int i = shapeLen - 1;
-            shape[i] = shapeArr[i];
-            stride[i] = 1;
-            len *= shape[i];
-            for (i--; i >= 0; i--) {
-                shape[i] = shapeArr[i];
-                stride[i] = shape[i+1] * stride[i+1];
-                len *= shape[i];
-            }
-        
-            val = new T[len];
-            fill(val, val + len, _fill);
-        }
-        Tensor(initializer_list<int> _shape, T _fill=0) {
-            shapeLen = _shape.size();
-
-            shapeBlock = new int[shapeLen * 2];
-            shape = shapeBlock;
-            stride = shape + shapeLen;
-    
-            len = 1;
-
-            int i = 0;
-            for (int dim : _shape) {
-                shape[i++] = dim;
-            }
-
-            i = shapeLen - 1;
-            stride[i] = 1;
-            len *= shape[i];
-            for(i--; i >= 0; i--) {
-                stride[i] = stride[i+1] * shape[i+1];
-                len *= shape[i];
-            }
-
-            val = new T[len];
-            fill(val, val + len, _fill);
+        // destructor
+        ~Tensor() {
+            delete[] shape;
+            delete[] stride;
+            delete[] val;
         }
 
-        // build off of array
-        Tensor(int* shapeArr, size_t shapeLength, T* value, size_t valueLen)
-        : shapeLen(shapeLength), len(1) {
-            shapeBlock = new int[shapeLen * 2];
-            shape = shapeBlock;
-            stride = shapeBlock + shapeLen;
-        
-            int i = shapeLen - 1;
-        
-            shape[i] = shapeArr[i];
-            stride[i] = 1;
-            len *= shape[i];
-            for (i--; i >= 0; i--) {
-                shape[i] = shapeArr[i];
-                stride[i] = shape[i+1] * stride[i+1];
-                len *= shape[i];
-            }
-        
-            if (len != valueLen) {
-                throw invalid_argument("array size suggested by shape does not match valueLen argument");
-            }
-
-            val = new T[len];
-            copy(value, value + len, val);
-        }
-        
-        // build off of scalar
-        Tensor(T scalar)
-        : shapeLen(1), len(1) {
-            shapeBlock = new int[4] {1,1};
-            shape = shapeBlock;
-            stride = shape + 1;
-        
-            val = new T[1] {scalar};
-        }
-        
-        // construct with random numbers
-        static Tensor Random(initializer_list<int> _shape, T lowerBound=0, T upperBound=1) requires floating_point<T> {
-            static random_device rd;
-            static mt19937 gen(rd());
-            uniform_real_distribution<T> dist(lowerBound, upperBound);
-
-            int shapeArr[_shape.size()];
-            int i = 0;
-            for (int dim : _shape) {
-                shapeArr[i++] = dim;
-            }
-    
-            size_t shapeLength = _shape.size();
-            size_t len = 1;
-            for (int i = 0; i < shapeLength; i++) {
-                len *= shapeArr[i];
-            }
-
-            T* vals = new T[len];
-            for (size_t i = 0; i < len; i++) {
-                vals[i] = dist(gen);
-            }
-            return Tensor(shapeArr, shapeLength, vals, len);
-        }
-        static Tensor Random(initializer_list<int> _shape, T lowerBound=0, T upperBound=100) requires integral<T> {
-            static random_device rd;
-            static mt19937 gen(rd());
-            uniform_int_distribution<T> dist(lowerBound, upperBound);
-
-            int shapeArr[_shape.size()];
-            int i = 0;
-            for (int dim : _shape) {
-                shapeArr[i++] = dim;
-            }
-    
-            size_t shapeLength = _shape.size();
-            size_t len = 1;
-            for (int i = 0; i < shapeLength; i++) {
-                len *= shapeArr[i];
-            }
-
-            T* vals = new T[len];
-            for (size_t i = 0; i < len; i++) {
-                vals[i] = dist(gen);
-            }
-            return Tensor(shapeArr, shapeLength, vals, len);
-        }
-        
-        // deep copy
+        // copy constructor
         Tensor(const Tensor<T>& other) {
             shapeLen = other.shapeLen;
-        
-            shapeBlock = new int[shapeLen * 2];
-            shape = shapeBlock;
-            stride = shape + shapeLen;
-            copy(other.shapeBlock, other.shapeBlock + shapeLen * 2, shapeBlock);
-        
-            val = new T[other.len];
-            copy(other.val, other.val + other.len, val);
+            shape = new int[shapeLen];
+            copy(other.shape, other.shape + shapeLen, shape);
+            stride = new int[shapeLen];
+            copy(other.stride, other.stride + shapeLen, stride);
+
             len = other.len;
+            val = new T[len];
+            copy(other.val, other.val + len, val);
         }
         
-        // assign
+        // copy assignment operator
         Tensor& operator=(const Tensor& other) {
             if (this != &other) {
-                delete[] shapeBlock;
+                if (shapeLen != other.shapeLen) {
+                    shapeLen = other.shapeLen;
+                    delete[] shape;
+                    shape = new int[shapeLen];
+                    delete[] stride;
+                    stride = new int[shapeLen];
+                }
+                copy(other.shape, other.shape + shapeLen, shape);
+                copy(other.stride, other.stride + shapeLen, stride);
 
-                shapeBlock = new int[shapeLen * 2];
-                shape = shapeBlock;
-                stride = shape + shapeLen;
-                copy(other.shapeBlock, other.shapeBlock + shapeLen * 2, shapeBlock);
-
-                val = new T[other.len];
-                copy(other.val, other.val + other.len, val);
+                if (len != other.len) {
+                    len = other.len;
+                    delete[] val;
+                    val = new T[len];
+                }
+                copy(other.val, other.val + len, val);
             }
+            
             return *this;
         }
         
         // move constructor
-        Tensor(Tensor&& other) noexcept
-        : shapeLen(other.shapeLen), shapeBlock(other.shapeBlock), shape(other.shape), stride(other.stride),
-        len(other.len), val(other.val) {
-
-            // reset state of other
-            other.shapeLen = 0;
-            other.shapeBlock = nullptr;
+        Tensor(Tensor&& other) noexcept 
+        : shape(other.shape), stride(other.stride), shapeLen(other.shapeLen), val(other.val), len(other.len) {
             other.shape = nullptr;
             other.stride = nullptr;
-            other.len = 0;
+            other.shapeLen = 0;
             other.val = nullptr;
+            other.len = 0;
         }
-        
-        // destructor
-        ~Tensor() {
-            delete[] shapeBlock;
-            delete[] val;
+
+        // move assignment operator
+        Tensor& operator=(Tensor&& other) {
+            if (this != &other) {
+                delete[] shape;
+                delete[] stride;
+                delete[] val;
+
+                shape = other.shape;
+                stride = other.stride;
+                shapeLen = other.shapeLen;
+                val = other.val;
+                len = other.len;
+
+                other.shape = nullptr;
+                other.stride = nullptr;
+                other.shapeLen = 0;
+                other.val = nullptr;
+                other.len = 0;
+            }
+
+            return *this;
         }
+
+        Tensor(int* _shape, int* _stride, size_t _shapeLen, T* _val, size_t _len) 
+        : shape(_shape), stride(_stride), shapeLen(_shapeLen), val(_val), len(_len) {}
+
+        Tensor(int* _shape, int* _stride, size_t _shapeLen, T _fill, size_t _len)
+        : shape(_shape), stride(_stride), shapeLen(_shapeLen), len(_len) {
+            val = new T[len];
+            fill(val, val + len, _fill);
+        }
+
+        Tensor(T scalar) : shapeLen(1), len(1) {
+            shape = new int[] { 1 };
+            stride = new int[] { 0 };
+            val = new T[] { scalar };
+        }
+
+        Tensor(int* _shape, size_t _shapeLen, T* _val, size_t _len)
+        : shapeLen(_shapeLen), len(1) {
+            shape = _shape;
+            stride = new int[shapeLen];
         
+            int i = shapeLen - 1;
+        
+            stride[i] = 1;
+            len *= shape[i];
+            for (i--; i >= 0; i--) {
+                stride[i] = shape[i+1] * stride[i+1];
+                len *= shape[i];
+            }
+        
+            if (len != _len) {
+                throw invalid_argument("array size suggested by shape does not match _value argument");
+            }
+
+            val = _val;
+        }
+
+        Tensor(int* _shape, size_t _shapeLen, T _fill)
+        : shapeLen(_shapeLen), len(1) {
+            shape = _shape;
+            stride = new int[shapeLen];
+        
+            int i = shapeLen - 1;
+        
+            stride[i] = 1;
+            len *= shape[i];
+            for (i--; i >= 0; i--) {
+                stride[i] = shape[i+1] * stride[i+1];
+                len *= shape[i];
+            }
+        
+            val = new T[len];
+            fill(val, val + len, _fill);
+        }
+
         struct tView<T> view() const {
             return tView<T>(shape, stride, shapeLen, val, len);
         }
@@ -290,7 +238,7 @@ class Tensor {
         template <typename... Indeces>
         T operator()(Indeces... indeces) const {
             static_assert(sizeof...(indeces) > 0, "at least one index must be provided");
-            //static_assert((is_same_v<Indeces, int> && ...), "all indeces must be of type int");
+            static_assert((is_same_v<Indeces, int> && ...), "all indeces must be of type int");
             int len = sizeof...(indeces);
             if (len != shapeLen) {
                 throw invalid_argument("indeces do not match Tensor dimensions");
@@ -320,9 +268,6 @@ class Tensor {
             }
             return stream;
         }
-
-    private:
-        int* shapeBlock;
 };
 
 template <typename T>
