@@ -3,6 +3,7 @@
 #include "tensor.h"
 
 #include <array>
+#include <utility>
 
 template <typename T>
 using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out);
@@ -32,9 +33,10 @@ struct Node {
         }
 
         // construct as to be evaluated
-        Node(tensorOP<T> operation, gradientOP<T> derivative, int in1_index, int in2_index, int* shape, size_t shapeLen)
+        template <typename... Args>
+        Node(tensorOP<T> operation, gradientOP<T> derivative, int in1_index, int in2_index, Args&&... args)
         : in1(in1_index), in2(in2_index), op(operation), grad_op(derivative),
-        evaluated(false), value(shape, shapeLen, 0.0), hasInputs(true), gradient(value) {}
+        evaluated(false), value(forward<Args>(args)...), hasInputs(true), gradient(value) {}
 };
 
 template <typename T>
