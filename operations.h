@@ -65,15 +65,6 @@ void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size
     }
 }
 
-void transp(int* shape, size_t len) {
-    int temp;
-    for (int i = 0, j = len - 1; i < len / 2; i++, j--) {
-        temp = shape[i];
-        shape[i] = shape[j];
-        shape[j] = temp;
-    }
-}
-
 void transp(int* shape, int* stride, size_t len) {
     int temp;
     for (int i = 0, j = len - 1; i < len / 2; i++, j--) {
@@ -84,13 +75,6 @@ void transp(int* shape, int* stride, size_t len) {
         temp = stride[i];
         stride[i] = stride[j];
         stride[j] = temp;
-    }
-}
-
-void transp(const int* shape_in, const int* stride_in, int* shape_out, int* stride_out, size_t len) {
-    for (int i = 0, j = len - 1; i < len; i++, j--) {
-        shape_out[j] = shape_in[i];
-        stride_out[j] = stride_in[i];
     }
 }
 
