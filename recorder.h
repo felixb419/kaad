@@ -15,8 +15,6 @@ struct Node {
         int in1;
         int in2;
 
-        int index;
-
         tensorOP<T> op;
         gradientOP<T> grad_op;
 
@@ -27,15 +25,15 @@ struct Node {
         Tensor<T> gradient;
 
         // construct as evaluated
-        Node(Tensor<T> && tensor, int _index)
-        : in1(-1), in2(-1), index(_index), op(nullptr), grad_op(nullptr),
+        Node(Tensor<T> && tensor)
+        : in1(-1), in2(-1), op(nullptr), grad_op(nullptr),
         evaluated(true), value(move(tensor)), hasInputs(false), gradient(value) {
             fill(gradient.val, gradient.val + gradient.len, 0.0);
         }
 
         // construct as to be evaluated
-        Node(tensorOP<T> operation, gradientOP<T> derivative, int current_index, int in1_index, int in2_index, int* shape, size_t shapeLen)
-        : in1(in1_index), in2(in2_index), index(current_index), op(operation), grad_op(derivative),
+        Node(tensorOP<T> operation, gradientOP<T> derivative, int in1_index, int in2_index, int* shape, size_t shapeLen)
+        : in1(in1_index), in2(in2_index), op(operation), grad_op(derivative),
         evaluated(false), value(shape, shapeLen, 0.0), hasInputs(true), gradient(value) {}
 };
 
@@ -61,7 +59,7 @@ class Recorder {
 
         int append(Tensor<T>&& tensor) {
             int idx = nodes.size();
-            nodes.emplace_back(move(tensor), idx);
+            nodes.emplace_back(move(tensor));
             return idx;
         }
 
