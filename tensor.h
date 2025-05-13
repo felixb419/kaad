@@ -180,7 +180,7 @@ class Tensor {
         Tensor(int* _shape, int* _stride, size_t _shapeLen, T* _val, size_t _len) 
         : shape(_shape), stride(_stride), shapeLen(_shapeLen), val(_val), len(_len) {}
 
-        Tensor(int* _shape, int* _stride, size_t _shapeLen, T _fill, size_t _len)
+        Tensor(int* _shape, int* _stride, size_t _shapeLen, size_t _len, T _fill=0)
         : shape(_shape), stride(_stride), shapeLen(_shapeLen), len(_len) {
             val = new T[len];
             fill(val, val + len, _fill);
@@ -213,7 +213,7 @@ class Tensor {
             val = _val;
         }
 
-        Tensor(int* _shape, size_t _shapeLen, T _fill)
+        Tensor(int* _shape, size_t _shapeLen, T _fill=0)
         : shapeLen(_shapeLen), len(1) {
             shape = _shape;
             stride = new int[shapeLen];
