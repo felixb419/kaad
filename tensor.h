@@ -177,6 +177,17 @@ class Tensor {
             return *this;
         }
 
+        Tensor(int* _shape, int* _stride, size_t _shapeLen) 
+        : shape(_shape), stride(_stride), shapeLen(shapeLen) {
+            len = 1;
+            for (size_t i = 0; i < shapeLen; i++) {
+                len *= shape[i];
+            }
+
+            val = new T[len];
+            fill(val, val + len, 0);
+        }
+
         Tensor(int* _shape, int* _stride, size_t _shapeLen, T* _val, size_t _len) 
         : shape(_shape), stride(_stride), shapeLen(_shapeLen), val(_val), len(_len) {}
 
