@@ -78,6 +78,13 @@ void transp(int* shape, int* stride, size_t len) {
     }
 }
 
+void transp(int* shape, int* stride, int* shape_T, int* stride_T, size_t len) {
+    for (int i = 0, j = len - 1; i < len; i++, j--) {
+        shape_T[j] = shape[i];
+        stride_T[j] = stride[i];
+    }
+}
+
 template <typename T>
 struct Operations {
     // add so that: out[m,n,...] = tensor[m,n,...] + scalar[0]
