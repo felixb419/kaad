@@ -1,4 +1,5 @@
 build/
+main.cpp
 main
 _main
 compile_commands.json
