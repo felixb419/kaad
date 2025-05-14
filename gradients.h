@@ -587,6 +587,8 @@ struct Gradients : Operations<T> {
     // f(A) = A^T
     // df/dA = 1
     static void transp_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
-        copy(seed->val, seed->val + seed->len, d_in1->val);
+        for (size_t i = 0; i < seed->len; i++) {
+            d_in1->val[i] += seed->val[i];
+        }
     }
 };
