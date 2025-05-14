@@ -178,7 +178,7 @@ class Tensor {
         }
 
         Tensor(int* _shape, int* _stride, size_t _shapeLen) 
-        : shape(_shape), stride(_stride), shapeLen(shapeLen) {
+        : shape(_shape), stride(_stride), shapeLen(_shapeLen) {
             len = 1;
             for (size_t i = 0; i < shapeLen; i++) {
                 len *= shape[i];
