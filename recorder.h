@@ -85,8 +85,9 @@ class Recorder {
         // returns reference to derivative of f w.r.t. x
         template<size_t N>
         array<Tensor<T>*, N> getGradient(int f_ind, int (&x_ind)[N]) {
+            Node<T>& f = nodes[f_ind];
 
-            fill(nodes[f_ind].gradient.val, nodes[f_ind].gradient.val + nodes[f_ind].gradient.len, 1.0);
+            fill(f.gradient.val, f.gradient.val + f.gradient.len, 1.0);
         
             grad(f_ind);
         
@@ -114,19 +115,21 @@ class Recorder {
         }
 
         void grad(int index) {
-            tView<T> value = nodes[index].value.view();
-            tView<T> seed = nodes[index].gradient.view();
+            Node<T>& node = nodes[index];
+
+            tView<T> value = node.value.view();
+            tView<T> seed = node.gradient.view();
         
-            tView<T> val1 = nodes[nodes[index].in1].value.view();
-            tView<T> grad1 = nodes[nodes[index].in1].gradient.view();
-            int in2 = nodes[index].in2;
+            tView<T> val1 = nodes[node.in1].value.view();
+            tView<T> grad1 = nodes[node.in1].gradient.view();
+            int in2 = node.in2;
             tView<T> val2 = in2 < 0 ? tView<T>() : nodes[in2].value.view();
             tView<T> grad2 = in2 < 0 ? tView<T>() : nodes[in2].gradient.view();
         
-            nodes[index].grad_op(&seed, &val1, &grad1, &val2, &grad2, &value);
+            node.grad_op(&seed, &val1, &grad1, &val2, &grad2, &value);
         
-            if (nodes[nodes[index].in1].hasInputs) {
-                grad(nodes[index].in1);
+            if (nodes[node.in1].hasInputs) {
+                grad(node.in1);
             }
             if (nodes[in2].hasInputs && in2 >= 0) {
                 grad(in2);
