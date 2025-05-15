@@ -842,4 +842,46 @@ struct Operations {
     static void transpose(const tView<T>* A, const tView<T>* B, tView<T>* C) {
         copy(A->val, A->val + A->len, C->val);
     }
+
+    static void tile(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+        int* m = B->shape;
+        
+        int offset = C->shapeLen - A->shapeLen;
+        int* effstride = new int[C->shapeLen * 3];
+        fill(effstride, effstride + offset, 0);
+        copy(A->stride, A->stride + A->shapeLen, effstride + offset);
+
+        int* superstride = effstride + C->shapeLen;
+        copy(A->shape, A->shape + A->shapeLen, superstride);
+        for (int i = A->shapeLen - 2; i >= 0; i--) {
+            superstride[i] *= superstride[i + 1];
+        }
+
+        int indA = 0, indC = 0;
+        int* cords = effstride + C->shapeLen * 2;
+        fill(cords, cords + C->shapeLen, 0);
+
+        for (int i = 0; i < C->len; i++) {
+
+            C->val[indC] = A->val[indA];
+
+            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstride[dim];
+                indA -= cords[dim] == A->shape[dim] && m[dim] != 1 ? superstride[dim] : 0;
+                indC += C->stride[dim];
+
+                if (cords[dim] < C->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstride[dim] * A->shape[dim];
+                    indC -= C->stride[dim] * C->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
+    }
 };

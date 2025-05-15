@@ -254,7 +254,8 @@ int sum(Recorder<T>& rec, int indA, int dim) {
     }
     
     // save dim into node
-    Tensor<T> temp({dim}, 0);
+    Tensor<T> temp;
+    temp.shape = new int[] { dim };
     rec.nodes.emplace_back(move(temp));
     
 
@@ -342,4 +343,50 @@ int transpose(Recorder<T>& rec, int indA, initializer_list<int> permutation) {
     rec.nodes.emplace_back(Operations<T>::transpose, Gradients<T>::transp_grad, indA, -1, shape_T, stride_T, A.shapeLen);
 
     return recLen;
+}
+
+template <typename T>
+int tile(Recorder<T>& rec, int indA, initializer_list<int> multiples) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+
+    size_t m_len = multiples.size();
+    int* m = new int[m_len];
+    copy(multiples.begin(), multiples.end(), m);
+
+    int* newShape;
+    size_t newLen;
+
+
+    if (A.shapeLen >= m_len) {
+        newLen = A.shapeLen;
+        newShape = new int[newLen];
+        copy(A.shape, A.shape + newLen, newShape);
+
+        int offset = A.shapeLen - m_len;
+        int* s = newShape;
+        for (int m : multiples) {
+            *(s++ + offset) *= m;
+        }
+    }
+    else {
+        newLen = A.shapeLen;
+        newShape = new int[newLen];        
+        copy(m, m + m_len, newShape);
+
+        int offset = m_len - A.shapeLen;
+        for (int i = 0; i < A.shapeLen; i++) {
+            newShape[i + offset] *= A.shape[i];
+        }
+
+    }
+
+    // save multiples into node
+    Tensor<T> temp;
+    temp.shape = m;
+    rec.nodes.emplace_back(move(temp));
+
+    rec.nodes.emplace_back(Operations<T>::tile, Gradients<T>::tile_grad, indA, recLen, newShape, newLen);
+
+    return recLen + 1;
 }

@@ -591,4 +591,46 @@ struct Gradients : Operations<T> {
             d_in1->val[i] += seed->val[i];
         }
     }
+
+    static void tile_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
+        int* m = in2->shape;
+        
+        int offset = seed->shapeLen - in1->shapeLen;
+        int* effstride = new int[seed->shapeLen * 3];
+        fill(effstride, effstride + offset, 0);
+        copy(in1->stride, in1->stride + in1->shapeLen, effstride + offset);
+
+        int* superstride = effstride + seed->shapeLen;
+        copy(in1->shape, in1->shape + in1->shapeLen, superstride);
+        for (int i = in1->shapeLen - 2; i >= 0; i--) {
+            superstride[i] *= superstride[i + 1];
+        }
+
+        int ind1 = 0, indSeed = 0;
+        int* cords = effstride + seed->shapeLen * 2;
+        fill(cords, cords + seed->shapeLen, 0);
+
+        for (int i = 0; i < seed->len; i++) {
+
+            d_in1->val[ind1] += seed->val[indSeed];
+
+            for (int dim = seed->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                ind1 += effstride[dim];
+                ind1 -= cords[dim] == in1->shape[dim] && m[dim] != 1 ? superstride[dim] : 0;
+                indSeed += seed->stride[dim];
+
+                if (cords[dim] < seed->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    ind1 -= effstride[dim] * in1->shape[dim];
+                    indSeed -= seed->stride[dim] * seed->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
+    }
 };
