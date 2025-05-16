@@ -96,14 +96,14 @@ struct Operations {
     }
     // pointwise add so that: C = A + B
     // shape of all operands must be indentical
-    static void pointAdd(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void pointAdd(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] + B->val[i];
         }
     }
     // flexible add so that: C = A + B
     // shape of C must be a valid broadcast of A and B
-    static void flexAdd(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void flexAdd(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -203,14 +203,14 @@ struct Operations {
     }
     // pointwise subtract so that: C = A - B
     // shape of all operands must be indentical
-    static void pointSub(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void pointSub(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] - B->val[i];
         }
     }
     // flexible subtract so that: C = A - B
     // shape of C must be a valid broadcast of A and B
-    static void flexSub(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void flexSub(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -303,14 +303,14 @@ struct Operations {
     }
     // pointwise multiply so that: C = A * B
     // shape of all operands must be indentical
-    static void pointMul(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void pointMul(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] * B->val[i];
         }
     }
     // flexible multiply so that: C = A * B
     // shape of C must be a valid broadcast of A and B
-    static void flexMul(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void flexMul(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -410,14 +410,14 @@ struct Operations {
     }
     // pointwise divide so that: C = A - B
     // shape of all operands must be indentical
-    static void pointDiv(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void pointDiv(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] / B->val[i];
         }
     }
     // flexible divide so that: C = A - B
     // shape of C must be a valid broadcast of A and B
-    static void flexDiv(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void flexDiv(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -517,14 +517,14 @@ struct Operations {
     }
     // pointwise raise to power so that: C = A - B
     // shape of all operands must be indentical
-    static void pointPow(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void pointPow(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = pow(A->val[i], B->val[i]);
         }
     }
     // flexible raise to power so that: C = A - B
     // shape of C must be a valid broadcast of A and B
-    static void flexPow(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void flexPow(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -658,7 +658,7 @@ struct Operations {
         
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
-    static void matmul(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void matmul(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         fill(C->val, C->val + C->len, 0.0);
         int indA = 0, indB = 0, indC = 0;
         int k = A->shape[1];
@@ -679,7 +679,7 @@ struct Operations {
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
     // all dimensions higher than 2 are regarded as batch dimensions
-    static void batch_matmul(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void batch_matmul(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
     
         fill(C->val, C->val + C->len, 0);
         int offsetA = C->shapeLen - A->shapeLen;
@@ -747,11 +747,11 @@ struct Operations {
     // sums tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void sum_dim(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void sum_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, void* ctx) {
         
         fill(C->val, C->val + C->len, 0);
 
-        int k = B->shape[0];
+        int k = *(static_cast<int*>(ctx));
         int* effstride = new int[A->shapeLen * 2];
         copy(A->stride, A->stride + A->shapeLen, effstride);
         effstride[k] = 0;
@@ -799,11 +799,11 @@ struct Operations {
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void mean_dim(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void mean_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, void* ctx) {
         
         fill(C->val, C->val + C->len, 0);
 
-        int k = B->shape[0];
+        int k = *(static_cast<int*>(ctx));
         int* effstride = new int[A->shapeLen * 2];
         copy(A->stride, A->stride + A->shapeLen, effstride);
         effstride[k] = 0;
@@ -839,12 +839,12 @@ struct Operations {
         delete[] effstride;
     }
 
-    static void transpose(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void transpose(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         copy(A->val, A->val + A->len, C->val);
     }
 
-    static void tile(const tView<T>* A, const tView<T>* B, tView<T>* C) {
-        int* m = B->shape;
+    static void tile(const tView<T>* A, const tView<T>* _, tView<T>* C, void* ctx) {
+        int* m = ctx;
         
         int offset = C->shapeLen - A->shapeLen;
         int* effstride = new int[C->shapeLen * 3];
@@ -885,14 +885,15 @@ struct Operations {
         delete[] effstride;
     }
 
-    static void slice(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+    static void slice(const tView<T>* A, const tView<T>* _, tView<T>* C, void* ctx) {
         int offset = A->shapeLen - C->shapeLen;
         int* effstride = new int[C->shapeLen * 2];
         copy(A->stride + offset, A->stride + A->shapeLen - offset + 1, effstride);
 
+        int* multiples = static_cast<int*>(ctx);
         int indA = 0, indC = 0;
         for (int i = 0; i < C->shapeLen; i++) {
-            indA += B->shape[i] * A->stride[i];
+            indA += multiples[i] * A->stride[i];
         }
 
         int* cords = effstride + C->shapeLen;

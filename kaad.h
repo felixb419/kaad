@@ -252,16 +252,13 @@ int sum(Recorder<T>& rec, int indA, int dim) {
     for (int i = dim; i < newLen; i++) {
         newShape[i] = A.shape[i + 1];
     }
-    
-    // save dim into node
-    Tensor<T> temp;
-    temp.shape = new int[] { dim };
-    rec.nodes.emplace_back(move(temp));
-    
 
-    rec.nodes.emplace_back(Operations<T>::sum_dim, Gradients<T>::sum_dim_grad, recLen, indA, recLen, newShape, newLen);
+    rec.nodes.emplace_back(Operations<T>::sum_dim, Gradients<T>::sum_dim_grad, indA, -1, newShape, newLen);
+    // save dim into ctx
+    rec.nodes[recLen].ctx = new int[] { dim };
+    rec.nodes[recLen].ctx_is_array = true;
 
-    return recLen + 1;
+    return recLen;
 }
 
 template <typename T>
@@ -287,14 +284,11 @@ int mean(Recorder<T>& rec, int indA, int dim) {
         newShape[i] = A.shape[i + 1];
     }
     
-    // save dim into node
-    Tensor<T> temp;
-    temp.shape = new int[] { dim };
-    rec.nodes.emplace_back(move(temp));
+    rec.nodes.emplace_back(Operations<T>::mean_dim, Gradients<T>::mean_dim_grad, indA, -1, newShape, newLen);
+    rec.nodes[recLen].ctx = new int[] { dim };
+    rec.nodes[recLen].ctx_is_array = true;
 
-    rec.nodes.emplace_back(Operations<T>::mean_dim, Gradients<T>::mean_dim_grad, indA, recLen, newShape, newLen);
-
-    return recLen + 1;
+    return recLen;
 }
 
 template <typename T>
@@ -402,12 +396,10 @@ int slice(Recorder<T>& rec, int indA, initializer_list<int> _offset, initializer
     int* offset = new int[newLen];
     copy(_offset.begin(), _offset.end(), offset);
 
-    // save offset into node
-    Tensor<T> temp;
-    temp.shape = offset;
-    rec.nodes.emplace_back(move(temp));
+    rec.nodes.emplace_back(Operations<T>::slice, Gradients<T>::slice_grad, indA, -1, newShape, newLen);
+    // save offset into ctx
+    rec.nodes[recLen].ctx = offset;
+    rec.nodes[recLen].ctx_is_array = true;
 
-    rec.nodes.emplace_back(Operations<T>::slice, Gradients<T>::slice_grad, indA, recLen, newShape, newLen);
-
-    return recLen + 1;
+    return recLen;
 }
