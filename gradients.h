@@ -633,4 +633,39 @@ struct Gradients : Operations<T> {
 
         delete[] effstride;
     }
+
+    static void slice_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res) {
+        int offset = in1->shapeLen - seed->shapeLen;
+        int* effstride = new int[seed->shapeLen * 2];
+        copy(in1->stride + offset, in1->stride + in1->shapeLen - offset + 1, effstride);
+
+        int ind1 = 0, indSeed = 0;
+        for (int i = 0; i < seed->shapeLen; i++) {
+            ind1 += in2->shape[i] * in1->stride[i];
+        }
+
+        int* cords = effstride + seed->shapeLen;
+        fill(cords, cords + seed->shapeLen, 0);
+        for (int i = 0; i < seed->len; i++) {
+
+            d_in1->val[ind1] += seed->val[indSeed];
+
+            for (int dim = seed->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                ind1 += effstride[dim];
+                indSeed += seed->stride[dim];
+
+                if (cords[dim] < seed->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    ind1 -= effstride[dim] * seed->shape[dim];
+                    indSeed -= seed->stride[dim] * seed->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
+    }
 };

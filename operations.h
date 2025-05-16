@@ -884,4 +884,39 @@ struct Operations {
 
         delete[] effstride;
     }
+
+    static void slice(const tView<T>* A, const tView<T>* B, tView<T>* C) {
+        int offset = A->shapeLen - C->shapeLen;
+        int* effstride = new int[C->shapeLen * 2];
+        copy(A->stride + offset, A->stride + A->shapeLen - offset + 1, effstride);
+
+        int indA = 0, indC = 0;
+        for (int i = 0; i < C->shapeLen; i++) {
+            indA += B->shape[i] * A->stride[i];
+        }
+
+        int* cords = effstride + C->shapeLen;
+        fill(cords, cords + C->shapeLen, 0);
+        for (int i = 0; i < C->len; i++) {
+
+            C->val[indC] = A->val[indA];
+
+            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstride[dim];
+                indC += C->stride[dim];
+
+                if (cords[dim] < C->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstride[dim] * C->shape[dim];
+                    indC -= C->stride[dim] * C->shape[dim];
+                }
+            }
+        }
+
+        delete[] effstride;
+    }
 };
