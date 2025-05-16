@@ -13,16 +13,16 @@ using gradientOP = void(*)(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1,
 template <typename T>
 struct Node {
     public:
-        int in1;
-        int in2;
+        int in1 = -1;
+        int in2 = -1;
 
-        tensorOP<T> op;
-        gradientOP<T> grad_op;
+        tensorOP<T> op = nullptr;
+        gradientOP<T> grad_op = nullptr;
 
-        bool evaluated;
+        bool evaluated = false;
         Tensor<T> value;
 
-        bool hasInputs;
+        bool hasInputs = false;
         Tensor<T> gradient;
 
         // construct as evaluated

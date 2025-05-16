@@ -58,18 +58,18 @@ inline void _print(ostream& stream, int* cords, int* shape, int* stride, size_t 
 
 template <arithmetic T>
 struct tView {
-    int* shape;
-    int* stride;
-    size_t shapeLen;
-    T* val;
-    size_t len;
+    int* shape = nullptr;
+    int* stride = nullptr;
+    size_t shapeLen = 0;
+    T* val = nullptr;
+    size_t len = 0;
 
     tView(int* _shape, int* _stride, size_t _shapeLen, T* _val, size_t _len)
     : shape(_shape), stride(_stride), shapeLen(_shapeLen), val(_val), len(_len) {}
 
     tView(const tView& other) : shape(other.shape), stride(other.stride), shapeLen(other.shapeLen), val(other.val), len(other.len) {}
 
-    tView() : shape(nullptr), stride(nullptr), shapeLen(0), val(nullptr), len(0) {}
+    tView() {}
 
     friend ostream& operator<<(ostream& stream, tView<T> view) requires printable<T> {
         if (view.shapeLen == 0) {
@@ -92,13 +92,13 @@ struct tView {
 template<arithmetic T>
 class Tensor {
     public:
-        int* shape;
-        int* stride;
-        size_t shapeLen;
-        T* val;
-        size_t len;
+        int* shape = nullptr;
+        int* stride = nullptr;
+        size_t shapeLen = 0;
+        T* val = nullptr;
+        size_t len = 0;
 
-        Tensor() : shape(nullptr), stride(nullptr), shapeLen(0), val(nullptr), len(0) {}
+        Tensor() {}
 
         // destructor
         ~Tensor() {
