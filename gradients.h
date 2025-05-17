@@ -22,7 +22,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A + B
     // df/dA = 1
     // df/dB = 1
-    static void pointAdd_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void pointAdd_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i];
@@ -33,7 +33,7 @@ struct Gradients : Operations<T> {
             d_in2->val[i] += seed->val[i];
         }
     }
-    static void scalarAdd_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void scalarAdd_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in2 has shape = (1,)
         // d_in1 += seed
         for (size_t i = 0; i < seed->len; i++) {
@@ -45,7 +45,7 @@ struct Gradients : Operations<T> {
             d_in2->val[0] += seed->val[i];
         }
     }
-    static void flexAdd_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void flexAdd_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed
         flexAdd_inplace(d_in1, seed);
     
@@ -56,7 +56,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A - B
     // df/dA = 1
     // df/dB = -1
-    static void pointSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void pointSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i];
@@ -67,7 +67,7 @@ struct Gradients : Operations<T> {
             d_in2->val[i] -= seed->val[i];
         }
     }
-    static void scalarSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void scalarSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in2 has shape = (1,)
         // d_in1 += seed
         for (size_t i = 0; i < seed->len; i++) {
@@ -79,7 +79,7 @@ struct Gradients : Operations<T> {
             d_in2->val[0] -= seed->val[i];
         }
     }
-    static void invScalarSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void invScalarSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in1 has shape = (1,)
         // d_in1 += seed
         for (size_t i = 0; i < seed->len; i++) {
@@ -91,7 +91,7 @@ struct Gradients : Operations<T> {
             d_in2->val[i] -= seed->val[i];
         }
     }
-    static void flexSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void flexSub_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed
         flexAdd_inplace(d_in1, seed);
     
@@ -102,7 +102,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A * B
     // df/dA = B
     // df/dB = A
-    static void pointMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void pointMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed * in2
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] * in2->val[i];
@@ -113,7 +113,7 @@ struct Gradients : Operations<T> {
             d_in2->val[i] += seed->val[i] * in1->val[i];
         }
     }
-    static void scalarMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void scalarMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in2 has shape = (1,)
         // d_in1 += seed * in2
         for (size_t i = 0; i < seed->len; i++) {
@@ -125,7 +125,7 @@ struct Gradients : Operations<T> {
             d_in2->val[0] += seed->val[i] * in1->val[i];
         }
     }
-    static void flexMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void flexMul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         T* cache = new T[seed->len];
         tView<T> seed_cache(*seed);
         seed_cache.val = cache;
@@ -141,7 +141,7 @@ struct Gradients : Operations<T> {
         delete[] cache;
     }
     
-    static void pointDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void pointDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed * (1 / in2)
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] * (1 / in2->val[i]);
@@ -152,7 +152,7 @@ struct Gradients : Operations<T> {
             d_in2->val[i] -= seed->val[i] * (in1->val[i] / (in2->val[i] * in2->val[i]));
         }
     }
-    static void scalarDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void scalarDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in2 has shape = (1,)
         // d_in1 += seed * (1 / in2)
         T in2_inv = 1 / in2->val[0];
@@ -166,7 +166,7 @@ struct Gradients : Operations<T> {
             d_in2->val[0] -= seed->val[i] * (in1->val[i] / in2_sqr);
         }
     }
-    static void invScalarDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void invScalarDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in1 has shape = (1,)
         // d_in1 += seed * (1 / in2)
         T in2_inv = 1 / in2->val[0];
@@ -179,7 +179,7 @@ struct Gradients : Operations<T> {
             d_in2->val[i] -= seed->val[i] * (in1->val[0] / (in2->val[i] * in2->val[i]));
         }
     }
-    static void flexDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void flexDiv_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         T* cache = new T[seed->len];
         tView<T> seed_cache(*seed);
         seed_cache.val = cache;
@@ -209,7 +209,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A ^ B
     // df/dA = B * A ^ (B - 1)
     // df/dB = A ^ B * log(|A|)     df/dB is 0 if A is negative for stability
-    static void pointPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void pointPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed * (in2 * (in1^(in2 - 1)))
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] * (in2->val[i] * pow(in1->val[i], in2->val[i] - 1));
@@ -224,7 +224,7 @@ struct Gradients : Operations<T> {
             #endif
         }
     }
-    static void scalarPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void scalarPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in2 has shape = (1,)
         // d_in1 += seed * (in2 * (in1^(in2 - 1)))
         for (size_t i = 0; i < seed->len; i++) {
@@ -240,7 +240,7 @@ struct Gradients : Operations<T> {
             #endif
         }
     }
-    static void invScalarPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void invScalarPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // in1 has shape = (1,)
         // d_in1 += seed * (in2 * (in1^(in2 - 1)))
         for (size_t i = 0; i < seed->len; i++) {
@@ -257,7 +257,7 @@ struct Gradients : Operations<T> {
             #endif
         }
     }
-    static void flexPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void flexPow_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         T* cache = new T[seed->len + seed->len];
         // alt cache to astatic void cache conflict in flexible operation
         T* cache2 = cache + seed->len;
@@ -299,14 +299,14 @@ struct Gradients : Operations<T> {
     
     // f(A) = -A
     // df/dA = -1
-    static void negate_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void negate_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 -= seed
         flexSub_inplace(d_in1, seed);
     }
     
     // f(A) = A^2
     // df/dA = 2A
-    static void square_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void square_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed * (in1 * 2)
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] * (in1->val[i] * 2);
@@ -315,7 +315,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = sqrt(A)
     // df/dA = 1 / (2 * sqrt(A))
-    static void sqrt_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void sqrt_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed / (2 * res)
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] / (2 * res->val[i]);
@@ -324,7 +324,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = log(A)
     // df/dA = 1 / x
-    static void log_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void log_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed / x
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] / in1->val[i];
@@ -333,7 +333,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = e^A
     // df/dA = e^A
-    static void exp_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void exp_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed * res
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] * res->val[i];
@@ -342,7 +342,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = |A|
     // df/dA = |A| / A       (if (A[i] < 0) -1 else 1)
-    static void abs_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void abs_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // d_in1 += seed * if(A < 0) -1 else 1
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i] * (in1->val[i] < 0 ? -1 : 1);
@@ -352,7 +352,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = AB
     // dC/dA = B^T
     // dC/dB = A^T
-    static void matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // Allocate separate caches for each intermediate result
         size_t cacheLen = max(max(in1->len, in2->len), seed->len);
         T* cache = new T[cacheLen];
@@ -397,7 +397,7 @@ struct Gradients : Operations<T> {
         delete[] shapeBlock;
     }
     
-    static void batch_matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void batch_matmul_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         // allocate memory
         size_t big_len1 = max(seed->shapeLen, in2->shapeLen);
         size_t big_len2 = max(in1->shapeLen, seed->shapeLen);
@@ -489,7 +489,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1
-    static void sum_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void sum_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
        // d_in1 += seed[0]
        for (size_t i = 0; i < d_in1->len; i++) {
            d_in1->val[i] += seed->val[0];
@@ -537,7 +537,7 @@ struct Gradients : Operations<T> {
 
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1 / (len of A)
-    static void mean_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void mean_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
        // d_in1 += seed[0]
        T inv = seed->val[0] / seed->len;
        for (size_t i = 0; i < d_in1->len; i++) {
@@ -586,7 +586,7 @@ struct Gradients : Operations<T> {
 
     // f(A) = A^T
     // df/dA = 1
-    static void transp_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx) {
+    static void transp_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         for (size_t i = 0; i < seed->len; i++) {
             d_in1->val[i] += seed->val[i];
         }
