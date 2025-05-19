@@ -4,3 +4,4 @@ main
 _main
 compile_commands.json
 .vscode/
+.cache/
