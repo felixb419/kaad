@@ -486,6 +486,26 @@ struct Gradients : Operations<T> {
         delete[] cache;
         delete[] shapeBlock;
     }
+
+    // f(A) = min(A,B)
+    // df/dA [i] = A < B ? 1 : 0
+    // df/dB [i] = B < A ? 1 : 0
+    static void scalarMin_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
+
+    }
+
+    static void pointMin_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
+        for (size_t i = 0; i < seed->len; i++) {
+            int smaller = in1->val[i] < in2->val[i];
+            T seed_val = seed->val[i];
+            d_in1[i] = smaller ? seed_val : 0;
+            d_in2[i] = smaller ? 0 : seed_val;
+        }
+    }
+
+    static void flexMin_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
+
+    }
     
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1
