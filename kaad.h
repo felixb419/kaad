@@ -386,15 +386,15 @@ int tile(Recorder<T>& rec, int indA, initializer_list<int> multiples) {
 }
 
 template <typename T>
-int slice(Recorder<T>& rec, int indA, initializer_list<int> _offset, initializer_list<int> _newShape) {
-    int recLen = rec.nodes.size();
+int slice(Recorder<T>& rec, int indA, initializer_list<int> start, initializer_list<int> length) {
+    int recLen = rec.nodes.length();
     Tensor<T>& A = rec.nodes[indA].value;
 
-    size_t newLen = _newShape.size();
+    size_t newLen = length.length();
     int* newShape = new int[newLen];
-    copy(_newShape.begin(), _newShape.end(), newShape);
+    copy(length.begin(), length.end(), newShape);
     int* offset = new int[newLen];
-    copy(_offset.begin(), _offset.end(), offset);
+    copy(start.begin(), start.end(), offset);
 
     rec.nodes.emplace_back(Operations<T>::slice, Gradients<T>::slice_grad, indA, -1, newShape, newLen);
     // save offset into ctx
