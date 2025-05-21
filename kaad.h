@@ -23,10 +23,16 @@ int add(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        int* newShape = new int[tensor_ref.shapeLen];
+        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
+
+        rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, A.shape, A.shapeLen);
+        int* newShape = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shape, newShape);
+
+        rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, newShape, A.shapeLen);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
@@ -51,11 +57,16 @@ int sub(Recorder<T>& rec, int indA, int indB) {
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
         
-        rec.nodes.emplace_back(Operations<T>::scalarSub, Gradients<T>::scalarSub_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        int* newShape = new int[tensor_ref.shapeLen];
+        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
+        
+        rec.nodes.emplace_back(Operations<T>::scalarSub, Gradients<T>::scalarSub_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        
-        rec.nodes.emplace_back(Operations<T>::pointSub, Gradients<T>::pointSub_grad, indA, indB, A.shape, A.shapeLen);
+        int* newShape = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shapeLen, newShape);
+
+        rec.nodes.emplace_back(Operations<T>::pointSub, Gradients<T>::pointSub_grad, indA, indB, newShape, A.shapeLen);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
@@ -79,12 +90,16 @@ int mul(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        
-        rec.nodes.emplace_back(Operations<T>::scalarMul, Gradients<T>::scalarMul_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        int* newShape = new int[tensor_ref.shapeLen];
+        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
+
+        rec.nodes.emplace_back(Operations<T>::scalarMul, Gradients<T>::scalarMul_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+        int* newShape = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shapeLen, newShape);
         
-        rec.nodes.emplace_back(Operations<T>::pointMul, Gradients<T>::pointMul_grad, indA, indB, A.shape, A.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::pointMul, Gradients<T>::pointMul_grad, indA, indB, newShape, A.shapeLen);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
@@ -108,12 +123,16 @@ int div(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
+        int* newShape = new int[tensor_ref.shapeLen];
+        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
         
-        rec.nodes.emplace_back(Operations<T>::scalarDiv, Gradients<T>::scalarDiv_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::scalarDiv, Gradients<T>::scalarDiv_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+        int* newShape = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shapeLen, newShape);
         
-        rec.nodes.emplace_back(Operations<T>::pointDiv, Gradients<T>::pointDiv_grad, indA, indB, A.shape, A.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::pointDiv, Gradients<T>::pointDiv_grad, indA, indB, newShape, A.shapeLen);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
@@ -139,12 +158,16 @@ int pow(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
+        int* newShape = new int[tensor_ref.shapeLen];
+        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
         
-        rec.nodes.emplace_back(Operations<T>::scalarPow, Gradients<T>::scalarPow_grad, recLen, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::scalarPow, Gradients<T>::scalarPow_grad, recLen, tensor, scalar, newShape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+        int* newShape = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shapeLen, newShape);
         
-        rec.nodes.emplace_back(Operations<T>::pointPow, Gradients<T>::pointPow_grad, indA, indB, A.shape, A.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::pointPow, Gradients<T>::pointPow_grad, indA, indB, newShape, A.shapeLen);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
@@ -161,7 +184,10 @@ int negative(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
-    rec.nodes.emplace_back(Operations<T>::_negate, Gradients<T>::negate_grad, indA, -1, A.shape, A.shapeLen);
+    int* newShape = new int[A.shapeLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
+
+    rec.nodes.emplace_back(Operations<T>::negate, Gradients<T>::negate_grad, indA, -1, newShape, A.shapeLen);
     return recLen;
 }
 
@@ -170,7 +196,10 @@ int square(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
-    rec.nodes.emplace_back(Operations<T>::square, Gradients<T>::square_grad, indA, -1, A.shape, A.shapeLen);
+    int* newShape = new int[A.shapeLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
+
+    rec.nodes.emplace_back(Operations<T>::square, Gradients<T>::square_grad, indA, -1, newShape, A.shapeLen);
     return recLen;
 }
 
@@ -178,8 +207,10 @@ template <typename T>
 int sqrt(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
+    int* newShape = new int[A.shapeLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
 
-    rec.nodes.emplace_back(Operations<T>::_sqrt, Gradients<T>::_sqrt_grad, indA, -1, A.shape, A.shapeLen);
+    rec.nodes.emplace_back(Operations<T>::sqrt, Gradients<T>::sqrt_grad, indA, -1, newShape, A.shapeLen);
     return recLen;
 }
 
@@ -187,8 +218,10 @@ template <typename T>
 int log(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
+    int* newShape = new int[A.shapeLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
 
-    rec.nodes.emplace_back(Operations<T>::_log, Gradients<T>::_log_grad, indA, -1, A.shape, A.shapeLen);
+    rec.nodes.emplace_back(Operations<T>::log, Gradients<T>::log_grad, indA, -1, newShape, A.shapeLen);
     return recLen;
 }
 
@@ -196,8 +229,10 @@ template <typename T>
 int exp(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
+    int* newShape = new int[A.shapeLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
 
-    rec.nodes.emplace_back(Operations<T>::_exp, Gradients<T>::_exp_grad, indA, -1, A.shape, A.shapeLen);
+    rec.nodes.emplace_back(Operations<T>::exp, Gradients<T>::exp_grad, indA, -1, newShape, A.shapeLen);
     return recLen;
 }
 
@@ -205,8 +240,10 @@ template <typename T>
 int abs(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
+    int* newShape = new int[A.shapeLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
 
-    rec.nodes.emplace_back(Operations<T>::_abs, Gradients<T>::_abs_grad, indA, -1, A.shape, A.shapeLen);
+    rec.nodes.emplace_back(Operations<T>::abs, Gradients<T>::abs_grad, indA, -1, newShape, A.shapeLen);
     return recLen;
 }
 
@@ -242,10 +279,16 @@ int minimum(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        rec.nodes.emplace_back(Operations<T>::scalarMin, Gradients<T>::scalarMin_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        int* newShape = new int[tensor_ref.shapeLen];
+        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
+
+        rec.nodes.emplace_back(Operations<T>::scalarMin, Gradients<T>::scalarMin_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        rec.nodes.emplace_back(Operations<T>::pointMin, Gradients<T>::pointMin_grad, indA, indB, A.shape, A.shapeLen);
+        int* newShape = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shapeLen, newShape);
+
+        rec.nodes.emplace_back(Operations<T>::pointMin, Gradients<T>::pointMin_grad, indA, indB, newShape, A.shapeLen);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
