@@ -555,6 +555,75 @@ struct Gradients : Operations<T> {
         }    
         delete[] effstrideA;
     }
+
+    // f(A) = max(A,B)
+    // df/dA [i] = A > B ? 1 : 0
+    // df/dB [i] = B > A ? 1 : 0
+    static void scalarMax_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
+        for (size_t i = 0; i < dC->len; i++) {
+            int bigger = A->val[i] >= B->val[0];
+            T C_val = dC->val[i];
+            dA->val[i] += bigger ? C_val : 0;
+            dB->val[0] += bigger ? 0 : C_val;
+        }
+    }
+
+    static void pointMax_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
+        for (size_t i = 0; i < dC->len; i++) {
+            int bigger = A->val[i] >= B->val[i];
+            T C_val = dC->val[i];
+            dA->val[i] += bigger ? C_val : 0;
+            dB->val[i] += bigger ? 0 : C_val;
+        }
+    }
+
+    static void flexMax_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
+        int offsetA = dC->shapeLen - A->shapeLen;
+        int offsetB = dC->shapeLen - B->shapeLen;
+    
+        int* effstrideA = new int[dC->shapeLen * 3];
+        int* effstrideB = effstrideA + dC->shapeLen;
+    
+        for (size_t i = 0; i < dC->shapeLen; i++) {
+            int aDim = i - offsetA;
+            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
+            int bDim = i - offsetB;
+            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
+        }
+    
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstrideB + dC->shapeLen;
+        fill(cords, cords + dC->shapeLen, 0);
+        for (int i = 0; i < dC->len; i++) {
+        
+            T A_val = A->val[indA];
+            T B_val = B->val[indB];
+            T C_val = dC->val[indC];
+            int bigger = A_val >= B_val;
+
+            dA->val[indA] += bigger ? C_val : 0;
+            dB->val[indB] += bigger ? 0 : C_val;
+        
+            for (int dim = dC->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstrideA[dim];
+                indB += effstrideB[dim];
+                indC += dC->stride[dim];
+            
+                if (cords[dim] < dC->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstrideA[dim] * dC->shape[dim];
+                    indB -= effstrideB[dim] * dC->shape[dim];
+                    indC -= dC->stride[dim] * dC->shape[dim];
+                }
+            }
+        
+        }    
+        delete[] effstrideA;
+    }
     
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1
