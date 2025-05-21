@@ -735,6 +735,67 @@ struct Operations {
         }    
         delete[] effstrideA;
     }
+
+
+    static void scalarMin(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
+        T B_val = B->val[0];
+        for (size_t i = 0; i < A->shapeLen; i++) {
+            T A_val = A->val[i];
+            C->val[i] = A_val < B_val ? A_val : B_val;
+        }
+    }
+
+    static void pointMin(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
+        for (size_t i = 0; i < A->shapeLen; i++) {
+            T A_val = A->val[i];
+            T B_val = B->val[i];
+            C->val[i] = A_val < B_val ? A_val : B_val;
+        }
+    }
+
+    static void flexMin(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
+        int offsetA = C->shapeLen - A->shapeLen;
+        int offsetB = C->shapeLen - B->shapeLen;
+    
+        int* effstrideA = new int[C->shapeLen * 3];
+        int* effstrideB = effstrideA + C->shapeLen;
+    
+        for (size_t i = 0; i < C->shapeLen; i++) {
+            int aDim = i - offsetA;
+            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
+            int bDim = i - offsetB;
+            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
+        }
+    
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstrideB + C->shapeLen;
+        fill(cords, cords + C->shapeLen, 0);
+        for (int i = 0; i < C->len; i++) {
+        
+            T A_val = A->val[indA];
+            T B_val = B->val[indB];
+            C->val[indC] = A_val < B_val ? A_val : B_val;
+        
+            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstrideA[dim];
+                indB += effstrideB[dim];
+                indC += C->stride[dim];
+            
+                if (cords[dim] < C->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstrideA[dim] * C->shape[dim];
+                    indB -= effstrideB[dim] * C->shape[dim];
+                    indC -= C->stride[dim] * C->shape[dim];
+                }
+            }
+        
+        }    
+        delete[] effstrideA;
+    }
     
     // adds every element of A to out
     // B has to be a scalar

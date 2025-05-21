@@ -23,8 +23,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        Node<T> temp(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, recLen, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
-        rec.nodes.emplace_back(temp);
+        rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, recLen, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, A.shape, A.shapeLen);
@@ -228,6 +227,33 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
         rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, indA, indB, newShape, newLen);
     }
     
+    return recLen;
+}
+
+template <typename T>
+int min(Recorder<T>& rec, int indA, int indB) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    Tensor<T>& B = rec.nodes[indB].value;
+    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+
+    if (A_scalar || B_scalar) {
+        int tensor = A_scalar ? indB : indA;
+        int scalar = A_scalar ? indA : indB;
+        Tensor<T>& tensor_ref = rec.nodes[tensor].value;
+        rec.nodes.emplace_back(Operations<T>::scalarMin, Gradients<T>::scalarMin_grad, recLen, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+    }
+    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+        rec.nodes.emplace_back(Operations<T>::pointMin, Gradients<T>::pointMin_grad, indA, indB, A.shape, A.shapeLen);
+    }
+    else {
+        size_t newLen = max(A.shapeLen, B.shapeLen);
+        int* newShape = new int[newLen];
+        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
+
+        rec.nodes.emplace_back(Operations<T>::flexMin, Gradients<T>::flexMin_grad, indA, indB, newShape, newLen);
+    }
     return recLen;
 }
 
