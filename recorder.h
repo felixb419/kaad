@@ -8,7 +8,7 @@
 template <typename T>
 using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out, void* ctx);
 template <typename T>
-using gradientOP = void(*)(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx);
+using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx);
 
 template <typename T>
 struct Node {
