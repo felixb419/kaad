@@ -23,7 +23,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, recLen, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, A.shape, A.shapeLen);
@@ -231,7 +231,7 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
 }
 
 template <typename T>
-int min(Recorder<T>& rec, int indA, int indB) {
+int minimum(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -242,7 +242,7 @@ int min(Recorder<T>& rec, int indA, int indB) {
         int tensor = A_scalar ? indB : indA;
         int scalar = A_scalar ? indA : indB;
         Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        rec.nodes.emplace_back(Operations<T>::scalarMin, Gradients<T>::scalarMin_grad, recLen, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
+        rec.nodes.emplace_back(Operations<T>::scalarMin, Gradients<T>::scalarMin_grad, tensor, scalar, tensor_ref.shape, tensor_ref.shapeLen);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         rec.nodes.emplace_back(Operations<T>::pointMin, Gradients<T>::pointMin_grad, indA, indB, A.shape, A.shapeLen);
@@ -416,7 +416,7 @@ int slice(Recorder<T>& rec, int indA, initializer_list<int> start, initializer_l
     int recLen = rec.nodes.length();
     Tensor<T>& A = rec.nodes[indA].value;
 
-    size_t newLen = length.length();
+    size_t newLen = length.size();
     int* newShape = new int[newLen];
     copy(length.begin(), length.end(), newShape);
     int* offset = new int[newLen];

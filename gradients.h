@@ -491,20 +491,69 @@ struct Gradients : Operations<T> {
     // df/dA [i] = A < B ? 1 : 0
     // df/dB [i] = B < A ? 1 : 0
     static void scalarMin_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
-
+        for (size_t i = 0; i < seed->len; i++) {
+            int smaller = in1->val[i] <= in2->val[0];
+            T seed_val = seed->val[i];
+            d_in1->val[i] += smaller ? seed_val : 0;
+            d_in2->val[0] += smaller ? 0 : seed_val;
+        }
     }
 
     static void pointMin_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
         for (size_t i = 0; i < seed->len; i++) {
-            int smaller = in1->val[i] < in2->val[i];
+            int smaller = in1->val[i] <= in2->val[i];
             T seed_val = seed->val[i];
-            d_in1[i] = smaller ? seed_val : 0;
-            d_in2[i] = smaller ? 0 : seed_val;
+            d_in1->val[i] += smaller ? seed_val : 0;
+            d_in2->val[i] += smaller ? 0 : seed_val;
         }
     }
 
     static void flexMin_grad(const tView<T>* seed, tView<T>* in1, tView<T>* d_in1, tView<T>* in2, tView<T>* d_in2, tView<T>* res, void* ctx=nullptr) {
+        int offset1 = seed->shapeLen - in1->shapeLen;
+        int offset2 = seed->shapeLen - in2->shapeLen;
+    
+        int* effstride1 = new int[seed->shapeLen * 3];
+        int* effstride2 = effstride1 + seed->shapeLen;
+    
+        for (size_t i = 0; i < seed->shapeLen; i++) {
+            int aDim = i - offset1;
+            effstride1[i] = aDim >= 0 && in1->shape[aDim] != 1 ? in1->stride[aDim] : 0;
+            int bDim = i - offset2;
+            effstride2[i] = bDim >= 0 && in2->shape[bDim] != 1 ? in2->stride[bDim] : 0;
+        }
+    
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstride2 + seed->shapeLen;
+        fill(cords, cords + seed->shapeLen, 0);
+        for (int i = 0; i < seed->len; i++) {
+        
+            T A_val = in1->val[indA];
+            T B_val = in2->val[indB];
+            T C_val = seed->val[indC];
+            int smaller = A_val <= B_val;
 
+            d_in1->val[indA] += smaller ? C_val : 0;
+            d_in2->val[indB] += smaller ? 0 : C_val;
+        
+            for (int dim = seed->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstride1[dim];
+                indB += effstride2[dim];
+                indC += seed->stride[dim];
+            
+                if (cords[dim] < seed->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstride1[dim] * seed->shape[dim];
+                    indB -= effstride2[dim] * seed->shape[dim];
+                    indC -= seed->stride[dim] * seed->shape[dim];
+                }
+            }
+        
+        }    
+        delete[] effstride1;
     }
     
     // f(A) = sum(A)
