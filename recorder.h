@@ -134,7 +134,7 @@ class Recorder {
             tView<T> val2 = in2 < 0 ? tView<T>() : nodes[in2].value.view();
             tView<T> grad2 = in2 < 0 ? tView<T>() : nodes[in2].gradient.view();
         
-            node.grad_op(&seed, &val1, &grad1, &val2, &grad2, &value, node.ctx);
+            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.ctx);
         
             if (nodes[node.in1].hasInputs) {
                 grad(node.in1);

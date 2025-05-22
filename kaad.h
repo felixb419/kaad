@@ -30,7 +30,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         int* newShape = new int[A.shapeLen];
-        copy(A.shape, A.shape + A.shape, newShape);
+        copy(A.shape, A.shape + A.shapeLen, newShape);
 
         rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, newShape, A.shapeLen);
     }
