@@ -655,6 +655,97 @@ struct Operations {
             out->val[i] = abs(A->val[i]);
         }
     }
+
+    // compute do product of A and B into C
+    // A and B must be 1d vectors of same length, C must be scalar
+    static void dot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
+        C->val[0] = 0;
+        for (size_t i = 0; i < C->len; i++) {
+            C->val[0] += A->val[i] * B->val[i]; 
+        }
+    }
+
+    // compute do product of A and B into C
+    // A must be 1d vector, B and C must be scalar
+    static void scalarDot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
+        C->val[0] = 0;
+        for (size_t i = 0; i < C->len; i++) {
+            C->val[0] += A->val[i] * B->val[0]; 
+        }
+    }
+
+    private:
+        T sum_across_dims_right(tView<T>* a, int val_idx, int dim) {
+            T out = 0;
+            if (dim == a->shapeLen - 1) {
+                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
+                    out += a->val[i];
+                }
+            }
+            else {
+                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
+                    out += sum_across_dims_right(a, i, dim + 1);
+                }
+            }
+            return out;
+        }
+
+        T sum_across_dims_left(tView<T>* a, int val_idx, int dim, int lim) {
+            T out = 0;
+            if (dim >= lim) {
+                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
+                    out += a->val[i];
+                }
+            }
+            else {
+                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
+                    out += sum_across_dims_left(a, i, dim + 1, lim);
+                }
+            }
+            return out;
+        }
+    public:
+
+    static void tensordot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
+        int offsetA = C->shapeLen - A->shapeLen;
+        int offsetB = C->shapeLen - B->shapeLen;
+    
+        int* effstrideA = new int[C->shapeLen * 2];
+        int* effstrideB = effstrideA + C->shapeLen;
+    
+        fill(effstrideA, effstrideA + C->shapeLen, 0);
+        copy(A->shape, A->shape + A->shapeLen, effstrideA);
+        fill(effstrideB, effstrideB + C->shapeLen, 0);
+        copy(B->shape, B->shape + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
+
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstrideB + C->shapeLen;
+        fill(cords, cords + C->shapeLen, 0);
+        for (int i = 0; i < C->len; i++) {
+        
+            C->val[indC] = A->val[indA] * B->val[indB];
+        
+            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstrideA[dim];
+                indB += effstrideB[dim];
+                indC += C->stride[dim];
+            
+                if (cords[dim] < C->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstrideA[dim] * C->shape[dim];
+                    indB -= effstrideB[dim] * C->shape[dim];
+                    indC -= C->stride[dim] * C->shape[dim];
+                }
+            }
+        
+        }    
+
+        delete[] effstrideA;
+    }
         
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B

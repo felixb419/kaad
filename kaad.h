@@ -248,6 +248,49 @@ int abs(Recorder<T>& rec, int indA) {
 }
 
 template <typename T>
+int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    Tensor<T>& B = rec.nodes[indB].value;
+
+    if (A.shapeLen == 1 && B.shapeLen == 1) {
+        if (equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+            rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, indA, indB, ((T)0));
+        }
+        else if (B.shapeLen == 1 && B.shape[0] == 1) {
+            rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
+        }
+        else if (A.shapeLen == 1 && A.shape[0] == 1) {
+            rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indB, indA, ((T)0));
+        }
+    }
+    else {
+        
+        int offsetA = max(((int)A.shapeLen) - ((int)B.shapeLen), 0);
+        int offsetB = max(((int)B.shapeLen) - ((int)A.shapeLen), 0);
+
+        Tensor<T>& small = A.shapeLen < B.shapeLen ? A : B;
+        for (int i = 0; i < small.shapeLen; i++) {
+            if (A.shape[i + offsetA] != B.shape[i + offsetB]) {
+                throw invalid_argument("shape error");
+            }
+        }
+
+        size_t newLen = (small.shapeLen - dims) * 2 + offsetA + offsetB;
+        int* newShape = new int[newLen];
+        copy(A.shape, A.shape + offsetA, newShape);
+        copy(B.shape, B.shape + offsetB, newShape);
+        copy(small.shape, small.shape + small.shapeLen - dims, newShape + max(offsetA, offsetB));
+        copy(small.shape + dims, small.shape + small.shapeLen, newShape + max(offsetA, offsetB) + small.shapeLen - dims);
+
+        rec.nodes.emplace_back(Operations<T>::tensordot, Gradients<T>::tensordot_grad, indA, indB, newShape, newLen);
+        rec.nodes[recLen].ctx = new int[] { dims };
+    } 
+
+    return recLen;
+}
+
+template <typename T>
 int matmul(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;

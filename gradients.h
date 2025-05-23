@@ -348,6 +348,24 @@ struct Gradients : Operations<T> {
             dA->val[i] += dC->val[i] * (A->val[i] < 0 ? -1 : 1);
         }
     }
+
+    // f(A,B) = A dot B
+    // df/dA = B
+    // df/dB = A
+    static void dot_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
+        //
+    }
+
+    // f(A,B) = A dot B
+    // df/dA = B
+    // df/dB = sum A
+    static void scalarDot_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
+        //
+    }
+
+    static void tensordot_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
+        //
+    }
     
     // f(A,B) = AB
     // dC/dA = B^T
