@@ -710,13 +710,13 @@ struct Operations {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
-        int* effstrideA = new int[C->shapeLen * 2];
+        int* effstrideA = new int[C->shapeLen * 3];
         int* effstrideB = effstrideA + C->shapeLen;
     
         fill(effstrideA, effstrideA + C->shapeLen, 0);
-        copy(A->shape, A->shape + A->shapeLen, effstrideA);
+        copy(A->stride, A->stride + A->shapeLen, effstrideA);
         fill(effstrideB, effstrideB + C->shapeLen, 0);
-        copy(B->shape, B->shape + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
+        copy(B->stride, B->stride + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
 
         int indA = 0, indB = 0, indC = 0;
         int* cords = effstrideB + C->shapeLen;
