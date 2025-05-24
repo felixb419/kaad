@@ -18,7 +18,7 @@ int main() {
     int n = rec.append(move(N));
     int x = rec.append(move(X));
 
-    int c = tensordot(rec, a, n, 0);
+    int c = tensordot(rec, n, a, 0);
 
     auto e = rec.evaluate(c);
 

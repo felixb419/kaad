@@ -276,15 +276,25 @@ int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
             }
         }
 
-        size_t newLen = (small.shapeLen - dims) * 2 + offsetA + offsetB;
-        int* newShape = new int[newLen];
-        copy(A.shape, A.shape + offsetA, newShape);
-        copy(B.shape, B.shape + offsetB, newShape);
-        copy(small.shape, small.shape + small.shapeLen - dims, newShape + max(offsetA, offsetB));
-        copy(small.shape + dims, small.shape + small.shapeLen, newShape + max(offsetA, offsetB) + small.shapeLen - dims);
+        // assemble c_big
+        size_t newLen = A.shapeLen + B.shapeLen;
+        int* c_big = new int[newLen];
+        int* start = c_big + offsetA + offsetB;
+        copy(A.shape, A.shape + offsetA, c_big);
+        copy(B.shape, B.shape + offsetB, c_big);
+        copy(A.shape + offsetA, A.shape + offsetA + A.shapeLen, start);
+        start += A.shapeLen;
+        copy(B.shape + offsetB, B.shape + offsetB + B.shapeLen, start);
 
-        rec.nodes.emplace_back(Operations<T>::tensordot, Gradients<T>::tensordot_grad, indA, indB, newShape, newLen);
-        rec.nodes[recLen].ctx = new int[] { dims };
+        if (dims == 0) {
+            rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, c_big, newLen);
+        }
+        else {
+            // reduce c_big
+            // append node with tensordot
+            // make ctx, dims followed with c_big
+        }
+
     } 
 
     return recLen;
