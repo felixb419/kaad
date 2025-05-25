@@ -748,35 +748,26 @@ struct Operations {
     }
 
     static void tensordot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
-        int newLen = A->shapeLen + B->shapeLen;
-        int* ctx_arr = static_cast<int*>(ctx);
-        int dims = *ctx_arr;
-        int* c_big = ctx_arr + 1;
-
-        int offsetA = newLen - A->shapeLen;
-        int offsetB = newLen - B->shapeLen;
+        int offsetA = C->shapeLen - A->shapeLen;
+        int offsetB = C->shapeLen - B->shapeLen;
     
-        int* effstrideA = new int[newLen * 4];
-        int* effstrideB = effstrideA + newLen;
-        int* effstrideC = effstrideB + newLen; 
+        int* effstrideA = new int[C->shapeLen * 4];
+        int* effstrideB = effstrideA + C->shapeLen;
+        int* effstrideC = effstrideB + C->shapeLen;
     
-        fill(effstrideA, effstrideA + newLen, 0);
+        fill(effstrideA, effstrideA + C->shapeLen, 0);
         copy(A->stride, A->stride + A->shapeLen, effstrideA);
-        fill(effstrideB, effstrideB + newLen, 0);
-        copy(B->stride, B->stride + B->shapeLen, effstrideB + newLen - B->shapeLen);
-
-        copy(C->stride, C->stride + A->shapeLen, effstrideC);
-        fill(C->stride + A->shapeLen, C->stride + A->shapeLen + dims*2, 0);
-        copy(C->stride + A->shapeLen + dims*2, C->stride + C->shapeLen, effstrideC + newLen - B->shapeLen);
+        fill(effstrideB, effstrideB + C->shapeLen, 0);
+        copy(B->stride, B->stride + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
 
         int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideC + newLen;
-        fill(cords, cords + newLen, 0);
+        int* cords = effstrideC + C->shapeLen;
+        fill(cords, cords + C->shapeLen, 0);
         for (int i = 0; i < C->len; i++) {
         
             C->val[indC] = A->val[indA] * B->val[indB];
         
-            for (int dim = newLen - 1; dim >= 0; dim--) {
+            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
                 cords[dim]++;
                 indA += effstrideA[dim];
                 indB += effstrideB[dim];
@@ -787,9 +778,9 @@ struct Operations {
                 }
                 else {
                     cords[dim] = 0;
-                    indA -= effstrideA[dim] * c_big[dim];
-                    indB -= effstrideB[dim] * c_big[dim];
-                    indC -= effstrideC[dim] * c_big[dim];
+                    indA -= effstrideA[dim] * C->shape[dim];
+                    indB -= effstrideB[dim] * C->shape[dim];
+                    indC -= C->stride[dim] * C->shape[dim];
                 }
             }
         

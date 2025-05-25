@@ -6,6 +6,7 @@
 #include "recorder.h"
 
 #include <iostream>
+#include <math.h>
 
 using namespace std;
 
@@ -253,49 +254,42 @@ int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
 
-    if (A.shapeLen == 1 && B.shapeLen == 1) {
-        if (equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-            rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, indA, indB, ((T)0));
-        }
-        else if (B.shapeLen == 1 && B.shape[0] == 1) {
-            rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
-        }
-        else if (A.shapeLen == 1 && A.shape[0] == 1) {
-            rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indB, indA, ((T)0));
+    if (dims > 0 && !(A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape))) {
+        throw invalid_argument("shape error");
+    }
+        
+    int offsetA = max(((int)A.shapeLen) - ((int)B.shapeLen), 0);
+    int offsetB = max(((int)B.shapeLen) - ((int)A.shapeLen), 0);
+
+    Tensor<T>& small = A.shapeLen < B.shapeLen ? A : B;
+    for (int i = 0; i < small.shapeLen; i++) {
+        if (A.shape[i + offsetA] != B.shape[i + offsetB]) {
+            throw invalid_argument("shape error");
         }
     }
+
+    // assemble c_big
+    size_t newLen = A.shapeLen + B.shapeLen;
+    int* newShape = new int[newLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
+    copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
+
+    if (dims == 0) {
+        rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, newShape, newLen);
+    }
     else {
-        
-        int offsetA = max(((int)A.shapeLen) - ((int)B.shapeLen), 0);
-        int offsetB = max(((int)B.shapeLen) - ((int)A.shapeLen), 0);
-
-        Tensor<T>& small = A.shapeLen < B.shapeLen ? A : B;
-        for (int i = 0; i < small.shapeLen; i++) {
-            if (A.shape[i + offsetA] != B.shape[i + offsetB]) {
-                throw invalid_argument("shape error");
-            }
-        }
-
-        // assemble c_big
-        size_t newLen = A.shapeLen + B.shapeLen;
-        int* c_big = new int[newLen];
-        int* start = c_big + offsetA + offsetB;
-        copy(A.shape, A.shape + offsetA, c_big);
-        copy(B.shape, B.shape + offsetB, c_big);
-        copy(A.shape + offsetA, A.shape + offsetA + A.shapeLen, start);
-        start += A.shapeLen;
-        copy(B.shape + offsetB, B.shape + offsetB + B.shapeLen, start);
-
-        if (dims == 0) {
-            rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, c_big, newLen);
-        }
-        else {
-            // reduce c_big
-            // append node with tensordot
-            // make ctx, dims followed with c_big
-        }
-
-    } 
+        // reduce newShape
+        int* newShape_small = new int[newLen - dims * 2];
+        copy(A.shape, A.shape + A.shapeLen - dims, newShape_small);
+        copy(B.shape + dims, B.shape + B.shapeLen, newShape_small + A.shapeLen - dims);
+        // append node with tensordot
+        rec.nodes.emplace_back(Operations<T>::tensordot, Gradients<T>::tensordot_grad, indA, indB, newShape_small, newLen - dims * 2);
+        // make ctx, dims followed with newShape
+        int* context = new int[newLen + 1];
+        context[0] = dims;
+        copy(newShape, newShape + newLen, context + 1);
+        rec.nodes[recLen].ctx = context;
+    }
 
     return recLen;
 }
