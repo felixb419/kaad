@@ -353,18 +353,75 @@ struct Gradients : Operations<T> {
     // df/dA = B
     // df/dB = A
     static void dot_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
-        //
+        // dA += dC * dB
+        for (size_t i = 0; i < dA->len; i++) {
+            dA->val[i] += dC->val[0] * B->val[i];
+        }
+
+        // dB += dC * dA
+        for (size_t i = 0; i < dB->len; i++) {
+            dB->val[i] += dC->val[0] * A->val[i];
+        }
     }
 
     // f(A,B) = A dot B
     // df/dA = B
     // df/dB = sum A
     static void scalarDot_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
-        //
+        // dA += dC * dB
+        for (size_t i = 0; i < dA->len; i++) {
+            dA->val[i] += dC->val[0] * B->val[0];
+        }
+
+        // dB += dC * dA
+        for (size_t i = 0; i < dA->len; i++) {
+            dB->val[0] += dC->val[0] * A->val[i];
+        }
     }
     
+    // f(A,B) = A outer B
+    // df/dA = B
+    // df/dB = A
     static void outer_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {
-        //
+        int offsetA = C->shapeLen - A->shapeLen;
+        int offsetB = C->shapeLen - B->shapeLen;
+    
+        int* effstrideA = new int[C->shapeLen * 3];
+        int* effstrideB = effstrideA + C->shapeLen;
+    
+        fill(effstrideA, effstrideA + C->shapeLen, 0);
+        copy(A->stride, A->stride + A->shapeLen, effstrideA);
+        fill(effstrideB, effstrideB + C->shapeLen, 0);
+        copy(B->stride, B->stride + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
+
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstrideB + C->shapeLen;
+        fill(cords, cords + C->shapeLen, 0);
+        for (int i = 0; i < C->len; i++) {
+        
+            dA->val[indA] += dC->val[indC] * B->val[indB];
+            dB->val[indB] += dC->val[indC] * A->val[indA];
+        
+            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstrideA[dim];
+                indB += effstrideB[dim];
+                indC += C->stride[dim];
+            
+                if (cords[dim] < C->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstrideA[dim] * C->shape[dim];
+                    indB -= effstrideB[dim] * C->shape[dim];
+                    indC -= C->stride[dim] * C->shape[dim];
+                }
+            }
+        
+        }    
+
+        delete[] effstrideA;
     }
 
     static void tensordot_grad(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx=nullptr) {

@@ -660,7 +660,7 @@ struct Operations {
     // A and B must be 1d vectors of same length, C must be scalar
     static void dot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
         C->val[0] = 0;
-        for (size_t i = 0; i < C->len; i++) {
+        for (size_t i = 0; i < A->len; i++) {
             C->val[0] += A->val[i] * B->val[i]; 
         }
     }
@@ -669,42 +669,10 @@ struct Operations {
     // A must be 1d vector, B and C must be scalar
     static void scalarDot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx=nullptr) {
         C->val[0] = 0;
-        for (size_t i = 0; i < C->len; i++) {
+        for (size_t i = 0; i < A->len; i++) {
             C->val[0] += A->val[i] * B->val[0]; 
         }
     }
-
-    private:
-        T sum_across_dims_right(tView<T>* a, int val_idx, int dim) {
-            T out = 0;
-            if (dim == a->shapeLen - 1) {
-                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
-                    out += a->val[i];
-                }
-            }
-            else {
-                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
-                    out += sum_across_dims_right(a, i, dim + 1);
-                }
-            }
-            return out;
-        }
-
-        T sum_across_dims_left(tView<T>* a, int val_idx, int dim, int lim) {
-            T out = 0;
-            if (dim >= lim) {
-                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
-                    out += a->val[i];
-                }
-            }
-            else {
-                for (size_t i = val_idx; i < a->shape[dim] * a->stride[dim] + val_idx; i += a->stride[dim]) {
-                    out += sum_across_dims_left(a, i, dim + 1, lim);
-                }
-            }
-            return out;
-        }
-    public:
 
     static void outer(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
         int offsetA = C->shapeLen - A->shapeLen;
@@ -748,39 +716,55 @@ struct Operations {
     }
 
     static void tensordot(const tView<T>* A, const tView<T>* B, tView<T>* C, void* ctx) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
+        
+        int* context = static_cast<int*>(ctx);
+        int dims = context[0];
+        int* big_shape = context + 1;
+        size_t big_shapeLen = A->shapeLen + B->shapeLen;
+        size_t big_len = 1;
+        for (size_t i = 0; i < big_shapeLen; i++) {
+            big_len *= big_shape[i];
+        }
+
+
+        int offsetA = big_shapeLen - A->shapeLen;
+        int offsetB = big_shapeLen - B->shapeLen;
     
-        int* effstrideA = new int[C->shapeLen * 4];
-        int* effstrideB = effstrideA + C->shapeLen;
-        int* effstrideC = effstrideB + C->shapeLen;
+        int* effstrideA = new int[big_shapeLen * 4];
+        int* effstrideB = effstrideA + big_shapeLen;
+        int* effstrideC = effstrideB + big_shapeLen;
     
-        fill(effstrideA, effstrideA + C->shapeLen, 0);
+        fill(effstrideA, effstrideA + big_shapeLen, 0);
         copy(A->stride, A->stride + A->shapeLen, effstrideA);
-        fill(effstrideB, effstrideB + C->shapeLen, 0);
-        copy(B->stride, B->stride + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
+        fill(effstrideB, effstrideB + big_shapeLen, 0);
+        copy(B->stride, B->stride + B->shapeLen, effstrideB + big_shapeLen - B->shapeLen);
+
+        int half = C->shapeLen / 2;
+        copy(C->stride, C->stride + half, effstrideC);
+        fill(effstrideC + half, effstrideC + half + dims * 2, 0);
+        copy(C->stride + half, C->stride + C->shapeLen, effstrideC + half + dims * 2);
 
         int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideC + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
+        int* cords = effstrideC + big_shapeLen;
+        fill(cords, cords + big_shapeLen, 0);
+        for (int i = 0; i < big_len; i++) {
         
             C->val[indC] = A->val[indA] * B->val[indB];
         
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
+            for (int dim = big_shapeLen - 1; dim >= 0; dim--) {
                 cords[dim]++;
                 indA += effstrideA[dim];
                 indB += effstrideB[dim];
-                indC += C->stride[dim];
+                indC += effstrideC[dim];
             
-                if (cords[dim] < C->shape[dim]) {
+                if (cords[dim] < big_shape[dim]) {
                     break;
                 }
                 else {
                     cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
+                    indA -= effstrideA[dim] * big_shape[dim];
+                    indB -= effstrideB[dim] * big_shape[dim];
+                    indC -= effstrideC[dim] * big_shape[dim];
                 }
             }
         

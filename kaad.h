@@ -249,6 +249,57 @@ int abs(Recorder<T>& rec, int indA) {
 }
 
 template <typename T>
+int dot(Recorder<T>& rec, int indA, int indB) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    Tensor<T>& B = rec.nodes[indB].value;
+
+    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+
+    if (B_scalar) {
+        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
+    }
+    else if (A_scalar) {
+        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indB, indA, ((T)0));
+    }
+    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+        rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, indA, indB, ((T)0));
+    }
+    else {
+        throw invalid_argument("shape error");
+    }
+
+    return recLen;
+}
+
+template <typename T>
+int outer(Recorder<T>& rec, int indA, int indB) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    Tensor<T>& B = rec.nodes[indB].value;
+
+    int offsetA = max(((int)A.shapeLen) - ((int)B.shapeLen), 0);
+    int offsetB = max(((int)B.shapeLen) - ((int)A.shapeLen), 0);
+
+    Tensor<T>& small = A.shapeLen < B.shapeLen ? A : B;
+    for (int i = 0; i < small.shapeLen; i++) {
+        if (A.shape[i + offsetA] != B.shape[i + offsetB]) {
+            throw invalid_argument("shape error");
+        }
+    }
+
+    size_t newLen = A.shapeLen + B.shapeLen;
+    int* newShape = new int[newLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
+    copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
+
+    rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, newShape, newLen);
+
+    return recLen;
+}
+
+template <typename T>
 int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
@@ -279,13 +330,14 @@ int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
     }
     else {
         // reduce newShape
-        int* newShape_small = new int[newLen - dims * 2];
+        size_t newLen_small = newLen - dims * 2;
+        int* newShape_small = new int[newLen_small];
         copy(A.shape, A.shape + A.shapeLen - dims, newShape_small);
         copy(B.shape + dims, B.shape + B.shapeLen, newShape_small + A.shapeLen - dims);
         // append node with tensordot
-        rec.nodes.emplace_back(Operations<T>::tensordot, Gradients<T>::tensordot_grad, indA, indB, newShape_small, newLen - dims * 2);
+        rec.nodes.emplace_back(Operations<T>::tensordot, Gradients<T>::tensordot_grad, indA, indB, newShape_small, newLen_small);
         // make ctx, dims followed with newShape
-        int* context = new int[newLen + 1];
+        int* context = new int[newLen + 2];
         context[0] = dims;
         copy(newShape, newShape + newLen, context + 1);
         rec.nodes[recLen].ctx = context;
