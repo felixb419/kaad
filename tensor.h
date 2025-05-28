@@ -3,7 +3,6 @@
 #include <stdexcept>
 #include <random>
 #include <iostream>
-#include <initializer_list>
 #include <concepts>
 
 using namespace std;

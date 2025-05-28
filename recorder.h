@@ -91,17 +91,19 @@ class Recorder {
 
         // calculates partial derivatives going back from f
         // returns reference to derivative of f w.r.t. x
-        template<size_t N>
-        array<Tensor<T>*, N> getGradient(int f_ind, int (&x_ind)[N]) {
-            Node<T>& f = nodes[f_ind];
+        template<typename... ints>
+        array<Tensor<T>*, sizeof...(ints)> getGradient(int df_idx, ints... dx_idx) {
+            static_assert((is_same_v<ints, int> && ...), "all indeces args must be of type int");
 
+            Node<T>& f = nodes[df_idx];
             fill(f.gradient.val, f.gradient.val + f.gradient.len, 1.0);
         
-            grad(f_ind);
+            grad(df_idx);
         
-            array<Tensor<T>*, N> partials;
-            for (size_t i = 0; i < N; i++) {
-                partials[i] = &nodes[x_ind[i]].gradient;
+            int inds[] = {dx_idx...};
+            array<Tensor<T>*, sizeof...(dx_idx)> partials;
+            for (size_t i = 0; i < sizeof...(dx_idx); i++) {
+                partials[i] = &nodes[inds[i]].gradient;
             }
 
             return partials;

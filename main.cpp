@@ -22,8 +22,7 @@ int main() {
 
     auto e = rec.evaluate(c);
 
-    int vals[] = {a,n};
-    auto g = rec.getGradient(c, vals);
+    auto g = rec.getGradient(c, a, n);
 
     cout << "A:\n" << rec.nodes[a].value << endl;
     cout << "N:\n" << rec.nodes[n].value << endl;
