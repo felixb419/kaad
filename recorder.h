@@ -6,9 +6,9 @@
 #include <utility>
 
 template <typename T>
-using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out, void* ctx);
+using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out, int* strideA, int* strideB, int* strideC, size_t strideLen, void* ctx);
 template <typename T>
-using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, void* ctx);
+using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, int* strideA, int* strideB, int* strideC, size_t strideLen, void* ctx);
 
 template <typename T>
 struct Node {
@@ -19,13 +19,17 @@ struct Node {
         tensorOP<T> op = nullptr;
         gradientOP<T> grad_op = nullptr;
         void* ctx = nullptr;
-        bool ctx_is_array = false;
 
         bool evaluated = false;
         Tensor<T> value;
 
         bool hasInputs = false;
         Tensor<T> gradient;
+
+        int* strideA = nullptr;
+        int* strideB = nullptr;
+        int* strideC = nullptr;
+        size_t strideLen;
 
         // construct as evaluated
         Node(Tensor<T> && tensor)
@@ -41,9 +45,10 @@ struct Node {
         evaluated(false), value(forward<Args>(args)...), hasInputs(true), gradient(value) {}
 
         ~Node() {
-            if (ctx_is_array) {
-                delete[] static_cast<int*>(ctx);
-            }
+            delete[] strideA;
+            delete[] strideB;
+            delete[] strideC;
+            delete[] static_cast<int*>(ctx);
         }
 };
 
@@ -118,7 +123,7 @@ class Recorder {
             tView<T> val2 = node.in2 < 0 ? tView<T>() : this->eval(node.in2);
             tView<T> out = node.value.view();
         
-            node.op(&val1, &val2, &out, node.ctx);
+            node.op(&val1, &val2, &out, node.strideA, node.strideB, node.strideC, node.strideLen, node.ctx);
             node.evaluated = true;
         
             return out;
@@ -136,7 +141,7 @@ class Recorder {
             tView<T> val2 = in2 < 0 ? tView<T>() : nodes[in2].value.view();
             tView<T> grad2 = in2 < 0 ? tView<T>() : nodes[in2].gradient.view();
         
-            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.ctx);
+            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.strideA, node.strideB, node.strideC, node.strideLen, node.ctx);
         
             if (nodes[node.in1].hasInputs) {
                 grad(node.in1);

@@ -4,9 +4,7 @@
 #include "tensor.h"
 #include "gradients.h"
 #include "recorder.h"
-
-#include <iostream>
-#include <math.h>
+#include "strides.h"
 
 using namespace std;
 
@@ -41,6 +39,8 @@ int add(Recorder<T>& rec, int indA, int indB) {
         combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
 
         rec.nodes.emplace_back(Operations<T>::flexAdd, Gradients<T>::flexAdd_grad, indA, indB, newShape, newLen);
+        Node<T>& node = rec.nodes.back();
+        Strides<T>::flexible(&A, &B, &node.value, node.strideA, node.strideB, node.strideC, node.strideLen); 
     }
     return recLen;
 }
@@ -295,53 +295,6 @@ int outer(Recorder<T>& rec, int indA, int indB) {
     copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
 
     rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, newShape, newLen);
-
-    return recLen;
-}
-
-template <typename T>
-int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-
-    if (dims > 0 && !(A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape))) {
-        throw invalid_argument("shape error");
-    }
-        
-    int offsetA = max(((int)A.shapeLen) - ((int)B.shapeLen), 0);
-    int offsetB = max(((int)B.shapeLen) - ((int)A.shapeLen), 0);
-
-    Tensor<T>& small = A.shapeLen < B.shapeLen ? A : B;
-    for (int i = 0; i < small.shapeLen; i++) {
-        if (A.shape[i + offsetA] != B.shape[i + offsetB]) {
-            throw invalid_argument("shape error");
-        }
-    }
-
-    // assemble c_big
-    size_t newLen = A.shapeLen + B.shapeLen;
-    int* newShape = new int[newLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-    copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
-
-    if (dims == 0) {
-        rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, newShape, newLen);
-    }
-    else {
-        // reduce newShape
-        size_t newLen_small = newLen - dims * 2;
-        int* newShape_small = new int[newLen_small];
-        copy(A.shape, A.shape + A.shapeLen - dims, newShape_small);
-        copy(B.shape + dims, B.shape + B.shapeLen, newShape_small + A.shapeLen - dims);
-        // append node with tensordot
-        rec.nodes.emplace_back(Operations<T>::tensordot, Gradients<T>::tensordot_grad, indA, indB, newShape_small, newLen_small);
-        // make ctx, dims followed with newShape
-        int* context = new int[newLen + 2];
-        context[0] = dims;
-        copy(newShape, newShape + newLen, context + 1);
-        rec.nodes[recLen].ctx = context;
-    }
 
     return recLen;
 }
