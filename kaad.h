@@ -40,7 +40,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
 
         rec.nodes.emplace_back(Operations<T>::flexAdd, Gradients<T>::flexAdd_grad, indA, indB, newShape, newLen);
         Node<T>& node = rec.nodes.back();
-        Strides<T>::flexible(&A, &B, &node.value, node.strideA, node.strideB, node.strideC, node.strideLen); 
+        Strides<T>::flexible(&A, &B, &node.value, node.strideA, node.strideB, node.strideC, node.reps, node.strideLen); 
     }
     return recLen;
 }

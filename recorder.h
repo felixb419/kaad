@@ -6,9 +6,9 @@
 #include <utility>
 
 template <typename T>
-using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out, int* strideA, int* strideB, int* strideC, size_t strideLen, void* ctx);
+using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out, int* strideA, int* strideB, int* strideC, int* reps, size_t strideLen, void* ctx);
 template <typename T>
-using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, int* strideA, int* strideB, int* strideC, size_t strideLen, void* ctx);
+using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, int* strideA, int* strideB, int* strideC, int* reps, size_t strideLen, void* ctx);
 
 template <typename T>
 struct Node {
@@ -29,6 +29,7 @@ struct Node {
         int* strideA = nullptr;
         int* strideB = nullptr;
         int* strideC = nullptr;
+        int* reps = nullptr;
         size_t strideLen;
 
         // construct as evaluated
@@ -123,7 +124,7 @@ class Recorder {
             tView<T> val2 = node.in2 < 0 ? tView<T>() : this->eval(node.in2);
             tView<T> out = node.value.view();
         
-            node.op(&val1, &val2, &out, node.strideA, node.strideB, node.strideC, node.strideLen, node.ctx);
+            node.op(&val1, &val2, &out, node.strideA, node.strideB, node.strideC, node.reps, node.strideLen, node.ctx);
             node.evaluated = true;
         
             return out;
@@ -141,7 +142,7 @@ class Recorder {
             tView<T> val2 = in2 < 0 ? tView<T>() : nodes[in2].value.view();
             tView<T> grad2 = in2 < 0 ? tView<T>() : nodes[in2].gradient.view();
         
-            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.strideA, node.strideB, node.strideC, node.strideLen, node.ctx);
+            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.strideA, node.strideB, node.strideC, node.reps, node.strideLen, node.ctx);
         
             if (nodes[node.in1].hasInputs) {
                 grad(node.in1);

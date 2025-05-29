@@ -89,47 +89,44 @@ template <typename T>
 struct Operations {
     // add so that: out[m,n,...] = tensor[m,n,...] + scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarAdd(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarAdd(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = tensor->val[i] + scalar->val[0];
         }
     }
     // pointwise add so that: C = A + B
     // shape of all operands must be indentical
-    static void pointAdd(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointAdd(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] + B->val[i];
         }
     }
     // flexible add so that: C = A + B
     // shape of C must be a valid broadcast of A and B
-    static void flexAdd(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
-        int indA = 0, indB = 0, indC = 0;
-        int* cords = new int[C->shapeLen];
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
+    static void flexAdd(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+
+        int* count = new int[strideLen];
+        copy(reps, reps + strideLen, count);
+
+        int idx = strideLen - 1, indA = 0, indB = 0, indC = 0;
+        while (1) {
+            
             C->val[indC] = A->val[indA] + B->val[indB];
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
+
+            for (int dim = strideLen - 1; dim >= -1; dim--) {
+                if (dim == -1) goto end;
+
                 indA += strideA[dim];
                 indB += strideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= strideA[dim] * C->shape[dim];
-                    indB -= strideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
+                indC += strideC[dim];
+
+                count[dim]--;
+                if (count[dim] >= 0) break;
+                count[dim] = reps[dim];
             }
-        
-        }    
-        delete[] cords;
+
+        }
+        end:;
     }
     // flexible add so that: A += B
     // shapes of A and B must be broadcastable
@@ -176,28 +173,28 @@ struct Operations {
         
     // subtract so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarSub(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarSub(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = tensor->val[i] - scalar->val[0];
         }
     }
     // subtract so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarSub_inv(const tView<T>* scalar, const tView<T>* tensor, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarSub_inv(const tView<T>* scalar, const tView<T>* tensor, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = scalar->val[0] - tensor->val[i]; 
         }
     }
     // pointwise subtract so that: C = A - B
     // shape of all operands must be indentical
-    static void pointSub(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointSub(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] - B->val[i];
         }
     }
     // flexible subtract so that: C = A - B
     // shape of C must be a valid broadcast of A and B
-    static void flexSub(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void flexSub(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -283,21 +280,21 @@ struct Operations {
         
     // multiply so that: out[m,n,...] = tensor[m,n,...] * scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarMul(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarMul(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = tensor->val[i] * scalar->val[0];
         }
     }
     // pointwise multiply so that: C = A * B
     // shape of all operands must be indentical
-    static void pointMul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointMul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] * B->val[i];
         }
     }
     // flexible multiply so that: C = A * B
     // shape of C must be a valid broadcast of A and B
-    static void flexMul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void flexMul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -383,28 +380,28 @@ struct Operations {
         
     // divide so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarDiv(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarDiv(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = tensor->val[i] / scalar->val[0];
         }
     }
     // divide so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarDiv_inv(const tView<T>* scalar, const tView<T>* tensor, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarDiv_inv(const tView<T>* scalar, const tView<T>* tensor, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = scalar->val[0] / tensor->val[i]; 
         }
     }
     // pointwise divide so that: C = A - B
     // shape of all operands must be indentical
-    static void pointDiv(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointDiv(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = A->val[i] / B->val[i];
         }
     }
     // flexible divide so that: C = A - B
     // shape of C must be a valid broadcast of A and B
-    static void flexDiv(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void flexDiv(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -490,28 +487,28 @@ struct Operations {
         
     // raise to power so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarPow(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarPow(const tView<T>* tensor, const tView<T>* scalar, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = pow(tensor->val[i], scalar->val[0]);
         }
     }
     // raise to power so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarPow_inv(const tView<T>* scalar, const tView<T>* tensor, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarPow_inv(const tView<T>* scalar, const tView<T>* tensor, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < out->len; i++) {
             out->val[i] = pow(scalar->val[0], tensor->val[i]);
         }
     }
     // pointwise raise to power so that: C = A - B
     // shape of all operands must be indentical
-    static void pointPow(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointPow(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < C->len; i++) {
             C->val[i] = pow(A->val[i], B->val[i]);
         }
     }
     // flexible raise to power so that: C = A - B
     // shape of C must be a valid broadcast of A and B
-    static void flexPow(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void flexPow(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -597,7 +594,7 @@ struct Operations {
         
     // negate A so that out[i] = -A[i]
     // A and out must have same shape
-    static void negate(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void negate(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[i] = -A->val[i];
         }
@@ -605,7 +602,7 @@ struct Operations {
         
     // square A so that out[i] = A[i]*A[i]
     // A and out must have same shape
-    static void square(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void square(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[i] = A->val[i] * A->val[i];
         }
@@ -613,7 +610,7 @@ struct Operations {
         
     // root of A so that out[i] = sqrt(A[i])
     // A and out must have same shape
-    static void sqrt(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void sqrt(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[i] = sqrt(A->val[i]);
         }
@@ -621,7 +618,7 @@ struct Operations {
         
     // log of A so that out[i] = ln(A[i])
     // A and out must have same shape
-    static void log(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void log(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[i] = log(A->val[i]);
         }
@@ -629,7 +626,7 @@ struct Operations {
         
     // exponent of A so that out[i] = e^A[i]
     // A and out must have same shape
-    static void exp(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void exp(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[i] = exp(A->val[i]);
         }
@@ -637,7 +634,7 @@ struct Operations {
         
     // absolute value of A so that out[i] = abs(A[i])
     // A and out must have same shape
-    static void abs(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void abs(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[i] = abs(A->val[i]);
         }
@@ -645,7 +642,7 @@ struct Operations {
 
     // compute do product of A and B into C
     // A and B must be 1d vectors of same length, C must be scalar
-    static void dot(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void dot(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         C->val[0] = 0;
         for (size_t i = 0; i < A->len; i++) {
             C->val[0] += A->val[i] * B->val[i]; 
@@ -654,14 +651,14 @@ struct Operations {
 
     // compute do product of A and B into C
     // A must be 1d vector, B and C must be scalar
-    static void scalarDot(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarDot(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         C->val[0] = 0;
         for (size_t i = 0; i < A->len; i++) {
             C->val[0] += A->val[i] * B->val[0]; 
         }
     }
 
-    static void outer(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void outer(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -704,7 +701,7 @@ struct Operations {
 
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
-    static void matmul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void matmul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         fill(C->val, C->val + C->len, 0.0);
         int indA = 0, indB = 0, indC = 0;
         int k = A->shape[1];
@@ -725,7 +722,7 @@ struct Operations {
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
     // all dimensions higher than 2 are regarded as batch dimensions
-    static void batch_matmul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void batch_matmul(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
     
         fill(C->val, C->val + C->len, 0);
         int offsetA = C->shapeLen - A->shapeLen;
@@ -783,7 +780,7 @@ struct Operations {
     }
 
 
-    static void scalarMin(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarMin(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         T B_val = B->val[0];
         for (size_t i = 0; i < A->shapeLen; i++) {
             T A_val = A->val[i];
@@ -791,7 +788,7 @@ struct Operations {
         }
     }
 
-    static void pointMin(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointMin(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->shapeLen; i++) {
             T A_val = A->val[i];
             T B_val = B->val[i];
@@ -799,7 +796,7 @@ struct Operations {
         }
     }
 
-    static void flexMin(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void flexMin(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -843,7 +840,7 @@ struct Operations {
         delete[] effstrideA;
     }
     
-    static void scalarMax(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void scalarMax(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         T B_val = B->val[0];
         for (size_t i = 0; i < A->shapeLen; i++) {
             T A_val = A->val[i];
@@ -851,7 +848,7 @@ struct Operations {
         }
     }
 
-    static void pointMax(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void pointMax(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->shapeLen; i++) {
             T A_val = A->val[i];
             T B_val = B->val[i];
@@ -859,7 +856,7 @@ struct Operations {
         }
     }
 
-    static void flexMax(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void flexMax(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -905,7 +902,7 @@ struct Operations {
 
     // adds every element of A to out
     // B has to be a scalar
-    static void sum(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void sum(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         for (size_t i = 0; i < A->len; i++) {
             out->val[0] += A->val[i];
         }
@@ -914,7 +911,7 @@ struct Operations {
     // sums tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void sum_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void sum_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         
         fill(C->val, C->val + C->len, 0);
 
@@ -955,7 +952,7 @@ struct Operations {
 
     // saves mean of A into out
     // B has to be a scalar
-    static void mean(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void mean(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         out->val[0] = 0;
         for (size_t i = 0; i < A->len; i++) {
             out->val[0] += A->val[i];
@@ -966,7 +963,7 @@ struct Operations {
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void mean_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void mean_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         
         fill(C->val, C->val + C->len, 0);
 
@@ -1006,11 +1003,11 @@ struct Operations {
         delete[] effstride;
     }
 
-    static void transpose(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void transpose(const tView<T>* A, const tView<T>* B, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         copy(A->val, A->val + A->len, C->val);
     }
 
-    static void tile(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void tile(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int* m = static_cast<int*>(ctx);
         
         int offset = C->shapeLen - A->shapeLen;
@@ -1052,7 +1049,7 @@ struct Operations {
         delete[] effstride;
     }
 
-    static void slice(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void slice(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int offset = A->shapeLen - C->shapeLen;
         int* effstride = new int[C->shapeLen * 2];
         copy(A->stride + offset, A->stride + A->shapeLen - offset + 1, effstride);
