@@ -215,6 +215,9 @@ class Tensor {
                 stride[i] = shape[i+1] * stride[i+1];
                 len *= shape[i];
             }
+            for (int i = 0; i < shapeLen; i++) {
+                stride[i] = shape[i] > 1 ? stride[i] : 0;
+            }
         
             if (len != _len) {
                 throw invalid_argument("array size suggested by shape does not match _value argument");
@@ -235,6 +238,9 @@ class Tensor {
             for (i--; i >= 0; i--) {
                 stride[i] = shape[i+1] * stride[i+1];
                 len *= shape[i];
+            }
+            for (int i = 0; i < shapeLen; i++) {
+                stride[i] = shape[i] > 1 ? stride[i] : 0;
             }
         
             val = new T[len];
