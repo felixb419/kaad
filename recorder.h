@@ -6,9 +6,9 @@
 #include <utility>
 
 template <typename T>
-using tensorOP = void(*)(const tView<T>* in1, const tView<T>* in2, tView<T>* out, int* strideA, int* strideB, int* strideC, int* reps, size_t strideLen, void* ctx);
+using tensorOP = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
-using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, int* strideA, int* strideB, int* strideC, int* reps, size_t strideLen, void* ctx);
+using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx);
 
 template <typename T>
 struct Node {
@@ -30,6 +30,7 @@ struct Node {
         int* strideB = nullptr;
         int* strideC = nullptr;
         int* reps = nullptr;
+        int* count = nullptr;
         size_t strideLen;
 
         // construct as evaluated
@@ -50,6 +51,11 @@ struct Node {
             delete[] strideB;
             delete[] strideC;
             delete[] static_cast<int*>(ctx);
+        }
+
+        inline void eval(const T* A, const T* B, T* C) {
+            op(A, B, C, strideA, strideB, strideC, reps, count, strideLen);
+            evaluated = true;
         }
 };
 
@@ -124,8 +130,7 @@ class Recorder {
             tView<T> val2 = node.in2 < 0 ? tView<T>() : this->eval(node.in2);
             tView<T> out = node.value.view();
         
-            node.op(&val1, &val2, &out, node.strideA, node.strideB, node.strideC, node.reps, node.strideLen, node.ctx);
-            node.evaluated = true;
+            node.eval(val1.val, val2.val, node.value.val);
         
             return out;
         }
@@ -142,7 +147,7 @@ class Recorder {
             tView<T> val2 = in2 < 0 ? tView<T>() : nodes[in2].value.view();
             tView<T> grad2 = in2 < 0 ? tView<T>() : nodes[in2].gradient.view();
         
-            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.strideA, node.strideB, node.strideC, node.reps, node.strideLen, node.ctx);
+            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.strideA, node.strideB, node.strideC, node.reps, node.count, node.strideLen, node.ctx);
         
             if (nodes[node.in1].hasInputs) {
                 grad(node.in1);
