@@ -18,7 +18,7 @@ int main() {
     int n = rec.append(move(N));
     int x = rec.append(move(X));
 
-    int c = add(rec, a, n);
+    int c = div(rec, a, n);
 
     auto e = rec.evaluate(c);
 

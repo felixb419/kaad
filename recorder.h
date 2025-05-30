@@ -8,7 +8,7 @@
 template <typename T>
 using tensorOP = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
-using gradientOP = void(*)(const tView<T>* A, tView<T>* dA, const tView<T>* B, tView<T>* dB, const tView<T>* C, const tView<T>* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx);
+using gradientOP = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t stridelen);
 
 template <typename T>
 struct Node {
@@ -56,6 +56,10 @@ struct Node {
         inline void eval(const T* A, const T* B, T* C) {
             op(A, B, C, strideA, strideB, strideC, reps, count, strideLen);
             evaluated = true;
+        }
+
+        inline void grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC) {
+            grad_op(A, B, C, dA, dB, dC, strideA, strideB, strideC, reps, count, strideLen);
         }
 };
 
@@ -147,7 +151,7 @@ class Recorder {
             tView<T> val2 = in2 < 0 ? tView<T>() : nodes[in2].value.view();
             tView<T> grad2 = in2 < 0 ? tView<T>() : nodes[in2].gradient.view();
         
-            node.grad_op(&val1, &grad1, &val2, &grad2, &value, &seed, node.strideA, node.strideB, node.strideC, node.reps, node.count, node.strideLen, node.ctx);
+            node.grad(nodes[node.in1].value.val, nodes[node.in2].value.val, node.value.val, nodes[node.in1].gradient.val, nodes[node.in2].gradient.val, node.gradient.val);
         
             if (nodes[node.in1].hasInputs) {
                 grad(node.in1);

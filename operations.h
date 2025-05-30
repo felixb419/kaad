@@ -170,66 +170,46 @@ struct Operations {
     // subtract so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarSub(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[i] - B->val[0];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] - B[0];
         }
     }
     // subtract so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarSub_inv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[0] - B->val[i]; 
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[0] - B[i]; 
         }
     }
     // pointwise subtract so that: C = A - B
     // shape of all operands must be indentical
     static void pointSub(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[i] - B->val[i];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] - B[i];
         }
     }
     // flexible subtract so that: C = A - B
     // shape of C must be a valid broadcast of A and B
     static void flexSub(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        for (size_t i = 0; i < C->shapeLen; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-    
         int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            C->val[indC] = A->val[indA] - B->val[indB];
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
+        while (1) {
+
+            C[indC] = A[indA] - B[indB];
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
             }
-        
-        }    
-        delete[] effstrideA;
+        }
+        end:;
     }
     // flexible subtract so that: A = A - B
     // shapes of A and B must be broadcastable
@@ -277,59 +257,39 @@ struct Operations {
     // multiply so that: out[m,n,...] = tensor[m,n,...] * scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarMul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[i] * B->val[0];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] * B[0];
         }
     }
     // pointwise multiply so that: C = A * B
     // shape of all operands must be indentical
     static void pointMul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[i] * B->val[i];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] * B[i];
         }
     }
     // flexible multiply so that: C = A * B
     // shape of C must be a valid broadcast of A and B
     static void flexMul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        for (size_t i = 0; i < C->shapeLen; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-    
         int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            C->val[indC] = A->val[indA] * B->val[indB];
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
+        while (1) {
+
+            C[indC] = A[indA] * B[indB];
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
             }
-        
-        }    
-        delete[] effstrideA;
+        }
+        end:;
     }
     // flexible multiply so that: A = A * B
     // shapes of A and B must be broadcastable
@@ -377,66 +337,46 @@ struct Operations {
     // divide so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[i] / B->val[0];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] / B[0];
         }
     }
     // divide so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarDiv_inv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[0] / B->val[i]; 
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[0] / B[i]; 
         }
     }
     // pointwise divide so that: C = A - B
     // shape of all operands must be indentical
     static void pointDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = A->val[i] / B->val[i];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] / B[i];
         }
     }
     // flexible divide so that: C = A - B
     // shape of C must be a valid broadcast of A and B
     static void flexDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        for (size_t i = 0; i < C->shapeLen; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-    
         int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            C->val[indC] = A->val[indA] / B->val[indB];
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
+        while (1) {
+
+            C[indC] = A[indA] / B[indB];
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
             }
-        
-        }    
-        delete[] effstrideA;
+        }
+        end:;
     }
     // flexible divide so that: A = A - B
     // shapes of A and B must be broadcastable
