@@ -26,12 +26,12 @@ struct Node {
         bool hasInputs = false;
         Tensor<T> gradient;
 
-        int* strideA = nullptr;
-        int* strideB = nullptr;
-        int* strideC = nullptr;
-        int* reps = nullptr;
-        int* count = nullptr;
-        size_t strideLen;
+        int** strideA = nullptr;
+        int** strideB = nullptr;
+        int** strideC = nullptr;
+        int** reps = nullptr;
+        int** count = nullptr;
+        size_t* strideLen;
 
         // construct as evaluated
         Node(Tensor<T> && tensor)
@@ -54,12 +54,12 @@ struct Node {
         }
 
         inline void eval(const T* A, const T* B, T* C) {
-            op(A, B, C, strideA, strideB, strideC, reps, count, strideLen);
+            op(A, B, C, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
             evaluated = true;
         }
 
         inline void grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC) {
-            grad_op(A, B, C, dA, dB, dC, strideA, strideB, strideC, reps, count, strideLen);
+            grad_op(A, B, C, dA, dB, dC, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
         }
 };
 
