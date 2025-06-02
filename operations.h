@@ -78,7 +78,7 @@ void transp(int* shape, int* stride, size_t len) {
     }
 }
 
-void transp(int* shape, int* stride, int* shape_T, int* stride_T, size_t len) {
+void transp(int* shape, int* stride,size_t len, int* shape_T, int* stride_T) {
     for (int i = 0, j = len - 1; i < len; i++, j--) {
         shape_T[j] = shape[i];
         stride_T[j] = stride[i];
@@ -638,20 +638,20 @@ struct Operations {
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
     static void matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        fill(C->val, C->val + C->len, 0.0);
-        int indA = 0, indB = 0, indC = 0;
-        int k = A->shape[1];
-    
-        for (int cy = 0; cy < C->shape[0]; cy++) {
-            for (int cx = 0; cx < C->shape[1]; cx++, indC++) {
-            
+        int k = reps[2];
+        int indA = 0, indB = 0, prev_B, indC = 0;
+        for (int row = 0; row < reps[0]; row++) {
+            prev_B = indB;
+            for (int col = 0; col < reps[1]; col++) {
                 for (int i = 0; i < k; i++) {
-                    C->val[indC] += A->val[indA + i*(A->stride[1])] * B->val[indB + i*(B->stride[0])];
+                    C[indC] += A[indA + i*strideA[1]] * B[indB + i*strideB[0]];
                 }
-                indB += B->stride[1];
+                indC += strideC[1];
+                indB += strideB[1];
             }
-            indA += A->stride[0];
-            indB = 0;
+            indC += strideC[0];
+            indA += strideA[0];
+            indB = prev_B;
         }
     }
         
@@ -659,60 +659,6 @@ struct Operations {
     // A and B must be 2d and width of A is equalt to height of B
     // all dimensions higher than 2 are regarded as batch dimensions
     static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-    
-        fill(C->val, C->val + C->len, 0);
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        size_t i = 0;
-        for (; i < C->shapeLen - 2; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-        int aDim = i - offsetA;
-        effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-        effstrideB[i] = 0;
-        i++;
-        effstrideA[i] = 0;
-        int bDim = i - offsetB;
-        effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-    
-        int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        int k = A->shape[A->shapeLen - 1];
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            for (int j = 0; j < k; j++) {
-                C->val[indC] +=
-                A->val[indA + j*(A->stride[A->shapeLen - 1])]
-                * B->val[indB + j*(B->stride[B->shapeLen - 2])];
-            }
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
-            }
-        
-        }    
-        delete[] effstrideA;
     }
 
 

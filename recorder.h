@@ -48,17 +48,12 @@ struct Node {
         evaluated(false), value(forward<Args>(args)...), hasInputs(true), gradient(value) {}
 
         inline void eval(const T* A, const T* B, T* C) {
-            if (strideA) {
-                op(A, B, C, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
-            }
-            else {
-                op(A, B, C, nullptr, nullptr, nullptr, nullptr, nullptr, strideLen[0]);
-            }
+            op(A, B, C, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
             evaluated = true;
         }
 
         inline void grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC) {
-            grad_op(A, B, C, dA, dB, dC, strideA, strideB, strideC, reps, count, strideLen);
+            grad_op(A, B, C, dA, dB, dC, strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
         }
 };
 

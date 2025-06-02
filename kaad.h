@@ -29,14 +29,14 @@ int add(Recorder<T>& rec, int indA, int indB) {
         copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
 
         rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-        rec.nodes[recLen].strideLen = new size_t[] { rec.nodes[recLen].value.len };
+        Strides<T>::pointwise(rec.nodes[recLen]);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         int* newShape = new int[A.shapeLen];
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
         rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, newShape, A.shapeLen);
-        rec.nodes[recLen].strideLen = new size_t[] { rec.nodes[recLen].value.len };
+        Strides<T>::pointwise(rec.nodes[recLen]);
     }
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
@@ -44,7 +44,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
         combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
 
         rec.nodes.emplace_back(Operations<T>::flexAdd, Gradients<T>::flexAdd_grad, indA, indB, newShape, newLen);
-        Strides<T>::flexible(&rec.nodes[indA].value, &rec.nodes[indB].value, rec.nodes[recLen]); 
+        Strides<T>::flexible(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]); 
     }
     return recLen;
 }
@@ -362,6 +362,7 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
 
     if (newLen == 2) {
         rec.nodes.emplace_back(Operations<T>::matmul, Gradients<T>::matmul_grad, indA, indB, newShape, newLen);
+        Strides<T>::matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
     }
     else {
         rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, indA, indB, newShape, newLen);

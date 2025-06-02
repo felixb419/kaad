@@ -469,138 +469,223 @@ struct Gradients : Operations<T> {
     // dC/dA = B^T
     // dC/dB = A^T
     static void matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // Allocate separate caches for each intermediate result
-        size_t cacheLen = max(max(A->len, B->len), dC->len);
-        T* cache = new T[cacheLen];
-    
-        tView<T> A_cache(*A);
-        A_cache.val = cache;
-    
-        tView<T> B_cache(*B);
-        B_cache.val = cache;
-    
-        int* shapeBlock = new int[A->shapeLen * 2 + B->shapeLen * 2];
-        // Transposed view of A
-        tView<T> A_T(*A);
-        A_T.shape = shapeBlock;
-        A_T.stride = shapeBlock + A->shapeLen;
-        std::copy(A->shape, A->shape + A->shapeLen, A_T.shape);
-        std::copy(A->stride, A->stride + A->shapeLen, A_T.stride);
-        transp(A_T.shape, A_T.stride, A_T.shapeLen);
-    
-        // Transposed view of B
-        tView<T> B_T(*B);
-        B_T.shape = A_T.stride + A->shapeLen;
-        B_T.stride = B_T.shape + A->shapeLen;
-        std::copy(B->shape, B->shape + B->shapeLen, B_T.shape);
-        std::copy(B->stride, B->stride + B->shapeLen, B_T.stride);
-        transp(B_T.shape, B_T.stride, B_T.shapeLen);
-    
-        // dA += dC * B_T
-        matmul(dC, &B_T, &A_cache);
-        for (size_t i = 0; i < A->len; i++) {
-            dA->val[i] += A_cache.val[i];
+        int k = reps[0][2];
+        int indA = 0, indB = 0, indC = 0, prev;
+        for (int row = 0; row < reps[0][0]; row++) {
+            prev = indB;
+            for (int col = 0; col < reps[0][1]; col++) {
+                for (int i = 0; i < k; i++) {
+                    dA[indA] += dC[indC + i*strideC[0][1]] * B[indB + i*strideB[0][0]]; 
+                }
+                indA += strideA[0][1];
+                indB += strideB[0][1];
+            }
+            indA += strideA[0][0];
+            indC += strideC[0][0];
+            indB = prev;
         }
-    
-        // dB += A_T * dC
-        matmul(&A_T, dC, &B_cache);
-        for (size_t i = 0; i < B->len; i++) {
-            dB->val[i] += B_cache.val[i];
+
+        k = reps[1][2];
+        indA = 0, indB = 0, indC = 0;
+        for (int row = 0; row < reps[1][0]; row++) {
+            prev = indC;
+            for (int col = 0; col < reps[1][1]; col++) {
+                for (int i = 0; i < k; i++) {
+                    dB[indB] += A[indA + i*strideA[1][1]] * dC[indC + i*strideC[1][0]]; 
+                }
+                indB += strideB[1][1];
+                indC += strideC[1][1];
+            }
+            indB += strideB[1][0];
+            indA += strideA[1][0];
+            indC = prev;
         }
-    
-        // Cleanup
-        delete[] cache;
-        delete[] shapeBlock;
     }
     
     static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // allocate memory
-        size_t big_len1 = max(dC->shapeLen, B->shapeLen);
-        size_t big_len2 = max(A->shapeLen, dC->shapeLen);
-    
-        int* shapeBlock = new int[A->shapeLen*2 + B->shapeLen*2 + big_len1*2 + big_len2*2];
-        int* shapeA = shapeBlock;
-        int* effstrideA = shapeA + A->shapeLen;
-        int* shapeB = effstrideA + A->shapeLen;
-        int* effstrideB = shapeB + B->shapeLen;
-    
-        int* big_shapeA = effstrideB + B->shapeLen;
-        int* big_effstrideA = big_shapeA + big_len1;
-    
-        int* big_shapeB= big_effstrideA + big_len1;
-        int* big_effstrideB = big_shapeB + big_len2;
-    
-        // transpose A
-        copy(A->shape, A->shape + A->shapeLen, shapeA);
-        copy(A->stride, A->stride + A->shapeLen, effstrideA);
-        
-        int temp = shapeA[A->shapeLen - 1];
-        shapeA[A->shapeLen - 1] = shapeA[A->shapeLen - 2];
-        shapeA[A->shapeLen - 2] = temp;
-        temp = effstrideA[A->shapeLen - 1];
-        effstrideA[A->shapeLen - 1] = effstrideA[A->shapeLen - 2];
-        effstrideA[A->shapeLen - 2] = temp;
-    
-        tView<T> A_T(shapeA, effstrideA, A->shapeLen, A->val, A->len);
-    
-    
-        // transpose B
-        copy(B->shape, B->shape + B->shapeLen, shapeB);
-        copy(B->stride, B->stride + B->shapeLen, effstrideB);
-        
-        temp = shapeB[B->shapeLen - 1];
-        shapeB[B->shapeLen - 1] = shapeB[B->shapeLen - 2];
-        shapeB[B->shapeLen - 2] = temp;
-        temp = effstrideB[B->shapeLen - 1];
-        effstrideB[B->shapeLen - 1] = effstrideB[B->shapeLen - 2];
-        effstrideB[B->shapeLen - 2] = temp;
-    
-        tView<T> B_T(shapeB, effstrideB, B->shapeLen, B->val, B->len);
-    
-    
-        // make A_big
-        combine_matrix(dC->shape, dC->shapeLen, B_T.shape, B_T.shapeLen, big_shapeA, big_len1);
-        size_t lenA = 1;
-    
-        lenA *= big_shapeA[big_len1 - 1];
-        big_effstrideA[big_len1 - 1] = 1;
-        for (int i = big_len1 - 2; i >= 0; i--) {
-            lenA *= big_shapeA[i];
-            big_effstrideA[i] = big_effstrideA[i + 1] * big_shapeA[i + 1];
+    }
+    /*
+    // f(A) = min(A,B)
+    // df/dA [i] = A < B ? 1 : 0
+    // df/dB [i] = B < A ? 1 : 0
+    static void scalarMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < dC->len; i++) {
+            int smaller = A->val[i] <= B->val[0];
+            T C_val = dC->val[i];
+            dA->val[i] += smaller ? C_val : 0;
+            dB->val[0] += smaller ? 0 : C_val;
         }
-    
-        tView<T> A_big(big_shapeA, big_effstrideA, big_len1, nullptr, lenA);
-    
-    
-        // make B_big
-        combine_matrix(A_T.shape, A_T.shapeLen, dC->shape, dC->shapeLen, big_shapeB, big_len2);
-        size_t lenB = 1;
-    
-        lenB *= big_shapeB[big_len2 - 1];
-        big_effstrideB[big_len2 - 1] = 1;
-        for (int i = big_len2 - 2; i >= 0; i--) {
-            lenB *= big_shapeB[i];
-            big_effstrideB[i] = big_effstrideB[i + 1] * big_shapeB[i + 1];
-        }
-    
-        tView<T> B_big(big_shapeB, big_effstrideB, big_len2, nullptr, lenB);
+    }
 
-        T* cache = new T[max(lenA, lenB)];
-        A_big.val = cache;
-        B_big.val = cache;
+    static void pointMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < dC->len; i++) {
+            int smaller = A->val[i] <= B->val[i];
+            T C_val = dC->val[i];
+            dA->val[i] += smaller ? C_val : 0;
+            dB->val[i] += smaller ? 0 : C_val;
+        }
+    }
+
+    static void flexMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        int offsetA = dC->shapeLen - A->shapeLen;
+        int offsetB = dC->shapeLen - B->shapeLen;
     
+        int* effstrideA = new int[dC->shapeLen * 3];
+        int* effstrideB = effstrideA + dC->shapeLen;
     
+        for (size_t i = 0; i < dC->shapeLen; i++) {
+            int aDim = i - offsetA;
+            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
+            int bDim = i - offsetB;
+            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
+        }
     
-        // dA += dC * B_T
-        batch_matmul(dC, &B_T, &A_big);
-        flexAdd_inplace(dA, &A_big);
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstrideB + dC->shapeLen;
+        fill(cords, cords + dC->shapeLen, 0);
+        for (int i = 0; i < dC->len; i++) {
+        
+            T A_val = A->val[indA];
+            T B_val = B->val[indB];
+            T C_val = dC->val[indC];
+            int smaller = A_val <= B_val;
+
+            dA->val[indA] += smaller ? C_val : 0;
+            dB->val[indB] += smaller ? 0 : C_val;
+        
+            for (int dim = dC->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstrideA[dim];
+                indB += effstrideB[dim];
+                indC += dC->stride[dim];
+            
+                if (cords[dim] < dC->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstrideA[dim] * dC->shape[dim];
+                    indB -= effstrideB[dim] * dC->shape[dim];
+                    indC -= dC->stride[dim] * dC->shape[dim];
+                }
+            }
+        
+        }    
+        delete[] effstrideA;
+    }
+
+    // f(A) = max(A,B)
+    // df/dA [i] = A > B ? 1 : 0
+    // df/dB [i] = B > A ? 1 : 0
+    static void scalarMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < dC->len; i++) {
+            int bigger = A->val[i] >= B->val[0];
+            T C_val = dC->val[i];
+            dA->val[i] += bigger ? C_val : 0;
+            dB->val[0] += bigger ? 0 : C_val;
+        }
+    }
+
+    static void pointMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < dC->len; i++) {
+            int bigger = A->val[i] >= B->val[i];
+            T C_val = dC->val[i];
+            dA->val[i] += bigger ? C_val : 0;
+            dB->val[i] += bigger ? 0 : C_val;
+        }
+    }
+
+    static void flexMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        int offsetA = dC->shapeLen - A->shapeLen;
+        int offsetB = dC->shapeLen - B->shapeLen;
     
-        // dB += A_T * dC
-        batch_matmul(&A_T, dC, &B_big);
-        flexAdd_inplace(dB, &B_big);
+        int* effstrideA = new int[dC->shapeLen * 3];
+        int* effstrideB = effstrideA + dC->shapeLen;
     
-        delete[] cache;
-        delete[] shapeBlock;
+        for (size_t i = 0; i < dC->shapeLen; i++) {
+            int aDim = i - offsetA;
+            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
+            int bDim = i - offsetB;
+            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
+        }
+    
+        int indA = 0, indB = 0, indC = 0;
+        int* cords = effstrideB + dC->shapeLen;
+        fill(cords, cords + dC->shapeLen, 0);
+        for (int i = 0; i < dC->len; i++) {
+        
+            T A_val = A->val[indA];
+            T B_val = B->val[indB];
+            T C_val = dC->val[indC];
+            int bigger = A_val >= B_val;
+
+            dA->val[indA] += bigger ? C_val : 0;
+            dB->val[indB] += bigger ? 0 : C_val;
+        
+            for (int dim = dC->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += effstrideA[dim];
+                indB += effstrideB[dim];
+                indC += dC->stride[dim];
+            
+                if (cords[dim] < dC->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= effstrideA[dim] * dC->shape[dim];
+                    indB -= effstrideB[dim] * dC->shape[dim];
+                    indC -= dC->stride[dim] * dC->shape[dim];
+                }
+            }
+        
+        }    
+        delete[] effstrideA;
+    }
+    
+    // f(A) = sum(A)
+    // df_dA = tensor with shape of A filled with 1
+    static void sum_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+       // dA += dC[0]
+       for (size_t i = 0; i < dA->len; i++) {
+           dA->val[i] += dC->val[0];
+       }
+    }
+
+    static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        fill(dA->val, dA->val + dA->len, 0);
+
+        int k = 0; // fix later
+        int* effstride = new int[A->shapeLen * 2];
+        copy(A->stride, A->stride + A->shapeLen, effstride);
+        effstride[k] = 0;
+        for (int i = 0; i < k; i++) {
+            effstride[i] /= A->shape[k];
+        }
+
+        int indA = 0, indC = 0; 
+        int* cords = effstride + A->shapeLen;
+        fill(cords, cords + A->shapeLen, 0);
+
+        for (int i = 0; i < A->len; i++) {
+            
+            dA->val[indA] += dC->val[indC];
+
+            for (int dim = A->shapeLen - 1; dim >= 0; dim--) {
+                cords[dim]++;
+                indA += A->stride[dim];
+                indC += effstride[dim];
+
+                if (cords[dim] < A->shape[dim]) {
+                    break;
+                }
+                else {
+                    cords[dim] = 0;
+                    indA -= A->stride[dim] * A->shape[dim];
+                    indC -= effstride[dim] * A->shape[dim];
+    }
+    
+    static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
     }
 
     // f(A) = min(A,B)
@@ -921,4 +1006,5 @@ struct Gradients : Operations<T> {
 
         delete[] effstride;
     }
+    */
 };
