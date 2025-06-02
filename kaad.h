@@ -15,8 +15,8 @@ int add(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
@@ -26,7 +26,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
         copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
 
         rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-        rec.nodes[recLen].strideLen[0] = tensor_ref.shapeLen;
+        rec.nodes[recLen].strideLen = new size_t[] { tensor_ref.shapeLen };
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         int* newShape = new int[A.shapeLen];
@@ -51,8 +51,8 @@ int sub(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
@@ -63,7 +63,7 @@ int sub(Recorder<T>& rec, int indA, int indB) {
         copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
         
         rec.nodes.emplace_back(Operations<T>::scalarSub, Gradients<T>::scalarSub_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-        rec.nodes[recLen].strideLen[0] = tensor_ref.shapeLen;
+        rec.nodes[recLen].strideLen = new size_t[] { tensor_ref.shapeLen };
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         int* newShape = new int[A.shapeLen];
@@ -88,8 +88,8 @@ int mul(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
@@ -99,7 +99,7 @@ int mul(Recorder<T>& rec, int indA, int indB) {
         copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
 
         rec.nodes.emplace_back(Operations<T>::scalarMul, Gradients<T>::scalarMul_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-        rec.nodes[recLen].strideLen[0] = tensor_ref.shapeLen;
+        rec.nodes[recLen].strideLen = new size_t[] { rec.nodes[recLen].value.shapeLen };
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         int* newShape = new int[A.shapeLen];
@@ -125,8 +125,8 @@ int div(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
@@ -136,7 +136,7 @@ int div(Recorder<T>& rec, int indA, int indB) {
         copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
         
         rec.nodes.emplace_back(Operations<T>::scalarDiv, Gradients<T>::scalarDiv_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-        rec.nodes[recLen].strideLen[0] = tensor_ref.shapeLen;
+        rec.nodes[recLen].strideLen = new size_t[] { tensor_ref.shapeLen };
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         int* newShape = new int[A.shapeLen];
@@ -148,9 +148,7 @@ int div(Recorder<T>& rec, int indA, int indB) {
     else {
         size_t newLen = max(A.shapeLen, B.shapeLen);
         int* newShape = new int[newLen];
-        combine_flexible(A.shape, A.shapeLen,
-            B.shape, B.shapeLen,
-            newShape, newLen);
+        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
 
         rec.nodes.emplace_back(Operations<T>::flexDiv, Gradients<T>::flexDiv_grad, indA, indB, newShape, newLen);
         Strides<T>::flexible(&A, &B, rec.nodes[recLen]); 
@@ -163,8 +161,8 @@ int pow(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
@@ -265,8 +263,8 @@ int dot(Recorder<T>& rec, int indA, int indB) {
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
 
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (B_scalar) {
         rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
@@ -335,8 +333,8 @@ int minimum(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
@@ -368,8 +366,8 @@ int maximum(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
+    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
+    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (A_scalar || B_scalar) {
         int tensor = A_scalar ? indB : indA;
