@@ -7,26 +7,32 @@ int main() {
     double* v1 = new double[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     Tensor<double> A(s1, 3, v1, 8);
 
-    int* s2 = new int[] {2,4};
-    double* v2 = new double [] {1,2,3,4,5,6,7,8};
-    Tensor<double> N(s2, 2, v2, 8);
+    int* s2 = new int[] {2,1,4};
+    double* v2 = new double[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    Tensor<double> B(s2, 3, v2, 8);
+
+    int* s3 = new int[] {2,4};
+    double* v3 = new double [] {1,2,3,4,5,6,7,8};
+    Tensor<double> N(s3, 2, v3, 8);
 
     Tensor<double> X(10);
 
     Recorder<double> rec;
     int a = rec.append(move(A));
+    int b = rec.append(move(B));
     int n = rec.append(move(N));
     int x = rec.append(move(X));
 
-    int c = mul(rec, x, add(rec, a, n));
+    int c = add(rec, x, add(rec, n, add(rec, a, b)));
 
     auto e = rec.evaluate(c);
-
-    auto g = rec.getGradient(c, a, n);
 
     cout << "A:\n" << rec.nodes[a].value << endl;
     cout << "N:\n" << rec.nodes[n].value << endl;
     cout << "C:\n" << rec.nodes[c].value << endl;
+
+    auto g = rec.getGradient(c, a, n);
+
     cout << "dA\n" << *g[0] << endl;
-    cout << "dN\n" << *g[1] << endl;
+    cout << "dB\n" << *g[1] << endl;
 }

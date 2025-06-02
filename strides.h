@@ -7,6 +7,8 @@ template<typename T>
 struct Strides {
     static void flexible(Tensor<T>* A, Tensor<T>* B, Node<T>& node) {
         Tensor<T>* C = &node.value;
+
+        node.nEntries = 1;
         node.strideLen = new size_t[1];
         size_t& strideLen = node.strideLen[0];
         node.reps = new int*[1];

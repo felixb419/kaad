@@ -8,7 +8,7 @@
 template <typename T>
 using tensorOP = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
-using gradientOP = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t stridelen);
+using gradientOP = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* stridelen);
 
 template <typename T>
 struct Node {
@@ -26,12 +26,13 @@ struct Node {
         bool hasInputs = false;
         Tensor<T> gradient;
 
+        size_t nEntries = 0;
         int** strideA = nullptr;
         int** strideB = nullptr;
         int** strideC = nullptr;
         int** reps = nullptr;
         int** count = nullptr;
-        size_t* strideLen;
+        size_t* strideLen = nullptr;
 
         // construct as evaluated
         Node(Tensor<T> && tensor)
@@ -46,20 +47,18 @@ struct Node {
         : in1(in1_index), in2(in2_index), op(operation), grad_op(derivative),
         evaluated(false), value(forward<Args>(args)...), hasInputs(true), gradient(value) {}
 
-        ~Node() {
-            delete[] strideA;
-            delete[] strideB;
-            delete[] strideC;
-            delete[] static_cast<int*>(ctx);
-        }
-
         inline void eval(const T* A, const T* B, T* C) {
-            op(A, B, C, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
+            if (strideA) {
+                op(A, B, C, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
+            }
+            else {
+                op(A, B, C, nullptr, nullptr, nullptr, nullptr, nullptr, strideLen[0]);
+            }
             evaluated = true;
         }
 
         inline void grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC) {
-            grad_op(A, B, C, dA, dB, dC, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
+            grad_op(A, B, C, dA, dB, dC, strideA, strideB, strideC, reps, count, strideLen);
         }
 };
 
@@ -82,6 +81,19 @@ class Recorder {
         vector<Node<T>> nodes;
     
         Recorder() {}
+
+        ~Recorder() {
+            for (Node<T> node : nodes) {
+                for (int i = 0; i < node.nEntries; i++) {
+                    delete[] node.strideA[i];
+                    delete[] node.strideB[i];
+                    delete[] node.strideC[i];
+                    delete[] node.reps[i];
+                    delete[] node.count[i];
+                }
+                delete[] node.strideLen;
+            }
+        }
 
         int append(Tensor<T>&& tensor) {
             int idx = nodes.size();

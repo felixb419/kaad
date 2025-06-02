@@ -22,30 +22,30 @@ struct Gradients : Operations<T> {
     // f(A,B) = A + B
     // df/dA = 1
     // df/dB = 1
-    static void pointAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
         }
         
         // dB += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] += dC[i];
         }
     }
-    static void scalarAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
         }
         
         // dB += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] += dC[i];
         }
     }
-    static void flexAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -53,16 +53,16 @@ struct Gradients : Operations<T> {
             dA[indA] += dc_i;
             dB[indB] += dc_i;
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
-                count[dim]--;
-                if (count[dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
+            for (int dim = *strideLen - 1; dim >= 0; dim--) {
+                count[0][dim]--;
+                if (count[0][dim] >= 0) {
+                    indA += strideA[0][dim];
+                    indB += strideB[0][dim];
+                    indC += strideC[0][dim];
                     break;
                 }
 
-                count[dim] = reps[dim];
+                count[0][dim] = reps[0][dim];
                 if (dim == 0) goto end;
             }
         }
@@ -72,42 +72,42 @@ struct Gradients : Operations<T> {
     // f(A,B) = A - B
     // df/dA = 1
     // df/dB = -1
-    static void pointSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
         }
     
         // dB -= dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i];
         }
     }
-    static void scalarSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
         }
     
         // dB -= dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] -= dC[i];
         }
     }
-    static void invScalarSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void invScalarSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
         // dA += dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i];
         }
     
         // dB -= dC
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i];
         }
     }
-    static void flexSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -117,7 +117,7 @@ struct Gradients : Operations<T> {
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
-                if (count[dim] >= 0) {
+                if (count[0][dim] >= 0) {
                     indA += strideA[dim];
                     indB += strideB[dim];
                     indC += strideC[dim];
@@ -134,30 +134,30 @@ struct Gradients : Operations<T> {
     // f(A,B) = A * B
     // df/dA = B
     // df/dB = A
-    static void pointMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * B
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * B[i];
         }
     
         // dB += dC * A
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] += dC[i] * A[i];
         }
     }
-    static void scalarMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC * B
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * B[0];
         }
     
         // dB += dC * A
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] += dC[i] * A[i];
         }
     }
-    static void flexMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -167,7 +167,7 @@ struct Gradients : Operations<T> {
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
-                if (count[dim] >= 0) {
+                if (count[0][dim] >= 0) {
                     indA += strideA[dim];
                     indB += strideB[dim];
                     indC += strideC[dim];
@@ -184,45 +184,45 @@ struct Gradients : Operations<T> {
     // f(A,B) = A / B
     // df/dA = 1 / B
     // df/dB = -A / B^2
-    static void pointDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * (1 / B)
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * (1 / B[i]);
         }
     
         // dB -= dC * (A / B^2)
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
         }
     }
-    static void scalarDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC * (1 / B)
         T B_inv = 1 / B[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * B_inv;
         }
     
         // dB -= dC * (A / B^2)
         T B_sqr = B[0] * B[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] -= dC[i] * (A[i] / B_sqr);
         }
     }
-    static void invScalarDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void invScalarDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
         // dA += dC * (1 / B)
         T B_inv = 1 / B[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i] * (1 / B[i]);
         }
     
         // dB -= dC * (A / B^2)
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i] * (A[0] / (B[i] * B[i]));
         }
     }
-    static void flexDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -233,7 +233,7 @@ struct Gradients : Operations<T> {
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
-                if (count[dim] >= 0) {
+                if (count[0][dim] >= 0) {
                     indA += strideA[dim];
                     indB += strideB[dim];
                     indC += strideC[dim];
@@ -250,7 +250,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A ^ B
     // df/dA = B * A ^ (B - 1)
     // df/dB = A ^ B * log(|A|)     df/dB is 0 if A is negative for stability
-    static void pointPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * (B * (A^(B - 1)))
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i] * (B->val[i] * pow(A->val[i], B->val[i] - 1));
@@ -265,7 +265,7 @@ struct Gradients : Operations<T> {
             #endif
         }
     }
-    static void scalarPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC * (B * (A^(B - 1)))
         for (size_t i = 0; i < dC->len; i++) {
@@ -281,7 +281,7 @@ struct Gradients : Operations<T> {
             #endif
         }
     }
-    static void invScalarPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void invScalarPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
         // dA += dC * (B * (A^(B - 1)))
         for (size_t i = 0; i < dC->len; i++) {
@@ -298,7 +298,7 @@ struct Gradients : Operations<T> {
             #endif
         }
     }
-    static void flexPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         T* cache = new T[dC->len + dC->len];
         // alt cache to astatic void cache conflict in flexible operation
         T* cache2 = cache + dC->len;
@@ -340,14 +340,14 @@ struct Gradients : Operations<T> {
     
     // f(A) = -A
     // df/dA = -1
-    static void negate_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void negate_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA -= dC
         flexSub_inplace(dA, dC);
     }
     
     // f(A) = A^2
     // df/dA = 2A
-    static void square_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void square_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * (A * 2)
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i] * (A->val[i] * 2);
@@ -356,7 +356,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = sqrt(A)
     // df/dA = 1 / (2 * sqrt(A))
-    static void sqrt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void sqrt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC / (2 * C)
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i] / (2 * C->val[i]);
@@ -365,7 +365,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = log(A)
     // df/dA = 1 / x
-    static void log_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void log_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC / x
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i] / A->val[i];
@@ -374,7 +374,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = e^A
     // df/dA = e^A
-    static void exp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void exp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * C
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i] * C->val[i];
@@ -383,7 +383,7 @@ struct Gradients : Operations<T> {
     
     // f(A) = |A|
     // df/dA = |A| / A       (if (A[i] < 0) -1 else 1)
-    static void abs_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void abs_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * if(A < 0) -1 else 1
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i] * (A->val[i] < 0 ? -1 : 1);
@@ -393,7 +393,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A dot B
     // df/dA = B
     // df/dB = A
-    static void dot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void dot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * dB
         for (size_t i = 0; i < dA->len; i++) {
             dA->val[i] += dC->val[0] * B->val[i];
@@ -408,7 +408,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A dot B
     // df/dA = B
     // df/dB = sum A
-    static void scalarDot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarDot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * dB
         for (size_t i = 0; i < dA->len; i++) {
             dA->val[i] += dC->val[0] * B->val[0];
@@ -423,7 +423,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = A outer B
     // df/dA = B
     // df/dB = A
-    static void outer_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void outer_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
     
@@ -468,7 +468,7 @@ struct Gradients : Operations<T> {
     // f(A,B) = AB
     // dC/dA = B^T
     // dC/dB = A^T
-    static void matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // Allocate separate caches for each intermediate result
         size_t cacheLen = max(max(A->len, B->len), dC->len);
         T* cache = new T[cacheLen];
@@ -513,7 +513,7 @@ struct Gradients : Operations<T> {
         delete[] shapeBlock;
     }
     
-    static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // allocate memory
         size_t big_len1 = max(dC->shapeLen, B->shapeLen);
         size_t big_len2 = max(A->shapeLen, dC->shapeLen);
@@ -606,7 +606,7 @@ struct Gradients : Operations<T> {
     // f(A) = min(A,B)
     // df/dA [i] = A < B ? 1 : 0
     // df/dB [i] = B < A ? 1 : 0
-    static void scalarMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         for (size_t i = 0; i < dC->len; i++) {
             int smaller = A->val[i] <= B->val[0];
             T C_val = dC->val[i];
@@ -615,7 +615,7 @@ struct Gradients : Operations<T> {
         }
     }
 
-    static void pointMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         for (size_t i = 0; i < dC->len; i++) {
             int smaller = A->val[i] <= B->val[i];
             T C_val = dC->val[i];
@@ -624,7 +624,7 @@ struct Gradients : Operations<T> {
         }
     }
 
-    static void flexMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int offsetA = dC->shapeLen - A->shapeLen;
         int offsetB = dC->shapeLen - B->shapeLen;
     
@@ -675,7 +675,7 @@ struct Gradients : Operations<T> {
     // f(A) = max(A,B)
     // df/dA [i] = A > B ? 1 : 0
     // df/dB [i] = B > A ? 1 : 0
-    static void scalarMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         for (size_t i = 0; i < dC->len; i++) {
             int bigger = A->val[i] >= B->val[0];
             T C_val = dC->val[i];
@@ -684,7 +684,7 @@ struct Gradients : Operations<T> {
         }
     }
 
-    static void pointMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void pointMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         for (size_t i = 0; i < dC->len; i++) {
             int bigger = A->val[i] >= B->val[i];
             T C_val = dC->val[i];
@@ -693,7 +693,7 @@ struct Gradients : Operations<T> {
         }
     }
 
-    static void flexMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexMax_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int offsetA = dC->shapeLen - A->shapeLen;
         int offsetB = dC->shapeLen - B->shapeLen;
     
@@ -743,14 +743,14 @@ struct Gradients : Operations<T> {
     
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1
-    static void sum_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void sum_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
        // dA += dC[0]
        for (size_t i = 0; i < dA->len; i++) {
            dA->val[i] += dC->val[0];
        }
     }
 
-    static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         fill(dA->val, dA->val + dA->len, 0);
 
         int k = 0; // fix later
@@ -790,7 +790,7 @@ struct Gradients : Operations<T> {
 
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1 / (len of A)
-    static void mean_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void mean_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
        // dA += dC[0]
        T inv = dC->val[0] / dC->len;
        for (size_t i = 0; i < dA->len; i++) {
@@ -798,7 +798,7 @@ struct Gradients : Operations<T> {
        }
     }
     
-    static void mean_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void mean_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         fill(dA->val, dA->val + dA->len, 0);
 
         int k = 0; // fix later
@@ -838,13 +838,13 @@ struct Gradients : Operations<T> {
 
     // f(A) = A^T
     // df/dA = 1
-    static void transp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void transp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         for (size_t i = 0; i < dC->len; i++) {
             dA->val[i] += dC->val[i];
         }
     }
 
-    static void tile_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void tile_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int* m = B->shape;
         
         int offset = dC->shapeLen - A->shapeLen;
@@ -886,7 +886,7 @@ struct Gradients : Operations<T> {
         delete[] effstride;
     }
 
-    static void slice_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void slice_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         int offset = A->shapeLen - dC->shapeLen;
         int* effstride = new int[dC->shapeLen * 2];
         copy(A->stride + offset, A->stride + A->shapeLen - offset + 1, effstride);
