@@ -24,12 +24,13 @@ int main() {
     int x = rec.append(move(X));
 
     //int c = add(rec, x, add(rec, n, add(rec, a, b)));
-    int c = matmul(rec, a, b);
-
-    auto e = rec.evaluate(c);
+    int c = add(rec, x, matmul(rec, a, b));
 
     cout << "A:\n" << rec.nodes[a].value << endl;
     cout << "N:\n" << rec.nodes[n].value << endl;
+
+    auto e = rec.evaluate(c);
+
     cout << "C:\n" << rec.nodes[c].value << endl;
 
     auto g = rec.getGradient(c, a, b);

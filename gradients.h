@@ -165,12 +165,12 @@ struct Gradients : Operations<T> {
             dA[indA] += dc_i * B[indB];
             dB[indB] += dc_i * A[indA];
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = strideLen[0] - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[0][dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
+                    indA += strideA[0][dim];
+                    indB += strideB[0][dim];
+                    indC += strideC[0][dim];
                     break;
                 }
 
