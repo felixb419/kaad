@@ -7,9 +7,9 @@ int main() {
     double* v1 = new double[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     Tensor<double> A(s1, 2, v1, 8);
 
-    int* s2 = new int[] {4,2};
+    int* s2 = new int[] {2,4,2};
     double* v2 = new double[] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
-    Tensor<double> B(s2, 2, v2, 8);
+    Tensor<double> B(s2, 3, v2, 16);
 
     int* s3 = new int[] {2,4};
     double* v3 = new double [] {1,2,3,4,5,6,7,8};
@@ -24,7 +24,7 @@ int main() {
     int x = rec.append(move(X));
 
     //int c = add(rec, x, add(rec, n, add(rec, a, b)));
-    int c = add(rec, x, matmul(rec, a, b));
+    int c = matmul(rec, a, b);
 
     cout << "A:\n" << rec.nodes[a].value << endl;
     cout << "N:\n" << rec.nodes[n].value << endl;

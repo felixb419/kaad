@@ -659,6 +659,25 @@ struct Operations {
     // A and B must be 2d and width of A is equalt to height of B
     // all dimensions higher than 2 are regarded as batch dimensions
     static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int indA = 0, indB = 0, indC = 0;
+        while (1) {
+
+            C[indC] = A[indA] + B[indB];
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
+                    break;
+                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
+            }
+        }
+        end:;
     }
 
 

@@ -366,6 +366,7 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
     }
     else {
         rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, indA, indB, newShape, newLen);
+        Strides<T>::batch_matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
     }
     
     return recLen;

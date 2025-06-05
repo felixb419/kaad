@@ -79,7 +79,7 @@ struct Strides {
         tView<T> b = B.view();
         tView<T> c = node.value.view();
 
-        _batch_matmul(a, b, c, node.strideLen[0], node.reps[0], node.strideA[0], node.strideB[0], node.strideC[0]);
+        _batch_matmul(a, b, c, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]);
     }
 
     private:
@@ -180,16 +180,8 @@ struct Strides {
             strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
         }
 
-        int offsetC = 0, _offsetC;
-        for (int i = 1; i <= strideLen; i++) {
-            idx = strideLen - i;
-            idxC = C.shapeLen - i;
-            _offsetC = offsetC;
-            offsetC += ((idxC > 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
-            strideC[idx] -= _offsetC;
-        }
-
-        int offsetA, _offsetA;
+        strideA[strideLen - 1] = 0;
+        int offsetA = 0, _offsetA;
         for (int i = 2; i <= strideLen; i++) {
             idx = strideLen - i;
             idxA = A.shapeLen - i;
@@ -198,7 +190,23 @@ struct Strides {
             strideA[idx] -= _offsetA;
         }
 
-        
+        strideB[strideLen - 2] = -strideB[strideLen - 1] * (B.shape[B.shapeLen - 1] - 1);
+        int offsetB = 0, _offsetB;
+        for (int i = 3; i <= strideLen; i++) {
+            idx = strideLen - i;
+            idxB = B.shapeLen - i;
+            _offsetB = offsetB;
+            offsetB += ((idxB > 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
+            strideB[idx] -= _offsetB;
+        }
 
+        int offsetC = 0, _offsetC;
+        for (int i = 1; i <= strideLen; i++) {
+            idx = strideLen - i;
+            idxC = C.shapeLen - i;
+            _offsetC = offsetC;
+            offsetC += ((idxC > 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+            strideC[idx] -= _offsetC;
+        }
     }
 };
