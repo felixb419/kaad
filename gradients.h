@@ -503,6 +503,10 @@ struct Gradients : Operations<T> {
     }
     
     static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        // dA = dC * B^T
+        batch_matmul(dC, B, dA, strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
+        // dB = A^T * dC
+        batch_matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
     /*
     // f(A) = min(A,B)
