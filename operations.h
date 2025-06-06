@@ -85,6 +85,27 @@ void transp(int* shape, int* stride,size_t len, int* shape_T, int* stride_T) {
     }
 }
 
+void transp2D(int* shape, int* stride, size_t len) {
+    int temp;
+    temp = shape[len - 2];
+    shape[len - 2] = shape[len - 1];
+    shape[len - 1] = temp;
+
+    temp = stride[len - 2];
+    stride[len - 2] = stride[len - 1];
+    stride[len - 1] = temp;
+}
+
+void transp2D(int* shape, int* stride,size_t len, int* shape_T, int* stride_T) {
+    copy(shape, shape + len - 2, shape_T);
+    shape_T[len - 2] = shape[len - 1];
+    shape_T[len - 1] = shape[len - 2];
+
+    copy(stride, stride + len - 2, stride_T);
+    stride_T[len - 2] = stride[len - 1];
+    stride_T[len - 1] = stride[len - 2];
+}
+
 template <typename T>
 struct Operations {
     // add so that: out[m,n,...] = tensor[m,n,...] + scalar[0]
@@ -659,10 +680,13 @@ struct Operations {
     // A and B must be 2d and width of A is equalt to height of B
     // all dimensions higher than 2 are regarded as batch dimensions
     static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int k = reps[strideLen], a_offset = strideA[strideLen], b_offset = strideB[strideLen];
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
-            C[indC] = A[indA] + B[indB];
+            for (int i = 0; i < k; i++) {
+                C[indC] += A[indA + i*a_offset] * B[indB + i*b_offset];
+            }
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
