@@ -128,17 +128,17 @@ struct Strides {
 
             idxA = A.shapeLen - i;
             _offsetA = offsetA;
-            offsetA += ((idxA > 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
+            offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
             strideA[idx] -= _offsetA;
 
             idxB = B.shapeLen - i;
             _offsetB = offsetB;
-            offsetB += ((idxB > 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
+            offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
             strideB[idx] -= _offsetB;
 
             idxC = C.shapeLen - i;
             _offsetC = offsetC;
-            offsetC += ((idxC > 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+            offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
             strideC[idx] -= _offsetC;
         }
     }
@@ -200,26 +200,25 @@ struct Strides {
 
 
     
-        int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-        
         strideA[strideLen - 1] = 0;
         strideB[strideLen - 2] = 0;
+        int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
         for (int i = 1; i <= strideLen; i++) {
             idx = strideLen - i;
 
             idxA = A.shapeLen - i;
             _offsetA = offsetA;
-            offsetA += ((idxA > 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
+            offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
             strideA[idx] -= _offsetA;
 
             idxB = B.shapeLen - i;
             _offsetB = offsetB;
-            offsetB += ((idxB > 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
+            offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
             strideB[idx] -= _offsetB;
 
             idxC = C.shapeLen - i;
             _offsetC = offsetC;
-            offsetC += ((idxC > 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+            offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
             strideC[idx] -= _offsetC;
         }
     }
