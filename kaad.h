@@ -5,116 +5,12 @@
 #include "gradients.h"
 #include "recorder.h"
 #include "strides.h"
+#include "binaryOps.h"
 
 #include <iostream>
 #include <math.h>
 
 using namespace std;
-
-// add A and B
-// where A and B are Tensors with Broadcastable shapes
-template <typename T>
-int add(Recorder<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
-
-    if (A_scalar || B_scalar) {
-        int tensor = A_scalar ? indB : indA;
-        int scalar = A_scalar ? indA : indB;
-        Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        int* newShape = new int[tensor_ref.shapeLen];
-        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
-
-        rec.nodes.emplace_back(Operations<T>::scalarAdd, Gradients<T>::scalarAdd_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-        Strides<T>::pointwise(rec.nodes[recLen]);
-    }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        int* newShape = new int[A.shapeLen];
-        copy(A.shape, A.shape + A.shapeLen, newShape);
-
-        rec.nodes.emplace_back(Operations<T>::pointAdd, Gradients<T>::pointAdd_grad, indA, indB, newShape, A.shapeLen);
-        Strides<T>::pointwise(rec.nodes[recLen]);
-    }
-    else {
-        size_t newLen = max(A.shapeLen, B.shapeLen);
-        int* newShape = new int[newLen];
-        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
-
-        rec.nodes.emplace_back(Operations<T>::flexAdd, Gradients<T>::flexAdd_grad, indA, indB, newShape, newLen);
-        Strides<T>::flexible(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]); 
-    }
-    return recLen;
-}
-
-template <typename T>
-int sub(Recorder<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
-
-    if (A_scalar || B_scalar) {
-        int tensor = A_scalar ? indB : indA;
-        int scalar = A_scalar ? indA : indB;
-        Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        
-        int* newShape = new int[tensor_ref.shapeLen];
-        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
-        
-        rec.nodes.emplace_back(Operations<T>::scalarSub, Gradients<T>::scalarSub_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-    }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        int* newShape = new int[A.shapeLen];
-        copy(A.shape, A.shape + A.shapeLen, newShape);
-
-        rec.nodes.emplace_back(Operations<T>::pointSub, Gradients<T>::pointSub_grad, indA, indB, newShape, A.shapeLen);
-    }
-    else {
-        size_t newLen = max(A.shapeLen, B.shapeLen);
-        int* newShape = new int[newLen];
-        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
-
-        rec.nodes.emplace_back(Operations<T>::flexSub, Gradients<T>::flexSub_grad, indA, indB, newShape, newLen);
-    }
-    return recLen;
-}
-
-template <typename T>
-int mul(Recorder<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
-
-    if (A_scalar || B_scalar) {
-        int tensor = A_scalar ? indB : indA;
-        int scalar = A_scalar ? indA : indB;
-        Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        int* newShape = new int[tensor_ref.shapeLen];
-        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
-
-        rec.nodes.emplace_back(Operations<T>::scalarMul, Gradients<T>::scalarMul_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-    }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        int* newShape = new int[A.shapeLen];
-        copy(A.shape, A.shape + A.shapeLen, newShape);
-        
-        rec.nodes.emplace_back(Operations<T>::pointMul, Gradients<T>::pointMul_grad, indA, indB, newShape, A.shapeLen);
-    }
-    else {
-        size_t newLen = max(A.shapeLen, B.shapeLen);
-        int* newShape = new int[newLen];
-        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
-
-        rec.nodes.emplace_back(Operations<T>::flexMul, Gradients<T>::flexMul_grad, indA, indB, newShape, newLen);
-    }
-    return recLen;
-}
 
 template <typename T>
 int div(Recorder<T>& rec, int indA, int indB) {

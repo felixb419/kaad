@@ -6,9 +6,9 @@
 #include <utility>
 
 template <typename T>
-using tensorOP = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+using tensorOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
-using gradientOP = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* stridelen);
+using gradientOp = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* stridelen);
 
 template <typename T>
 struct Node {
@@ -16,8 +16,8 @@ struct Node {
         int in1 = -1;
         int in2 = -1;
 
-        tensorOP<T> op = nullptr;
-        gradientOP<T> grad_op = nullptr;
+        tensorOp<T> op = nullptr;
+        gradientOp<T> grad_op = nullptr;
         void* ctx = nullptr;
 
         bool evaluated = false;
@@ -43,7 +43,7 @@ struct Node {
 
         // construct as to be evaluated
         template <typename... Args>
-        Node(tensorOP<T> operation, gradientOP<T> derivative, int in1_index, int in2_index, Args&&... args)
+        Node(tensorOp<T> operation, gradientOp<T> derivative, int in1_index, int in2_index, Args&&... args)
         : in1(in1_index), in2(in2_index), op(operation), grad_op(derivative),
         evaluated(false), value(forward<Args>(args)...), hasInputs(true), gradient(value) {}
 

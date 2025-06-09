@@ -17,24 +17,29 @@ int main() {
     Tensor<double> N(s3, 4, v3, 32);
 
     Tensor<double> X(10);
+    Tensor<double> Y(5);
 
     Recorder<double> rec;
     int a = rec.append(move(A));
     int b = rec.append(move(B));
     int n = rec.append(move(N));
     int x = rec.append(move(X));
+    int y = rec.append(move(Y));
 
-    int c = add(rec, x, add(rec, n, add(rec, a, b)));
+    int c = mul(rec, mul(rec, x, mul(rec, n, mul(rec, a, b))), y);
 
-    cout << "A:\n" << rec.nodes[a].value << endl;
-    cout << "N:\n" << rec.nodes[n].value << endl;
+    //cout << "A:\n" << rec.nodes[a].value << endl;
+    //cout << "N:\n" << rec.nodes[n].value << endl;
 
     auto e = rec.evaluate(c);
 
     cout << "C:\n" << rec.nodes[c].value << endl;
 
-    auto g = rec.getGradient(c, a, b);
+    auto g = rec.getGradient(c, a, b, n, x, y);
 
     cout << "dA\n" << *g[0] << endl;
     cout << "dB\n" << *g[1] << endl;
+    cout << "dN\n" << *g[2] << endl;
+    cout << "dX\n" << *g[3] << endl;
+    cout << "dY\n" << *g[4] << endl;
 }
