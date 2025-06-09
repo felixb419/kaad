@@ -30,10 +30,20 @@ struct Strides {
         _flexible(A, B, C, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]);
 
         node.strideLen[1] = node.strideLen[0];
+
+        node.reps[1] = new int[node.strideLen[0]];
         copy(node.reps[0], node.reps[0] + node.strideLen[0], node.reps[1]);
+
+        node.count[1] = new int[node.strideLen[0]];
         copy(node.count[0], node.count[0] + node.strideLen[0], node.count[1]);
+
+        node.strideA[1] = new int[node.strideLen[0]];
         copy(node.strideA[0], node.strideA[0] + node.strideLen[0], node.strideA[1]);
+
+        node.strideB[1] = new int[node.strideLen[0]];
         copy(node.strideB[0], node.strideB[0] + node.strideLen[0], node.strideB[1]);
+
+        node.strideC[1] = new int[node.strideLen[0]];
         copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
