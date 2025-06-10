@@ -5,6 +5,7 @@
 #include "gradients.h"
 #include "recorder.h"
 #include "strides.h"
+#include "unaryOps.h"
 #include "binaryOps.h"
 
 #include <iostream>
@@ -12,73 +13,6 @@
 
 using namespace std;
 
-template <typename T>
-int negative(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-
-    rec.nodes.emplace_back(Operations<T>::negate, Gradients<T>::negate_grad, indA, -1, newShape, A.shapeLen);
-    return recLen;
-}
-
-template <typename T>
-int square(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-
-    rec.nodes.emplace_back(Operations<T>::square, Gradients<T>::square_grad, indA, -1, newShape, A.shapeLen);
-    return recLen;
-}
-
-template <typename T>
-int sqrt(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-
-    rec.nodes.emplace_back(Operations<T>::sqrt, Gradients<T>::sqrt_grad, indA, -1, newShape, A.shapeLen);
-    return recLen;
-}
-
-template <typename T>
-int log(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-
-    rec.nodes.emplace_back(Operations<T>::log, Gradients<T>::log_grad, indA, -1, newShape, A.shapeLen);
-    return recLen;
-}
-
-template <typename T>
-int exp(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-
-    rec.nodes.emplace_back(Operations<T>::exp, Gradients<T>::exp_grad, indA, -1, newShape, A.shapeLen);
-    return recLen;
-}
-
-template <typename T>
-int abs(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-
-    rec.nodes.emplace_back(Operations<T>::abs, Gradients<T>::abs_grad, indA, -1, newShape, A.shapeLen);
-    return recLen;
-}
 
 template <typename T>
 int dot(Recorder<T>& rec, int indA, int indB) {

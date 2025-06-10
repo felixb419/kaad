@@ -344,40 +344,40 @@ struct Operations {
     // square A so that out[i] = A[i]*A[i]
     // A and out must have same shape
     static void square(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < A->len; i++) {
-            C[i] = A->val[i] * A->val[i];
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = A[i] * A[i];
         }
     }
         
     // root of A so that C[i] = sqrt(A[i])
     // A and C must have same shape
     static void sqrt(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < A->len; i++) {
-            C[i] = sqrt(A->val[i]);
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = std::sqrt(A[i]);
         }
     }
         
     // log of A so that C[i] = ln(A[i])
     // A and C must have same shape
     static void log(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < A->len; i++) {
-            C[i] = log(A->val[i]);
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = std::log(A[i]);
         }
     }
         
     // exponent of A so that C[i] = e^A[i]
     // A and C must have same shape
     static void exp(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < A->len; i++) {
-            C[i] = exp(A->val[i]);
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = std::exp(A[i]);
         }
     }
         
     // absolute value of A so that C[i] = abs(A[i])
     // A and C must have same shape
     static void abs(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < A->len; i++) {
-            C[i] = abs(A->val[i]);
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = std::abs(A[i]);
         }
     }
 
@@ -385,8 +385,8 @@ struct Operations {
     // A and B must be 1d vectors of same length, C must be scalar
     static void dot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         C[0] = 0;
-        for (size_t i = 0; i < A->len; i++) {
-            C[0] += A->val[i] * B->val[i]; 
+        for (size_t i = 0; i < strideLen; i++) {
+            C[0] += A[i] * B[i]; 
         }
     }
 
@@ -394,8 +394,8 @@ struct Operations {
     // A must be 1d vector, B and C must be scalar
     static void scalarDot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         C[0] = 0;
-        for (size_t i = 0; i < A->len; i++) {
-            C[0] += A->val[i] * B->val[0]; 
+        for (size_t i = 0; i < strideLen; i++) {
+            C[0] += A[i] * B[0]; 
         }
     }
 

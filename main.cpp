@@ -26,7 +26,8 @@ int main() {
     int x = rec.append(move(X));
     int y = rec.append(move(Y));
 
-    int c = pow(rec, pow(rec, x, pow(rec, n, pow(rec, a, b))), y);
+    //int c = pow(rec, pow(rec, x, pow(rec, n, pow(rec, a, b))), y);
+    int c = abs(rec, b);
 
     //cout << "A:\n" << rec.nodes[a].value << endl;
     //cout << "N:\n" << rec.nodes[n].value << endl;
@@ -37,9 +38,9 @@ int main() {
 
     auto g = rec.getGradient(c, a, b, n, x, y);
 
-    cout << "dA\n" << *g[0] << endl;
+    //cout << "dA\n" << *g[0] << endl;
     cout << "dB\n" << *g[1] << endl;
-    cout << "dN\n" << *g[2] << endl;
-    cout << "dX\n" << *g[3] << endl;
-    cout << "dY\n" << *g[4] << endl;
+    //cout << "dN\n" << *g[2] << endl;
+    //cout << "dX\n" << *g[3] << endl;
+    //cout << "dY\n" << *g[4] << endl;
 }

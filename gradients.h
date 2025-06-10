@@ -359,8 +359,8 @@ struct Gradients : Operations<T> {
     // df/dA = 2A
     static void square_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * (A * 2)
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] * (A->val[i] * 2);
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * (A[i] * 2);
         }
     }
     
@@ -368,8 +368,8 @@ struct Gradients : Operations<T> {
     // df/dA = 1 / (2 * sqrt(A))
     static void sqrt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC / (2 * C)
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] / (2 * C->val[i]);
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] / (2 * C[i]);
         }
     }
     
@@ -377,8 +377,8 @@ struct Gradients : Operations<T> {
     // df/dA = 1 / x
     static void log_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC / x
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] / A->val[i];
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] / A[i];
         }
     }
     
@@ -386,8 +386,8 @@ struct Gradients : Operations<T> {
     // df/dA = e^A
     static void exp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * C
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] * C->val[i];
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * C[i];
         }
     }
     
@@ -395,8 +395,8 @@ struct Gradients : Operations<T> {
     // df/dA = |A| / A       (if (A[i] < 0) -1 else 1)
     static void abs_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA += dC * if(A < 0) -1 else 1
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] * (A->val[i] < 0 ? -1 : 1);
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * (A[i] < 0 ? -1 : 1);
         }
     }
 
