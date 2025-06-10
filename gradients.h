@@ -19,6 +19,8 @@ struct Gradients : Operations<T> {
     using Operations<T>::matmul;
     using Operations<T>::batch_matmul;
 
+    //d/dx[ f(g(x)) ] = f'(g(x)) * g'(x)
+
     // f(A,B) = A + B
     // df/dA = 1
     // df/dB = 1
