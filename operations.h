@@ -243,28 +243,28 @@ struct Operations {
         end:;
     }
 
-    // divide so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
-    // shapes of out and tensor must be the same, shape of scalar must be (1)
+    // divide so that: C[m,n,...] = A[m,n,...] / B[0]
+    // shapes of C and A must be the same, shape of B must be (1)
     static void scalarDivRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
             C[i] = A[i] / B[0];
         }
     }
-    // divide so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
-    // shapes of out and tensor must be the same, shape of scalar must be (1)
+    // divide so that: C[m,n,...] = A[0] / B[m,n,...]
+    // shapes of C and B must be the same, shape of A must be (1)
     static void scalarDivLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
             C[i] = A[0] / B[i]; 
         }
     }
-    // pointwise divide so that: C = A - B
+    // pointwise divide so that: C = A / B
     // shape of all operands must be indentical
     static void pointDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
             C[i] = A[i] / B[i];
         }
     }
-    // flexible divide so that: C = A - B
+    // flexible divide so that: C = A / B
     // shape of C must be a valid broadcast of A and B
     static void flexDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
@@ -287,112 +287,50 @@ struct Operations {
         }
         end:;
     }
-    // flexible divide so that: A = A - B
-    // shapes of A and B must be broadcastable
-    static void flexDiv_inplace(tView<T>* A, const tView<T>* B, bool iterOverInp=true) {
-        const tView<T>* big = iterOverInp ? B : A;
-        const tView<T>* small = iterOverInp ? A : B;
-        
-        int offset = big->shapeLen - small->shapeLen;
-        int* effstride = new int[B->shapeLen * 2];
-    
-        for (size_t i = 0; i < big->shapeLen; i++) {
-            int dim = i - offset;
-            effstride[i] = dim >= 0 && small->shape[dim] != 1 ? small->stride[dim] : 0;
-        }
-    
-        int indA = 0, indB = 0;
-        int* cords = effstride + big->shapeLen;
-        fill(cords, cords + big->shapeLen, 0);
-    
-        int* strideA = iterOverInp ? effstride : A->stride;
-        int* strideB = iterOverInp ? B->stride : effstride;
-    
-        for (int i = 0; i < big->len; i++) {
-        
-            A->val[indA] /= B->val[indB];
-            
-            for (int dim = big->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += strideA[dim];
-                indB += strideB[dim];
-            
-                if (cords[dim] < big->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= strideA[dim] * big->shape[dim];
-                    indB -= strideB[dim] * big->shape[dim];
-                }
-            }
-        }
-        delete[] effstride;
-    }
-        
-    // raise to power so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
-    // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarPow(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = pow(A->val[i], B->val[0]);
+
+    // raise to power so that: C[m,n,...] = A[m,n,...] ^ B[0]
+    // shapes of C and A must be the same, shape of B must be (1)
+    static void scalarPowRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = pow(A[i], B[0]);
         }
     }
-    // raise to power so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
-    // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarPow_inv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = pow(A->val[0], B->val[i]);
+    // raise to power so that: C[m,n,...] = A[0] ^ B[m,n,...]
+    // shapes of C and B must be the same, shape of A must be (1)
+    static void scalarPowLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = pow(A[0], B[i]);
         }
     }
-    // pointwise raise to power so that: C = A - B
+    // pointwise raise to power so that: C = A ^ B
     // shape of all operands must be indentical
     static void pointPow(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < C->len; i++) {
-            C->val[i] = pow(A->val[i], B->val[i]);
+        for (size_t i = 0; i < strideLen; i++) {
+            C[i] = pow(A[i], B[i]);
         }
     }
-    // flexible raise to power so that: C = A - B
+    // flexible raise to power so that: C = A ^ B
     // shape of C must be a valid broadcast of A and B
     static void flexPow(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        for (size_t i = 0; i < C->shapeLen; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-    
         int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            C->val[indC] = pow(A->val[indA], B->val[indB]);
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
+        while (1) {
+
+            C[indC] = pow(A[indA], B[indB]);
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
             }
-        
-        }    
-        delete[] effstrideA;
+        }
+        end:;
     }
     // flexible raise to power so that: A = A - B
     // shapes of A and B must be broadcastable

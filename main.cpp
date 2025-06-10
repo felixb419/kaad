@@ -26,7 +26,7 @@ int main() {
     int x = rec.append(move(X));
     int y = rec.append(move(Y));
 
-    int c = div(rec, div(rec, x, div(rec, n, div(rec, a, b))), y);
+    int c = pow(rec, pow(rec, x, pow(rec, n, pow(rec, a, b))), y);
 
     //cout << "A:\n" << rec.nodes[a].value << endl;
     //cout << "N:\n" << rec.nodes[n].value << endl;

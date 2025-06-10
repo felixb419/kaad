@@ -135,3 +135,22 @@ int div(Recorder<T>& rec, int indA, int indB) {
 
     return binaryOp(rec, indA, indB, divK);
 }
+
+// raise A to the power of B
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+int pow(Recorder<T>& rec, int indA, int indB) {
+    
+    static const  BinaryKernels<T> powK = {
+        Operations<T>::scalarPowRt,
+        Operations<T>::scalarPowLt,
+        Operations<T>::pointPow,
+        Operations<T>::flexPow,
+        Gradients<T>::scalarPowRt_grad,
+        Gradients<T>::scalarPowLt_grad,
+        Gradients<T>::pointPow_grad,
+        Gradients<T>::flexPow_grad
+    };
+
+    return binaryOp(rec, indA, indB, powK);
+}

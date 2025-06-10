@@ -205,17 +205,6 @@ struct Gradients : Operations<T> {
     // f(A,B) = A / B
     // df/dA = 1 / B
     // df/dB = -A / B^2
-    static void pointDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * (1 / B)
-        for (size_t i = 0; i < strideLen[0]; i++) {
-            dA[i] += dC[i] * (1 / B[i]);
-        }
-    
-        // dB -= dC * (A / B^2)
-        for (size_t i = 0; i < strideLen[0]; i++) {
-            dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
-        }
-    }
     static void scalarDivRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC * (1 / B)
@@ -241,6 +230,17 @@ struct Gradients : Operations<T> {
         // dB -= dC * (A / B^2)
         for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i] * (A[0] / (B[i] * B[i]));
+        }
+    }
+    static void pointDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        // dA += dC * (1 / B)
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * (1 / B[i]);
+        }
+    
+        // dB -= dC * (A / B^2)
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
         }
     }
     static void flexDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
@@ -271,92 +271,79 @@ struct Gradients : Operations<T> {
     // f(A,B) = A ^ B
     // df/dA = B * A ^ (B - 1)
     // df/dB = A ^ B * log(|A|)     df/dB is 0 if A is negative for stability
-    static void pointPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * (B * (A^(B - 1)))
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] * (B->val[i] * pow(A->val[i], B->val[i] - 1));
-        }
-    
-        // dB += dC * (C * log(A))
-        for (size_t i = 0; i < dC->len; i++) {
-            #ifdef safe_powergradient
-            dB->val[i] += dC->val[i] * (C->val[i] * (A->val[i] < 0 ? 0 : log(A->val[i])));
-            #else
-            dB->val[i] += dC->val[i] * (C->val[i] * log(A->val[i]));
-            #endif
-        }
-    }
-    static void scalarPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void scalarPowRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC * (B * (A^(B - 1)))
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i] * (B->val[0] * pow(A->val[i], B->val[0] - 1));
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * (B[0] * pow(A[i], B[0] - 1));
         }
     
         // dB += dC * (C * log(A))
-        for (size_t i = 0; i < dC->len; i++) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
             #ifdef safe_powergradient
-            dB->val[0] += dC->val[i] * (A->val[i] < 0 ? 0 : C->val[i] * log(A->val[i]));
+            dB[0] += dC[i] * (A[i] < 0 ? 0 : C[i] * log(A[i]));
             #else
-            dB->val[0] += dC->val[i] * (C->val[i] * log(A->val[i]));
+            dB[0] += dC[i] * (C[i] * log(A[i]));
             #endif
         }
     }
-    static void invScalarPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void scalarPowLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
         // dA += dC * (B * (A^(B - 1)))
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[0] += dC->val[i] * (B->val[i] * pow(A->val[0], B->val[i] - 1));
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[0] += dC[i] * (B[i] * pow(A[0], B[i] - 1));
         }
     
         // dB += dC * (C * log(A))
-        T A_log = A->val[0] < 0 ? 0 : log(A->val[0]);
-        for (size_t i = 0; i < dC->len; i++) {
+        T A_log = A[0] < 0 ? 0 : log(A[0]);
+        for (size_t i = 0; i < strideLen[0]; i++) {
             #ifdef safe_powergradient
-            dB->val[i] += dC->val[i] * (C->val[i] * A_log);
+            dB[i] += dC[i] * (C[i] * A_log);
             #else
-            dB->val[i] += dC->val[i] * (C->val[i] * A_log);
+            dB[i] += dC[i] * (C[i] * A_log);
+            #endif
+        }
+    }
+    static void pointPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        // dA += dC * (B * (A^(B - 1)))
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * (B[i] * pow(A[i], B[i] - 1));
+        }
+    
+        // dB += dC * (C * log(A))
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            #ifdef safe_powergradient
+            dB[i] += dC[i] * (C[i] * (A[i] < 0 ? 0 : log(A[i])));
+            #else
+            dB[i] += dC[i] * (C[i] * log(A[i]));
             #endif
         }
     }
     static void flexPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        T* cache = new T[dC->len + dC->len];
-        // alt cache to astatic void cache conflict in flexible operation
-        T* cache2 = cache + dC->len;
-        tView<T> C_cache(dC);
-        C_cache.val = cache;
-    
-        tView<T> A_cache (*A);
-        A_cache.val = cache2;
-        tView<T> B_cache (*B);
-        B_cache.val = cache2;
-    
-        // dA += dC * (B * (A^(B - 1)))
-        for (size_t i = 0; i < B->len; i++) {
-            cache2[i] = B->val[i] - 1;
-        }
-        flexPow(A, &B_cache, &C_cache);
-        flexMul_inplace(&C_cache, B, false);
-        for (size_t i = 0; i < dC->len; i++) {
-            cache[i] *= dC->val[i];
-        }
-        flexAdd_inplace(dA, &C_cache);
-    
-        // dB += dC * (C * log(A))
-        for (size_t i = 0; i < A->len; i++) {
+        int indA = 0, indB = 0, indC = 0;
+        while (1) {
+
+            dA[indA] += dC[indC] * (B[indB] * pow(A[indA], B[indB] - 1));
             #ifdef safe_powergradient
-            cache2[i] = A->val[i] < 0 ? 0 : log(A->val[i]);
+            dB[indB] += dC[indC] * (C[indC] * (A[indA] < 0 ? 0 : log(A[indA])));
             #else
-            cache2[i] = log(A->val[i]);
+            dB[indB] += dC[indC] * (C[indC] * log(A[indA]));
             #endif
+
+            for (int dim = *strideLen - 1; dim >= 0; dim--) {
+                count[0][dim]--;
+                if (count[0][dim] >= 0) {
+                    indA += strideA[0][dim];
+                    indB += strideB[0][dim];
+                    indC += strideC[0][dim];
+                    break;
+                }
+
+                count[0][dim] = reps[0][dim];
+                if (dim == 0) goto end;
+            }
         }
-        flexMul(C, &A_cache, &C_cache);
-        for (size_t i = 0; i < A->len; i++) {
-            C_cache.val[i] *= dC->val[i];
-        }
-        flexAdd_inplace(dB, &C_cache);
-    
-        delete[] cache;
+        end:;
     }
     
     // f(A) = -A
