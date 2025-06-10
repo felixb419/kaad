@@ -332,94 +332,52 @@ struct Operations {
         }
         end:;
     }
-    // flexible raise to power so that: A = A - B
-    // shapes of A and B must be broadcastable
-    static void flexPow_inplace(tView<T>* A, const tView<T>* B, bool iterOverInp=true) {
-        const tView<T>* big = iterOverInp ? B : A;
-        const tView<T>* small = iterOverInp ? A : B;
         
-        int offset = big->shapeLen - small->shapeLen;
-        int* effstride = new int[B->shapeLen * 2];
-    
-        for (size_t i = 0; i < big->shapeLen; i++) {
-            int dim = i - offset;
-            effstride[i] = dim >= 0 && small->shape[dim] != 1 ? small->stride[dim] : 0;
-        }
-    
-        int indA = 0, indB = 0;
-        int* cords = effstride + big->shapeLen;
-        fill(cords, cords + big->shapeLen, 0);
-    
-        int* strideA = iterOverInp ? effstride : A->stride;
-        int* strideB = iterOverInp ? B->stride : effstride;
-    
-        for (int i = 0; i < big->len; i++) {
-        
-            A->val[indA] = pow(A->val[indA], B->val[indB]);
-            
-            for (int dim = big->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += strideA[dim];
-                indB += strideB[dim];
-            
-                if (cords[dim] < big->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= strideA[dim] * big->shape[dim];
-                    indB -= strideB[dim] * big->shape[dim];
-                }
-            }
-        }
-        delete[] effstride;
-    }
-        
-    // negate A so that out[i] = -A[i]
-    // A and out must have same shape
-    static void negate(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
-        for (size_t i = 0; i < A->len; i++) {
-            out->val[i] = -A->val[i];
+    // negate A so that C[i] = -A[i]
+    // A and C must have same shape
+    static void negate(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+        for (size_t i = 0; i < strideLen; i++) {
+            C->val[i] = -A->val[i];
         }
     }
         
     // square A so that out[i] = A[i]*A[i]
     // A and out must have same shape
-    static void square(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    static void square(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
         for (size_t i = 0; i < A->len; i++) {
-            out->val[i] = A->val[i] * A->val[i];
+            C->val[i] = A->val[i] * A->val[i];
         }
     }
         
-    // root of A so that out[i] = sqrt(A[i])
-    // A and out must have same shape
-    static void sqrt(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    // root of A so that C[i] = sqrt(A[i])
+    // A and C must have same shape
+    static void sqrt(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
         for (size_t i = 0; i < A->len; i++) {
-            out->val[i] = sqrt(A->val[i]);
+            C->val[i] = sqrt(A->val[i]);
         }
     }
         
-    // log of A so that out[i] = ln(A[i])
-    // A and out must have same shape
-    static void log(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    // log of A so that C[i] = ln(A[i])
+    // A and C must have same shape
+    static void log(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
         for (size_t i = 0; i < A->len; i++) {
-            out->val[i] = log(A->val[i]);
+            C->val[i] = log(A->val[i]);
         }
     }
         
-    // exponent of A so that out[i] = e^A[i]
-    // A and out must have same shape
-    static void exp(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    // exponent of A so that C[i] = e^A[i]
+    // A and C must have same shape
+    static void exp(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
         for (size_t i = 0; i < A->len; i++) {
-            out->val[i] = exp(A->val[i]);
+            C->val[i] = exp(A->val[i]);
         }
     }
         
-    // absolute value of A so that out[i] = abs(A[i])
-    // A and out must have same shape
-    static void abs(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
+    // absolute value of A so that C[i] = abs(A[i])
+    // A and C must have same shape
+    static void abs(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
         for (size_t i = 0; i < A->len; i++) {
-            out->val[i] = abs(A->val[i]);
+            C->val[i] = abs(A->val[i]);
         }
     }
 
