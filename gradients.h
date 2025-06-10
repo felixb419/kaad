@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <vector>
 
-#define safe_powergradient
+#define safer_powergradient
 
 template <typename T>
 using gradientOp = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* stridelen);
@@ -221,7 +221,7 @@ struct Gradients : Operations<T> {
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * (B[0] * pow(A[i], B[0] - 1));
 
-            #ifdef safe_powergradient
+            #ifdef safer_powergradient
             // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[0] += dC[i] * (A[i] < 0 ? 0 : C[i] * log(A[i]));
             #else
@@ -235,7 +235,7 @@ struct Gradients : Operations<T> {
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i] * (B[i] * pow(A[0], B[i] - 1));
 
-            #ifdef safe_powergradient
+            #ifdef safer_powergradient
             // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[i] += dC[i] * (C[i] * A_log);
             #else
@@ -247,7 +247,7 @@ struct Gradients : Operations<T> {
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * (B[i] * pow(A[i], B[i] - 1));
 
-            #ifdef safe_powergradient
+            #ifdef safer_powergradient
             // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[i] += dC[i] * (C[i] * (A[i] < 0 ? 0 : log(A[i])));
             #else
@@ -260,7 +260,7 @@ struct Gradients : Operations<T> {
         while (1) {
 
             dA[indA] += dC[indC] * (B[indB] * pow(A[indA], B[indB] - 1));
-            #ifdef safe_powergradient
+            #ifdef safer_powergradient
             // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[indB] += dC[indC] * (C[indC] * (A[indA] < 0 ? 0 : log(A[indA])));
             #else
