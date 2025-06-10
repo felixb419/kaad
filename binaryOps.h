@@ -3,11 +3,6 @@
 #include "strides.h"
 
 template <typename T>
-using tensorOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
-template <typename T>
-using gradientOp = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* stridelen);
-
-template <typename T>
 struct BinaryKernels {
     tensorOp<T> scalarOpRt;
     tensorOp<T> scalarOpLt;

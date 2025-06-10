@@ -107,6 +107,9 @@ void transp2D(int* shape, int* stride,size_t len, int* shape_T, int* stride_T) {
 }
 
 template <typename T>
+using tensorOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+
+template <typename T>
 struct Operations {
     // add so that: C[m,n,...] = A[m,n,...] + B[0]
     // shapes of C and A must be the same, shape of B must be (1)

@@ -9,6 +9,9 @@
 #define safe_powergradient
 
 template <typename T>
+using gradientOp = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* stridelen);
+
+template <typename T>
 struct Gradients : Operations<T> {
     using Operations<T>::flexMul;
     using Operations<T>::flexDiv;
