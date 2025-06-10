@@ -116,3 +116,22 @@ int mul(Recorder<T>& rec, int indA, int indB) {
 
     return binaryOp(rec, indA, indB, mulK);
 }
+
+// divide A by B
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+int div(Recorder<T>& rec, int indA, int indB) {
+    
+    static const  BinaryKernels<T> divK = {
+        Operations<T>::scalarDivRt,
+        Operations<T>::scalarDivLt,
+        Operations<T>::pointDiv,
+        Operations<T>::flexDiv,
+        Gradients<T>::scalarDivRt_grad,
+        Gradients<T>::scalarDivLt_grad,
+        Gradients<T>::pointDiv_grad,
+        Gradients<T>::flexDiv_grad
+    };
+
+    return binaryOp(rec, indA, indB, divK);
+}

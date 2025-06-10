@@ -216,7 +216,7 @@ struct Gradients : Operations<T> {
             dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
         }
     }
-    static void scalarDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void scalarDivRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
         // dA += dC * (1 / B)
         T B_inv = 1 / B[0];
@@ -230,7 +230,7 @@ struct Gradients : Operations<T> {
             dB[0] -= dC[i] * (A[i] / B_sqr);
         }
     }
-    static void invScalarDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void scalarDivLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
         // dA += dC * (1 / B)
         T B_inv = 1 / B[0];
@@ -252,16 +252,16 @@ struct Gradients : Operations<T> {
             dA[indA] += dc_i * (1 / b_i);
             dB[indB] -= dc_i * (A[indA] / (b_i * b_i));
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
-                count[dim]--;
+            for (int dim = *strideLen - 1; dim >= 0; dim--) {
+                count[0][dim]--;
                 if (count[0][dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
+                    indA += strideA[0][dim];
+                    indB += strideB[0][dim];
+                    indC += strideC[0][dim];
                     break;
                 }
 
-                count[dim] = reps[dim];
+                count[0][dim] = reps[0][dim];
                 if (dim == 0) goto end;
             }
         }

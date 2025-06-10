@@ -242,59 +242,17 @@ struct Operations {
         }
         end:;
     }
-    // flexible multiply so that: A = A * B
-    // shapes of A and B must be broadcastable
-    static void flexMul_inplace(tView<T>* A, const tView<T>* B, bool iterOverInp=true) {
-        const tView<T>* big = iterOverInp ? B : A;
-        const tView<T>* small = iterOverInp ? A : B;
-        
-        int offset = big->shapeLen - small->shapeLen;
-        int* effstride = new int[big->shapeLen * 2];
-    
-        for (size_t i = 0; i < big->shapeLen; i++) {
-            int dim = i - offset;
-            effstride[i] = dim >= 0 && small->shape[dim] != 1 ? small->stride[dim] : 0;
-        }
-    
-        int indA = 0, indB = 0;
-        int* cords = effstride + big->shapeLen;
-        fill(cords, cords + big->shapeLen, 0);
-    
-        int* strideA = iterOverInp ? effstride : A->stride;
-        int* strideB = iterOverInp ? B->stride : effstride;
-    
-        for (int i = 0; i < big->len; i++) {
-        
-            A->val[indA] *= B->val[indB];
-            
-            for (int dim = big->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += strideA[dim];
-                indB += strideB[dim];
-            
-                if (cords[dim] < big->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= strideA[dim] * big->shape[dim];
-                    indB -= strideB[dim] * big->shape[dim];
-                }
-            }
-        }
-        delete[] effstride;
-    }
-        
+
     // divide so that: out[m,n,...] = tensor[m,n,...] - scalar[0]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarDivRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
             C[i] = A[i] / B[0];
         }
     }
     // divide so that: out[m,n,...] = scalar[0] - tensor[m,n,...]
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarDiv_inv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarDivLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
             C[i] = A[0] / B[i]; 
         }
