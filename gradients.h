@@ -26,36 +26,21 @@ struct Gradients : Operations<T> {
     // df/dB = 1
     static void scalarAddRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
-        // dA += dC
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
-        }
-        
-        // dB += dC
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] += dC[i];
         }
     }
     static void scalarAddLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
-        // dA += dC
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i];
-        }
-        
-        // dB += dC
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] += dC[i];
         }
     }
     static void pointAdd_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
-        }
-        
-        // dB += dC
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] += dC[i];
         }
     }
@@ -88,36 +73,21 @@ struct Gradients : Operations<T> {
     // df/dB = -1
     static void scalarSubRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
-        // dA += dC
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
-        }
-    
-        // dB -= dC
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] -= dC[i];
         }
     }
     static void scalarSubLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
-        // dA += dC
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i];
-        }
-    
-        // dB -= dC
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i];
         }
     }
     static void pointSub_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i];
-        }
-    
-        // dB -= dC
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i];
         }
     }
@@ -150,36 +120,21 @@ struct Gradients : Operations<T> {
     // df/dB = A
     static void scalarMulRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
-        // dA += dC * B
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * B[0];
-        }
-    
-        // dB += dC * A
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[0] += dC[i] * A[i];
         }
     }
     static void scalarMulLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
-        // dA += dC * B
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i] * B[i];
-        }
-    
-        // dB += dC * A
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] += dC[i] * A[0];
         }
     }
     static void pointMul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * B
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * B[i];
-        }
-    
-        // dB += dC * A
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] += dC[i] * A[i];
         }
     }
@@ -212,39 +167,24 @@ struct Gradients : Operations<T> {
     // df/dB = -A / B^2
     static void scalarDivRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
-        // dA += dC * (1 / B)
         T B_inv = 1 / B[0];
-        for (size_t i = 0; i < strideLen[0]; i++) {
-            dA[i] += dC[i] * B_inv;
-        }
-    
-        // dB -= dC * (A / B^2)
         T B_sqr = B[0] * B[0];
         for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i] * B_inv;
             dB[0] -= dC[i] * (A[i] / B_sqr);
         }
     }
     static void scalarDivLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
-        // dA += dC * (1 / B)
         T B_inv = 1 / B[0];
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[0] += dC[i] * (1 / B[i]);
-        }
-    
-        // dB -= dC * (A / B^2)
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i] * (A[0] / (B[i] * B[i]));
         }
     }
     static void pointDiv_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * (1 / B)
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * (1 / B[i]);
-        }
-    
-        // dB -= dC * (A / B^2)
-        for (size_t i = 0; i < strideLen[0]; i++) {
             dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
         }
     }
@@ -278,14 +218,11 @@ struct Gradients : Operations<T> {
     // df/dB = A ^ B * log(|A|)     df/dB is 0 if A is negative for stability
     static void scalarPowRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // B has shape = (1,)
-        // dA += dC * (B * (A^(B - 1)))
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * (B[0] * pow(A[i], B[0] - 1));
-        }
-    
-        // dB += dC * (C * log(A))
-        for (size_t i = 0; i < strideLen[0]; i++) {
+
             #ifdef safe_powergradient
+            // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[0] += dC[i] * (A[i] < 0 ? 0 : C[i] * log(A[i]));
             #else
             dB[0] += dC[i] * (C[i] * log(A[i]));
@@ -294,15 +231,12 @@ struct Gradients : Operations<T> {
     }
     static void scalarPowLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // A has shape = (1,)
-        // dA += dC * (B * (A^(B - 1)))
-        for (size_t i = 0; i < strideLen[0]; i++) {
-            dA[0] += dC[i] * (B[i] * pow(A[0], B[i] - 1));
-        }
-    
-        // dB += dC * (C * log(A))
         T A_log = A[0] < 0 ? 0 : log(A[0]);
         for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[0] += dC[i] * (B[i] * pow(A[0], B[i] - 1));
+
             #ifdef safe_powergradient
+            // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[i] += dC[i] * (C[i] * A_log);
             #else
             dB[i] += dC[i] * (C[i] * A_log);
@@ -310,14 +244,11 @@ struct Gradients : Operations<T> {
         }
     }
     static void pointPow_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * (B * (A^(B - 1)))
         for (size_t i = 0; i < strideLen[0]; i++) {
             dA[i] += dC[i] * (B[i] * pow(A[i], B[i] - 1));
-        }
-    
-        // dB += dC * (C * log(A))
-        for (size_t i = 0; i < strideLen[0]; i++) {
+
             #ifdef safe_powergradient
+            // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[i] += dC[i] * (C[i] * (A[i] < 0 ? 0 : log(A[i])));
             #else
             dB[i] += dC[i] * (C[i] * log(A[i]));
@@ -330,6 +261,7 @@ struct Gradients : Operations<T> {
 
             dA[indA] += dC[indC] * (B[indB] * pow(A[indA], B[indB] - 1));
             #ifdef safe_powergradient
+            // add 0 to dB[i] instead if NaN if A[i] < 0
             dB[indB] += dC[indC] * (C[indC] * (A[indA] < 0 ? 0 : log(A[indA])));
             #else
             dB[indB] += dC[indC] * (C[indC] * log(A[indA]));
