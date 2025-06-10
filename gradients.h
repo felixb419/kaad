@@ -350,7 +350,9 @@ struct Gradients : Operations<T> {
     // df/dA = -1
     static void negate_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA -= dC
-        flexSub_inplace(dA, dC);
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] -= dC[i];
+        }
     }
     
     // f(A) = A^2

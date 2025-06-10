@@ -335,67 +335,67 @@ struct Operations {
         
     // negate A so that C[i] = -A[i]
     // A and C must have same shape
-    static void negate(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+    static void negate(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
-            C->val[i] = -A->val[i];
+            C[i] = -A[i];
         }
     }
         
     // square A so that out[i] = A[i]*A[i]
     // A and out must have same shape
-    static void square(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+    static void square(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < A->len; i++) {
-            C->val[i] = A->val[i] * A->val[i];
+            C[i] = A->val[i] * A->val[i];
         }
     }
         
     // root of A so that C[i] = sqrt(A[i])
     // A and C must have same shape
-    static void sqrt(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+    static void sqrt(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < A->len; i++) {
-            C->val[i] = sqrt(A->val[i]);
+            C[i] = sqrt(A->val[i]);
         }
     }
         
     // log of A so that C[i] = ln(A[i])
     // A and C must have same shape
-    static void log(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+    static void log(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < A->len; i++) {
-            C->val[i] = log(A->val[i]);
+            C[i] = log(A->val[i]);
         }
     }
         
     // exponent of A so that C[i] = e^A[i]
     // A and C must have same shape
-    static void exp(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+    static void exp(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < A->len; i++) {
-            C->val[i] = exp(A->val[i]);
+            C[i] = exp(A->val[i]);
         }
     }
         
     // absolute value of A so that C[i] = abs(A[i])
     // A and C must have same shape
-    static void abs(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, void* ctx) {
+    static void abs(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < A->len; i++) {
-            C->val[i] = abs(A->val[i]);
+            C[i] = abs(A->val[i]);
         }
     }
 
     // compute do product of A and B into C
     // A and B must be 1d vectors of same length, C must be scalar
     static void dot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        C->val[0] = 0;
+        C[0] = 0;
         for (size_t i = 0; i < A->len; i++) {
-            C->val[0] += A->val[i] * B->val[i]; 
+            C[0] += A->val[i] * B->val[i]; 
         }
     }
 
     // compute do product of A and B into C
     // A must be 1d vector, B and C must be scalar
     static void scalarDot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        C->val[0] = 0;
+        C[0] = 0;
         for (size_t i = 0; i < A->len; i++) {
-            C->val[0] += A->val[i] * B->val[0]; 
+            C[0] += A->val[i] * B->val[0]; 
         }
     }
 
