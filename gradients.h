@@ -341,29 +341,15 @@ struct Gradients : Operations<T> {
     // df/dA = B
     // df/dB = A
     static void dot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * dB
-        for (size_t i = 0; i < dA->len; i++) {
-            dA->val[i] += dC->val[0] * B->val[i];
-        }
-
-        // dB += dC * dA
-        for (size_t i = 0; i < dB->len; i++) {
-            dB->val[i] += dC->val[0] * A->val[i];
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[0] * B[i];
+            dB[i] += dC[0] * A[i];
         }
     }
-
-    // f(A,B) = A dot B
-    // df/dA = B
-    // df/dB = sum A
     static void scalarDot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        // dA += dC * dB
-        for (size_t i = 0; i < dA->len; i++) {
-            dA->val[i] += dC->val[0] * B->val[0];
-        }
-
-        // dB += dC * dA
-        for (size_t i = 0; i < dA->len; i++) {
-            dB->val[0] += dC->val[0] * A->val[i];
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[0] * B[0];
+            dB[0] += dC[0] * A[i];
         }
     }
     

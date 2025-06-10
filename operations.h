@@ -387,16 +387,13 @@ struct Operations {
     // compute do product of A and B into C
     // A and B must be 1d vectors of same length, C must be scalar
     static void dot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        C[0] = 0;
         for (size_t i = 0; i < strideLen; i++) {
             C[0] += A[i] * B[i]; 
         }
     }
-
     // compute do product of A and B into C
     // A must be 1d vector, B and C must be scalar
     static void scalarDot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        C[0] = 0;
         for (size_t i = 0; i < strideLen; i++) {
             C[0] += A[i] * B[0]; 
         }

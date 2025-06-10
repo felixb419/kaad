@@ -13,32 +13,6 @@
 
 using namespace std;
 
-
-template <typename T>
-int dot(Recorder<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
-
-    if (B_scalar) {
-        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
-    }
-    else if (A_scalar) {
-        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indB, indA, ((T)0));
-    }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, indA, indB, ((T)0));
-    }
-    else {
-        throw invalid_argument("shape error");
-    }
-
-    return recLen;
-}
-
 template <typename T>
 int outer(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();

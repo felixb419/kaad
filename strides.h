@@ -104,6 +104,16 @@ struct Strides {
         _batch_matmul(a_T, c, b, node.strideLen[2], node.reps[2], node.count[2], node.strideA[2], node.strideC[2], node.strideB[2]); 
     }
 
+    static void dot(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+        node.nEntries = 2;
+        node.strideLen = new size_t[2] { A.len, A.len };
+        node.reps = new int*[2];
+        node.count = new int*[2];
+        node.strideA = new int*[2];
+        node.strideB = new int*[2];
+        node.strideC = new int*[2];
+    }
+
     private:
 
     static void _flexible(Tensor<T>& A, Tensor<T>& B, Tensor<T>& C, size_t& strideLen, int*& reps, int*& count, int*& strideA, int*& strideB, int*& strideC) {
