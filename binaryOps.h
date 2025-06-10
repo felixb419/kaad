@@ -65,7 +65,7 @@ int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernel
 template <typename T>
 int add(Recorder<T>& rec, int indA, int indB) {
     
-    static const  BinaryKernels<T> addK = {
+    static const BinaryKernels<T> addK = {
         Operations<T>::scalarAddRt,
         Operations<T>::scalarAddLt,
         Operations<T>::pointAdd,
@@ -84,7 +84,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
 template <typename T>
 int sub(Recorder<T>& rec, int indA, int indB) {
     
-    static const  BinaryKernels<T> subK = {
+    static const BinaryKernels<T> subK = {
         Operations<T>::scalarSubRt,
         Operations<T>::scalarSubLt,
         Operations<T>::pointSub,
