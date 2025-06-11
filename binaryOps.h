@@ -150,6 +150,8 @@ int pow(Recorder<T>& rec, int indA, int indB) {
     return binaryOp(rec, indA, indB, powK);
 }
 
+// compute dot prodcut of A and B
+// where A and B are scalars or vectors with the same length
 template <typename T>
 int dot(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();

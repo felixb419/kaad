@@ -22,6 +22,8 @@ int binaryOp(Recorder<T>& rec, int indA, const UnaryKernels<T> kernels) {
     return recLen;
 }
 
+// negate A
+// where A is a tensor
 template <typename T>
 int negative(Recorder<T>& rec, int indA) {
     static const UnaryKernels negK = {
@@ -32,6 +34,8 @@ int negative(Recorder<T>& rec, int indA) {
     return binaryOp(rec, indA, negK);
 }
 
+// square A
+// where A is a tensor
 template <typename T>
 int square(Recorder<T>& rec, int indA) {
     static const UnaryKernels squareK = {
@@ -42,6 +46,8 @@ int square(Recorder<T>& rec, int indA) {
     return binaryOp(rec, indA, squareK);
 }
 
+// compte squareroot of A
+// where A is a tensor
 template <typename T>
 int sqrt(Recorder<T>& rec, int indA) {
     static const UnaryKernels sqrtK = {
@@ -52,6 +58,8 @@ int sqrt(Recorder<T>& rec, int indA) {
     return binaryOp(rec, indA, sqrtK);
 }
 
+// compute logarithm base e of A
+// where A is a tensor
 template <typename T>
 int log(Recorder<T>& rec, int indA) {
     static const UnaryKernels logK = {
@@ -62,6 +70,8 @@ int log(Recorder<T>& rec, int indA) {
     return binaryOp(rec, indA, logK);
 }
 
+// raise A to the power of e
+// where A is a tensor
 template <typename T>
 int exp(Recorder<T>& rec, int indA) {
     static const UnaryKernels expK = {
@@ -72,6 +82,8 @@ int exp(Recorder<T>& rec, int indA) {
     return binaryOp(rec, indA, expK);
 }
 
+// compute the absolute value of A
+// where A is a tensor
 template <typename T>
 int abs(Recorder<T>& rec, int indA) {
     static const UnaryKernels absK = {
