@@ -11,19 +11,14 @@ using namespace std;
 
 // returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors
 // d1_n == d2_n || d1_n == 1 || d2_n == 1
-void combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
+bool combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
     int ind = newLen - 1;
     for (int i = 1; i <= newLen; i++, ind--) {
         int ind1 = shapeLen1 - i;
         int ind2 = shapeLen2 - i;
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 && shape2[ind2] != 1) {
-                ostringstream errmsg;
-                errmsg << "tensor shapes are not broadcastable, shape1: ";
-                print_arr(shape1, shapeLen1, errmsg);
-                errmsg << ", shape2: ";
-                print_arr(shape2, shapeLen2, errmsg);
-                throw invalid_argument(errmsg.str());
+                return false;
             }
             newShape[ind] = max(shape1[ind1], shape2[ind2]);
         }
@@ -31,6 +26,7 @@ void combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
             newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
         }
     }
+    return true;
 }
 
 // returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors by matrix multiplication

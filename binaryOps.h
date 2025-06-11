@@ -16,41 +16,47 @@ struct BinaryKernels {
 };
 
 template <typename T>
-int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernels) {
+int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernels, const char* opName) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
     bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
     bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
+    size_t newLen = max(A.shapeLen, B.shapeLen);
+    int* newShape = new int[newLen];
+
     if (B_scalar) {
-        int* newShape = new int[A.shapeLen];
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
         rec.nodes.emplace_back(kernels.scalarOpRt, kernels.scalarGradRt, indA, indB, newShape, A.shapeLen);
         Strides<T>::pointwise(rec.nodes[recLen]);
     }
     else if (A_scalar) {
-        int* newShape = new int[B.shapeLen];
         copy(B.shape, B.shape + B.shapeLen, newShape);
 
         rec.nodes.emplace_back(kernels.scalarOpLt, kernels.scalarGradLt, indA, indB, newShape, B.shapeLen);
         Strides<T>::pointwise(rec.nodes[recLen]);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        int* newShape = new int[A.shapeLen];
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
         rec.nodes.emplace_back(kernels.pointOp, kernels.pointGrad ,indA, indB, newShape, A.shapeLen);
         Strides<T>::pointwise(rec.nodes[recLen]);
     }
-    else {
-        size_t newLen = max(A.shapeLen, B.shapeLen);
-        int* newShape = new int[newLen];
-        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
+    else if (combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
 
         rec.nodes.emplace_back(kernels.flexOp, kernels.flexGrad, indA, indB, newShape, newLen);
         Strides<T>::flexible(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]); 
+    }
+    else {
+        ostringstream errmsg;
+        errmsg << "shape error in node[" << recLen << "] (" << opName << ")"; 
+        errmsg << ", tensor shapes are not broadcastable: shape1 ";
+        print_arr(A.shape, A.shapeLen, errmsg);
+        errmsg << ", shape2 ";
+        print_arr(B.shape, B.shapeLen, errmsg);
+        throw invalid_argument(errmsg.str());
     }
     return recLen;
 }
@@ -71,7 +77,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
         Gradients<T>::flexAdd_grad
     };
 
-    return binaryOp(rec, indA, indB, addK);
+    return binaryOp(rec, indA, indB, addK, "add");
 }
 
 // subtract B from A
@@ -175,9 +181,10 @@ int dot(Recorder<T>& rec, int indA, int indB) {
     }
     else {
         ostringstream errmsg;
-        errmsg << "can not compute dot product of tensors with shapes: ";
+        errmsg << "shape error in node[" << recLen << "] (dot)"; 
+        errmsg << ", tensor shapes arent valid for dot product: shape1 ";
         print_arr(A.shape, A.shapeLen, errmsg);
-        errmsg << " and ";
+        errmsg << ", shape2 ";
         print_arr(B.shape, B.shapeLen, errmsg);
         throw invalid_argument(errmsg.str());
     }
