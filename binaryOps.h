@@ -223,3 +223,20 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
     
     return recLen;
 }
+
+template <typename T>
+int outer(Recorder<T>& rec, int indA, int indB) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    Tensor<T>& B = rec.nodes[indB].value;
+
+    size_t newLen = A.shapeLen + B.shapeLen;
+    int* newShape = new int[newLen];
+    copy(A.shape, A.shape + A.shapeLen, newShape);
+    copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
+
+    rec.nodes.emplace_back(Operations<T>::flexMul, Gradients<T>::flexMul_grad, indA, indB, newShape, newLen);
+    Strides<T>::outer(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+
+    return recLen;
+}

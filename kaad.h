@@ -14,32 +14,6 @@
 using namespace std;
 
 template <typename T>
-int outer(Recorder<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-
-    int offsetA = max(((int)A.shapeLen) - ((int)B.shapeLen), 0);
-    int offsetB = max(((int)B.shapeLen) - ((int)A.shapeLen), 0);
-
-    Tensor<T>& small = A.shapeLen < B.shapeLen ? A : B;
-    for (int i = 0; i < small.shapeLen; i++) {
-        if (A.shape[i + offsetA] != B.shape[i + offsetB]) {
-            throw invalid_argument("shape error");
-        }
-    }
-
-    size_t newLen = A.shapeLen + B.shapeLen;
-    int* newShape = new int[newLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-    copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
-
-    rec.nodes.emplace_back(Operations<T>::outer, Gradients<T>::outer_grad, indA, indB, newShape, newLen);
-
-    return recLen;
-}
-
-template <typename T>
 int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;

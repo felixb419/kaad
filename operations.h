@@ -307,6 +307,11 @@ struct Operations {
         end:;
     }
 
+    // compute the outer product of A and B into C, so that
+    // C[i,...,j] = A[i,...] * B[...,j]
+    static void outer(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    }
+
     /*
     UNARY OPS
     */
@@ -368,47 +373,6 @@ struct Operations {
     UNCATEGORIZED
     */
     /*
-    static void outer(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        fill(effstrideA, effstrideA + C->shapeLen, 0);
-        copy(A->stride, A->stride + A->shapeLen, effstrideA);
-        fill(effstrideB, effstrideB + C->shapeLen, 0);
-        copy(B->stride, B->stride + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
-
-        int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            C->val[indC] = A->val[indA] * B->val[indB];
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
-            }
-        
-        }    
-
-        delete[] effstrideA;
-    }
-
     static void scalarMin(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         T B_val = B->val[0];
         for (size_t i = 0; i < A->shapeLen; i++) {

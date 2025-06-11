@@ -307,12 +307,17 @@ struct Gradients {
         // dB = A^T * dC
         Operations<T>::matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
-    
     static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA = dC * B^T
         Operations<T>::batch_matmul(dC, B, dA, strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
         // dB = A^T * dC
         Operations<T>::batch_matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
+    }
+
+    // f(A,B) = A outer B
+    // df/dA = B
+    // df/dB = A
+    static void outer_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
     }
 
     /*
@@ -385,50 +390,6 @@ struct Gradients {
     UNCATEGORIZED
     */
     /*
-    // f(A,B) = A outer B
-    // df/dA = B
-    // df/dB = A
-    static void outer_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        fill(effstrideA, effstrideA + C->shapeLen, 0);
-        copy(A->stride, A->stride + A->shapeLen, effstrideA);
-        fill(effstrideB, effstrideB + C->shapeLen, 0);
-        copy(B->stride, B->stride + B->shapeLen, effstrideB + C->shapeLen - B->shapeLen);
-
-        int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            dA->val[indA] += dC->val[indC] * B->val[indB];
-            dB->val[indB] += dC->val[indC] * A->val[indA];
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
-            }
-        
-        }    
-
-        delete[] effstrideA;
-    }
 
     // f(A) = min(A,B)
     // df/dA [i] = A < B ? 1 : 0
