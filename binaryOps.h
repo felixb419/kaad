@@ -53,9 +53,9 @@ int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernel
         ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName << ")"; 
         errmsg << ", tensor shapes are not broadcastable: shape1 ";
-        print_arr(A.shape, A.shapeLen, errmsg);
+        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         errmsg << ", shape2 ";
-        print_arr(B.shape, B.shapeLen, errmsg);
+        print_arr(B.shape, B.shape + B.shapeLen, errmsg);
         throw invalid_argument(errmsg.str());
     }
     return recLen;
@@ -183,9 +183,9 @@ int dot(Recorder<T>& rec, int indA, int indB) {
         ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (dot)"; 
         errmsg << ", tensor shapes arent valid for dot product: shape1 ";
-        print_arr(A.shape, A.shapeLen, errmsg);
+        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         errmsg << ", shape2 ";
-        print_arr(B.shape, B.shapeLen, errmsg);
+        print_arr(B.shape, B.shape + B.shapeLen, errmsg);
         throw invalid_argument(errmsg.str());
     }
 

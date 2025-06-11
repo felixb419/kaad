@@ -320,12 +320,15 @@ void print_flat(const Tensor<T>& tensor, ostream& stream=cout) {
     delete[] cords;
 }
 
-inline void print_arr(int* arr, size_t len, ostream& stream=cout) {
-    stream << "[";
-    for (size_t i = 0; i < len; i++) {
-        stream << arr[i] << ",";
+inline void print_arr(const int* begin, const int* end, ostream& os=cout) {
+    os << "[";
+    for (const int* p = begin; p != end; p++) {
+        if (p != begin) {
+            os << ",";
+        }
+        os << *p;
     }
-    stream << "]";
+    os << "]";
 }
 
 // returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors
