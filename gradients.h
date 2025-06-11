@@ -302,37 +302,10 @@ struct Gradients {
     // dC/dA = B^T
     // dC/dB = A^T
     static void matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        int k = reps[0][2];
-        int indA = 0, indB = 0, indC = 0, prev;
-        for (int row = 0; row < reps[0][0]; row++) {
-            prev = indB;
-            for (int col = 0; col < reps[0][1]; col++) {
-                for (int i = 0; i < k; i++) {
-                    dA[indA] += dC[indC + i*strideC[0][1]] * B[indB + i*strideB[0][0]]; 
-                }
-                indA += strideA[0][1];
-                indB += strideB[0][1];
-            }
-            indA += strideA[0][0];
-            indC += strideC[0][0];
-            indB = prev;
-        }
-
-        k = reps[1][2];
-        indA = 0, indB = 0, indC = 0;
-        for (int row = 0; row < reps[1][0]; row++) {
-            prev = indC;
-            for (int col = 0; col < reps[1][1]; col++) {
-                for (int i = 0; i < k; i++) {
-                    dB[indB] += A[indA + i*strideA[1][1]] * dC[indC + i*strideC[1][0]]; 
-                }
-                indB += strideB[1][1];
-                indC += strideC[1][1];
-            }
-            indB += strideB[1][0];
-            indA += strideA[1][0];
-            indC = prev;
-        }
+        // dA = dC * B^T
+        Operations<T>::matmul(dC, B, dA, strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
+        // dB = A^T * dC
+        Operations<T>::matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
     
     static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
