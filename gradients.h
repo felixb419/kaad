@@ -21,6 +21,10 @@ struct Gradients : Operations<T> {
 
     //d/dx[ f(g(x)) ] = f'(g(x)) * g'(x)
 
+    /*
+    BINARY OPS
+    */
+
     // f(A,B) = A + B
     // df/dA = 1
     // df/dB = 1
@@ -282,7 +286,27 @@ struct Gradients : Operations<T> {
         }
         end:;
     }
-    
+
+    // f(A,B) = A dot B
+    // df/dA = B
+    // df/dB = A
+    static void dot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[0] * B[i];
+            dB[i] += dC[0] * A[i];
+        }
+    }
+    static void scalarDot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[0] * B[0];
+            dB[0] += dC[0] * A[i];
+        }
+    }
+
+    /*
+    UNARY OPS
+    */
+
     // f(A) = -A
     // df/dA = -1
     static void negate_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
@@ -337,22 +361,18 @@ struct Gradients : Operations<T> {
         }
     }
 
-    // f(A,B) = A dot B
-    // df/dA = B
-    // df/dB = A
-    static void dot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        for (size_t i = 0; i < strideLen[0]; i++) {
-            dA[i] += dC[0] * B[i];
-            dB[i] += dC[0] * A[i];
+    // f(A) = A^T
+    // df/dA = 1
+    static void transp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < dC->len; i++) {
+            dA->val[i] += dC->val[i];
         }
     }
-    static void scalarDot_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        for (size_t i = 0; i < strideLen[0]; i++) {
-            dA[i] += dC[0] * B[0];
-            dB[0] += dC[0] * A[i];
-        }
-    }
-    
+
+    /*
+    UNCATEGORIZED
+    */
+    /*
     // f(A,B) = A outer B
     // df/dA = B
     // df/dB = A
@@ -441,7 +461,7 @@ struct Gradients : Operations<T> {
         // dB = A^T * dC
         batch_matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
-    /*
+
     // f(A) = min(A,B)
     // df/dA [i] = A < B ? 1 : 0
     // df/dB [i] = B < A ? 1 : 0
@@ -856,14 +876,6 @@ struct Gradients : Operations<T> {
         }
 
         delete[] effstride;
-    }
-
-    // f(A) = A^T
-    // df/dA = 1
-    static void transp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i];
-        }
     }
 
     static void tile_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
