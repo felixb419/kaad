@@ -81,6 +81,11 @@ class Recorder {
                     delete[] node.reps[i];
                     delete[] node.count[i];
                 }
+                delete[] node.strideA;
+                delete[] node.strideB;
+                delete[] node.strideC;
+                delete[] node.reps;
+                delete[] node.count;
                 delete[] node.strideLen;
             }
         }
