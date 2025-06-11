@@ -313,7 +313,7 @@ struct Operations {
 
     // transposing doesnt change the value array so A gets copied to C
     static void transpose(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        copy(A->val, A->val + A->len, C->val);
+        copy(A, A + strideLen, C);
     }
 
     /*

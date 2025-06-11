@@ -234,53 +234,6 @@ int mean(Recorder<T>& rec, int indA, int dim) {
     return recLen;
 }
 
-template <typename T>
-int transpose(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-
-    if (A.shapeLen < 2) {
-        throw invalid_argument("A has to have more than 1 dimension to transpose it");
-    }
-
-    int* shape_T = new int[A.shapeLen];
-    int* stride_T = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, shape_T);
-    copy(A.stride, A.stride + A.shapeLen, stride_T);
-    
-    transp(A.shape, A.stride, shape_T, stride_T, A.shapeLen);
-
-    rec.nodes.emplace_back(Operations<T>::transpose, Gradients<T>::transp_grad, indA, -1, shape_T, stride_T, A.shapeLen);
-
-    return recLen;
-}
-
-template <typename T>
-int transpose(Recorder<T>& rec, int indA, initializer_list<int> permutation) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-
-    if (A.shapeLen < 2) {
-        throw invalid_argument("A has to have more than 1 dimension to transpose it");
-    }
-    if (permutation.size() != A.shapeLen) {
-        throw invalid_argument("permutation has to have same size as shapeLen of A");
-    }
-
-    int* shape_T = new int[A.shapeLen];
-    int* stride_T = new int[A.shapeLen];
-
-    int* sh = shape_T;
-    int* st = stride_T;
-    for (int idx : permutation) {
-        *(sh++) = A.shape[idx];
-        *(st++) = A.stride[idx];
-    } 
-
-    rec.nodes.emplace_back(Operations<T>::transpose, Gradients<T>::transp_grad, indA, -1, shape_T, stride_T, A.shapeLen);
-
-    return recLen;
-}
 
 template <typename T>
 int tile(Recorder<T>& rec, int indA, initializer_list<int> multiples) {

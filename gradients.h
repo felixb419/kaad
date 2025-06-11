@@ -359,8 +359,8 @@ struct Gradients {
     // f(A) = A^T
     // df/dA = 1
     static void transp_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        for (size_t i = 0; i < dC->len; i++) {
-            dA->val[i] += dC->val[i];
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[i];
         }
     }
 

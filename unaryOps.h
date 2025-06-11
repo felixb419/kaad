@@ -93,3 +93,54 @@ int abs(Recorder<T>& rec, int indA) {
 
     return binaryOp(rec, indA, absK);
 }
+
+template <typename T>
+int transpose(Recorder<T>& rec, int indA, initializer_list<int> perm={}) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+
+    if (A.shapeLen < 2) {
+        ostringstream errmsg;
+        errmsg << "shape error in node[" << recLen << "] (transpose)";
+        errmsg << ", In1 shapeLen hast to be > 1, shape1 ";
+        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+        throw invalid_argument(errmsg.str());
+    }
+
+    if (perm.size() == 0) {
+        int* shape_T = new int[A.shapeLen];
+        int* stride_T = new int[A.shapeLen];
+        copy(A.shape, A.shape + A.shapeLen, shape_T);
+        copy(A.stride, A.stride + A.shapeLen, stride_T);
+        
+        transp(A.shape, A.stride, A.shapeLen, shape_T, stride_T);
+        rec.nodes.emplace_back(Operations<T>::transpose, Gradients<T>::transp_grad, indA, -1, shape_T, stride_T, A.shapeLen);
+        Strides<T>::pointwise(rec.nodes[recLen]);
+    }
+    else {
+        if (perm.size() != A.shapeLen) {
+            ostringstream errmsg;
+            errmsg << "shape error in node[" << recLen << "] (transpose)";
+            errmsg << ", perm has to be the same shapeLength as In1, perm ";
+            print_arr(perm.begin(), perm.end(), errmsg);
+            errmsg << ", shape1";
+            print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+            throw invalid_argument(errmsg.str());
+        }
+
+        int* shape_T = new int[A.shapeLen];
+        int* stride_T = new int[A.shapeLen];
+
+        int* sh = shape_T;
+        int* st = stride_T;
+        for (int idx : perm) {
+            *(sh++) = A.shape[idx];
+            *(st++) = A.stride[idx];
+        } 
+
+        rec.nodes.emplace_back(Operations<T>::transpose, Gradients<T>::transp_grad, indA, -1, shape_T, stride_T, A.shapeLen);
+        Strides<T>::pointwise(rec.nodes[recLen]);
+    }
+
+    return recLen;
+}
