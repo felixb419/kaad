@@ -191,3 +191,35 @@ int dot(Recorder<T>& rec, int indA, int indB) {
 
     return recLen;
 }
+
+template <typename T>
+int matmul(Recorder<T>& rec, int indA, int indB) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    Tensor<T>& B = rec.nodes[indB].value;
+
+    size_t newLen = max(A.shapeLen, B.shapeLen);
+    int* newShape = new int[newLen];
+
+    const char* opName = newLen == 2 ? "matmul" : "batch_matmul";
+    if (!combine_matrix(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
+        ostringstream errmsg;
+        errmsg << "shape error in node[" << recLen << "] (" << opName << ")";
+        errmsg << ", tensor shapes arent valid for " << opName << ": shape1 ";
+        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+        errmsg << ", shape2 ";
+        print_arr(B.shape, B.shape + B.shapeLen, errmsg);
+        throw invalid_argument(errmsg.str());
+    }
+
+    if (newLen == 2) {
+        rec.nodes.emplace_back(Operations<T>::matmul, Gradients<T>::matmul_grad, indA, indB, newShape, newLen);
+        Strides<T>::matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+    }
+    else {
+        rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, indA, indB, newShape, newLen);
+        Strides<T>::batch_matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+    }
+    
+    return recLen;
+}

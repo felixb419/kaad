@@ -87,28 +87,6 @@ int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
 }
 
 template <typename T>
-int matmul(Recorder<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-
-    size_t newLen = max(A.shapeLen, B.shapeLen);
-    int* newShape = new int[newLen];
-    combine_matrix(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
-
-    if (newLen == 2) {
-        rec.nodes.emplace_back(Operations<T>::matmul, Gradients<T>::matmul_grad, indA, indB, newShape, newLen);
-        Strides<T>::matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
-    }
-    else {
-        rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, indA, indB, newShape, newLen);
-        Strides<T>::batch_matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
-    }
-    
-    return recLen;
-}
-
-template <typename T>
 int minimum(Recorder<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;

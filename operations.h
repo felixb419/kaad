@@ -259,6 +259,54 @@ struct Operations {
         }
     }
 
+    // matrix multiply A and B so that C = AB
+    // A and B must be 2d and width of A is equalt to height of B
+    static void matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int k = reps[2];
+        int indA = 0, indB = 0, prev_B, indC = 0;
+        for (int row = 0; row < reps[0]; row++) {
+            prev_B = indB;
+            for (int col = 0; col < reps[1]; col++) {
+                for (int i = 0; i < k; i++) {
+                    C[indC] += A[indA + i*strideA[1]] * B[indB + i*strideB[0]];
+                }
+                indC += strideC[1];
+                indB += strideB[1];
+            }
+            indC += strideC[0];
+            indA += strideA[0];
+            indB = prev_B;
+        }
+    }
+        
+    // matrix multiply A and B so that C = AB
+    // A and B must be 2d and width of A is equalt to height of B
+    // all dimensions higher than 2 are regarded as batch dimensions
+    static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int k = reps[strideLen], a_offset = strideA[strideLen], b_offset = strideB[strideLen];
+        int indA = 0, indB = 0, indC = 0;
+        while (1) {
+
+            for (int i = 0; i < k; i++) {
+                C[indC] += A[indA + i*a_offset] * B[indB + i*b_offset];
+            }
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
+                    break;
+                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
+            }
+        }
+        end:;
+    }
+
     /*
     UNARY OPS
     */
@@ -360,55 +408,6 @@ struct Operations {
 
         delete[] effstrideA;
     }
-
-    // matrix multiply A and B so that C = AB
-    // A and B must be 2d and width of A is equalt to height of B
-    static void matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int k = reps[2];
-        int indA = 0, indB = 0, prev_B, indC = 0;
-        for (int row = 0; row < reps[0]; row++) {
-            prev_B = indB;
-            for (int col = 0; col < reps[1]; col++) {
-                for (int i = 0; i < k; i++) {
-                    C[indC] += A[indA + i*strideA[1]] * B[indB + i*strideB[0]];
-                }
-                indC += strideC[1];
-                indB += strideB[1];
-            }
-            indC += strideC[0];
-            indA += strideA[0];
-            indB = prev_B;
-        }
-    }
-        
-    // matrix multiply A and B so that C = AB
-    // A and B must be 2d and width of A is equalt to height of B
-    // all dimensions higher than 2 are regarded as batch dimensions
-    static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int k = reps[strideLen], a_offset = strideA[strideLen], b_offset = strideB[strideLen];
-        int indA = 0, indB = 0, indC = 0;
-        while (1) {
-
-            for (int i = 0; i < k; i++) {
-                C[indC] += A[indA + i*a_offset] * B[indB + i*b_offset];
-            }
-
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
-                count[dim]--;
-                if (count[dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
-                    break;
-                }
-
-                count[dim] = reps[dim];
-                if (dim == 0) goto end;
-            }
-        }
-        end:;
-    }
-
 
     static void scalarMin(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         T B_val = B->val[0];

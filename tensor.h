@@ -353,21 +353,9 @@ bool combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
 
 // returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors by matrix multiplication
 // matmul: (n?,k),(k,m?) -> (n?,m?)
-/*void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
+bool combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
     if (shape1[shapeLen1 - 1] != shape2[shapeLen2 - 2]) {
-        ostringstream errmsg;
-        
-        if (shapeLen1 + shapeLen2 > 4) {
-            errmsg << "can not batch matrix multiply tensors with shapes: ";
-        }
-        else {
-            errmsg << "can not matrix multiply tensors with shapes: ";
-        }
-
-        print_arr(shape1, shapeLen1, errmsg);
-        errmsg << " and ";
-        print_arr(shape2, shapeLen2, errmsg);
-        throw invalid_argument(errmsg.str());
+        return false;
     }
     fill(newShape, newShape + newLen, 0);
 
@@ -380,12 +368,7 @@ bool combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
         int ind2 = shapeLen2 - i;
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 && shape2[ind2] != 1) {
-                ostringstream errmsg;
-                errmsg << "can not batch matrix multiply tensors with shapes (batch dimensions arent broadcastable): ";
-                print_arr(shape1, shapeLen1, errmsg);
-                errmsg << " and ";
-                print_arr(shape2, shapeLen2, errmsg);
-                throw invalid_argument(errmsg.str());
+                return false;
             }
             newShape[ind] = max(shape1[ind1], shape2[ind2]);
         }
@@ -393,7 +376,8 @@ bool combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
             newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
         }
     }
-}*/
+    return true;
+}
 
 void transp(int* shape, int* stride, size_t len) {
     int temp;
