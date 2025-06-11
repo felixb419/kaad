@@ -19,9 +19,9 @@ void combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 && shape2[ind2] != 1) {
                 ostringstream errmsg;
-                errmsg << "can not broadcast Tensors with shapes ";
+                errmsg << "tensor shapes are not broadcastable, shape1: ";
                 print_arr(shape1, shapeLen1, errmsg);
-                errmsg << " ";
+                errmsg << ", shape2: ";
                 print_arr(shape2, shapeLen2, errmsg);
                 throw invalid_argument(errmsg.str());
             }
@@ -38,9 +38,16 @@ void combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
 void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
     if (shape1[shapeLen1 - 1] != shape2[shapeLen2 - 2]) {
         ostringstream errmsg;
-        errmsg << "can not matrix multiply Tensors with shapes ";
+        
+        if (shapeLen1 + shapeLen2 > 4) {
+            errmsg << "can not batch matrix multiply tensors with shapes: ";
+        }
+        else {
+            errmsg << "can not matrix multiply tensors with shapes: ";
+        }
+
         print_arr(shape1, shapeLen1, errmsg);
-        errmsg << " ";
+        errmsg << " and ";
         print_arr(shape2, shapeLen2, errmsg);
         throw invalid_argument(errmsg.str());
     }
@@ -55,7 +62,12 @@ void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size
         int ind2 = shapeLen2 - i;
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 && shape2[ind2] != 1) {
-                throw invalid_argument("Tensor shapes do not map");
+                ostringstream errmsg;
+                errmsg << "can not batch matrix multiply tensors with shapes (batch dimensions arent broadcastable): ";
+                print_arr(shape1, shapeLen1, errmsg);
+                errmsg << " and ";
+                print_arr(shape2, shapeLen2, errmsg);
+                throw invalid_argument(errmsg.str());
             }
             newShape[ind] = max(shape1[ind1], shape2[ind2]);
         }

@@ -321,9 +321,9 @@ void print_flat(const Tensor<T>& tensor, ostream& stream=cout) {
 }
 
 inline void print_arr(int* arr, size_t len, ostream& stream=cout) {
-    stream << "(";
+    stream << "[";
     for (size_t i = 0; i < len; i++) {
         stream << arr[i] << ",";
     }
-    stream << ")" << endl;
+    stream << "]";
 }

@@ -174,7 +174,12 @@ int dot(Recorder<T>& rec, int indA, int indB) {
         Strides<T>::dot(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
     }
     else {
-        throw invalid_argument("shape error");
+        ostringstream errmsg;
+        errmsg << "can not compute dot product of tensors with shapes: ";
+        print_arr(A.shape, A.shapeLen, errmsg);
+        errmsg << " and ";
+        print_arr(B.shape, B.shapeLen, errmsg);
+        throw invalid_argument(errmsg.str());
     }
 
     return recLen;
