@@ -350,7 +350,7 @@ bool combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const si
 
 // returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors by matrix multiplication
 // matmul: (n?,k),(k,m?) -> (n?,m?)
-void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
+/*void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
     if (shape1[shapeLen1 - 1] != shape2[shapeLen2 - 2]) {
         ostringstream errmsg;
         
@@ -390,7 +390,7 @@ void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size
             newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
         }
     }
-}
+}*/
 
 void transp(int* shape, int* stride, size_t len) {
     int temp;
