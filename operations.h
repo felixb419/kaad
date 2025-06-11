@@ -15,6 +15,10 @@ using tensorOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* stride
 
 template <typename T>
 struct Operations {
+    /*
+    BINARY OPS
+    */
+
     // add so that: C[m,n,...] = A[m,n,...] + B[0]
     // shapes of C and A must be the same, shape of B must be (1)
     static void scalarAddRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
@@ -239,7 +243,26 @@ struct Operations {
         }
         end:;
     }
-        
+
+    // compute do product of A and B into C
+    // A and B must be 1d vectors of same length, C must be scalar
+    static void dot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        for (size_t i = 0; i < strideLen; i++) {
+            C[0] += A[i] * B[i]; 
+        }
+    }
+    // compute do product of A and B into C
+    // A must be 1d vector, B and C must be scalar
+    static void scalarDot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        for (size_t i = 0; i < strideLen; i++) {
+            C[0] += A[i] * B[0]; 
+        }
+    }
+
+    /*
+    UNARY OPS
+    */
+
     // negate A so that C[i] = -A[i]
     // A and C must have same shape
     static void negate(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
@@ -288,21 +311,15 @@ struct Operations {
         }
     }
 
-    // compute do product of A and B into C
-    // A and B must be 1d vectors of same length, C must be scalar
-    static void dot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
-            C[0] += A[i] * B[i]; 
-        }
-    }
-    // compute do product of A and B into C
-    // A must be 1d vector, B and C must be scalar
-    static void scalarDot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
-            C[0] += A[i] * B[0]; 
-        }
+    // transposing doesnt change the value array so A gets copied to C
+    static void transpose(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        copy(A->val, A->val + A->len, C->val);
     }
 
+    /*
+    UNCATEGORIZED
+    */
+    /*
     static void outer(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int offsetA = C->shapeLen - A->shapeLen;
         int offsetB = C->shapeLen - B->shapeLen;
@@ -616,9 +633,6 @@ struct Operations {
         delete[] effstride;
     }
 
-    static void transpose(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        copy(A->val, A->val + A->len, C->val);
-    }
 
     static void tile(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int* m = static_cast<int*>(ctx);
@@ -697,4 +711,5 @@ struct Operations {
 
         delete[] effstride;
     }
+    */
 };
