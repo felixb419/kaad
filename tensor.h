@@ -327,3 +327,108 @@ inline void print_arr(int* arr, size_t len, ostream& stream=cout) {
     }
     stream << "]";
 }
+
+// returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors
+// d1_n == d2_n || d1_n == 1 || d2_n == 1
+bool combine_flexible(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
+    int ind = newLen - 1;
+    for (int i = 1; i <= newLen; i++, ind--) {
+        int ind1 = shapeLen1 - i;
+        int ind2 = shapeLen2 - i;
+        if (ind1 >= 0 && ind2 >= 0) {
+            if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 && shape2[ind2] != 1) {
+                return false;
+            }
+            newShape[ind] = max(shape1[ind1], shape2[ind2]);
+        }
+        else {
+            newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
+        }
+    }
+    return true;
+}
+
+// returns a dynamically allocated array that represents the resulting shape of broadcasting two tensors by matrix multiplication
+// matmul: (n?,k),(k,m?) -> (n?,m?)
+void combine_matrix(int* shape1, const size_t shapeLen1, int* shape2, const size_t shapeLen2, int* newShape, size_t newLen) {
+    if (shape1[shapeLen1 - 1] != shape2[shapeLen2 - 2]) {
+        ostringstream errmsg;
+        
+        if (shapeLen1 + shapeLen2 > 4) {
+            errmsg << "can not batch matrix multiply tensors with shapes: ";
+        }
+        else {
+            errmsg << "can not matrix multiply tensors with shapes: ";
+        }
+
+        print_arr(shape1, shapeLen1, errmsg);
+        errmsg << " and ";
+        print_arr(shape2, shapeLen2, errmsg);
+        throw invalid_argument(errmsg.str());
+    }
+    fill(newShape, newShape + newLen, 0);
+
+    newShape[newLen - 1] = shape2[shapeLen2 - 1];
+    newShape[newLen - 2] = shape1[shapeLen1 - 2];
+
+    int ind = newLen - 3;
+    for (int i = 3; i <= newLen; i++, ind--) {
+        int ind1 = shapeLen1 - i;
+        int ind2 = shapeLen2 - i;
+        if (ind1 >= 0 && ind2 >= 0) {
+            if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 && shape2[ind2] != 1) {
+                ostringstream errmsg;
+                errmsg << "can not batch matrix multiply tensors with shapes (batch dimensions arent broadcastable): ";
+                print_arr(shape1, shapeLen1, errmsg);
+                errmsg << " and ";
+                print_arr(shape2, shapeLen2, errmsg);
+                throw invalid_argument(errmsg.str());
+            }
+            newShape[ind] = max(shape1[ind1], shape2[ind2]);
+        }
+        else {
+            newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
+        }
+    }
+}
+
+void transp(int* shape, int* stride, size_t len) {
+    int temp;
+    for (int i = 0, j = len - 1; i < len / 2; i++, j--) {
+        temp = shape[i];
+        shape[i] = shape[j];
+        shape[j] = temp;
+
+        temp = stride[i];
+        stride[i] = stride[j];
+        stride[j] = temp;
+    }
+}
+
+void transp(int* shape, int* stride,size_t len, int* shape_T, int* stride_T) {
+    for (int i = 0, j = len - 1; i < len; i++, j--) {
+        shape_T[j] = shape[i];
+        stride_T[j] = stride[i];
+    }
+}
+
+void transp2D(int* shape, int* stride, size_t len) {
+    int temp;
+    temp = shape[len - 2];
+    shape[len - 2] = shape[len - 1];
+    shape[len - 1] = temp;
+
+    temp = stride[len - 2];
+    stride[len - 2] = stride[len - 1];
+    stride[len - 1] = temp;
+}
+
+void transp2D(int* shape, int* stride,size_t len, int* shape_T, int* stride_T) {
+    copy(shape, shape + len - 2, shape_T);
+    shape_T[len - 2] = shape[len - 1];
+    shape_T[len - 1] = shape[len - 2];
+
+    copy(stride, stride + len - 2, stride_T);
+    stride_T[len - 2] = stride[len - 1];
+    stride_T[len - 1] = stride[len - 2];
+}
