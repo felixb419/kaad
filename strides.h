@@ -126,6 +126,23 @@ struct Strides {
         node.strideC = new int*[2];
 
         _outer(A, B, C, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]);
+
+        node.strideLen[1] = node.strideLen[0];
+
+        node.reps[1] = new int[node.strideLen[0]];
+        copy(node.reps[0], node.reps[0] + node.strideLen[0], node.reps[1]);
+
+        node.count[1] = new int[node.strideLen[0]];
+        copy(node.count[0], node.count[0] + node.strideLen[0], node.count[1]);
+
+        node.strideA[1] = new int[node.strideLen[0]];
+        copy(node.strideA[0], node.strideA[0] + node.strideLen[0], node.strideA[1]);
+
+        node.strideB[1] = new int[node.strideLen[0]];
+        copy(node.strideB[0], node.strideB[0] + node.strideLen[0], node.strideB[1]);
+
+        node.strideC[1] = new int[node.strideLen[0]];
+        copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
     private:
@@ -276,24 +293,28 @@ struct Strides {
         copy(A.stride, A.stride + A.shapeLen, strideA);
         copy(B.stride, B.stride + B.shapeLen, strideB + A.shapeLen);
 
+        // pad A.shape with 1s on the right
+        int* a_shape_big = new int[strideLen];
+        copy(A.shape, A.shape + A.shapeLen, a_shape_big);
+        a_shape_big[A.shapeLen] = 1;
+
         int idx, idxA, idxB, idxC;
         int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
         for (int i = 1; i <= strideLen; i++) {
             idx = strideLen - i;
 
-            idxA = A.shapeLen - i;
             _offsetA = offsetA;
-            offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
+            offsetA += (a_shape_big[idx] - 1) * strideA[idx];
             strideA[idx] -= _offsetA;
 
             idxB = B.shapeLen - i;
             _offsetB = offsetB;
-            offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
+            offsetB += ((idxB >= 0 ? B.shape[idxB] : 1) - 1) * strideB[idx];
             strideB[idx] -= _offsetB;
 
             idxC = C.shapeLen - i;
             _offsetC = offsetC;
-            offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+            offsetC += ((idxC >= 0 ? C.shape[idxC] : 1) - 1) * strideC[idx];
             strideC[idx] -= _offsetC;
         }
     }

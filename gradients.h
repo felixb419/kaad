@@ -314,12 +314,6 @@ struct Gradients {
         Operations<T>::batch_matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
 
-    // f(A,B) = A outer B
-    // df/dA = B
-    // df/dB = A
-    static void outer_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-    }
-
     /*
     UNARY OPS
     */
