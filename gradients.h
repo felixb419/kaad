@@ -14,7 +14,7 @@ using gradientOp = void(*)(const T* A, const T* B, const T* C, T* dA, T* dB, con
 template <typename T>
 struct Gradients {
 
-    //d/dx[ f(g(x)) ] = f'(g(x)) * g'(x)
+    //d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
 
     /*
     BINARY OPS
