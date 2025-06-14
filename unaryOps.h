@@ -94,6 +94,9 @@ int abs(Recorder<T>& rec, int indA) {
     return binaryOp(rec, indA, absK);
 }
 
+// transpose A
+// if given A is transposed according to perm
+// where A is a tensor
 template <typename T>
 int transpose(Recorder<T>& rec, int indA, initializer_list<int> perm={}) {
     int recLen = rec.nodes.size();
