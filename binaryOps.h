@@ -169,15 +169,15 @@ int dot(Recorder<T>& rec, int indA, int indB) {
 
     if (B_scalar) {
         rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
-        Strides<T>::dot(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
     }
     else if (A_scalar) {
         rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indB, indA, ((T)0));
-        Strides<T>::dot(rec.nodes[indB].value, rec.nodes[indA].value, rec.nodes[recLen]);
+        Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, indA, indB, ((T)0));
-        Strides<T>::dot(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
     }
     else {
         ostringstream errmsg;

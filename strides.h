@@ -16,6 +16,17 @@ struct Strides {
         node.strideC = new int*[2];
     }
 
+    static void iterOverInp(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+        node.nEntries = 2;
+        size_t len = max(A.len, B.len);
+        node.strideLen = new size_t[2] { len, len };
+        node.reps = new int*[2];
+        node.count = new int*[2];
+        node.strideA = new int*[2];
+        node.strideB = new int*[2];
+        node.strideC = new int*[2];
+    }
+
     static void flexible(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
         Tensor<T>& C = node.value;
 
@@ -74,16 +85,6 @@ struct Strides {
         _matmul(a_T, c, b, node.strideLen[2], node.reps[2], node.strideA[2], node.strideC[2], node.strideB[2]); 
 
         delete[] shapeBlock;
-    }
-
-    static void dot(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
-        node.nEntries = 2;
-        node.strideLen = new size_t[2] { A.len, A.len };
-        node.reps = new int*[2];
-        node.count = new int*[2];
-        node.strideA = new int*[2];
-        node.strideB = new int*[2];
-        node.strideC = new int*[2];
     }
 
     static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
