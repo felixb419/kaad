@@ -9,7 +9,7 @@ struct UnaryKernels {
 };
 
 template <typename T>
-int binaryOp(Recorder<T>& rec, int indA, const UnaryKernels<T> kernels) {
+int unaryOp(Recorder<T>& rec, int indA, const UnaryKernels<T> kernels) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
@@ -31,7 +31,7 @@ int negative(Recorder<T>& rec, int indA) {
         Gradients<T>::negate_grad
     };
 
-    return binaryOp(rec, indA, negK);
+    return unaryOp(rec, indA, negK);
 }
 
 // square A
@@ -43,7 +43,7 @@ int square(Recorder<T>& rec, int indA) {
         Gradients<T>::square_grad
     };
 
-    return binaryOp(rec, indA, squareK);
+    return unaryOp(rec, indA, squareK);
 }
 
 // compte squareroot of A
@@ -55,7 +55,7 @@ int sqrt(Recorder<T>& rec, int indA) {
         Gradients<T>::sqrt_grad
     };
 
-    return binaryOp(rec, indA, sqrtK);
+    return unaryOp(rec, indA, sqrtK);
 }
 
 // compute logarithm base e of A
@@ -67,7 +67,7 @@ int log(Recorder<T>& rec, int indA) {
         Gradients<T>::log_grad
     };
 
-    return binaryOp(rec, indA, logK);
+    return unaryOp(rec, indA, logK);
 }
 
 // raise A to the power of e
@@ -79,7 +79,7 @@ int exp(Recorder<T>& rec, int indA) {
         Gradients<T>::exp_grad
     };
 
-    return binaryOp(rec, indA, expK);
+    return unaryOp(rec, indA, expK);
 }
 
 // compute the absolute value of A
@@ -91,7 +91,7 @@ int abs(Recorder<T>& rec, int indA) {
         Gradients<T>::abs_grad
     };
 
-    return binaryOp(rec, indA, absK);
+    return unaryOp(rec, indA, absK);
 }
 
 // transpose A
