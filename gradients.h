@@ -380,6 +380,15 @@ struct Gradients {
         }
     }
 
+    // f(A) = sum(A)
+    // df_dA = tensor with shape of A filled with 1
+    static void sum_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+       for (size_t i = 0; i < strideLen[0]; i++) {
+           dA[i] += dC[0];
+       }
+    }
+
+
     /*
     UNCATEGORIZED
     */
@@ -523,15 +532,6 @@ struct Gradients {
         delete[] effstrideA;
     }
     
-    // f(A) = sum(A)
-    // df_dA = tensor with shape of A filled with 1
-    static void sum_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-       // dA += dC[0]
-       for (size_t i = 0; i < dA->len; i++) {
-           dA->val[i] += dC->val[0];
-       }
-    }
-
     static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         fill(dA->val, dA->val + dA->len, 0);
 

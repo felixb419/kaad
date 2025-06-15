@@ -127,36 +127,6 @@ int maximum(Recorder<T>& rec, int indA, int indB) {
 }
 
 template <typename T>
-int sum(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    
-    int newShape[] = {1};
-    rec.nodes.emplace_back(Operations<T>::sum, Gradients<T>::sum_grad, indA, -1, newShape, 1);
-
-    return recLen;
-}
-
-template <typename T>
-int sum(Recorder<T>& rec, int indA, int dim) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-
-    size_t newLen = A.shapeLen - 1;
-    int* newShape = new int[newLen];
-    copy(A.shape, A.shape + dim, newShape);
-    for (int i = dim; i < newLen; i++) {
-        newShape[i] = A.shape[i + 1];
-    }
-
-    rec.nodes.emplace_back(Operations<T>::sum_dim, Gradients<T>::sum_dim_grad, indA, -1, newShape, newLen);
-    // save dim into ctx
-    rec.nodes[recLen].ctx = new int[] { dim };
-    rec.nodes[recLen].ctx_is_array = true;
-
-    return recLen;
-}
-
-template <typename T>
 int mean(Recorder<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
