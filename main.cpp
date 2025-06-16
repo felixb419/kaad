@@ -17,7 +17,7 @@ int main() {
     Tensor<double> X(10);
     Tensor<double> Y(5);
 
-    Recorder<double> rec;
+    CompGraph<double> rec;
     int a = rec.append(move(A));
     int b = rec.append(move(B));
     int n = rec.append(move(N));

@@ -3,7 +3,7 @@
 #include "operations.h"
 #include "tensor.h"
 #include "gradients.h"
-#include "recorder.h"
+#include "compGraph.h"
 #include "strides.h"
 #include "unaryOps.h"
 #include "binaryOps.h"
@@ -14,7 +14,7 @@
 using namespace std;
 
 template <typename T>
-int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
+int tensordot(CompGraph<T>& rec, int indA, int indB, int dims) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -61,7 +61,7 @@ int tensordot(Recorder<T>& rec, int indA, int indB, int dims) {
 }
 
 template <typename T>
-int minimum(Recorder<T>& rec, int indA, int indB) {
+int minimum(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -94,7 +94,7 @@ int minimum(Recorder<T>& rec, int indA, int indB) {
 }
 
 template<typename T>
-int maximum(Recorder<T>& rec, int indA, int indB) {
+int maximum(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -127,7 +127,7 @@ int maximum(Recorder<T>& rec, int indA, int indB) {
 }
 
 template <typename T>
-int tile(Recorder<T>& rec, int indA, initializer_list<int> multiples) {
+int tile(CompGraph<T>& rec, int indA, initializer_list<int> multiples) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
@@ -173,7 +173,7 @@ int tile(Recorder<T>& rec, int indA, initializer_list<int> multiples) {
 }
 
 template <typename T>
-int slice(Recorder<T>& rec, int indA, initializer_list<int> start, initializer_list<int> length) {
+int slice(CompGraph<T>& rec, int indA, initializer_list<int> start, initializer_list<int> length) {
     int recLen = rec.nodes.length();
     Tensor<T>& A = rec.nodes[indA].value;
 

@@ -70,13 +70,13 @@ ostream& operator<<(ostream& out, const Node<T>& self) {
 }
 
 template <typename T>
-class Recorder {
+class CompGraph {
     public:
         vector<Node<T>> nodes;
     
-        Recorder() {}
+        CompGraph() {}
 
-        ~Recorder() {
+        ~CompGraph() {
             for (Node<T> node : nodes) {
                 for (int i = 0; i < node.nEntries; i++) {
                     delete[] node.strideA[i];
@@ -100,7 +100,7 @@ class Recorder {
             return idx;
         }
 
-        // evaluate tensors in Recorder at index specified
+        // evaluate tensors in CompGraph at index specified
         // returns reference array to Tensors in given order
         template<typename... ints>
         array<Tensor<T>*, sizeof...(ints)> evaluate(ints... indeces) {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tensor.h"
-#include "recorder.h"
+#include "compGraph.h"
 #include "operations.h"
 
 template<typename T>

@@ -1,5 +1,5 @@
 #include "gradients.h"
-#include "recorder.h"
+#include "compGraph.h"
 #include "strides.h"
 
 template <typename T>
@@ -9,7 +9,7 @@ struct UnaryKernels {
 };
 
 template <typename T>
-int unaryOp(Recorder<T>& rec, int indA, const UnaryKernels<T> kernels) {
+int unaryOp(CompGraph<T>& rec, int indA, const UnaryKernels<T> kernels) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
@@ -25,7 +25,7 @@ int unaryOp(Recorder<T>& rec, int indA, const UnaryKernels<T> kernels) {
 // negate A
 // where A is a tensor
 template <typename T>
-int negative(Recorder<T>& rec, int indA) {
+int negative(CompGraph<T>& rec, int indA) {
     static const UnaryKernels negK = {
         Operations<T>::negate,
         Gradients<T>::negate_grad
@@ -37,7 +37,7 @@ int negative(Recorder<T>& rec, int indA) {
 // square A
 // where A is a tensor
 template <typename T>
-int square(Recorder<T>& rec, int indA) {
+int square(CompGraph<T>& rec, int indA) {
     static const UnaryKernels squareK = {
         Operations<T>::square,
         Gradients<T>::square_grad
@@ -49,7 +49,7 @@ int square(Recorder<T>& rec, int indA) {
 // compte squareroot of A
 // where A is a tensor
 template <typename T>
-int sqrt(Recorder<T>& rec, int indA) {
+int sqrt(CompGraph<T>& rec, int indA) {
     static const UnaryKernels sqrtK = {
         Operations<T>::sqrt,
         Gradients<T>::sqrt_grad
@@ -61,7 +61,7 @@ int sqrt(Recorder<T>& rec, int indA) {
 // compute logarithm base e of A
 // where A is a tensor
 template <typename T>
-int log(Recorder<T>& rec, int indA) {
+int log(CompGraph<T>& rec, int indA) {
     static const UnaryKernels logK = {
         Operations<T>::log,
         Gradients<T>::log_grad
@@ -73,7 +73,7 @@ int log(Recorder<T>& rec, int indA) {
 // raise A to the power of e
 // where A is a tensor
 template <typename T>
-int exp(Recorder<T>& rec, int indA) {
+int exp(CompGraph<T>& rec, int indA) {
     static const UnaryKernels expK = {
         Operations<T>::exp,
         Gradients<T>::exp_grad
@@ -85,7 +85,7 @@ int exp(Recorder<T>& rec, int indA) {
 // compute the absolute value of A
 // where A is a tensor
 template <typename T>
-int abs(Recorder<T>& rec, int indA) {
+int abs(CompGraph<T>& rec, int indA) {
     static const UnaryKernels absK = {
         Operations<T>::abs,
         Gradients<T>::abs_grad
@@ -98,7 +98,7 @@ int abs(Recorder<T>& rec, int indA) {
 // if given A is transposed according to perm
 // where A is a tensor
 template <typename T>
-int transpose(Recorder<T>& rec, int indA, initializer_list<int> perm={}) {
+int transpose(CompGraph<T>& rec, int indA, initializer_list<int> perm={}) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
@@ -147,7 +147,7 @@ int transpose(Recorder<T>& rec, int indA, initializer_list<int> perm={}) {
 }
 
 template <typename T>
-int sum(Recorder<T>& rec, int indA) {
+int sum(CompGraph<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     
     int* newShape = new int[] { 1 };
@@ -158,7 +158,7 @@ int sum(Recorder<T>& rec, int indA) {
 }
 
 template <typename T>
-int sum(Recorder<T>& rec, int indA, int dim) {
+int sum(CompGraph<T>& rec, int indA, int dim) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
@@ -181,7 +181,7 @@ int sum(Recorder<T>& rec, int indA, int dim) {
 }
 
 template <typename T>
-int mean(Recorder<T>& rec, int indA) {
+int mean(CompGraph<T>& rec, int indA) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     
@@ -193,7 +193,7 @@ int mean(Recorder<T>& rec, int indA) {
 }
 
 template <typename T>
-int mean(Recorder<T>& rec, int indA, int dim) {
+int mean(CompGraph<T>& rec, int indA, int dim) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 

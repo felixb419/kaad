@@ -1,5 +1,5 @@
 #include "gradients.h"
-#include "recorder.h"
+#include "compGraph.h"
 #include "strides.h"
 
 template <typename T>
@@ -16,7 +16,7 @@ struct BinaryKernels {
 };
 
 template <typename T>
-int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernels, const char* opName) {
+int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kernels, const char* opName) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -63,7 +63,7 @@ int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernel
 // add A and B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int add(Recorder<T>& rec, int indA, int indB) {
+int add(CompGraph<T>& rec, int indA, int indB) {
     
     static const BinaryKernels<T> addK = {
         Operations<T>::scalarAddRt,
@@ -82,7 +82,7 @@ int add(Recorder<T>& rec, int indA, int indB) {
 // subtract B from A
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int sub(Recorder<T>& rec, int indA, int indB) {
+int sub(CompGraph<T>& rec, int indA, int indB) {
     
     static const BinaryKernels<T> subK = {
         Operations<T>::scalarSubRt,
@@ -101,7 +101,7 @@ int sub(Recorder<T>& rec, int indA, int indB) {
 // multiply A and B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int mul(Recorder<T>& rec, int indA, int indB) {
+int mul(CompGraph<T>& rec, int indA, int indB) {
     
     static const  BinaryKernels<T> mulK = {
         Operations<T>::scalarMulRt,
@@ -120,7 +120,7 @@ int mul(Recorder<T>& rec, int indA, int indB) {
 // divide A by B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int div(Recorder<T>& rec, int indA, int indB) {
+int div(CompGraph<T>& rec, int indA, int indB) {
     
     static const  BinaryKernels<T> divK = {
         Operations<T>::scalarDivRt,
@@ -139,7 +139,7 @@ int div(Recorder<T>& rec, int indA, int indB) {
 // raise A to the power of B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int pow(Recorder<T>& rec, int indA, int indB) {
+int pow(CompGraph<T>& rec, int indA, int indB) {
     
     static const  BinaryKernels<T> powK = {
         Operations<T>::scalarPowRt,
@@ -158,7 +158,7 @@ int pow(Recorder<T>& rec, int indA, int indB) {
 // compute dot prodcut of A and B
 // where A and B are scalars or vectors with the same length
 template <typename T>
-int dot(Recorder<T>& rec, int indA, int indB) {
+int dot(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -191,7 +191,7 @@ int dot(Recorder<T>& rec, int indA, int indB) {
 }
 
 template <typename T>
-int matmul(Recorder<T>& rec, int indA, int indB) {
+int matmul(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
@@ -222,7 +222,7 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
 }
 
 template <typename T>
-int outer(Recorder<T>& rec, int indA, int indB) {
+int outer(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
     Tensor<T>& B = rec.nodes[indB].value;
