@@ -50,6 +50,11 @@ struct Node {
         inline void grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC) {
             grad_op(A, B, C, dA, dB, dC, strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
         }
+
+        inline void reset() {
+            fill(value.val, value.val + value.len, 0);
+            fill(gradient.val, gradient.val + gradient.len, 0);
+        }
 };
 
 template <typename T>
@@ -130,6 +135,12 @@ class Recorder {
             }
 
             return partials;
+        }
+
+        void reset() {
+            for (Node<T>& node : nodes) {
+                node.reset();
+            }
         }
 
     private:
