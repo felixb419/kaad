@@ -194,3 +194,27 @@ int mean(Recorder<T>& rec, int indA) {
 
     return recLen;
 }
+
+template <typename T>
+int mean(Recorder<T>& rec, int indA, int dim) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+
+    if (dim < 0 || dim >= A.shapeLen) {
+        ostringstream errmsg;
+        errmsg << "shape error in node[" << recLen << "] (mean)";
+        errmsg << "dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
+        throw invalid_argument(errmsg.str());
+    }
+
+    size_t newLen = A.shapeLen - 1;
+    int* newShape = new int[newLen];
+
+    copy(A.shape, A.shape + dim, newShape);
+    copy(A.shape + dim + 1, A.shape + A.shapeLen, newShape + dim);
+
+    rec.nodes.emplace_back(Operations<T>::mean_dim, Gradients<T>::mean_dim_grad, indA, -1, newShape, newLen);
+    Strides<T>::mean_along_dim(rec.nodes[indA].value, rec.nodes[recLen], dim);
+
+    return recLen;
+}

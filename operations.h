@@ -404,6 +404,35 @@ struct Operations {
         C[0] /= strideLen;
     }
 
+    // computes mean of tensor along dimension
+    // out must be same shape as A with one dimension missing
+    // dimensions index over which is summed is saved in B.shape
+    static void mean_dim(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int indA = 0, indC = 0;
+        while (1) {
+
+            C[indC] += A[indA];
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indC += strideC[dim];
+                    break;
+                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
+            }
+        }
+        end:;
+
+        T divisor = reps[strideLen];
+        for (size_t i = 0; i < reps[strideLen + 1]; i++) {
+            C[i] /= divisor;
+        }
+    }
+
     /*
     UNCATEGORIZED
     */
@@ -527,52 +556,6 @@ struct Operations {
         }    
         delete[] effstrideA;
     }
-
-
-
-    // computes mean of tensor along dimension
-    // out must be same shape as A with one dimension missing
-    // dimensions index over which is summed is saved in B.shape
-    static void mean_dim(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
-        
-        fill(C->val, C->val + C->len, 0);
-
-        int k = *(static_cast<int*>(ctx));
-        int* effstride = new int[A->shapeLen * 2];
-        copy(A->stride, A->stride + A->shapeLen, effstride);
-        effstride[k] = 0;
-        for (int i = 0; i < k; i++) {
-            effstride[i] /= A->shape[k];
-        }
-
-        int indA = 0, indC = 0; 
-        int* cords = effstride + A->shapeLen;
-        fill(cords, cords + A->shapeLen, 0);
-
-        T scale = ((T)1) / A->shape[k];
-        for (int i = 0; i < A->len; i++) {
-            
-            C->val[indC] += A->val[indA] * scale;
-
-            for (int dim = A->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += A->stride[dim];
-                indC += effstride[dim];
-
-                if (cords[dim] < A->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= A->stride[dim] * A->shape[dim];
-                    indC -= effstride[dim] * A->shape[dim];
-                }
-            }
-        }
-
-        delete[] effstride;
-    }
-
 
     static void tile(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int* m = static_cast<int*>(ctx);
