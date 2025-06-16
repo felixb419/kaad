@@ -13,7 +13,6 @@ struct Node {
 
         tensorOp<T> op = nullptr;
         gradientOp<T> grad_op = nullptr;
-        void* ctx = nullptr;
 
         bool evaluated = false;
         Tensor<T> value;
