@@ -383,14 +383,22 @@ struct Gradients {
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1
     static void sum_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-       for (size_t i = 0; i < strideLen[0]; i++) {
-           dA[i] += dC[0];
-       }
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += dC[0];
+        }
     }
     static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         Operations<T>::sum_dim(dC, nullptr, dA, strideC[0], nullptr, strideA[0], reps[0], count[0], strideLen[0]);
     }
 
+    // f(A) = mean(A)
+    // df_dA = tensor with shape of A filled with 1 / (len of A)
+    static void mean_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        T mean = dC[0] / strideLen[0];
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            dA[i] += mean;
+        }
+    }
 
     /*
     UNCATEGORIZED
@@ -723,15 +731,6 @@ struct Gradients {
         delete[] effstride;
     }
 
-    // f(A) = sum(A)
-    // df_dA = tensor with shape of A filled with 1 / (len of A)
-    static void mean_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-       // dA += dC[0]
-       T inv = dC->val[0] / dC->len;
-       for (size_t i = 0; i < dA->len; i++) {
-           dA->val[i] += inv;
-       }
-    }
     
     static void mean_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         fill(dA->val, dA->val + dA->len, 0);

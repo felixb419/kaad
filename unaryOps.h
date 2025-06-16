@@ -182,3 +182,15 @@ int sum(Recorder<T>& rec, int indA, int dim) {
 
     return recLen;
 }
+
+template <typename T>
+int mean(Recorder<T>& rec, int indA) {
+    int recLen = rec.nodes.size();
+    Tensor<T>& A = rec.nodes[indA].value;
+    
+    int* newShape = new int[] { 1 };
+    rec.nodes.emplace_back(Operations<T>::mean, Gradients<T>::mean_grad, indA, -1, newShape, 1);
+    Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indA].value, rec.nodes[recLen]);
+
+    return recLen;
+}

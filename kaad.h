@@ -126,16 +126,6 @@ int maximum(Recorder<T>& rec, int indA, int indB) {
     return recLen;
 }
 
-template <typename T>
-int mean(Recorder<T>& rec, int indA) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    
-    int newShape[] = {1};
-    rec.nodes.emplace_back(Operations<T>::mean, Gradients<T>::mean_grad, indA, -1, newShape, 1);
-
-    return recLen;
-}
 
 template <typename T>
 int mean(Recorder<T>& rec, int indA, int dim) {

@@ -366,13 +366,11 @@ struct Operations {
 
     // adds every element of A to out
     // B has to be a scalar
-
     static void sum(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         for (size_t i = 0; i < strideLen; i++) {
             C[0] += A[i];
         }
     }
-
     // sums tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
@@ -395,6 +393,15 @@ struct Operations {
             }
         }
         end:;
+    }
+
+    // saves mean of A into out
+    // B has to be a scalar
+    static void mean(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        for (size_t i = 0; i < strideLen; i++) {
+            C[0] += A[i];
+        }
+        C[0] /= strideLen;
     }
 
     /*
@@ -522,15 +529,6 @@ struct Operations {
     }
 
 
-    // saves mean of A into out
-    // B has to be a scalar
-    static void mean(const tView<T>* A, const tView<T>* _, tView<T>* out, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
-        out->val[0] = 0;
-        for (size_t i = 0; i < A->len; i++) {
-            out->val[0] += A->val[i];
-        }
-        out->val[0] /= A->len;
-    }
 
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
