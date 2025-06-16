@@ -3,16 +3,8 @@
 #include <stdexcept>
 #include <random>
 #include <iostream>
-#include <concepts>
 
 using namespace std;
-
-template <typename T>
-concept arithmetic = integral<T> || floating_point<T>;
-template <typename T>
-concept printable = requires(ostream& os, T a) {
-    { os << a } -> same_as<ostream&>;
-};
 
 inline size_t getIndex(int* indeces, int* shape, int* stride, size_t len) {
     size_t linearIndex = 0;
@@ -22,7 +14,7 @@ inline size_t getIndex(int* indeces, int* shape, int* stride, size_t len) {
     return linearIndex;
 }
 
-template <printable T>
+template <typename T>
 inline void _print(ostream& stream, int* cords, int* shape, int* stride, size_t shapeLen, T* val, int ind, int& indent) {
     if (ind == shapeLen) {
         stream << val[getIndex(cords, shape, stride, shapeLen)];
@@ -55,7 +47,7 @@ inline void _print(ostream& stream, int* cords, int* shape, int* stride, size_t 
     }
 }
 
-template <arithmetic T>
+template <typename T>
 struct tView {
     int* shape = nullptr;
     int* stride = nullptr;
@@ -70,7 +62,7 @@ struct tView {
 
     tView() {}
 
-    friend ostream& operator<<(ostream& stream, tView<T> view) requires printable<T> {
+    friend ostream& operator<<(ostream& stream, tView<T> view) {
         if (view.shapeLen == 0) {
             cout << "[]";
         }
@@ -88,7 +80,7 @@ struct tView {
     }
 };
 
-template<arithmetic T>
+template<typename T>
 class Tensor {
     public:
         int* shape = nullptr;
