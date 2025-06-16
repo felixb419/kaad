@@ -146,6 +146,34 @@ struct Strides {
         copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
+    static void along_dim(Tensor<T>& A, Node<T>& node, int dim) {
+        Tensor<T>& C = node.value;
+
+        node.nEntries = 2;
+        node.strideLen = new size_t[node.nEntries];
+        node.reps = new int*[node.nEntries];
+        node.count = new int*[node.nEntries];
+        node.strideA = new int*[node.nEntries];
+        node.strideB = new int*[node.nEntries];
+        node.strideC = new int*[node.nEntries];
+
+        _along_dim(A, C, dim, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideC[0]);
+
+        node.strideLen[1] = node.strideLen[0];
+
+        node.reps[1] = new int[node.strideLen[0]];
+        copy(node.reps[0], node.reps[0] + node.strideLen[0], node.reps[1]);
+
+        node.count[1] = new int[node.strideLen[0]];
+        copy(node.count[0], node.count[0] + node.strideLen[0], node.count[1]);
+
+        node.strideA[1] = new int[node.strideLen[0]];
+        copy(node.strideA[0], node.strideA[0] + node.strideLen[0], node.strideA[1]);
+
+        node.strideC[1] = new int[node.strideLen[0]];
+        copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
+    }
+
     private:
 
     static void _flexible(Tensor<T>& A, Tensor<T>& B, Tensor<T>& C, size_t& strideLen, int*& reps, int*& count, int*& strideA, int*& strideB, int*& strideC) {
@@ -316,6 +344,48 @@ struct Strides {
             idxC = C.shapeLen - i;
             _offsetC = offsetC;
             offsetC += ((idxC >= 0 ? C.shape[idxC] : 1) - 1) * strideC[idx];
+            strideC[idx] -= _offsetC;
+        }
+    }
+
+    static void _along_dim(Tensor<T>& A, Tensor<T>& C, int dim, size_t& strideLen, int*& reps, int*& count, int*& strideA, int*& strideC) {
+        strideLen = A.shapeLen;
+        reps = new int[strideLen];
+        copy(A.shape, A.shape + A.shapeLen, reps);
+        for (int i = 0; i < strideLen; i++) {
+            reps[i]--;
+        }
+
+        count = new int[strideLen];
+        copy(reps, reps + strideLen, count);
+
+        strideA = new int[strideLen];
+        strideC = new int[strideLen];
+
+        copy(A.stride, A.stride + A.shapeLen, strideA);
+        copy(A.stride, A.stride + A.shapeLen, strideC);
+        strideC[dim] = 0;
+        for (int i = 0; i < dim; i++) {
+            strideC[i] /= A.shape[dim];
+        }
+
+        // insert 1 at C.shape[dim];
+        int* c_shape_big = new int[A.shapeLen];
+        copy(C.shape, C.shape + dim, c_shape_big);
+        c_shape_big[dim] = 1;
+        copy(C.shape + dim, C.shape + C.shapeLen, c_shape_big + dim + 1);
+
+        int idx, idxC;
+        int offsetA = 0, _offsetA, offsetC = 0, _offsetC;
+        for (int i = 1; i <= strideLen; i++) {
+            idx = strideLen - i;
+
+            _offsetA = offsetA;
+            offsetA += ((idx >= 0 ? A.shape[idx] : i) - 1) * strideA[idx];
+            strideA[idx] -= _offsetA;
+
+            _offsetC = offsetC;
+            offsetC += (c_shape_big[idx] - 1) * strideC[idx];
             strideC[idx] -= _offsetC;
         }
     }

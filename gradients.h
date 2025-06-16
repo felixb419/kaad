@@ -387,6 +387,9 @@ struct Gradients {
            dA[i] += dC[0];
        }
     }
+    static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        Operations<T>::sum_dim(dC, nullptr, dA, strideC[0], nullptr, strideA[0], reps[0], count[0], strideLen[0]);
+    }
 
 
     /*
@@ -530,39 +533,6 @@ struct Gradients {
         
         }    
         delete[] effstrideA;
-    }
-    
-    static void sum_dim_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        fill(dA->val, dA->val + dA->len, 0);
-
-        int k = 0; // fix later
-        int* effstride = new int[A->shapeLen * 2];
-        copy(A->stride, A->stride + A->shapeLen, effstride);
-        effstride[k] = 0;
-        for (int i = 0; i < k; i++) {
-            effstride[i] /= A->shape[k];
-        }
-
-        int indA = 0, indC = 0; 
-        int* cords = effstride + A->shapeLen;
-        fill(cords, cords + A->shapeLen, 0);
-
-        for (int i = 0; i < A->len; i++) {
-            
-            dA->val[indA] += dC->val[indC];
-
-            for (int dim = A->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += A->stride[dim];
-                indC += effstride[dim];
-
-                if (cords[dim] < A->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= A->stride[dim] * A->shape[dim];
-                    indC -= effstride[dim] * A->shape[dim];
     }
     
     static void batch_matmul_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {

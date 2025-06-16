@@ -377,6 +377,24 @@ struct Operations {
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
     static void sum_dim(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int indA = 0, indC = 0;
+        while (1) {
+
+            C[indC] += A[indA];
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indC += strideC[dim];
+                    break;
+                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
+            }
+        }
+        end:;
     }
 
     /*

@@ -178,7 +178,7 @@ int sum(Recorder<T>& rec, int indA, int dim) {
     copy(A.shape + dim + 1, A.shape + A.shapeLen, newShape + dim);
 
     rec.nodes.emplace_back(Operations<T>::sum_dim, Gradients<T>::sum_dim_grad, indA, -1, newShape, newLen);
-    Strides<T>::along_dim(rec.nodes[indA].value, rec.nodes);
+    Strides<T>::along_dim(rec.nodes[indA].value, rec.nodes[recLen], dim);
 
     return recLen;
 }
