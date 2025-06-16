@@ -104,8 +104,7 @@ int transpose(Recorder<T>& rec, int indA, initializer_list<int> perm={}) {
 
     if (A.shapeLen < 2) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (transpose)";
-        errmsg << ", In1 shapeLen hast to be > 1, shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (transpose), In1 shapeLen hast to be > 1, shape1 ";
         print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         throw invalid_argument(errmsg.str());
     }
@@ -123,8 +122,7 @@ int transpose(Recorder<T>& rec, int indA, initializer_list<int> perm={}) {
     else {
         if (perm.size() != A.shapeLen) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (transpose)";
-            errmsg << ", perm has to be the same shapeLength as In1, perm ";
+            errmsg << "shape error in node[" << recLen << "] (transpose), perm has to be the same shapeLength as In1, perm ";
             print_arr(perm.begin(), perm.end(), errmsg);
             errmsg << ", shape1";
             print_arr(A.shape, A.shape + A.shapeLen, errmsg);
@@ -166,8 +164,7 @@ int sum(Recorder<T>& rec, int indA, int dim) {
 
     if (dim < 0 || dim >= A.shapeLen) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (sum)";
-        errmsg << "dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
+        errmsg << "shape error in node[" << recLen << "] (sum), dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
         throw invalid_argument(errmsg.str());
     }
 
@@ -202,8 +199,7 @@ int mean(Recorder<T>& rec, int indA, int dim) {
 
     if (dim < 0 || dim >= A.shapeLen) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (mean)";
-        errmsg << "dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
+        errmsg << "shape error in node[" << recLen << "] (mean), dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
         throw invalid_argument(errmsg.str());
     }
 

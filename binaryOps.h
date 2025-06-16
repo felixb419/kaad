@@ -51,8 +51,7 @@ int binaryOp(Recorder<T>& rec, int indA, int indB, const BinaryKernels<T> kernel
     }
     else {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName << ")"; 
-        errmsg << ", tensor shapes are not broadcastable: shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes are not broadcastable: shape1 ";
         print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         errmsg << ", shape2 ";
         print_arr(B.shape, B.shape + B.shapeLen, errmsg);
@@ -181,8 +180,7 @@ int dot(Recorder<T>& rec, int indA, int indB) {
     }
     else {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (dot)"; 
-        errmsg << ", tensor shapes arent valid for dot product: shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (dot), tensor shapes arent valid for dot product: shape1 ";
         print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         errmsg << ", shape2 ";
         print_arr(B.shape, B.shape + B.shapeLen, errmsg);
@@ -204,8 +202,7 @@ int matmul(Recorder<T>& rec, int indA, int indB) {
     const char* opName = newLen == 2 ? "matmul" : "batch_matmul";
     if (!combine_matrix(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName << ")";
-        errmsg << ", tensor shapes arent valid for " << opName << ": shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes arent valid for " << opName << ": shape1 ";
         print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         errmsg << ", shape2 ";
         print_arr(B.shape, B.shape + B.shapeLen, errmsg);
