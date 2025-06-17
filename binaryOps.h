@@ -190,6 +190,8 @@ int dot(CompGraph<T>& rec, int indA, int indB) {
     return recLen;
 }
 
+// matrix multiply A and B
+// where A and B are Tensors with valid dimensions
 template <typename T>
 int matmul(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
@@ -221,6 +223,8 @@ int matmul(CompGraph<T>& rec, int indA, int indB) {
     return recLen;
 }
 
+// compute outer product of A and B
+// where A and B are Tensors
 template <typename T>
 int outer(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();
