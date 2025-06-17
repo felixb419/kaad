@@ -24,7 +24,7 @@ int main() {
     int x = rec.append(move(X));
     int y = rec.append(move(Y));
 
-    int c = minimum(rec, minimum(rec, minimum(rec, a, minimum(rec, y, b)), n), x);
+    int c = maximum(rec, maximum(rec, maximum(rec, a, maximum(rec, y, b)), n), x);
 
     //cout << "A:\n" << rec.nodes[a].value << endl;
     //cout << "B:\n" << rec.nodes[b].value << endl;

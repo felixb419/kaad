@@ -307,7 +307,7 @@ struct Operations {
         end:;
     }
 
-    // take minimum of A and B so that C[i] = min(A[i], B[i])
+    // take minimum of A and B so that C[i] = min(A[i], B[0])
     // B must be scalar
     static void scalarMinRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         T B_val = B[0];
@@ -316,7 +316,7 @@ struct Operations {
             C[i] = A_val < B_val ? A_val : B_val;
         }
     }
-    // take minimum of A and B so that C[i] = min(A[i], B[i])
+    // take minimum of A and B so that C[i] = min(A[0], B[i])
     // A must be scalar
     static void scalarMinLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         T A_val = A[0];
@@ -334,7 +334,7 @@ struct Operations {
             C[i] = A_val < B_val ? A_val : B_val;
         }
     }
-    // flexible raise to power so that: C[i] = min(A[i], B[i])
+    // take flexible minimum of A and B so that C[i] = min(A[i], B[i])
     // shape of C must be a valid broadcast of A and B
     static void flexMin(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
@@ -343,6 +343,59 @@ struct Operations {
             T A_val = A[indA];
             T B_val = B[indB];
             C[indC] = A_val < B_val ? A_val : B_val;
+
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
+                    break;
+                }
+
+                count[dim] = reps[dim];
+                if (dim == 0) goto end;
+            }
+        }
+        end:;
+    }
+
+    // take maximum of A and B so that C[i] = max(A[i], B[0])
+    // B must be scalar
+    static void scalarMaxRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        T B_val = B[0];
+        for (size_t i = 0; i < strideLen; i++) {
+            T A_val = A[i];
+            C[i] = A_val > B_val ? A_val : B_val;
+        }
+    }
+    // take maximum of A and B so that C[i] = max(A[0], B[i])
+    // A must be scalar
+    static void scalarMaxLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        T A_val = A[0];
+        for (size_t i = 0; i < strideLen; i++) {
+            T B_val = B[i];
+            C[i] = A_val > B_val ? A_val : B_val;
+        }
+    }
+    // take pointwise maximum of A and B so that C[i] = max(A[i], B[i])
+    // shape of all operands must be indentical
+    static void pointMax(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        for (size_t i = 0; i < strideLen; i++) {
+            T A_val = A[i];
+            T B_val = B[i];
+            C[i] = A_val > B_val ? A_val : B_val;
+        }
+    }
+    // take flexible minimum of A and B so that C[i] = min(A[i], B[i])
+    // shape of C must be a valid broadcast of A and B
+    static void flexMax(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+        int indA = 0, indB = 0, indC = 0;
+        while (1) {
+
+            T A_val = A[indA];
+            T B_val = B[indB];
+            C[indC] = A_val > B_val ? A_val : B_val;
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
@@ -490,66 +543,6 @@ struct Operations {
     UNCATEGORIZED
     */
     /*
-    static void scalarMax(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        T B_val = B->val[0];
-        for (size_t i = 0; i < A->shapeLen; i++) {
-            T A_val = A->val[i];
-            C->val[i] = A_val > B_val ? A_val : B_val;
-        }
-    }
-
-    static void pointMax(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < A->shapeLen; i++) {
-            T A_val = A->val[i];
-            T B_val = B->val[i];
-            C->val[i] = A_val > B_val ? A_val : B_val;
-        }
-    }
-
-    static void flexMax(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int offsetA = C->shapeLen - A->shapeLen;
-        int offsetB = C->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[C->shapeLen * 3];
-        int* effstrideB = effstrideA + C->shapeLen;
-    
-        for (size_t i = 0; i < C->shapeLen; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-    
-        int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + C->shapeLen;
-        fill(cords, cords + C->shapeLen, 0);
-        for (int i = 0; i < C->len; i++) {
-        
-            T A_val = A->val[indA];
-            T B_val = B->val[indB];
-            C->val[indC] = A_val > B_val ? A_val : B_val;
-        
-            for (int dim = C->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += C->stride[dim];
-            
-                if (cords[dim] < C->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * C->shape[dim];
-                    indB -= effstrideB[dim] * C->shape[dim];
-                    indC -= C->stride[dim] * C->shape[dim];
-                }
-            }
-        
-        }    
-        delete[] effstrideA;
-    }
-
     static void tile(const tView<T>* A, const tView<T>* _, tView<T>* C, int* strideA=nullptr, int* strideB=nullptr, int* strideC=nullptr, int* reps=nullptr, int* count=nullptr, size_t strideLen=0, void* ctx=nullptr) {
         int* m = static_cast<int*>(ctx);
         

@@ -260,3 +260,22 @@ int minimum(CompGraph<T>& rec, int indA, int indB) {
 
     return binaryOp(rec, indA, indB, minK, "minimum");
 }
+
+// compute pointwise maximum of A and B
+// where A and B are Tensors with broadcastable shapes
+template <typename T>
+int maximum(CompGraph<T>& rec, int indA, int indB) {
+    
+    static const  BinaryKernels<T> maxK = {
+        Operations<T>::scalarMaxRt,
+        Operations<T>::scalarMaxLt,
+        Operations<T>::pointMax,
+        Operations<T>::flexMax,
+        Gradients<T>::scalarMaxRt_grad,
+        Gradients<T>::scalarMaxLt_grad,
+        Gradients<T>::pointMax_grad,
+        Gradients<T>::flexMax_grad
+    };
+
+    return binaryOp(rec, indA, indB, maxK, "maximum");
+}
