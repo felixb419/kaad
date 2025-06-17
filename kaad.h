@@ -60,39 +60,6 @@ int tensordot(CompGraph<T>& rec, int indA, int indB, int dims) {
     return recLen;
 }
 
-template <typename T>
-int minimum(CompGraph<T>& rec, int indA, int indB) {
-    int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
-    bool A_scalar = A.shapeLen == 0 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 0 && B.shape[0] == 1;
-
-    if (A_scalar || B_scalar) {
-        int tensor = A_scalar ? indB : indA;
-        int scalar = A_scalar ? indA : indB;
-        Tensor<T>& tensor_ref = rec.nodes[tensor].value;
-        int* newShape = new int[tensor_ref.shapeLen];
-        copy(tensor_ref.shape, tensor_ref.shape + tensor_ref.shapeLen, newShape);
-
-        rec.nodes.emplace_back(Operations<T>::scalarMin, Gradients<T>::scalarMin_grad, tensor, scalar, newShape, tensor_ref.shapeLen);
-    }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        int* newShape = new int[A.shapeLen];
-        copy(A.shape, A.shape + A.shapeLen, newShape);
-
-        rec.nodes.emplace_back(Operations<T>::pointMin, Gradients<T>::pointMin_grad, indA, indB, newShape, A.shapeLen);
-    }
-    else {
-        size_t newLen = max(A.shapeLen, B.shapeLen);
-        int* newShape = new int[newLen];
-        combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen);
-
-        rec.nodes.emplace_back(Operations<T>::flexMin, Gradients<T>::flexMin_grad, indA, indB, newShape, newLen);
-    }
-    return recLen;
-}
-
 template<typename T>
 int maximum(CompGraph<T>& rec, int indA, int indB) {
     int recLen = rec.nodes.size();

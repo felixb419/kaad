@@ -314,6 +314,58 @@ struct Gradients {
         Operations<T>::batch_matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
 
+    // f(A) = min(A,B)
+    // df/dA [i] = A < B ? 1 : 0
+    // df/dB [i] = B < A ? 1 : 0
+    static void scalarMinRt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            int smaller = A[i] <= B[0];
+            T C_val = dC[i];
+            dA[i] += smaller ? C_val : 0;
+            dB[0] += smaller ? 0 : C_val;
+        }
+    }
+    static void scalarMinLt_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            int smaller = A[0] <= B[i];
+            T C_val = dC[i];
+            dA[0] += smaller ? C_val : 0;
+            dB[i] += smaller ? 0 : C_val;
+        }
+    }
+    static void pointMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        for (size_t i = 0; i < strideLen[0]; i++) {
+            int smaller = A[i] <= B[i];
+            T C_val = dC[i];
+            dA[i] += smaller ? C_val : 0;
+            dB[i] += smaller ? 0 : C_val;
+        }
+    }
+    static void flexMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+        int indA = 0, indB = 0, indC = 0;
+        while (1) {
+
+            int smaller = A[indA] <= B[indB];
+            T C_val = dC[indC];
+            dA[indA] += smaller ? C_val : 0;
+            dB[indB] += smaller ? 0 : C_val;
+
+            for (int dim = *strideLen - 1; dim >= 0; dim--) {
+                count[0][dim]--;
+                if (count[0][dim] >= 0) {
+                    indA += strideA[0][dim];
+                    indB += strideB[0][dim];
+                    indC += strideC[0][dim];
+                    break;
+                }
+
+                count[0][dim] = reps[0][dim];
+                if (dim == 0) goto end;
+            }
+        }
+        end:;
+    }
+
     /*
     UNARY OPS
     */
@@ -407,75 +459,6 @@ struct Gradients {
     UNCATEGORIZED
     */
     /*
-
-    // f(A) = min(A,B)
-    // df/dA [i] = A < B ? 1 : 0
-    // df/dB [i] = B < A ? 1 : 0
-    static void scalarMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        for (size_t i = 0; i < dC->len; i++) {
-            int smaller = A->val[i] <= B->val[0];
-            T C_val = dC->val[i];
-            dA->val[i] += smaller ? C_val : 0;
-            dB->val[0] += smaller ? 0 : C_val;
-        }
-    }
-
-    static void pointMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        for (size_t i = 0; i < dC->len; i++) {
-            int smaller = A->val[i] <= B->val[i];
-            T C_val = dC->val[i];
-            dA->val[i] += smaller ? C_val : 0;
-            dB->val[i] += smaller ? 0 : C_val;
-        }
-    }
-
-    static void flexMin_grad(const T* A, const T* B, const T* C, T* dA, T* dB, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
-        int offsetA = dC->shapeLen - A->shapeLen;
-        int offsetB = dC->shapeLen - B->shapeLen;
-    
-        int* effstrideA = new int[dC->shapeLen * 3];
-        int* effstrideB = effstrideA + dC->shapeLen;
-    
-        for (size_t i = 0; i < dC->shapeLen; i++) {
-            int aDim = i - offsetA;
-            effstrideA[i] = aDim >= 0 && A->shape[aDim] != 1 ? A->stride[aDim] : 0;
-            int bDim = i - offsetB;
-            effstrideB[i] = bDim >= 0 && B->shape[bDim] != 1 ? B->stride[bDim] : 0;
-        }
-    
-        int indA = 0, indB = 0, indC = 0;
-        int* cords = effstrideB + dC->shapeLen;
-        fill(cords, cords + dC->shapeLen, 0);
-        for (int i = 0; i < dC->len; i++) {
-        
-            T A_val = A->val[indA];
-            T B_val = B->val[indB];
-            T C_val = dC->val[indC];
-            int smaller = A_val <= B_val;
-
-            dA->val[indA] += smaller ? C_val : 0;
-            dB->val[indB] += smaller ? 0 : C_val;
-        
-            for (int dim = dC->shapeLen - 1; dim >= 0; dim--) {
-                cords[dim]++;
-                indA += effstrideA[dim];
-                indB += effstrideB[dim];
-                indC += dC->stride[dim];
-            
-                if (cords[dim] < dC->shape[dim]) {
-                    break;
-                }
-                else {
-                    cords[dim] = 0;
-                    indA -= effstrideA[dim] * dC->shape[dim];
-                    indB -= effstrideB[dim] * dC->shape[dim];
-                    indC -= dC->stride[dim] * dC->shape[dim];
-                }
-            }
-        
-        }    
-        delete[] effstrideA;
-    }
 
     // f(A) = max(A,B)
     // df/dA [i] = A > B ? 1 : 0

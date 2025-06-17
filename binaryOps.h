@@ -95,7 +95,7 @@ int sub(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexSub_grad
     };
 
-    return binaryOp(rec, indA, indB, subK);
+    return binaryOp(rec, indA, indB, subK, "sub");
 }
 
 // multiply A and B
@@ -114,7 +114,7 @@ int mul(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexMul_grad
     };
 
-    return binaryOp(rec, indA, indB, mulK);
+    return binaryOp(rec, indA, indB, mulK, "mul");
 }
 
 // divide A by B
@@ -133,7 +133,7 @@ int div(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexDiv_grad
     };
 
-    return binaryOp(rec, indA, indB, divK);
+    return binaryOp(rec, indA, indB, divK, "div");
 }
 
 // raise A to the power of B
@@ -152,7 +152,7 @@ int pow(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexPow_grad
     };
 
-    return binaryOp(rec, indA, indB, powK);
+    return binaryOp(rec, indA, indB, powK, "pow");
 }
 
 // compute dot prodcut of A and B
@@ -240,4 +240,23 @@ int outer(CompGraph<T>& rec, int indA, int indB) {
     Strides<T>::outer(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
 
     return recLen;
+}
+
+// compute pointwise minimum of A and B
+// where A and B are Tensors with broadcastable shapes
+template <typename T>
+int minimum(CompGraph<T>& rec, int indA, int indB) {
+    
+    static const  BinaryKernels<T> minK = {
+        Operations<T>::scalarMinRt,
+        Operations<T>::scalarMinLt,
+        Operations<T>::pointMin,
+        Operations<T>::flexMin,
+        Gradients<T>::scalarMinRt_grad,
+        Gradients<T>::scalarMinLt_grad,
+        Gradients<T>::pointMin_grad,
+        Gradients<T>::flexMin_grad
+    };
+
+    return binaryOp(rec, indA, indB, minK, "minimum");
 }
