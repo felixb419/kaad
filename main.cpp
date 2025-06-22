@@ -24,7 +24,7 @@ int main() {
     int x = rec.append(move(X));
     int y = rec.append(move(Y));
 
-    int c = maximum(rec, maximum(rec, maximum(rec, a, maximum(rec, y, b)), n), x);
+    int c = add(rec, a, b);
 
     //cout << "A:\n" << rec.nodes[a].value << endl;
     //cout << "B:\n" << rec.nodes[b].value << endl;
@@ -32,7 +32,7 @@ int main() {
 
     auto e = rec.evaluate(c);
 
-    cout << "C:\n" << rec.nodes[c].value << endl;
+    cout << "C:\n" << rec.nodes[c]->value << endl;
 
     auto g = rec.getGradient(c, a, b, n, x, y);
 

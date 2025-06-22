@@ -6,7 +6,7 @@
 
 template<typename T>
 struct Strides {
-    static void pointwise(Node<T>& node) {
+    static void pointwise(INode<T>& node) {
         node.nEntries = 2;
         node.strideLen = new size_t[2] { node.value.len, node.value.len };
         node.reps = new int*[2];
@@ -16,7 +16,7 @@ struct Strides {
         node.strideC = new int*[2];
     }
 
-    static void iterOverInp(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+    static void iterOverInp(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
         node.nEntries = 2;
         size_t len = max(A.len, B.len);
         node.strideLen = new size_t[2] { len, len };
@@ -27,7 +27,7 @@ struct Strides {
         node.strideC = new int*[2];
     }
 
-    static void flexible(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+    static void flexible(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
         Tensor<T>& C = node.value;
 
         node.nEntries = 2;
@@ -58,7 +58,7 @@ struct Strides {
         copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
-    static void matmul(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+    static void matmul(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
         node.nEntries = 3;
         node.strideLen = new size_t[node.nEntries];
         node.reps = new int*[node.nEntries];
@@ -87,7 +87,7 @@ struct Strides {
         delete[] shapeBlock;
     }
 
-    static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+    static void batch_matmul(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
 
         node.nEntries = 3;
         node.strideLen = new size_t[node.nEntries];
@@ -115,7 +115,7 @@ struct Strides {
         _batch_matmul(a_T, c, b, node.strideLen[2], node.reps[2], node.count[2], node.strideA[2], node.strideC[2], node.strideB[2]); 
     }
 
-    static void outer(Tensor<T>& A, Tensor<T>& B, Node<T>& node) {
+    static void outer(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
         Tensor<T>& C = node.value;
 
         node.nEntries = 2;
@@ -146,7 +146,7 @@ struct Strides {
         copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
-    static void along_dim(Tensor<T>& A, Node<T>& node, int dim) {
+    static void along_dim(Tensor<T>& A, INode<T>& node, int dim) {
         Tensor<T>& C = node.value;
 
         node.nEntries = 2;
@@ -174,7 +174,7 @@ struct Strides {
         copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
-    static void mean_along_dim(Tensor<T>& A, Node<T>& node, int dim) {
+    static void mean_along_dim(Tensor<T>& A, INode<T>& node, int dim) {
         Tensor<T>& C = node.value;
 
         node.nEntries = 2;
