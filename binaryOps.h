@@ -18,8 +18,8 @@ struct BinaryKernels {
 template <typename T>
 int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kernels, const char* opName) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
+    Tensor<T>& A = rec.nodes[indA]->value;
+    Tensor<T>& B = rec.nodes[indB]->value;
     bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
     bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
@@ -29,25 +29,31 @@ int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kerne
     if (B_scalar) {
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
-        rec.nodes.emplace_back(kernels.scalarOpRt, kernels.scalarGradRt, indA, indB, newShape, A.shapeLen);
-        Strides<T>::pointwise(rec.nodes[recLen]);
+        auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpRt, kernels.scalarGradRt, indA, indB, newShape, A.shapeLen);
+        newNode->len[0] = newNode->value.len;
+        newNode->len[1] = newNode->value.len;
+        rec.nodes.push_back(move(newNode));
     }
     else if (A_scalar) {
         copy(B.shape, B.shape + B.shapeLen, newShape);
 
-        rec.nodes.emplace_back(kernels.scalarOpLt, kernels.scalarGradLt, indA, indB, newShape, B.shapeLen);
-        Strides<T>::pointwise(rec.nodes[recLen]);
+        auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpLt, kernels.scalarGradLt, indA, indB, newShape, B.shapeLen);
+        newNode->len[0] = newNode->value.len;
+        newNode->len[1] = newNode->value.len;
+        rec.nodes.push_back(move(newNode));
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
-        rec.nodes.emplace_back(kernels.pointOp, kernels.pointGrad ,indA, indB, newShape, A.shapeLen);
-        Strides<T>::pointwise(rec.nodes[recLen]);
+        auto newNode = std::make_unique<Node_binary<T>>(kernels.pointOp, kernels.pointGrad, indA, indB, newShape, A.shapeLen);
+        newNode->len[0] = newNode->value.len;
+        newNode->len[1] = newNode->value.len;
+        rec.nodes.push_back(move(newNode));
     }
     else if (combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
-
-        rec.nodes.emplace_back(kernels.flexOp, kernels.flexGrad, indA, indB, newShape, newLen);
-        Strides<T>::flexible(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]); 
+        auto newNode = std::make_unique<Node_binary_flex<T>>(kernels.flexOp, kernels.flexGrad, indA, indB, newShape, newLen);
+        ///
+        rec.nodes.push_back(move(newNode));
     }
     else {
         ostringstream errmsg;
