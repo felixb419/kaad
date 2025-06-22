@@ -26,7 +26,7 @@ int unaryOp(CompGraph<T>& rec, int indA, const UnaryKernels<T> kernels) {
 // where A is a tensor
 template <typename T>
 int negative(CompGraph<T>& rec, int indA) {
-    static const UnaryKernels negK = {
+    static const UnaryKernels<T> negK = {
         Operations<T>::negate,
         Gradients<T>::negate_grad
     };
@@ -38,7 +38,7 @@ int negative(CompGraph<T>& rec, int indA) {
 // where A is a tensor
 template <typename T>
 int square(CompGraph<T>& rec, int indA) {
-    static const UnaryKernels squareK = {
+    static const UnaryKernels<T> squareK = {
         Operations<T>::square,
         Gradients<T>::square_grad
     };
@@ -50,7 +50,7 @@ int square(CompGraph<T>& rec, int indA) {
 // where A is a tensor
 template <typename T>
 int sqrt(CompGraph<T>& rec, int indA) {
-    static const UnaryKernels sqrtK = {
+    static const UnaryKernels<T> sqrtK = {
         Operations<T>::sqrt,
         Gradients<T>::sqrt_grad
     };
@@ -62,7 +62,7 @@ int sqrt(CompGraph<T>& rec, int indA) {
 // where A is a tensor
 template <typename T>
 int log(CompGraph<T>& rec, int indA) {
-    static const UnaryKernels logK = {
+    static const UnaryKernels<T> logK = {
         Operations<T>::log,
         Gradients<T>::log_grad
     };
@@ -74,7 +74,7 @@ int log(CompGraph<T>& rec, int indA) {
 // where A is a tensor
 template <typename T>
 int exp(CompGraph<T>& rec, int indA) {
-    static const UnaryKernels expK = {
+    static const UnaryKernels<T> expK = {
         Operations<T>::exp,
         Gradients<T>::exp_grad
     };
@@ -86,7 +86,7 @@ int exp(CompGraph<T>& rec, int indA) {
 // where A is a tensor
 template <typename T>
 int abs(CompGraph<T>& rec, int indA) {
-    static const UnaryKernels absK = {
+    static const UnaryKernels<T> absK = {
         Operations<T>::abs,
         Gradients<T>::abs_grad
     };
