@@ -166,23 +166,31 @@ INode<T>* pow(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
 template <typename T>
 INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[A].value;
-    Tensor<T>& B = rec.nodes[B].value;
+    Tensor<T>& A = A_ptr->value;
+    Tensor<T>& B = B_ptr->value;
 
     bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
     bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (B_scalar) {
-        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, A, B, ((T)0));
-        Strides<T>::iterOverInp(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
+        auto newNode = make_unique<Node_binary<T>>(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, A_ptr, B_ptr, ((T)0));
+
+        newNode->len[0] = A.len;
+        newNode->len[1] = A.len;
+        rec.nodes.push_back(move(newNode));
     }
     else if (A_scalar) {
-        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, B, A, ((T)0));
-        Strides<T>::iterOverInp(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
+        auto newNode = make_unique<Node_binary<T>>(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, B_ptr, A_ptr, ((T)0));
+        newNode->len[0] = B.len;
+        newNode->len[1] = B.len;
+        rec.nodes.push_back(move(newNode));
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, A, B, ((T)0));
-        Strides<T>::iterOverInp(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
+        auto newNode = make_unique<Node_binary<T>>(Operations<T>::dot, Gradients<T>::dot_grad, A_ptr, B_ptr, ((T)0));
+        newNode->len[0] = A.len;
+        newNode->len[1] = A.len;
+        rec.nodes.push_back(move(newNode));
+
     }
     else {
         ostringstream errmsg;
@@ -193,7 +201,7 @@ INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         throw invalid_argument(errmsg.str());
     }
 
-    return recLen;
+    return rec.nodes.back().get();
 }
 
 // matrix multiply A and B
