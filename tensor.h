@@ -72,7 +72,6 @@ struct tView {
             int indent = 0;
         
             _print(stream, cords, view.shape, view.stride, view.shapeLen, view.val, 0, indent);
-            stream << endl;
 
             delete[] cords;
         }
@@ -269,7 +268,6 @@ class Tensor {
                 int indent = 0;
 
                 _print(stream, cords, tensor.shape, tensor.stride, tensor.shapeLen, tensor.val, 0, indent);
-                stream << endl;
 
                 delete[] cords;
             }
