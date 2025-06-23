@@ -16,10 +16,10 @@ struct BinaryKernels {
 };
 
 template <typename T>
-int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kernels, const char* opName) {
+INode<T>* binaryOp(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const BinaryKernels<T> kernels, const char* opName) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA]->value;
-    Tensor<T>& B = rec.nodes[indB]->value;
+    Tensor<T>& A = A_ptr->value;
+    Tensor<T>& B = B_ptr->value;
     bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
     bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
@@ -29,7 +29,7 @@ int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kerne
     if (B_scalar) {
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
-        auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpRt, kernels.scalarGradRt, indA, indB, newShape, A.shapeLen);
+        auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpRt, kernels.scalarGradRt, A_ptr, B_ptr, newShape, A.shapeLen);
         newNode->len[0] = newNode->value.len;
         newNode->len[1] = newNode->value.len;
         rec.nodes.push_back(move(newNode));
@@ -37,7 +37,7 @@ int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kerne
     else if (A_scalar) {
         copy(B.shape, B.shape + B.shapeLen, newShape);
 
-        auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpLt, kernels.scalarGradLt, indA, indB, newShape, B.shapeLen);
+        auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpLt, kernels.scalarGradLt, A_ptr, B_ptr, newShape, B.shapeLen);
         newNode->len[0] = newNode->value.len;
         newNode->len[1] = newNode->value.len;
         rec.nodes.push_back(move(newNode));
@@ -45,14 +45,14 @@ int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kerne
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
-        auto newNode = std::make_unique<Node_binary<T>>(kernels.pointOp, kernels.pointGrad, indA, indB, newShape, A.shapeLen);
+        auto newNode = std::make_unique<Node_binary<T>>(kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape, A.shapeLen);
         newNode->len[0] = newNode->value.len;
         newNode->len[1] = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
     else if (combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
-        auto newNode = std::make_unique<Node_binary_flex<T>>(kernels.flexOp, kernels.flexGrad, indA, indB, newShape, newLen);
-        ///
+        auto newNode = std::make_unique<Node_binary_flex<T>>(kernels.flexOp, kernels.flexGrad, A_ptr, B_ptr, newShape, newLen);
+        Strides<T>::flexible(A, B, *static_cast<Node_binary_flex<T>*>(newNode.get()));
         rec.nodes.push_back(move(newNode));
     }
     else {
@@ -63,13 +63,13 @@ int binaryOp(CompGraph<T>& rec, int indA, int indB, const BinaryKernels<T> kerne
         print_arr(B.shape, B.shape + B.shapeLen, errmsg);
         throw invalid_argument(errmsg.str());
     }
-    return recLen;
+    return rec.nodes[recLen].get();
 }
 
 // add A and B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int add(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* add(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const BinaryKernels<T> addK = {
         Operations<T>::scalarAddRt,
@@ -82,13 +82,13 @@ int add(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexAdd_grad
     };
 
-    return binaryOp(rec, indA, indB, addK, "add");
+    return binaryOp(rec, A_ptr, B_ptr, addK, "add");
 }
 
 // subtract B from A
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int sub(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* sub(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const BinaryKernels<T> subK = {
         Operations<T>::scalarSubRt,
@@ -101,13 +101,13 @@ int sub(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexSub_grad
     };
 
-    return binaryOp(rec, indA, indB, subK, "sub");
+    return binaryOp(rec, A_ptr, B_ptr, subK, "sub");
 }
 
 // multiply A and B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int mul(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* mul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const  BinaryKernels<T> mulK = {
         Operations<T>::scalarMulRt,
@@ -120,13 +120,13 @@ int mul(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexMul_grad
     };
 
-    return binaryOp(rec, indA, indB, mulK, "mul");
+    return binaryOp(rec, A_ptr, B_ptr, mulK, "mul");
 }
 
 // divide A by B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int div(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* div(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const  BinaryKernels<T> divK = {
         Operations<T>::scalarDivRt,
@@ -139,13 +139,13 @@ int div(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexDiv_grad
     };
 
-    return binaryOp(rec, indA, indB, divK, "div");
+    return binaryOp(rec, A_ptr, B_ptr, divK, "div");
 }
 
 // raise A to the power of B
 // where A and B are Tensors with Broadcastable shapes
 template <typename T>
-int pow(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* pow(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const  BinaryKernels<T> powK = {
         Operations<T>::scalarPowRt,
@@ -158,31 +158,31 @@ int pow(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexPow_grad
     };
 
-    return binaryOp(rec, indA, indB, powK, "pow");
+    return binaryOp(rec, A_ptr, B_ptr, powK, "pow");
 }
 
 // compute dot prodcut of A and B
 // where A and B are scalars or vectors with the same length
 template <typename T>
-int dot(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
+    Tensor<T>& A = rec.nodes[A].value;
+    Tensor<T>& B = rec.nodes[B].value;
 
     bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
     bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
 
     if (B_scalar) {
-        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indA, indB, ((T)0));
-        Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, A, B, ((T)0));
+        Strides<T>::iterOverInp(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
     }
     else if (A_scalar) {
-        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, indB, indA, ((T)0));
-        Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        rec.nodes.emplace_back(Operations<T>::scalarDot, Gradients<T>::scalarDot_grad, B, A, ((T)0));
+        Strides<T>::iterOverInp(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, indA, indB, ((T)0));
-        Strides<T>::iterOverInp(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        rec.nodes.emplace_back(Operations<T>::dot, Gradients<T>::dot_grad, A, B, ((T)0));
+        Strides<T>::iterOverInp(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
     }
     else {
         ostringstream errmsg;
@@ -199,10 +199,10 @@ int dot(CompGraph<T>& rec, int indA, int indB) {
 // matrix multiply A and B
 // where A and B are Tensors with valid dimensions
 template <typename T>
-int matmul(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
+    Tensor<T>& A = rec.nodes[A].value;
+    Tensor<T>& B = rec.nodes[B].value;
 
     size_t newLen = max(A.shapeLen, B.shapeLen);
     int* newShape = new int[newLen];
@@ -218,12 +218,12 @@ int matmul(CompGraph<T>& rec, int indA, int indB) {
     }
 
     if (newLen == 2) {
-        rec.nodes.emplace_back(Operations<T>::matmul, Gradients<T>::matmul_grad, indA, indB, newShape, newLen);
-        Strides<T>::matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        rec.nodes.emplace_back(Operations<T>::matmul, Gradients<T>::matmul_grad, A, B, newShape, newLen);
+        Strides<T>::matmul(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
     }
     else {
-        rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, indA, indB, newShape, newLen);
-        Strides<T>::batch_matmul(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+        rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, A, B, newShape, newLen);
+        Strides<T>::batch_matmul(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
     }
     
     return recLen;
@@ -232,18 +232,18 @@ int matmul(CompGraph<T>& rec, int indA, int indB) {
 // compute outer product of A and B
 // where A and B are Tensors
 template <typename T>
-int outer(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* outer(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[indA].value;
-    Tensor<T>& B = rec.nodes[indB].value;
+    Tensor<T>& A = rec.nodes[A].value;
+    Tensor<T>& B = rec.nodes[B].value;
 
     size_t newLen = A.shapeLen + B.shapeLen;
     int* newShape = new int[newLen];
     copy(A.shape, A.shape + A.shapeLen, newShape);
     copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
 
-    rec.nodes.emplace_back(Operations<T>::flexMul, Gradients<T>::flexMul_grad, indA, indB, newShape, newLen);
-    Strides<T>::outer(rec.nodes[indA].value, rec.nodes[indB].value, rec.nodes[recLen]);
+    rec.nodes.emplace_back(Operations<T>::flexMul, Gradients<T>::flexMul_grad, A, B, newShape, newLen);
+    Strides<T>::outer(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
 
     return recLen;
 }
@@ -251,7 +251,7 @@ int outer(CompGraph<T>& rec, int indA, int indB) {
 // compute pointwise minimum of A and B
 // where A and B are Tensors with broadcastable shapes
 template <typename T>
-int minimum(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* minimum(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const  BinaryKernels<T> minK = {
         Operations<T>::scalarMinRt,
@@ -264,13 +264,13 @@ int minimum(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexMin_grad
     };
 
-    return binaryOp(rec, indA, indB, minK, "minimum");
+    return binaryOp(rec, A_ptr, B_ptr, minK, "minimum");
 }
 
 // compute pointwise maximum of A and B
 // where A and B are Tensors with broadcastable shapes
 template <typename T>
-int maximum(CompGraph<T>& rec, int indA, int indB) {
+INode<T>* maximum(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     
     static const  BinaryKernels<T> maxK = {
         Operations<T>::scalarMaxRt,
@@ -283,5 +283,5 @@ int maximum(CompGraph<T>& rec, int indA, int indB) {
         Gradients<T>::flexMax_grad
     };
 
-    return binaryOp(rec, indA, indB, maxK, "maximum");
+    return binaryOp(rec, A_ptr, B_ptr, maxK, "maximum");
 }

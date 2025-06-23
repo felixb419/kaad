@@ -27,7 +27,7 @@ struct Strides {
         node.strideC = new int*[2];
     }
 
-    static void flexible(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
+    static void flexible(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T>& node) {
         Tensor<T>& C = node.value;
 
         node.nEntries = 2;
