@@ -243,21 +243,20 @@ class Tensor {
             return tView<T>(shape, stride, shapeLen, val, len);
         }
 
-        template <typename... Indeces>
-        T operator()(Indeces... indeces) const {
-            static_assert(sizeof...(indeces) > 0, "at least one index must be provided");
-            static_assert((is_same_v<Indeces, int> && ...), "all indeces must be of type int");
-            int len = sizeof...(indeces);
-            if (len != shapeLen) {
-                throw invalid_argument("indeces do not match Tensor dimensions");
+        const T& operator()(initializer_list<int> cords) {
+            int* begin = cords.begin();
+            int* end = cords.end();
+            if (end - begin != shapeLen) {
+                throw invalid_argument("incorrect number of coordinate dimension");
             }
-            int cords[len] = {indeces...};
-            for (size_t i = 0; i < len; i++) {
-                if (cords[i] >= shape[i]) {
-                    throw invalid_argument("out of bounds index");
+            int index = 0;
+            for (int* c_p = begin, int* sh_p = shape, int* st_p = stride; p != end; p++) {
+                if (*c_p >= *sh_p || *c_p < 0) {
+                    throw invalid_argument("out of bound coordinate");
                 }
+                index += (*c_p) * (*st_p);
             }
-            return val[getIndex(cords, shape, stride, shapeLen)];
+            return shape[index];
         }
 
         friend ostream& operator<<(ostream& stream, Tensor<T> tensor) {
@@ -279,25 +278,25 @@ class Tensor {
 };
 
 template <typename T>
-void _print_flat(ostream& stream, int* cords, const Tensor<T>& tensor, int ind) {
+void _print_flat(ostream& os, int* cords, const Tensor<T>& tensor, int ind) {
     if (ind == tensor.shapeLen) {
-        stream << tensor.val[getIndex(cords, tensor.shape, tensor.stride, tensor.shapeLen)];
+        os << tensor.val[getIndex(cords, tensor.shape, tensor.stride, tensor.shapeLen)];
     }
     else {
-        stream << "[";
+        os << "[";
         int lim = tensor.shape[ind];
         // iterate for size of current dimension
         for (int i = 0; i < lim - 1; i++) {
             // print next dimension
-            _print_flat(stream, cords, tensor, ind + 1);
-            stream << ",";
+            _print_flat(os, cords, tensor, ind + 1);
+            os << ",";
             cords[ind]++;
         }
         // last pass without trailing comma
-        _print_flat(stream, cords, tensor, ind + 1);
+        _print_flat(os, cords, tensor, ind + 1);
         cords[ind]++;
 
-        stream << "]";
+        os << "]";
     }
 }
 
