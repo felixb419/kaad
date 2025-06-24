@@ -11,7 +11,13 @@ using namespace std;
 
 
 template <typename T>
-using tensorOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+using pointUnaryOp = void(*)(const T* A, T* C, size_t len);
+template <typename T>
+using pointOp = void(*)(const T* A, const T* B, T* C, size_t len);
+template <typename T>
+using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
+template <typename T>
+using flexOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 
 template <typename T>
 struct Operations {
@@ -21,22 +27,22 @@ struct Operations {
 
     // add so that: C[m,n,...] = A[m,n,...] + B[0]
     // shapes of C and A must be the same, shape of B must be (1)
-    static void scalarAddRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarAddRt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] + B[0];
         }
     }
     // add so that: C[m,n,...] = A[0] + B[m,n,...]}
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarAddLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarAddLt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[0] + B[i];
         }
     }
     // pointwise add so that: C = A + B
     // shape of all operands must be indentical
-    static void pointAdd(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointAdd(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] + B[i];
         }
     }
@@ -66,22 +72,22 @@ struct Operations {
         
     // subtract so that: C[m,n,...] = A[m,n,...] - B[0]
     // shapes of C and A must be the same, shape of B must be (1)
-    static void scalarSubRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarSubRt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] - B[0];
         }
     }
     // subtract so that: C[m,n,...] = A[0] - B[m,n,...]}
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarSubLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarSubLt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[0] - B[i]; 
         }
     }
     // pointwise subtract so that: C = A - B
     // shape of all operands must be indentical
-    static void pointSub(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointSub(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] - B[i];
         }
     }
@@ -111,22 +117,22 @@ struct Operations {
         
     // multiply so that: C[m,n,...] = A[m,n,...] * B[0]
     // shapes of C and A must be the same, shape of B must be (1)
-    static void scalarMulRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarMulRt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] * B[0];
         }
     }
     // multiply so that: C[m,n,...] = A[0] * B[m,n,...]}
     // shapes of out and tensor must be the same, shape of scalar must be (1)
-    static void scalarMulLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarMulLt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[0] * B[i]; 
         }
     }
     // pointwise multiply so that: C = A * B
     // shape of all operands must be indentical
-    static void pointMul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointMul(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] * B[i]; 
         }
     }
@@ -156,22 +162,22 @@ struct Operations {
 
     // divide so that: C[m,n,...] = A[m,n,...] / B[0]
     // shapes of C and A must be the same, shape of B must be (1)
-    static void scalarDivRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarDivRt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] / B[0];
         }
     }
     // divide so that: C[m,n,...] = A[0] / B[m,n,...]
     // shapes of C and B must be the same, shape of A must be (1)
-    static void scalarDivLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarDivLt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[0] / B[i]; 
         }
     }
     // pointwise divide so that: C = A / B
     // shape of all operands must be indentical
-    static void pointDiv(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointDiv(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] / B[i];
         }
     }
@@ -201,22 +207,22 @@ struct Operations {
 
     // raise to power so that: C[m,n,...] = A[m,n,...] ^ B[0]
     // shapes of C and A must be the same, shape of B must be (1)
-    static void scalarPowRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarPowRt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = pow(A[i], B[0]);
         }
     }
     // raise to power so that: C[m,n,...] = A[0] ^ B[m,n,...]
     // shapes of C and B must be the same, shape of A must be (1)
-    static void scalarPowLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarPowLt(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = pow(A[0], B[i]);
         }
     }
     // pointwise raise to power so that: C = A ^ B
     // shape of all operands must be indentical
-    static void pointPow(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointPow(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = pow(A[i], B[i]);
         }
     }
@@ -246,15 +252,15 @@ struct Operations {
 
     // compute do product of A and B into C
     // A and B must be 1d vectors of same length, C must be scalar
-    static void dot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void dot(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[0] += A[i] * B[i]; 
         }
     }
     // compute do product of A and B into C
     // A must be 1d vector, B and C must be scalar
-    static void scalarDot(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void scalarDot(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[0] += A[i] * B[0]; 
         }
     }
@@ -309,26 +315,26 @@ struct Operations {
 
     // take minimum of A and B so that C[i] = min(A[i], B[0])
     // B must be scalar
-    static void scalarMinRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMinRt(const T* A, const T* B, T* C, size_t len) {
         T B_val = B[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < len; i++) {
             T A_val = A[i];
             C[i] = A_val < B_val ? A_val : B_val;
         }
     }
     // take minimum of A and B so that C[i] = min(A[0], B[i])
     // A must be scalar
-    static void scalarMinLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMinLt(const T* A, const T* B, T* C, size_t len) {
         T A_val = A[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < len; i++) {
             T B_val = B[i];
             C[i] = A_val < B_val ? A_val : B_val;
         }
     }
     // take pointwise minimum of A and B so that C[i] = min(A[i], B[i])
     // shape of all operands must be indentical
-    static void pointMin(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointMin(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             T A_val = A[i];
             T B_val = B[i];
             C[i] = A_val < B_val ? A_val : B_val;
@@ -362,26 +368,26 @@ struct Operations {
 
     // take maximum of A and B so that C[i] = max(A[i], B[0])
     // B must be scalar
-    static void scalarMaxRt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMaxRt(const T* A, const T* B, T* C, size_t len) {
         T B_val = B[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < len; i++) {
             T A_val = A[i];
             C[i] = A_val > B_val ? A_val : B_val;
         }
     }
     // take maximum of A and B so that C[i] = max(A[0], B[i])
     // A must be scalar
-    static void scalarMaxLt(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void scalarMaxLt(const T* A, const T* B, T* C, size_t len) {
         T A_val = A[0];
-        for (size_t i = 0; i < strideLen; i++) {
+        for (size_t i = 0; i < len; i++) {
             T B_val = B[i];
             C[i] = A_val > B_val ? A_val : B_val;
         }
     }
     // take pointwise maximum of A and B so that C[i] = max(A[i], B[i])
     // shape of all operands must be indentical
-    static void pointMax(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void pointMax(const T* A, const T* B, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             T A_val = A[i];
             T B_val = B[i];
             C[i] = A_val > B_val ? A_val : B_val;
@@ -419,68 +425,68 @@ struct Operations {
 
     // negate A so that C[i] = -A[i]
     // A and C must have same shape
-    static void negate(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void negate(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = -A[i];
         }
     }
         
     // square A so that out[i] = A[i]*A[i]
     // A and out must have same shape
-    static void square(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void square(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = A[i] * A[i];
         }
     }
         
     // root of A so that C[i] = sqrt(A[i])
     // A and C must have same shape
-    static void sqrt(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void sqrt(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = std::sqrt(A[i]);
         }
     }
         
     // log of A so that C[i] = ln(A[i])
     // A and C must have same shape
-    static void log(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void log(const T* A, const T* _, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = std::log(A[i]);
         }
     }
         
     // exponent of A so that C[i] = e^A[i]
     // A and C must have same shape
-    static void exp(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void exp(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = std::exp(A[i]);
         }
     }
         
     // absolute value of A so that C[i] = abs(A[i])
     // A and C must have same shape
-    static void abs(const T* A, const T* _, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void abs(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[i] = std::abs(A[i]);
         }
     }
 
     // transposing doesnt change the value array so A gets copied to C
-    static void transpose(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        copy(A, A + strideLen, C);
+    static void transpose(const T* A, T* C, size_t len) {
+        copy(A, A + len, C);
     }
 
     // adds every element of A to out
     // B has to be a scalar
-    static void sum(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void sum(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[0] += A[i];
         }
     }
     // sums tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void sum_dim(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void sum_dim(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indC = 0;
         while (1) {
 
@@ -503,17 +509,17 @@ struct Operations {
 
     // saves mean of A into out
     // B has to be a scalar
-    static void mean(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        for (size_t i = 0; i < strideLen; i++) {
+    static void mean(const T* A, T* C, size_t len) {
+        for (size_t i = 0; i < len; i++) {
             C[0] += A[i];
         }
-        C[0] /= strideLen;
+        C[0] /= len;
     }
 
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void mean_dim(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void mean_dim(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indC = 0;
         while (1) {
 
