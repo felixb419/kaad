@@ -11,13 +11,13 @@ using namespace std;
 
 
 template <typename T>
-using pointUnaryOp = void(*)(const T* A, T* C, size_t len);
+using unaryOp = void(*)(const T* A, T* C, size_t len);
 template <typename T>
-using pointOp = void(*)(const T* A, const T* B, T* C, size_t len);
+using binaryOp = void(*)(const T* A, const T* B, T* C, size_t len);
 template <typename T>
 using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
-using flexOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 
 template <typename T>
 struct Operations {

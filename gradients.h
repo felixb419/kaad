@@ -9,13 +9,13 @@
 #define safer_powergradient
 
 template <typename T>
-using pointUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, size_t len);
+using unaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, size_t len);
 template <typename T>
-using pointGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len);
+using binaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len);
 template <typename T>
 using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int** strideA, int** strideC, int** reps, int** count, size_t* strideLen);
 template <typename T>
-using flexGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
+using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
 
 template <typename T>
 struct Gradients {

@@ -54,13 +54,13 @@ struct Node_valued : INode<T> {
 
 template <typename T>
 struct Node_unary : INode<T> {
-    pointUnaryOp<T> op = nullptr;
-    pointUnaryGrad<T> grad_op = nullptr;
+    unaryOp<T> op = nullptr;
+    unaryGrad<T> grad_op = nullptr;
 
     size_t len[2] = { 0, 0 };
 
     template <typename... Args>
-    Node_unary(pointUnaryOp<T> operation, pointUnaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
+    Node_unary(unaryOp<T> operation, unaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
     : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
@@ -137,13 +137,13 @@ template <typename T>
 struct Node_binary : INode<T> {
     INode<T>* in2 = nullptr;
 
-    pointOp<T> op = nullptr;
-    pointGrad<T> grad_op = nullptr;
+    binaryOp<T> op = nullptr;
+    binaryGrad<T> grad_op = nullptr;
 
     size_t len[2] = { 0, 0 };
 
     template <typename... Args>
-    Node_binary(pointOp<T> operation, pointGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    Node_binary(binaryOp<T> operation, binaryGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
@@ -172,8 +172,8 @@ template <typename T>
 struct Node_binary_flex : INode<T> {
     INode<T>* in2 = nullptr;
 
-    flexOp<T> op = nullptr;
-    flexGrad<T> grad_op = nullptr;
+    flexBinaryOp<T> op = nullptr;
+    flexBinaryGrad<T> grad_op = nullptr;
 
     size_t nEntries = 0;
     int** strideA = nullptr;
@@ -184,7 +184,7 @@ struct Node_binary_flex : INode<T> {
     size_t* strideLen = nullptr;
 
     template <typename... Args>
-    Node_binary_flex(flexOp<T> operation, flexGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    Node_binary_flex(flexBinaryOp<T> operation, flexBinaryGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_binary_flex() {
