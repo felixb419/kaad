@@ -74,7 +74,7 @@ struct Node_unary : INode<T> {
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient->val, len[0]);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient->val, len[1]);
 
         if (this->in1.hasInputs) {
             this->in1.grad();
@@ -157,7 +157,7 @@ struct Node_binary : INode<T> {
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len[1]);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
