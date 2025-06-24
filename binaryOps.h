@@ -4,19 +4,19 @@
 
 template <typename T>
 struct BinaryKernels {
-    tensorOp<T> scalarOpRt;
-    tensorOp<T> scalarOpLt;
-    tensorOp<T> pointOp;
-    tensorOp<T> flexOp;
+    binaryOp<T> scalarOpRt;
+    binaryOp<T> scalarOpLt;
+    binaryOp<T> pointOp;
+    flexBinaryOp<T> flexOp;
     
-    gradientOp<T> scalarGradRt;
-    gradientOp<T> scalarGradLt;
-    gradientOp<T> pointGrad;
-    gradientOp<T> flexGrad;
+    binaryGrad<T> scalarGradRt;
+    binaryGrad<T> scalarGradLt;
+    binaryGrad<T> pointGrad;
+    flexBinaryGrad<T> flexGrad;
 };
 
 template <typename T>
-INode<T>* binaryOp(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const BinaryKernels<T> kernels, const char* opName) {
+INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const BinaryKernels<T> kernels, const char* opName) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = A_ptr->value;
     Tensor<T>& B = B_ptr->value;
@@ -82,7 +82,7 @@ INode<T>* add(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexAdd_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, addK, "add");
+    return binOperator(rec, A_ptr, B_ptr, addK, "add");
 }
 
 // subtract B from A
@@ -101,7 +101,7 @@ INode<T>* sub(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexSub_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, subK, "sub");
+    return binOperator(rec, A_ptr, B_ptr, subK, "sub");
 }
 
 // multiply A and B
@@ -120,7 +120,7 @@ INode<T>* mul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexMul_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, mulK, "mul");
+    return binOperator(rec, A_ptr, B_ptr, mulK, "mul");
 }
 
 // divide A by B
@@ -139,7 +139,7 @@ INode<T>* div(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexDiv_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, divK, "div");
+    return binOperator(rec, A_ptr, B_ptr, divK, "div");
 }
 
 // raise A to the power of B
@@ -158,7 +158,7 @@ INode<T>* pow(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexPow_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, powK, "pow");
+    return binOperator(rec, A_ptr, B_ptr, powK, "pow");
 }
 
 // compute dot prodcut of A and B
@@ -272,7 +272,7 @@ INode<T>* minimum(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexMin_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, minK, "minimum");
+    return binOperator(rec, A_ptr, B_ptr, minK, "minimum");
 }
 
 // compute pointwise maximum of A and B
@@ -291,5 +291,5 @@ INode<T>* maximum(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         Gradients<T>::flexMax_grad
     };
 
-    return binaryOp(rec, A_ptr, B_ptr, maxK, "maximum");
+    return binOperator(rec, A_ptr, B_ptr, maxK, "maximum");
 }

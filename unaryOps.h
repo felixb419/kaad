@@ -4,12 +4,12 @@
 
 template <typename T>
 struct UnaryKernels {
-    tensorOp<T> Op;
-    gradientOp<T> Grad;
+    unaryOp<T> Op;
+    unaryGrad<T> Grad;
 };
 
 template <typename T>
-int unaryOp(CompGraph<T>& rec, int indA, const UnaryKernels<T> kernels) {
+int unOperator(CompGraph<T>& rec, int indA, const UnaryKernels<T> kernels) {
     int recLen = rec.nodes.size();
     Tensor<T>& A = rec.nodes[indA].value;
 
@@ -31,7 +31,7 @@ int negative(CompGraph<T>& rec, int indA) {
         Gradients<T>::negate_grad
     };
 
-    return unaryOp(rec, indA, negK);
+    return unOperator(rec, indA, negK);
 }
 
 // square A
@@ -43,7 +43,7 @@ int square(CompGraph<T>& rec, int indA) {
         Gradients<T>::square_grad
     };
 
-    return unaryOp(rec, indA, squareK);
+    return unOperator(rec, indA, squareK);
 }
 
 // compte squareroot of A
@@ -55,7 +55,7 @@ int sqrt(CompGraph<T>& rec, int indA) {
         Gradients<T>::sqrt_grad
     };
 
-    return unaryOp(rec, indA, sqrtK);
+    return unOperator(rec, indA, sqrtK);
 }
 
 // compute logarithm base e of A
@@ -67,7 +67,7 @@ int log(CompGraph<T>& rec, int indA) {
         Gradients<T>::log_grad
     };
 
-    return unaryOp(rec, indA, logK);
+    return unOperator(rec, indA, logK);
 }
 
 // raise A to the power of e
@@ -79,7 +79,7 @@ int exp(CompGraph<T>& rec, int indA) {
         Gradients<T>::exp_grad
     };
 
-    return unaryOp(rec, indA, expK);
+    return unOperator(rec, indA, expK);
 }
 
 // compute the absolute value of A
@@ -91,7 +91,7 @@ int abs(CompGraph<T>& rec, int indA) {
         Gradients<T>::abs_grad
     };
 
-    return unaryOp(rec, indA, absK);
+    return unOperator(rec, indA, absK);
 }
 
 // transpose A
