@@ -54,13 +54,13 @@ struct Node_valued : INode<T> {
 
 template <typename T>
 struct Node_unary : INode<T> {
-    tensorOp<T> op = nullptr;
-    gradientOp<T> grad_op = nullptr;
+    pointUnaryOp<T> op = nullptr;
+    pointUnaryGrad<T> grad_op = nullptr;
 
     size_t len[2] = { 0, 0 };
 
     template <typename... Args>
-    Node_unary(tensorOp<T> operation, gradientOp<T> derivative, INode<T>* in1_ptr, Args&&... args)
+    Node_unary(pointUnaryOp<T> operation, pointUnaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
     : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
@@ -68,14 +68,13 @@ struct Node_unary : INode<T> {
             this->in1.eval();
             this->in2.eval();
 
-            op(this->in1.value.val, nullptr, this->value.val, nullptr, nullptr, nullptr, nullptr, nullptr, len[0]);
+            op(this->in1.value.val, this->value.val, len[0]);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1.value.val, nullptr, this->value.val, this->in1.gradient.val, this->in2.gradient.val, this->gradient.val,
-            nullptr, nullptr, nullptr, nullptr, nullptr, len+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient->val, len[0]);
 
         if (this->in1.hasInputs) {
             this->in1.grad();
@@ -88,25 +87,23 @@ struct Node_unary : INode<T> {
 
 template <typename T>
 struct Node_unary_flex : INode<T> {
-    tensorOp<T> op = nullptr;
-    gradientOp<T> grad_op = nullptr;
+    flexUnaryOp<T> op = nullptr;
+    flexUnaryGrad<T> grad_op = nullptr;
 
     size_t nEntries = 0;
     int** strideA = nullptr;
-    int** strideB = nullptr;
     int** strideC = nullptr;
     int** reps = nullptr;
     int** count = nullptr;
     size_t* strideLen = nullptr;
 
     template <typename... Args>
-    Node_unary_flex(tensorOp<T> operation, gradientOp<T> derivative, INode<T>* in1_ptr, Args&&... args)
+    Node_unary_flex(flexUnaryOp<T> operation, flexUnaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
     : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_unary_flex() {
         for (int i = 0; i < nEntries; i++) {
             delete[] strideA[i];
-            delete[] strideB[i];
             delete[] strideC[i];
             delete[] reps[i];
             delete[] count[i];
@@ -119,14 +116,13 @@ struct Node_unary_flex : INode<T> {
             this->in1.eval();
             this->in2.eval();
 
-            op(this->in1.value.val, this->in2.value.val, this->value.val, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
+            op(this->in1.value.val, this->value.val, strideA[0], strideC[0], reps[0], count[0], strideLen[0]);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, nullptr, this->value.val, this->in1->gradient.val, this->in2->gradient.val, this->gradient.val,
-            strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, strideA+1, strideC+1, reps+1, count+1, strideLen+1);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
@@ -141,13 +137,13 @@ template <typename T>
 struct Node_binary : INode<T> {
     INode<T>* in2 = nullptr;
 
-    tensorOp<T> op = nullptr;
-    gradientOp<T> grad_op = nullptr;
+    pointOp<T> op = nullptr;
+    pointGrad<T> grad_op = nullptr;
 
     size_t len[2] = { 0, 0 };
 
     template <typename... Args>
-    Node_binary(tensorOp<T> operation, gradientOp<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    Node_binary(pointOp<T> operation, pointGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
@@ -155,14 +151,13 @@ struct Node_binary : INode<T> {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, in2->value.val, this->value.val, nullptr, nullptr, nullptr, nullptr, nullptr, len[0]);
+            op(this->in1->value.val, in2->value.val, this->value.val, len[0]);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, in2->value.val, this->value.val, this->in1->gradient.val, in2->gradient.val, this->gradient.val,
-            nullptr, nullptr, nullptr, nullptr, nullptr, len+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len+1);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
@@ -177,8 +172,8 @@ template <typename T>
 struct Node_binary_flex : INode<T> {
     INode<T>* in2 = nullptr;
 
-    tensorOp<T> op = nullptr;
-    gradientOp<T> grad_op = nullptr;
+    flexOp<T> op = nullptr;
+    flexGrad<T> grad_op = nullptr;
 
     size_t nEntries = 0;
     int** strideA = nullptr;
@@ -189,7 +184,7 @@ struct Node_binary_flex : INode<T> {
     size_t* strideLen = nullptr;
 
     template <typename... Args>
-    Node_binary_flex(tensorOp<T> operation, gradientOp<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    Node_binary_flex(flexOp<T> operation, flexGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_binary_flex() {
@@ -214,8 +209,7 @@ struct Node_binary_flex : INode<T> {
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in2->value.val, this->value.val, this->in1->gradient.val, this->in2->gradient.val, this->gradient.val,
-            strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
