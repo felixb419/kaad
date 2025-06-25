@@ -18,6 +18,8 @@ template <typename T>
 using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
 using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+template <typename T>
+using matmulOp = void(*)(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC);
 
 template <typename T>
 struct Operations {
@@ -267,21 +269,29 @@ struct Operations {
 
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
-    static void matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int k = reps[2];
-        int indA = 0, indB = 0, prev_B, indC = 0;
-        for (int row = 0; row < reps[0]; row++) {
-            prev_B = indB;
-            for (int col = 0; col < reps[1]; col++) {
+    static void matmul(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC) {
+        const T* pa = A;
+        const T* pb = B;
+        T* pc = C;
+        const T* _pa;
+        const T* _pb;
+        const T* __pb;
+        for (int a_idx = 0; a_idx < a_dim; a_idx++) {
+            _pb = pb;
+            for (int b_idx = 0; b_idx < b_dim; b_idx++) {
+                _pa = pa;
+                __pb = _pb;
                 for (int i = 0; i < k; i++) {
-                    C[indC] += A[indA + i*strideA[1]] * B[indB + i*strideB[0]];
+                    *pc += (*_pa) * (*__pb);
+
+                   _pa += strideA[1];
+                   __pb += strideB[0];
                 }
-                indC += strideC[1];
-                indB += strideB[1];
+                _pb += strideB[1];
+                pc += strideC[1];
             }
-            indC += strideC[0];
-            indA += strideA[0];
-            indB = prev_B;
+            pa += strideA[0];
+            pc += strideC[0];
         }
     }
         

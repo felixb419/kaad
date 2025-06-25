@@ -221,6 +221,55 @@ struct Node_binary_flex : INode<T> {
 };
 
 template <typename T>
+struct Node_matmul : INode<T> {
+    INode<T>* in2 = nullptr;
+
+    matmulOp<T> op = nullptr;
+    matmulGrad<T> grad_op = nullptr;
+
+    int a_dim = 0;
+    int b_dim = 0;
+    int k = 0;
+    size_t nEntries = 0;
+    int** strideA = nullptr;
+    int** strideB = nullptr;
+    int** strideC = nullptr;
+
+    template <typename... Args>
+    Node_matmul(matmulOp<T> operation, matmulGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+    
+    ~Node_matmul() {
+        for (int i = 0; i < nEntries; i++) {
+            delete[] strideA[i];
+            delete[] strideB[i];
+            delete[] strideC[i];
+        }
+    }
+
+    inline void eval() override {
+        if (!this->evaluated) {
+            this->in1->eval();
+            this->in2->eval();
+
+            op(this->in1->value.val, this->in2->value.val, this->value.val, a_dim, b_dim, k, strideA[0], strideB[0], strideC[0]);
+            this->evaluated = true;
+        }
+    }
+
+    inline void grad() override {
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, a_dim, b_dim, k, strideA+1, strideB+1, strideC+1);
+
+        if (this->in1->hasInputs) {
+            this->in1->grad();
+        }
+        if (this->in2->hasInputs) {
+            this->in2->grad();
+        }
+    }
+};
+
+template <typename T>
 struct CompGraph {
    vector<unique_ptr<INode<T>>> nodes;
 

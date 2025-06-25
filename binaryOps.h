@@ -209,8 +209,8 @@ INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
 template <typename T>
 INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[A].value;
-    Tensor<T>& B = rec.nodes[B].value;
+    Tensor<T>& A = A_ptr->value;
+    Tensor<T>& B = B_ptr->value;
 
     size_t newLen = max(A.shapeLen, B.shapeLen);
     int* newShape = new int[newLen];
@@ -226,15 +226,14 @@ INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     }
 
     if (newLen == 2) {
-        rec.nodes.emplace_back(Operations<T>::matmul, Gradients<T>::matmul_grad, A, B, newShape, newLen);
-        Strides<T>::matmul(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
+        auto newNode = make_unique<Node_matmul<T>>(Operations<T>::matmul, Gradients<T>::matmul_grad, A_ptr, B_ptr, newShape, newLen);
+        Strides<T>::matmul(A, B, *newNode.get());
+        rec.nodes.push_back(move(newNode));
     }
     else {
-        rec.nodes.emplace_back(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, A, B, newShape, newLen);
-        Strides<T>::batch_matmul(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
     }
     
-    return recLen;
+    return rec.nodes.back().get();
 }
 
 // compute outer product of A and B
