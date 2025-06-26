@@ -244,18 +244,20 @@ INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
 template <typename T>
 INode<T>* outer(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     int recLen = rec.nodes.size();
-    Tensor<T>& A = rec.nodes[A].value;
-    Tensor<T>& B = rec.nodes[B].value;
+    Tensor<T>& A = A_ptr->value;
+    Tensor<T>& B = B_ptr->value;
 
     size_t newLen = A.shapeLen + B.shapeLen;
     int* newShape = new int[newLen];
     copy(A.shape, A.shape + A.shapeLen, newShape);
     copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
 
-    rec.nodes.emplace_back(Operations<T>::flexMul, Gradients<T>::flexMul_grad, A, B, newShape, newLen);
-    Strides<T>::outer(rec.nodes[A].value, rec.nodes[B].value, rec.nodes[recLen]);
+    auto newNode = make_unique<Node_binary_flex<T>>(Operations<T>::flexMul, Gradients<T>::flexMul_grad, A_ptr, B_ptr, newShape, newLen);
+    auto raw = newNode.get();
+    Strides<T>::outer(A, B, *raw);
+    rec.nodes.push_back(move(newNode));
 
-    return recLen;
+    return raw;
 }
 
 // compute pointwise minimum of A and B

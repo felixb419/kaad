@@ -119,7 +119,7 @@ struct Strides {
         delete[] shapeBlock;
     }
 
-    static void outer(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
+    static void outer(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T>& node) {
         Tensor<T>& C = node.value;
 
         node.nEntries = 2;
