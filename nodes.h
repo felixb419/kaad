@@ -55,7 +55,7 @@ struct Node_unary : INode<T> {
     unaryOp<T> op = nullptr;
     unaryGrad<T> grad_op = nullptr;
 
-    size_t len[2] = { 0, 0 };
+    size_t len = 0;
 
     template <typename... Args>
     Node_unary(unaryOp<T> operation, unaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
@@ -66,13 +66,13 @@ struct Node_unary : INode<T> {
             this->in1.eval();
             this->in2.eval();
 
-            op(this->in1.value.val, this->value.val, len[0]);
+            op(this->in1.value.val, this->value.val, len);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient->val, len[1]);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient->val, len);
 
         if (this->in1.hasInputs) {
             this->in1.grad();
@@ -135,7 +135,7 @@ struct Node_binary : INode<T> {
     binaryOp<T> op = nullptr;
     binaryGrad<T> grad_op = nullptr;
 
-    size_t len[2] = { 0, 0 };
+    size_t len = 0;
 
     template <typename... Args>
     Node_binary(binaryOp<T> operation, binaryGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
@@ -146,13 +146,13 @@ struct Node_binary : INode<T> {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, in2->value.val, this->value.val, len[0]);
+            op(this->in1->value.val, in2->value.val, this->value.val, len);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len[1]);
+        grad_op(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len);
 
         if (this->in1->hasInputs) {
             this->in1->grad();

@@ -30,24 +30,21 @@ INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
         auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpRt, kernels.scalarGradRt, A_ptr, B_ptr, newShape, A.shapeLen);
-        newNode->len[0] = newNode->value.len;
-        newNode->len[1] = newNode->value.len;
+        newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
     else if (A_scalar) {
         copy(B.shape, B.shape + B.shapeLen, newShape);
 
         auto newNode = std::make_unique<Node_binary<T>>(kernels.scalarOpLt, kernels.scalarGradLt, A_ptr, B_ptr, newShape, B.shapeLen);
-        newNode->len[0] = newNode->value.len;
-        newNode->len[1] = newNode->value.len;
+        newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
     else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
         copy(A.shape, A.shape + A.shapeLen, newShape);
 
         auto newNode = std::make_unique<Node_binary<T>>(kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape, A.shapeLen);
-        newNode->len[0] = newNode->value.len;
-        newNode->len[1] = newNode->value.len;
+        newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
     else if (combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
