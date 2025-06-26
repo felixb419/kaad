@@ -63,22 +63,18 @@ struct Node_unary : INode<T> {
 
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1.eval();
-            this->in2.eval();
+            this->in1->eval();
 
-            op(this->in1.value.val, this->value.val, len);
+            op(this->in1->value.val, this->value.val, len);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient->val, len);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, len);
 
-        if (this->in1.hasInputs) {
-            this->in1.grad();
-        }
-        if (this->in2.hasInputs) {
-            this->in2.grad();
+        if (this->in1->hasInputs) {
+            this->in1->grad();
         }
     }
 };
