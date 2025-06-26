@@ -48,9 +48,9 @@ struct Strides {
         B_T.stride = shapeBlock + 6;
         transp2D(b.shape, b.stride, b.shapeLen, B_T.shape, B_T.stride);
 
-        _matmul(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA[0], node.strideB[0], node.strideC[0]);
-        _matmul(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC[1], node.strideB[1], node.strideA[1]);
-        _matmul(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA[2], node.strideC[2], node.strideB[2]);
+        _matmul(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA, node.strideB, node.strideC);
+        _matmul(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC+2, node.strideB+2, node.strideA+2);
+        _matmul(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA+4, node.strideC+4, node.strideB+4);
     }
 
     static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node_batch_matmul<T>& node) {
@@ -213,14 +213,10 @@ struct Strides {
         }
     }
 
-    static void _matmul(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int*& strideA, int*& strideB, int*& strideC) {
+    static void _matmul(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int* strideA, int* strideB, int* strideC) {
         a_dim = A.shape[0];
         b_dim = B.shape[1];
         k = A.shape[1];
-
-        strideA = new int[2];
-        strideB = new int[2];
-        strideC = new int[2];
 
         copy(A.stride, A.stride + 2, strideA);
         copy(B.stride, B.stride + 2, strideB);

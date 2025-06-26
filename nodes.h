@@ -221,34 +221,26 @@ struct Node_matmul : INode<T> {
     int a_dim[3];
     int b_dim[3];
     int k[3];
-    int* strideA[3];
-    int* strideB[3];
-    int* strideC[3];
+    int strideA[6];
+    int strideB[6];
+    int strideC[6];
 
     template <typename... Args>
     Node_matmul(matmulOp<T> operation, matmulGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
     
-    ~Node_matmul() {
-        for (int i = 0; i < 3; i++) {
-            delete[] strideA[i];
-            delete[] strideB[i];
-            delete[] strideC[i];
-        }
-    }
-
     inline void eval() override {
         if (!this->evaluated) {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, this->in2->value.val, this->value.val, a_dim[0], b_dim[0], k[0], strideA[0], strideB[0], strideC[0]);
+            op(this->in1->value.val, this->in2->value.val, this->value.val, a_dim[0], b_dim[0], k[0], strideA, strideB, strideC);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, a_dim+1, b_dim+1, k+1, strideA+1, strideB+1, strideC+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, a_dim+1, b_dim+1, k+1, strideA+2, strideB+2, strideC+2);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
