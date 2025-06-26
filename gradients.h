@@ -20,6 +20,8 @@ template <typename T>
 using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC);
 template <typename T>
 using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
+template <typename T>
+using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
 
 template <typename T>
 struct Gradients {
@@ -501,8 +503,8 @@ struct Gradients {
             dA[i] += dC[0];
         }
     }
-    static void sum_dim_grad(const T* A, T* dA, const T* C, const T* dC, int** strideA, int** strideC, int** reps, int** count, size_t* strideLen) {
-        Operations<T>::sum_dim(dC, nullptr, dA, strideC[0], nullptr, strideA[0], reps[0], count[0], strideLen[0]);
+    static void sum_dim_grad(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
+        Operations<T>::sum_dim(dC, dA, strideC, strideA, reps, count, strideLen);
     }
 
     // f(A) = mean(A)
@@ -513,8 +515,8 @@ struct Gradients {
             dA[i] += mean;
         }
     }
-    static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, int** strideA, int** strideC, int** reps, int** count, size_t* strideLen) {
-        Operations<T>::mean_dim(dC, nullptr, dA, strideC[0], nullptr, strideA[0], reps[0], count[0], strideLen[0]);
+    static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
+        Operations<T>::mean_dim(dC, dA, divisor, c_len, strideA, strideC, reps, count, strideLen);
     }
 
     /*

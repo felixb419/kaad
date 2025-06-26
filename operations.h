@@ -22,6 +22,8 @@ template <typename T>
 using matmulOp = void(*)(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC);
 template <typename T>
 using batchmatmulOp = void(*)(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+template <typename T>
+using meanDimOp = void(*)(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
 
 template <typename T>
 struct Operations {
@@ -460,7 +462,7 @@ struct Operations {
         
     // log of A so that C[i] = ln(A[i])
     // A and C must have same shape
-    static void log(const T* A, const T* _, T* C, size_t len) {
+    static void log(const T* A, T* C, size_t len) {
         for (size_t i = 0; i < len; i++) {
             C[i] = std::log(A[i]);
         }
@@ -526,11 +528,10 @@ struct Operations {
         }
         C[0] /= len;
     }
-
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void mean_dim(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void mean_dim(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indC = 0;
         while (1) {
 
@@ -550,8 +551,7 @@ struct Operations {
         }
         end:;
 
-        T divisor = reps[strideLen];
-        for (size_t i = 0; i < reps[strideLen + 1]; i++) {
+        for (size_t i = 0; i < c_len; i++) {
             C[i] /= divisor;
         }
     }

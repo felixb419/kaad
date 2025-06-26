@@ -105,63 +105,20 @@ struct Strides {
         copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
     }
 
-    static void along_dim(Tensor<T>& A, INode<T>& node, int dim) {
+    static void along_dim(Tensor<T>& A, Node_unary_flex<T>& node, int dim) {
         Tensor<T>& C = node.value;
 
-        node.nEntries = 2;
-        node.strideLen = new size_t[node.nEntries];
-        node.reps = new int*[node.nEntries];
-        node.count = new int*[node.nEntries];
-        node.strideA = new int*[node.nEntries];
-        node.strideB = new int*[node.nEntries];
-        node.strideC = new int*[node.nEntries];
-
-        _along_dim(A, C, dim, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideC[0]);
-
-        node.strideLen[1] = node.strideLen[0];
-
-        node.reps[1] = new int[node.strideLen[0]];
-        copy(node.reps[0], node.reps[0] + node.strideLen[0], node.reps[1]);
-
-        node.count[1] = new int[node.strideLen[0]];
-        copy(node.count[0], node.count[0] + node.strideLen[0], node.count[1]);
-
-        node.strideA[1] = new int[node.strideLen[0]];
-        copy(node.strideA[0], node.strideA[0] + node.strideLen[0], node.strideA[1]);
-
-        node.strideC[1] = new int[node.strideLen[0]];
-        copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
+        _along_dim(A, C, dim, node.strideLen, node.reps, node.count, node.strideA, node.strideC);
     }
 
-    static void mean_along_dim(Tensor<T>& A, INode<T>& node, int dim) {
+    static void mean_along_dim(Tensor<T>& A, Node_mean_dim<T>& node, int dim) {
         Tensor<T>& C = node.value;
 
-        node.nEntries = 2;
-        node.strideLen = new size_t[node.nEntries];
-        node.reps = new int*[node.nEntries];
-        node.count = new int*[node.nEntries];
-        node.strideA = new int*[node.nEntries];
-        node.strideB = new int*[node.nEntries];
-        node.strideC = new int*[node.nEntries];
+        node.divisor = (T)A.shape[dim];
+        node.c_len[0] = C.len;
+        node.c_len[1] = A.len;
 
-        _mean_along_dim(A, C, dim, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideC[0]);
-
-        node.strideLen[1] = node.strideLen[0];
-
-        node.reps[1] = new int[node.strideLen[0] + 2];
-        // copy one past reps[0]
-        copy(node.reps[0], node.reps[0] + node.strideLen[0] + 1, node.reps[1]);
-        // put length of A at the end of reps[1]
-        node.reps[1][node.strideLen[0] + 1] = A.len;
-
-        node.count[1] = new int[node.strideLen[0]];
-        copy(node.count[0], node.count[0] + node.strideLen[0], node.count[1]);
-
-        node.strideA[1] = new int[node.strideLen[0]];
-        copy(node.strideA[0], node.strideA[0] + node.strideLen[0], node.strideA[1]);
-
-        node.strideC[1] = new int[node.strideLen[0]];
-        copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
+        _along_dim(A, C, dim, node.strideLen, node.reps, node.count, node.strideA, node.strideC);
     }
 
     private:
@@ -390,12 +347,7 @@ struct Strides {
 
     static void _mean_along_dim(Tensor<T>& A, Tensor<T>& C, int dim, size_t& strideLen, int*& reps, int*& count, int*& strideA, int*& strideC) {
         strideLen = A.shapeLen;
-        reps = new int[strideLen + 2];
-        // save shape[dim] into reps
-        reps[strideLen] = A.shape[dim];
-        // save length of C int reps
-        reps[strideLen + 1] = C.len;
-
+        reps = new int[strideLen];
         copy(A.shape, A.shape + A.shapeLen, reps);
         for (int i = 0; i < strideLen; i++) {
             reps[i]--;

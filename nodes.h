@@ -88,7 +88,7 @@ struct Node_unary_flex : INode<T> {
     int* strideC = nullptr;
     int* reps = nullptr;
     int* count = nullptr;
-    size_t* strideLen = nullptr;
+    size_t strideLen = 0;
 
     template <typename... Args>
     Node_unary_flex(flexUnaryOp<T> operation, flexUnaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
@@ -99,15 +99,13 @@ struct Node_unary_flex : INode<T> {
         delete[] strideC;
         delete[] reps;
         delete[] count;
-        delete[] strideLen;
     }
 
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1.eval();
-            this->in2.eval();
+            this->in1->eval();
 
-            op(this->in1.value.val, this->value.val, strideA, strideC, reps, count, strideLen);
+            op(this->in1->value.val, this->value.val, strideA, strideC, reps, count, strideLen);
             this->evaluated = true;
         }
     }
@@ -117,9 +115,6 @@ struct Node_unary_flex : INode<T> {
 
         if (this->in1->hasInputs) {
             this->in1->grad();
-        }
-        if (this->in2->hasInputs) {
-            this->in2->grad();
         }
     }
 };
@@ -298,6 +293,48 @@ struct Node_batch_matmul : INode<T> {
         }
         if (this->in2->hasInputs) {
             this->in2->grad();
+        }
+    }
+};
+
+template <typename T>
+struct Node_mean_dim : INode<T> {
+    meanDimOp<T> op = nullptr;
+    meanDimGrad<T> grad_op = nullptr;
+
+    T divisor = 0;
+    size_t c_len[2];
+    int* strideA = nullptr;
+    int* strideC = nullptr;
+    int* reps = nullptr;
+    int* count = nullptr;
+    size_t strideLen = 0;
+
+    template <typename... Args>
+    Node_mean_dim(meanDimOp<T> operation, meanDimGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
+    : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+
+    ~Node_mean_dim() {
+        delete[] strideA;
+        delete[] strideC;
+        delete[] reps;
+        delete[] count;
+    }
+
+    inline void eval() override {
+        if (!this->evaluated) {
+            this->in1->eval();
+
+            op(this->in1->value.val, this->value.val, divisor, c_len[0], strideA, strideC, reps, count, strideLen);
+            this->evaluated = true;
+        }
+    }
+
+    inline void grad() override {
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
+
+        if (this->in1->hasInputs) {
+            this->in1->grad();
         }
     }
 };
