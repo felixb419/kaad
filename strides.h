@@ -86,9 +86,12 @@ struct Strides {
         delete[] shapeBlock;
     }
 
-    static void batch_matmul(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
+    static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node_batch_matmul<T>& node) {
 
         node.nEntries = 3;
+        node.a_offset = new int[node.nEntries];
+        node.b_offset = new int[node.nEntries];
+        node.k = new int[node.nEntries];
         node.strideLen = new size_t[node.nEntries];
         node.reps = new int*[node.nEntries];
         node.count = new int*[node.nEntries];
@@ -109,9 +112,11 @@ struct Strides {
         b_T.stride = b_T.shape + B.shapeLen;
         transp2D(B.shape, B.stride, B.shapeLen, b_T.shape, b_T.stride);
 
-        _batch_matmul(a, b, c, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]); 
-        _batch_matmul(c, b_T, a, node.strideLen[1], node.reps[1], node.count[1], node.strideC[1], node.strideB[1], node.strideA[1]); 
-        _batch_matmul(a_T, c, b, node.strideLen[2], node.reps[2], node.count[2], node.strideA[2], node.strideC[2], node.strideB[2]); 
+        _batch_matmul(a, b, c, node.a_offset[0], node.b_offset[0], node.k[0], node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]); 
+        _batch_matmul(c, b_T, a, node.a_offset[1], node.b_offset[1], node.k[1], node.strideLen[1], node.reps[1], node.count[1], node.strideC[1], node.strideB[1], node.strideA[1]); 
+        _batch_matmul(a_T, c, b, node.a_offset[2], node.b_offset[2], node.k[2], node.strideLen[2], node.reps[2], node.count[2], node.strideA[2], node.strideC[2], node.strideB[2]); 
+
+        delete[] shapeBlock;
     }
 
     static void outer(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
@@ -288,11 +293,13 @@ struct Strides {
         }
     }
     
-    static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, size_t& strideLen, int*& reps, int*& count, int*& strideA, int*& strideB, int*& strideC) {
+    static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, int& a_off, int& b_off, int& k, size_t& strideLen, int*& reps, int*& count, int*& strideA, int*& strideB, int*& strideC) {
+        a_off = A.stride[A.shapeLen - 1];
+        b_off = B.stride[B.shapeLen - 2];
+        k = A.shape[A.shapeLen - 1];
+
         strideLen = max(A.shapeLen, B.shapeLen);
-        reps = new int[strideLen + 1];
-        // save k into reps[strideLen]
-        reps[strideLen] = A.shape[A.shapeLen - 1];
+        reps = new int[strideLen];
 
         combine_matrix(A.shape, A.shapeLen, B.shape, B.shapeLen, reps, strideLen);
         for (int i = 0; i < strideLen; i++) {
@@ -302,12 +309,10 @@ struct Strides {
         count = new int[strideLen];
         copy(reps, reps + strideLen, count);
 
-        strideA = new int[strideLen + 1];
-        strideB = new int[strideLen + 1];
+        strideA = new int[strideLen];
+        strideB = new int[strideLen];
         strideC = new int[strideLen];
 
-        strideA[strideLen] = A.stride[A.shapeLen - 1];
-        strideB[strideLen] = B.stride[B.shapeLen - 2];
 
         int idx, idxA, idxB, idxC;
         for (int i = 1; i <= strideLen; i++) {

@@ -18,6 +18,8 @@ template <typename T>
 using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
 template <typename T>
 using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int** strideA, int** strideB, int** strideC);
+template <typename T>
+using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
 
 template <typename T>
 struct Gradients {
@@ -315,11 +317,11 @@ struct Gradients {
         // dB = A^T * dC
         Operations<T>::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA[1], strideC[1], strideB[1]);
     }
-    static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA = dC * B^T
-        Operations<T>::batch_matmul(dC, B, dA, strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
+        Operations<T>::batch_matmul(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
         // dB = A^T * dC
-        Operations<T>::batch_matmul(A, dC, dB, strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
+        Operations<T>::batch_matmul(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
 
     // f(A) = min(A,B)

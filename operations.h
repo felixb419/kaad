@@ -20,6 +20,8 @@ template <typename T>
 using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
 using matmulOp = void(*)(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC);
+template <typename T>
+using batchmatmulOp = void(*)(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 
 template <typename T>
 struct Operations {
@@ -296,15 +298,14 @@ struct Operations {
     }
         
     // matrix multiply A and B so that C = AB
-    // A and B must be 2d and width of A is equalt to height of B
+    // last two dimensions of A and B must me matrix multipliable
     // all dimensions higher than 2 are regarded as batch dimensions
-    static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int k = reps[strideLen], a_offset = strideA[strideLen], b_offset = strideB[strideLen];
+    static void batch_matmul(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
             for (int i = 0; i < k; i++) {
-                C[indC] += A[indA + i*a_offset] * B[indB + i*b_offset];
+                C[indC] += A[indA + i*a_off] * B[indB + i*b_off];
             }
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {

@@ -270,6 +270,63 @@ struct Node_matmul : INode<T> {
 };
 
 template <typename T>
+struct Node_batch_matmul : INode<T> {
+    INode<T>* in2 = nullptr;
+
+    batchmatmulOp<T> op = nullptr;
+    batchmatmulGrad<T> grad_op = nullptr;
+
+    size_t nEntries = 0;
+    int* a_offset = nullptr;
+    int* b_offset = nullptr;
+    int* k = nullptr;
+    int** strideA = nullptr;
+    int** strideB = nullptr;
+    int** strideC = nullptr;
+    int** reps = nullptr;
+    int** count = nullptr;
+    size_t* strideLen = nullptr;
+
+    template <typename... Args>
+    Node_batch_matmul(batchmatmulOp<T> operation, batchmatmulGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+
+    ~Node_batch_matmul() {
+        for (int i = 0; i < nEntries; i++) {
+            delete[] strideA[i];
+            delete[] strideB[i];
+            delete[] strideC[i];
+            delete[] reps[i];
+            delete[] count[i];
+        }
+        delete[] strideLen;
+    }
+
+    inline void eval() override {
+        if (!this->evaluated) {
+            this->in1->eval();
+            this->in2->eval();
+
+            op(this->in1->value.val, this->in2->value.val, this->value.val,
+                a_offset[0], b_offset[0], k[0], strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
+            this->evaluated = true;
+        }
+    }
+
+    inline void grad() override {
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val,
+            a_offset+1, b_offset+1, k+1, strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
+
+        if (this->in1->hasInputs) {
+            this->in1->grad();
+        }
+        if (this->in2->hasInputs) {
+            this->in2->grad();
+        }
+    }
+};
+
+template <typename T>
 struct CompGraph {
    vector<unique_ptr<INode<T>>> nodes;
 

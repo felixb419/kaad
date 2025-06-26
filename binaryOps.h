@@ -231,6 +231,9 @@ INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         rec.nodes.push_back(move(newNode));
     }
     else {
+        auto newNode = make_unique<Node_batch_matmul<T>>(Operations<T>::batch_matmul, Gradients<T>::batch_matmul_grad, A_ptr, B_ptr, newShape, newLen);
+        Strides<T>::batch_matmul(A, B, *newNode.get());
+        rec.nodes.push_back(move(newNode));
     }
     
     return rec.nodes.back().get();
