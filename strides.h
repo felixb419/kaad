@@ -27,78 +27,35 @@ struct Strides {
         node.strideC = new int*[2];
     }
 
-    static void flexible(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T>& node) {
+    static void flexible_binary(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T>& node) {
         Tensor<T>& C = node.value;
 
-        node.nEntries = 2;
-        node.strideLen = new size_t[node.nEntries];
-        node.reps = new int*[node.nEntries];
-        node.count = new int*[node.nEntries];
-        node.strideA = new int*[node.nEntries];
-        node.strideB = new int*[node.nEntries];
-        node.strideC = new int*[node.nEntries];
-
-        _flexible(A, B, C, node.strideLen[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]);
-
-        node.strideLen[1] = node.strideLen[0];
-
-        node.reps[1] = new int[node.strideLen[0]];
-        copy(node.reps[0], node.reps[0] + node.strideLen[0], node.reps[1]);
-
-        node.count[1] = new int[node.strideLen[0]];
-        copy(node.count[0], node.count[0] + node.strideLen[0], node.count[1]);
-
-        node.strideA[1] = new int[node.strideLen[0]];
-        copy(node.strideA[0], node.strideA[0] + node.strideLen[0], node.strideA[1]);
-
-        node.strideB[1] = new int[node.strideLen[0]];
-        copy(node.strideB[0], node.strideB[0] + node.strideLen[0], node.strideB[1]);
-
-        node.strideC[1] = new int[node.strideLen[0]];
-        copy(node.strideC[0], node.strideC[0] + node.strideLen[0], node.strideC[1]);
+        _flexible(A, B, C, node.strideLen, node.reps, node.count, node.strideA, node.strideB, node.strideC);
     }
 
     static void matmul(Tensor<T>& A, Tensor<T>& B, Node_matmul<T>& node) {
-        tView<T> C = node.value.view();
+        tView<T> a = A.view();
+        tView<T> b = B.view();
+        tView<T> c = node.value.view();
 
         int* shapeBlock = new int[8];
         tView<T> A_T = A.view();
         A_T.shape = shapeBlock;
         A_T.stride = shapeBlock + 2;
-        transp2D(A.shape, A.stride, A.shapeLen, A_T.shape, A_T.stride);
+        transp2D(a.shape, a.stride, a.shapeLen, A_T.shape, A_T.stride);
         tView<T> B_T = B.view();
         B_T.shape = shapeBlock + 4;
         B_T.stride = shapeBlock + 6;
-        transp2D(B.shape, B.stride, B.shapeLen, B_T.shape, B_T.stride);
+        transp2D(b.shape, b.stride, b.shapeLen, B_T.shape, B_T.stride);
 
-        node.nEntries = 3;
-        node.a_dim = new int[node.nEntries];
-        node.b_dim = new int[node.nEntries];
-        node.k = new int[node.nEntries];
-        node.strideA = new int*[node.nEntries];
-        node.strideB = new int*[node.nEntries];
-        node.strideC = new int*[node.nEntries];
-
-        _matmul(A.view(), B.view(), C, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA[0], node.strideB[0], node.strideC[0]);
-        _matmul(C, B_T, A.view(), node.a_dim[1], node.b_dim[1], node.k[1], node.strideC[1], node.strideB[1], node.strideA[1]);
-        _matmul(A_T, C, B.view(), node.a_dim[2], node.b_dim[2], node.k[2], node.strideA[2], node.strideC[2], node.strideB[2]);
+        _matmul(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA[0], node.strideB[0], node.strideC[0]);
+        _matmul(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC[1], node.strideB[1], node.strideA[1]);
+        _matmul(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA[2], node.strideC[2], node.strideB[2]);
 
         delete[] shapeBlock;
     }
 
     static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node_batch_matmul<T>& node) {
-
-        node.nEntries = 3;
-        node.a_offset = new int[node.nEntries];
-        node.b_offset = new int[node.nEntries];
-        node.k = new int[node.nEntries];
-        node.strideLen = new size_t[node.nEntries];
-        node.reps = new int*[node.nEntries];
-        node.count = new int*[node.nEntries];
-        node.strideA = new int*[node.nEntries];
-        node.strideB = new int*[node.nEntries];
-        node.strideC = new int*[node.nEntries];
-        
         tView<T> a = A.view();
         tView<T> b = B.view();
         tView<T> c = node.value.view();

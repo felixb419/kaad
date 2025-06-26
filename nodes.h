@@ -88,11 +88,10 @@ struct Node_unary_flex : INode<T> {
     flexUnaryOp<T> op = nullptr;
     flexUnaryGrad<T> grad_op = nullptr;
 
-    size_t nEntries = 0;
-    int** strideA = nullptr;
-    int** strideC = nullptr;
-    int** reps = nullptr;
-    int** count = nullptr;
+    int* strideA = nullptr;
+    int* strideC = nullptr;
+    int* reps = nullptr;
+    int* count = nullptr;
     size_t* strideLen = nullptr;
 
     template <typename... Args>
@@ -100,12 +99,10 @@ struct Node_unary_flex : INode<T> {
     : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_unary_flex() {
-        for (int i = 0; i < nEntries; i++) {
-            delete[] strideA[i];
-            delete[] strideC[i];
-            delete[] reps[i];
-            delete[] count[i];
-        }
+        delete[] strideA;
+        delete[] strideC;
+        delete[] reps;
+        delete[] count;
         delete[] strideLen;
     }
 
@@ -114,13 +111,13 @@ struct Node_unary_flex : INode<T> {
             this->in1.eval();
             this->in2.eval();
 
-            op(this->in1.value.val, this->value.val, strideA[0], strideC[0], reps[0], count[0], strideLen[0]);
+            op(this->in1.value.val, this->value.val, strideA, strideC, reps, count, strideLen);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, strideA+1, strideC+1, reps+1, count+1, strideLen+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, strideA, strideC, reps, count, strideLen);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
@@ -173,27 +170,23 @@ struct Node_binary_flex : INode<T> {
     flexBinaryOp<T> op = nullptr;
     flexBinaryGrad<T> grad_op = nullptr;
 
-    size_t nEntries = 0;
-    int** strideA = nullptr;
-    int** strideB = nullptr;
-    int** strideC = nullptr;
-    int** reps = nullptr;
-    int** count = nullptr;
-    size_t* strideLen = nullptr;
+    int* strideA = nullptr;
+    int* strideB = nullptr;
+    int* strideC = nullptr;
+    int* reps = nullptr;
+    int* count = nullptr;
+    size_t strideLen;
 
     template <typename... Args>
     Node_binary_flex(flexBinaryOp<T> operation, flexBinaryGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_binary_flex() {
-        for (int i = 0; i < nEntries; i++) {
-            delete[] strideA[i];
-            delete[] strideB[i];
-            delete[] strideC[i];
-            delete[] reps[i];
-            delete[] count[i];
-        }
-        delete[] strideLen;
+        delete[] strideA;
+        delete[] strideB;
+        delete[] strideC;
+        delete[] reps;
+        delete[] count;
     }
 
     inline void eval() override {
@@ -201,13 +194,13 @@ struct Node_binary_flex : INode<T> {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, this->in2->value.val, this->value.val, strideA[0], strideB[0], strideC[0], reps[0], count[0], strideLen[0]);
+            op(this->in1->value.val, this->in2->value.val, this->value.val, strideA, strideB, strideC, reps, count, strideLen);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, strideA, strideB, strideC, reps, count, strideLen);
 
         if (this->in1->hasInputs) {
             this->in1->grad();
@@ -225,20 +218,19 @@ struct Node_matmul : INode<T> {
     matmulOp<T> op = nullptr;
     matmulGrad<T> grad_op = nullptr;
 
-    int* a_dim = nullptr;
-    int* b_dim = nullptr;
-    int* k = nullptr;
-    size_t nEntries = 0;
-    int** strideA = nullptr;
-    int** strideB = nullptr;
-    int** strideC = nullptr;
+    int a_dim[3];
+    int b_dim[3];
+    int k[3];
+    int* strideA[3];
+    int* strideB[3];
+    int* strideC[3];
 
     template <typename... Args>
     Node_matmul(matmulOp<T> operation, matmulGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
     
     ~Node_matmul() {
-        for (int i = 0; i < nEntries; i++) {
+        for (int i = 0; i < 3; i++) {
             delete[] strideA[i];
             delete[] strideB[i];
             delete[] strideC[i];
@@ -274,30 +266,28 @@ struct Node_batch_matmul : INode<T> {
     batchmatmulOp<T> op = nullptr;
     batchmatmulGrad<T> grad_op = nullptr;
 
-    size_t nEntries = 0;
-    int* a_offset = nullptr;
-    int* b_offset = nullptr;
-    int* k = nullptr;
-    int** strideA = nullptr;
-    int** strideB = nullptr;
-    int** strideC = nullptr;
-    int** reps = nullptr;
-    int** count = nullptr;
-    size_t* strideLen = nullptr;
+    int a_offset[3];
+    int b_offset[3];
+    int k[3];
+    int* strideA[3];
+    int* strideB[3];
+    int* strideC[3];
+    int* reps[3];
+    int* count[3];
+    size_t strideLen[3];
 
     template <typename... Args>
     Node_batch_matmul(batchmatmulOp<T> operation, batchmatmulGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
     : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_batch_matmul() {
-        for (int i = 0; i < nEntries; i++) {
+        for (int i = 0; i < 3; i++) {
             delete[] strideA[i];
             delete[] strideB[i];
             delete[] strideC[i];
             delete[] reps[i];
             delete[] count[i];
         }
-        delete[] strideLen;
     }
 
     inline void eval() override {

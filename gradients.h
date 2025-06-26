@@ -13,9 +13,9 @@ using unaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, size_t len
 template <typename T>
 using binaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len);
 template <typename T>
-using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int** strideA, int** strideC, int** reps, int** count, size_t* strideLen);
+using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
-using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
+using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
 template <typename T>
 using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int** strideA, int** strideB, int** strideC);
 template <typename T>
@@ -53,7 +53,7 @@ struct Gradients {
             dB[i] += dC[i];
         }
     }
-    static void flexAdd_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexAdd_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -61,16 +61,16 @@ struct Gradients {
             dA[indA] += dc_i;
             dB[indB] += dc_i;
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -100,7 +100,7 @@ struct Gradients {
             dB[i] -= dC[i];
         }
     }
-    static void flexSub_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexSub_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -108,16 +108,16 @@ struct Gradients {
             dA[indA] += dc_i;
             dB[indB] -= dc_i;
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -147,7 +147,7 @@ struct Gradients {
             dB[i] += dC[i] * A[i];
         }
     }
-    static void flexMul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexMul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -155,16 +155,16 @@ struct Gradients {
             dA[indA] += dc_i * B[indB];
             dB[indB] += dc_i * A[indA];
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -197,7 +197,7 @@ struct Gradients {
             dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
         }
     }
-    static void flexDiv_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexDiv_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -206,16 +206,16 @@ struct Gradients {
             dA[indA] += dc_i * (1 / b_i);
             dB[indB] -= dc_i * (A[indA] / (b_i * b_i));
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -264,7 +264,7 @@ struct Gradients {
             #endif
         }
     }
-    static void flexPow_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexPow_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -276,16 +276,16 @@ struct Gradients {
             dB[indB] += dC[indC] * (C[indC] * log(A[indA]));
             #endif
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -351,7 +351,7 @@ struct Gradients {
             dB[i] += smaller ? 0 : C_val;
         }
     }
-    static void flexMin_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexMin_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -360,16 +360,16 @@ struct Gradients {
             dA[indA] += smaller ? C_val : 0;
             dB[indB] += smaller ? 0 : C_val;
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -403,7 +403,7 @@ struct Gradients {
             dB[i] += bigger ? 0 : C_val;
         }
     }
-    static void flexMax_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void flexMax_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -412,16 +412,16 @@ struct Gradients {
             dA[indA] += bigger ? C_val : 0;
             dB[indB] += bigger ? 0 : C_val;
 
-            for (int dim = *strideLen - 1; dim >= 0; dim--) {
-                count[0][dim]--;
-                if (count[0][dim] >= 0) {
-                    indA += strideA[0][dim];
-                    indB += strideB[0][dim];
-                    indC += strideC[0][dim];
+            for (int dim = strideLen - 1; dim >= 0; dim--) {
+                count[dim]--;
+                if (count[dim] >= 0) {
+                    indA += strideA[dim];
+                    indB += strideB[dim];
+                    indC += strideC[dim];
                     break;
                 }
 
-                count[0][dim] = reps[0][dim];
+                count[dim] = reps[dim];
                 if (dim == 0) goto end;
             }
         }
@@ -522,7 +522,7 @@ struct Gradients {
     */
     /*
 
-    static void tile_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void tile_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int* m = B->shape;
         
         int offset = dC->shapeLen - A->shapeLen;
@@ -564,7 +564,7 @@ struct Gradients {
         delete[] effstride;
     }
 
-    static void slice_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void slice_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
         int offset = A->shapeLen - dC->shapeLen;
         int* effstride = new int[dC->shapeLen * 2];
         copy(A->stride + offset, A->stride + A->shapeLen - offset + 1, effstride);
