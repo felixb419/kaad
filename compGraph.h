@@ -227,9 +227,9 @@ struct Node_matmul : INode<T> {
     matmulOp<T> op = nullptr;
     matmulGrad<T> grad_op = nullptr;
 
-    int a_dim = 0;
-    int b_dim = 0;
-    int k = 0;
+    int* a_dim = nullptr;
+    int* b_dim = nullptr;
+    int* k = nullptr;
     size_t nEntries = 0;
     int** strideA = nullptr;
     int** strideB = nullptr;
@@ -252,13 +252,13 @@ struct Node_matmul : INode<T> {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, this->in2->value.val, this->value.val, a_dim, b_dim, k, strideA[0], strideB[0], strideC[0]);
+            op(this->in1->value.val, this->in2->value.val, this->value.val, a_dim[0], b_dim[0], k[0], strideA[0], strideB[0], strideC[0]);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, a_dim, b_dim, k, strideA+1, strideB+1, strideC+1);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, a_dim+1, b_dim+1, k+1, strideA+1, strideB+1, strideC+1);
 
         if (this->in1->hasInputs) {
             this->in1->grad();

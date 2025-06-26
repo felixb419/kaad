@@ -59,29 +59,31 @@ struct Strides {
     }
 
     static void matmul(Tensor<T>& A, Tensor<T>& B, Node_matmul<T>& node) {
-        Tensor<T>& C = node.value;
+        tView<T> C = node.value.view();
 
-        node.a_dim = A.shape[0];
-        node.b_dim = B.shape[1];
-        node.k = A.shape[1];
+        int* shapeBlock = new int[8];
+        tView<T> A_T = A.view();
+        A_T.shape = shapeBlock;
+        A_T.stride = shapeBlock + 2;
+        transp2D(A.shape, A.stride, A.shapeLen, A_T.shape, A_T.stride);
+        tView<T> B_T = B.view();
+        B_T.shape = shapeBlock + 4;
+        B_T.stride = shapeBlock + 6;
+        transp2D(B.shape, B.stride, B.shapeLen, B_T.shape, B_T.stride);
 
-
-        node.nEntries = 2;
-
+        node.nEntries = 3;
+        node.a_dim = new int[node.nEntries];
+        node.b_dim = new int[node.nEntries];
+        node.k = new int[node.nEntries];
         node.strideA = new int*[node.nEntries];
         node.strideB = new int*[node.nEntries];
         node.strideC = new int*[node.nEntries];
 
-        _matmul(A.view(), B.view(), C.view(), node.strideA[0], node.strideB[0], node.strideC[0]);
+        _matmul(A.view(), B.view(), C, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA[0], node.strideB[0], node.strideC[0]);
+        _matmul(C, B_T, A.view(), node.a_dim[1], node.b_dim[1], node.k[1], node.strideC[1], node.strideB[1], node.strideA[1]);
+        _matmul(A_T, C, B.view(), node.a_dim[2], node.b_dim[2], node.k[2], node.strideA[2], node.strideC[2], node.strideB[2]);
 
-        node.strideA[1] = new int[2];
-        copy(node.strideA[0], node.strideA[0] + 2, node.strideA[1]);
-
-        node.strideB[1] = new int[2];
-        copy(node.strideB[0], node.strideB[0] + 2, node.strideB[1]);
-
-        node.strideC[1] = new int[2];
-        copy(node.strideC[0], node.strideC[0] + 2, node.strideC[1]);
+        delete[] shapeBlock;
     }
 
     static void batch_matmul(Tensor<T>& A, Tensor<T>& B, INode<T>& node) {
@@ -251,7 +253,11 @@ struct Strides {
         }
     }
 
-    static void _matmul(tView<T> A, tView<T> B, tView<T> C, int*& strideA, int*& strideB, int*& strideC) {
+    static void _matmul(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int*& strideA, int*& strideB, int*& strideC) {
+        a_dim = A.shape[0];
+        b_dim = B.shape[1];
+        k = A.shape[1];
+
         strideA = new int[2];
         strideB = new int[2];
         strideC = new int[2];
