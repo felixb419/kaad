@@ -52,7 +52,7 @@ INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const
     }
     else if (combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
         auto newNode = std::make_unique<Node_binary_flex<T>>(kernels.flexOp, kernels.flexGrad, A_ptr, B_ptr, newShape, newLen);
-        Strides<T>::flexible(A, B, *static_cast<Node_binary_flex<T>*>(newNode.get()));
+        Strides<T>::flexible(A, B, *newNode.get());
         rec.nodes.push_back(move(newNode));
     }
     else {
