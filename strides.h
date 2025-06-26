@@ -38,7 +38,7 @@ struct Strides {
         tView<T> b = B.view();
         tView<T> c = node.value.view();
 
-        int* shapeBlock = new int[8];
+        int shapeBlock[8];
         tView<T> A_T = A.view();
         A_T.shape = shapeBlock;
         A_T.stride = shapeBlock + 2;
@@ -51,8 +51,6 @@ struct Strides {
         _matmul(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA[0], node.strideB[0], node.strideC[0]);
         _matmul(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC[1], node.strideB[1], node.strideA[1]);
         _matmul(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA[2], node.strideC[2], node.strideB[2]);
-
-        delete[] shapeBlock;
     }
 
     static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node_batch_matmul<T>& node) {
