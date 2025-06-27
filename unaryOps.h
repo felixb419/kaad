@@ -105,7 +105,7 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
 
     if (A.shapeLen < 2) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (transpose), In1 shapeLen hast to be > 1, shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (transpose), A shapeLen hast to be > 1, shape1 ";
         print_arr(A.shape, A.shape + A.shapeLen, errmsg);
         throw invalid_argument(errmsg.str());
     }
@@ -122,7 +122,7 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
     else {
         if (perm.size() != A.shapeLen) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (transpose), length of perm has to be same as shapeLength of In1, perm ";
+            errmsg << "shape error in node[" << recLen << "] (transpose), length of perm has to be same as shapeLength of A, perm ";
             print_arr(perm.begin(), perm.end(), errmsg);
             errmsg << ", shape1";
             print_arr(A.shape, A.shape + A.shapeLen, errmsg);
