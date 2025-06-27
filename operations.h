@@ -551,8 +551,8 @@ struct Operations {
         }
         end:;
 
-        for (size_t i = 0; i < c_len; i++) {
-            C[i] /= divisor;
+        for (T* p = C; p != C + c_len; p++) {
+            *p /= divisor;
         }
     }
 

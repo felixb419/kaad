@@ -325,13 +325,15 @@ struct Node_mean_dim : INode<T> {
         if (!this->evaluated) {
             this->in1->eval();
 
+            //op(this->in1->value.val, this->value.val, divisor, c_len[0], strideA, strideC, reps, count, strideLen);
             op(this->in1->value.val, this->value.val, divisor, c_len[0], strideA, strideC, reps, count, strideLen);
             this->evaluated = true;
         }
     }
 
     inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
+        //grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
+        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
 
         if (this->in1->hasInputs) {
             this->in1->grad();

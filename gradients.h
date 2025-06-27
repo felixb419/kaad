@@ -516,7 +516,7 @@ struct Gradients {
         }
     }
     static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
-        Operations<T>::mean_dim(dC, dA, divisor, c_len, strideA, strideC, reps, count, strideLen);
+        Operations<T>::mean_dim(dC, dA, divisor, c_len, strideC, strideA, reps, count, strideLen);
     }
 
     /*
