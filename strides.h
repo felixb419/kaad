@@ -145,7 +145,8 @@ struct Strides {
         }
     }
 
-    static void along_dim(Tensor<T>& A, Node_unary_flex<T>& node, int dim) {
+    template <class Kernel>
+    static void along_dim(Tensor<T>& A, Node_unary_flex<T,Kernel>& node, int dim) {
         Tensor<T>& C = node.value;
 
         _along_dim(A, C, dim, node.strideLen, node.reps, node.count, node.strideA, node.strideC);

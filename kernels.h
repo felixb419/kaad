@@ -1,9 +1,12 @@
+#pragma once
+
 template <typename T>
 struct Kernels {
     struct Null {
         struct Op {};
         struct Grad {};
     };
+
     struct Add {
         struct Op {
             constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -100,6 +103,108 @@ struct Kernels {
                 int bigger = A >= B;
                 dA += bigger ? dC : 0;
                 dB += bigger ? 0 : dC;
+            }
+        };
+    };
+
+    struct Neg {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C = -A;
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA -= dC;
+            }
+        };
+    };
+
+    struct Square {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C = A * A;
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC * 2 * A;
+            }
+        };
+    };
+
+    struct Sqrt {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C = sqrt(A);
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC / (2 * C);
+            }
+        };
+    };
+
+    struct Log{
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C = log(A);
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC / A;
+            }
+        };
+    };
+
+    struct Exp {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C = exp(A);
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC * C;
+            }
+        };
+    };
+
+    struct Abs {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C = abs(A);
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC * (A > 0 ? 1 : -1);
+            }
+        };
+    };
+
+    struct Transp {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {}
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC;
+            }
+        };
+    };
+
+    struct Sum {
+        struct Op {
+            constexpr void operator()(T A, T& C) const noexcept {
+                C += A;
+            }
+        };
+        struct Grad {
+            constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+                dA += dC;
             }
         };
     };

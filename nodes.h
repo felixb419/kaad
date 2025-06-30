@@ -50,28 +50,32 @@ struct Node_valued : INode<T> {
     void getGrad() override {}
 };
 
-template <typename T>
+template <typename T, class Kernel>
 struct Node_unary : INode<T> {
-    unaryOp<T> op = nullptr;
-    unaryGrad<T> grad_op = nullptr;
+    using Op = class Kernel::Op;
+    Op op;
+    unaryOp<T,Op> val_func = nullptr;
+    using Grad = class Kernel::Grad;
+    Grad grad;
+    unaryGrad<T,Grad> grad_func = nullptr;
 
     size_t len = 0;
 
     template <typename... Args>
-    Node_unary(unaryOp<T> operation, unaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
-    : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+    Node_unary(unaryOp<T,Op> operation, unaryGrad<T,Grad> derivative, INode<T>* in1_ptr, Args&&... args)
+    : val_func(operation), grad_func(derivative), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
         if (!this->evaluated) {
             this->in1->eval();
 
-            op(this->in1->value.val, this->value.val, len);
+            val_func(this->in1->value.val, this->value.val, len, op);
             this->evaluated = true;
         }
     }
 
     inline void getGrad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, len);
+        grad_func(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, len, grad);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();
@@ -79,10 +83,14 @@ struct Node_unary : INode<T> {
     }
 };
 
-template <typename T>
+template <typename T, class Kernel>
 struct Node_unary_flex : INode<T> {
-    flexUnaryOp<T> op = nullptr;
-    flexUnaryGrad<T> grad_op = nullptr;
+    using Op = class Kernel::Op;
+    Op op;
+    flexUnaryOp<T,Op> val_func = nullptr;
+    using Grad = class Kernel::Grad;
+    Grad grad;
+    flexUnaryGrad<T,Grad> grad_func = nullptr;
 
     int* strideA = nullptr;
     int* strideC = nullptr;
@@ -91,8 +99,8 @@ struct Node_unary_flex : INode<T> {
     size_t strideLen = 0;
 
     template <typename... Args>
-    Node_unary_flex(flexUnaryOp<T> operation, flexUnaryGrad<T> derivative, INode<T>* in1_ptr, Args&&... args)
-    : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+    Node_unary_flex(flexUnaryOp<T,Op> operation, flexUnaryGrad<T,Grad> derivative, INode<T>* in1_ptr, Args&&... args)
+    : val_func(operation), grad_func(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_unary_flex() {
         delete[] strideA;
@@ -105,13 +113,13 @@ struct Node_unary_flex : INode<T> {
         if (!this->evaluated) {
             this->in1->eval();
 
-            op(this->in1->value.val, this->value.val, strideA, strideC, reps, count, strideLen);
+            val_func(this->in1->value.val, this->value.val, strideA, strideC, reps, count, strideLen, op);
             this->evaluated = true;
         }
     }
 
     inline void getGrad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, strideA, strideC, reps, count, strideLen);
+        grad_func(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, strideA, strideC, reps, count, strideLen, grad);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();
@@ -334,14 +342,12 @@ struct Node_mean_dim : INode<T> {
         if (!this->evaluated) {
             this->in1->eval();
 
-            //op(this->in1->value.val, this->value.val, divisor, c_len[0], strideA, strideC, reps, count, strideLen);
             op(this->in1->value.val, this->value.val, divisor, c_len[0], strideA, strideC, reps, count, strideLen);
             this->evaluated = true;
         }
     }
 
     inline void getGrad() override {
-        //grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
         grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
 
         if (this->in1->hasInputs) {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tensor.h"
+#include "kernels.h"
 
 #include <cmath>
 #include <sstream>
@@ -10,12 +11,12 @@
 using namespace std;
 
 
-template <typename T>
-using unaryOp = void(*)(const T* A, T* C, size_t len);
+template <typename T, class Op>
+using unaryOp = void(*)(const T* A, T* C, size_t len, Op op);
 template <typename T, class Op>
 using binaryOp = void(*)(const T* A, const T* B, T* C, size_t len, Op op);
-template <typename T>
-using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
+template <typename T, class Op>
+using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen, Op op);
 template <typename T, class Op>
 using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Op op);
 template <typename T>
@@ -150,74 +151,17 @@ struct Operations {
     UNARY OPS
     */
 
-    // negate A so that C[i] = -A[i]
-    // A and C must have same shape
-    static void negate(const T* A, T* C, size_t len) {
+    static void unary_pointwise(const T* A, T* C, size_t len, Op op) {
         for (size_t i = 0; i < len; i++) {
-            C[i] = -A[i];
-        }
-    }
-        
-    // square A so that out[i] = A[i]*A[i]
-    // A and out must have same shape
-    static void square(const T* A, T* C, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            C[i] = A[i] * A[i];
-        }
-    }
-        
-    // root of A so that C[i] = sqrt(A[i])
-    // A and C must have same shape
-    static void sqrt(const T* A, T* C, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            C[i] = std::sqrt(A[i]);
-        }
-    }
-        
-    // log of A so that C[i] = ln(A[i])
-    // A and C must have same shape
-    static void log(const T* A, T* C, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            C[i] = std::log(A[i]);
-        }
-    }
-        
-    // exponent of A so that C[i] = e^A[i]
-    // A and C must have same shape
-    static void exp(const T* A, T* C, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            C[i] = std::exp(A[i]);
-        }
-    }
-        
-    // absolute value of A so that C[i] = abs(A[i])
-    // A and C must have same shape
-    static void abs(const T* A, T* C, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            C[i] = std::abs(A[i]);
+            op(A[i], C[i]);
         }
     }
 
-    // transposing doesnt change the value array so A gets copied to C
-    static void transpose(const T* A, T* C, size_t len) {
-        copy(A, A + len, C);
-    }
-
-    // adds every element of A to out
-    // B has to be a scalar
-    static void sum(const T* A, T* C, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            C[0] += A[i];
-        }
-    }
-    // sums tensor along dimension
-    // out must be same shape as A with one dimension missing
-    // dimensions index over which is summed is saved in B.shape
-    static void sum_dim(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void unary_flexible(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen, Op op) {
         int indA = 0, indC = 0;
         while (1) {
 
-            C[indC] += A[indA];
+            op(A[indA], C[indC]);
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
@@ -234,14 +178,20 @@ struct Operations {
         end:;
     }
 
+    // transposing doesnt change the value array so A gets copied to C
+    static void transpose(const T* A, T* C, size_t len, Op _) {
+        copy(A, A + len, C);
+    }
+
     // saves mean of A into out
     // B has to be a scalar
-    static void mean(const T* A, T* C, size_t len) {
+    static void mean(const T* A, T* C, size_t len, Op _) {
         for (size_t i = 0; i < len; i++) {
             C[0] += A[i];
         }
         C[0] /= len;
     }
+
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape

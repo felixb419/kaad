@@ -1,21 +1,24 @@
 #include "gradients.h"
 #include "compGraph.h"
 #include "strides.h"
+#include "kernels.h"
 
-template <typename T>
+template <typename T, class Kernel>
 struct UnaryKernels {
-    unaryOp<T> Op;
-    unaryGrad<T> Grad;
+    using Op = class Kernel::Op;
+    using Grad = class Kernel::Grad;
+    unaryOp<T,Op> op = Operations<T,Op>::unary_pointwise;
+    unaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_pointwise;
 };
 
-template <typename T>
-INode<T>* unOperator(CompGraph<T>& rec, INode<T>* A_ptr , const UnaryKernels<T> kernels) {
+template <typename T, class Kernel>
+INode<T>* unOperator(CompGraph<T>& rec, INode<T>* A_ptr , const UnaryKernels<T,Kernel> kernels) {
     Tensor<T>& A = A_ptr->value;
 
     int* newShape = new int[A.shapeLen];
     copy(A.shape, A.shape + A.shapeLen, newShape);
 
-    auto newNode = make_unique<Node_unary<T>>(kernels.Op, kernels.Grad, A_ptr, newShape, A.shapeLen);
+    auto newNode = make_unique<Node_unary<T,Kernel>>(kernels.op, kernels.grad, A_ptr, newShape, A.shapeLen);
     auto raw = newNode.get();
     rec.nodes.push_back(move(newNode));
     raw->len = A.len;
@@ -23,16 +26,11 @@ INode<T>* unOperator(CompGraph<T>& rec, INode<T>* A_ptr , const UnaryKernels<T> 
     return raw;
 }
 
-/*
 // negate A
 // where A is a tensor
 template <typename T>
 INode<T>* negative(CompGraph<T>& rec, INode<T>* A_ptr) {
-    static const UnaryKernels<T> negK = {
-        Operations<T>::negate,
-        Gradients<T>::negate_grad
-    };
-
+    static const UnaryKernels<T, class Kernels<T>::Neg> negK;
     return unOperator(rec, A_ptr, negK);
 }
 
@@ -40,11 +38,7 @@ INode<T>* negative(CompGraph<T>& rec, INode<T>* A_ptr) {
 // where A is a tensor
 template <typename T>
 INode<T>* square(CompGraph<T>& rec, INode<T>* A_ptr) {
-    static const UnaryKernels<T> squareK = {
-        Operations<T>::square,
-        Gradients<T>::square_grad
-    };
-
+    static const UnaryKernels<T, class Kernels<T>::Square> squareK;
     return unOperator(rec, A_ptr, squareK);
 }
 
@@ -52,11 +46,7 @@ INode<T>* square(CompGraph<T>& rec, INode<T>* A_ptr) {
 // where A is a tensor
 template <typename T>
 INode<T>* sqrt(CompGraph<T>& rec, INode<T>* A_ptr) {
-    static const UnaryKernels<T> sqrtK = {
-        Operations<T>::sqrt,
-        Gradients<T>::sqrt_grad
-    };
-
+    static const UnaryKernels<T, class Kernels<T>::Sqrt> sqrtK;
     return unOperator(rec, A_ptr, sqrtK);
 }
 
@@ -64,11 +54,7 @@ INode<T>* sqrt(CompGraph<T>& rec, INode<T>* A_ptr) {
 // where A is a tensor
 template <typename T>
 INode<T>* log(CompGraph<T>& rec, INode<T>* A_ptr) {
-    static const UnaryKernels<T> logK = {
-        Operations<T>::log,
-        Gradients<T>::log_grad
-    };
-
+    static const UnaryKernels<T, class Kernels<T>::Log> logK;
     return unOperator(rec, A_ptr, logK);
 }
 
@@ -76,11 +62,7 @@ INode<T>* log(CompGraph<T>& rec, INode<T>* A_ptr) {
 // where A is a tensor
 template <typename T>
 INode<T>* exp(CompGraph<T>& rec, INode<T>* A_ptr) {
-    static const UnaryKernels<T> expK = {
-        Operations<T>::exp,
-        Gradients<T>::exp_grad
-    };
-
+    static const UnaryKernels<T, class Kernels<T>::Exp> expK;
     return unOperator(rec, A_ptr, expK);
 }
 
@@ -88,11 +70,7 @@ INode<T>* exp(CompGraph<T>& rec, INode<T>* A_ptr) {
 // where A is a tensor
 template <typename T>
 INode<T>* abs(CompGraph<T>& rec, INode<T>* A_ptr) {
-    static const UnaryKernels<T> absK = {
-        Operations<T>::abs,
-        Gradients<T>::abs_grad
-    };
-
+    static const UnaryKernels<T, class Kernels<T>::Abs> absK;
     return unOperator(rec, A_ptr, absK);
 }
 
@@ -153,7 +131,14 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
             }
         }
     }
-    auto newNode = make_unique<Node_unary<T>>(Operations<T>::transpose, Gradients<T>::transp_grad, A_ptr, shape_T, stride_T, A.shapeLen);
+
+    using Kernel = class Kernels<T>::Transp;
+    using Op = class Kernel::Op;
+    using Grad = class Kernel::Grad;
+    unaryOp<T,Op> op = Operations<T,Op>::transpose;
+    unaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_pointwise;
+
+    auto newNode = make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, shape_T, stride_T, A.shapeLen);
     newNode->len = A.len;
     rec.nodes.push_back(move(newNode));
 
@@ -168,7 +153,11 @@ INode<T>* sum(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
     if (dim == -1) {
         int* newShape = new int[] { 1 };
 
-        auto newNode = make_unique<Node_unary<T>>(Operations<T>::sum, Gradients<T>::sum_grad, A_ptr, newShape, 1);
+        using Op = typename NullOp::Op;
+        using Grad = typename NullOp::Grad;
+        unaryOp<T,Op> op = Operations<T,Op>::sum;
+        unaryGrad<T,Grad> grad = Gradients<T,Grad>::sum_grad;
+        auto newNode = make_unique<Node_unary<T,NullOp>>(op, grad, A_ptr, newShape, 1);
         newNode->len = A_ptr->value.len;
         rec.nodes.push_back(move(newNode));
     }
@@ -185,7 +174,13 @@ INode<T>* sum(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
         copy(A.shape, A.shape + dim, newShape);
         copy(A.shape + dim + 1, A.shape + A.shapeLen, newShape + dim);
 
-        auto newNode = make_unique<Node_unary_flex<T>>(Operations<T>::sum_dim, Gradients<T>::sum_dim_grad, A_ptr, newShape, newLen);
+        using Kernel = class Kernels<T>::Sum;
+        using Op = class Kernel::Op;
+        using Grad = class Kernel::Grad;
+        flexUnaryOp<T,Op> op = Operations<T,Op>::unary_flexible;
+        flexUnaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_flexible;
+
+        auto newNode = make_unique<Node_unary_flex<T,Kernel>>(op, grad, A_ptr, newShape, newLen);
         Strides<T>::along_dim(A, *newNode.get(), dim);
         rec.nodes.push_back(move(newNode));
     }
@@ -201,7 +196,11 @@ INode<T>* mean(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
     if (dim == -1) {
         int* newShape = new int[] { 1 };
 
-        auto newNode = make_unique<Node_unary<T>>(Operations<T>::mean, Gradients<T>::mean_grad, A_ptr, newShape, 1);
+        using Op = typename NullOp::Op;
+        using Grad = typename NullOp::Grad;
+        unaryOp<T,Op> op = Operations<T,Op>::mean;
+        unaryGrad<T,Grad> grad = Gradients<T,Grad>::mean_grad;
+        auto newNode = make_unique<Node_unary<T,NullOp>>(op, grad, A_ptr, newShape, 1);
         newNode->len = A_ptr->value.len;
         rec.nodes.push_back(move(newNode));
     }
@@ -218,11 +217,14 @@ INode<T>* mean(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
         copy(A.shape, A.shape + dim, newShape);
         copy(A.shape + dim + 1, A.shape + A.shapeLen, newShape + dim);
 
-        auto newNode = make_unique<Node_mean_dim<T>>(Operations<T>::mean_dim, Gradients<T>::mean_dim_grad, A_ptr, newShape, newLen);
+        using Op = typename NullOp::Op;
+        using Grad = typename NullOp::Grad;
+        meanDimOp<T> op = Operations<T,Op>::mean_dim;
+        meanDimGrad<T> grad = Gradients<T,Grad>::mean_dim_grad;
+        auto newNode = make_unique<Node_mean_dim<T>>(op, grad, A_ptr, newShape, newLen);
         Strides<T>::mean_along_dim(A, *newNode.get(), dim);
         rec.nodes.push_back(move(newNode));
     }
 
     return rec.nodes.back().get();
 }
-*/

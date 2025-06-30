@@ -24,9 +24,10 @@ int main() {
     INode<double>* x = rec.append(move(X));
     INode<double>* y = rec.append(move(Y));
 
-    INode<double>* c = max(rec, y, max(rec, max(rec, a, max(rec, b, x)), n));
+    //INode<double>* c = max(rec, y, max(rec, max(rec, a, max(rec, b, x)), n));
+    auto c = mean(rec, a, 0);
 
-    //cout << "A:\n" << a->value << endl;
+    cout << "A:\n" << a->value << endl;
     //cout << "B:\n" << b->value << endl;
     //cout << "N:\n" << n->value << endl;
 
@@ -37,8 +38,8 @@ int main() {
     auto g = rec.getGradient(c, a, b, n, x, y);
 
     cout << "dA\n" << *g[0] << endl;
-    cout << "dB\n" << *g[1] << endl;
-    cout << "dN\n" << *g[2] << endl;
-    cout << "dX\n" << *g[3] << endl;
-    cout << "dY\n" << *g[4] << endl;
+    //cout << "dB\n" << *g[1] << endl;
+    //cout << "dN\n" << *g[2] << endl;
+    //cout << "dX\n" << *g[3] << endl;
+    //cout << "dY\n" << *g[4] << endl;
 }
