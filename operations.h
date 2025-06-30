@@ -35,23 +35,21 @@ struct Operations {
     // shapes of C and A must be the same, shape of B must be (1)
     static void scalarRhs(const T* A, const T* B, T* C, size_t len, Op op) {
         for (size_t i = 0; i < len; i++) {
-            C[i] = op(A[i], B[0]);
+            op(A[i], B[0], C[i]);
         }
     }
     // perform op so that: C[m,n,...] = op( A[0], B[m,n,...])
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarLhs(const T* A, const T* B, T* C, size_t len, Op op) {
         for (size_t i = 0; i < len; i++) {
-            //C[i] = A[0] + B[i];
-            C[i] = op(A[0], B[i]);
+            op(A[0], B[i], C[i]);
         }
     }
     // perform op so that so that: C[m,n,...] = op( A[m,n,...], B[m,n...] )
     // shape of all operands must be indentical
     static void pointwise(const T* A, const T* B, T* C, size_t len, Op op) {
         for (size_t i = 0; i < len; i++) {
-            //C[i] = A[i] + B[i];
-            C[i] = op(A[i], B[i]);
+            op(A[i], B[i], C[i]);
         }
     }
     // perform op flexible so that: C = op( A, B )
@@ -60,7 +58,7 @@ struct Operations {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
-            C[indC] = op(A[indA], B[indB]);
+            op(A[indA], B[indB], C[indC]);
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;

@@ -6,8 +6,8 @@ struct Kernels {
     };
     struct Add {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return A + B;
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = A + B;
             }
         };
         struct Grad {
@@ -20,8 +20,8 @@ struct Kernels {
 
     struct Sub {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return A - B;
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = A - B;
             }
         };
         struct Grad {
@@ -34,8 +34,8 @@ struct Kernels {
 
     struct Mul {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return A * B;
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = A * B;
             }
         };
         struct Grad {
@@ -48,8 +48,8 @@ struct Kernels {
 
     struct Div {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return A / B;
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = A / B;
             }
         };
         struct Grad {
@@ -62,8 +62,8 @@ struct Kernels {
 
     struct Pow {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return pow(A, B);
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = pow(A, B);
             }
         };
         struct Grad {
@@ -76,8 +76,8 @@ struct Kernels {
 
     struct Min {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return A < B ? A : B;
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = A < B ? A : B;
             }
         };
         struct Grad {
@@ -91,8 +91,8 @@ struct Kernels {
 
     struct Max {
         struct Op {
-            constexpr T operator()(T A, T B) const noexcept {
-                return A > B ? A : B;
+            constexpr void operator()(T A, T B, T& C) const noexcept {
+                C = A > B ? A : B;
             }
         };
         struct Grad {
