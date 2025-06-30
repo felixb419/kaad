@@ -38,7 +38,7 @@ struct INode {
     }
 
     inline virtual void eval() = 0;
-    inline virtual void grad() = 0;
+    inline virtual void getGrad() = 0;
 };
 
 template <typename T>
@@ -47,7 +47,7 @@ struct Node_valued : INode<T> {
     Node_valued(Tensor<T>&& tensor) : INode<T>(move(tensor)) {}
 
     void eval() override {}
-    void grad() override {}
+    void getGrad() override {}
 };
 
 template <typename T>
@@ -70,11 +70,11 @@ struct Node_unary : INode<T> {
         }
     }
 
-    inline void grad() override {
+    inline void getGrad() override {
         grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, len);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
     }
 };
@@ -110,56 +110,64 @@ struct Node_unary_flex : INode<T> {
         }
     }
 
-    inline void grad() override {
+    inline void getGrad() override {
         grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, strideA, strideC, reps, count, strideLen);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
     }
 };
 
-template <typename T>
+template <typename T, class Kernel>
 struct Node_binary : INode<T> {
     INode<T>* in2 = nullptr;
 
-    binaryOp<T> op = nullptr;
-    binaryGrad<T> grad_op = nullptr;
+    using Op = class Kernel::Op;
+    Op op;
+    binaryOp<T,Op> val_func = nullptr;
+    using Grad = class Kernel::Grad;
+    Grad grad;
+    binaryGrad<T,Grad> grad_func = nullptr;
 
     size_t len = 0;
 
     template <typename... Args>
-    Node_binary(binaryOp<T> operation, binaryGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
-    : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+    Node_binary(binaryOp<T,Op> operation, binaryGrad<T,Grad> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    : in2(in2_ptr), val_func(operation), grad_func(derivative), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
         if (!this->evaluated) {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, in2->value.val, this->value.val, len);
+            val_func(this->in1->value.val, in2->value.val, this->value.val, len, op);
             this->evaluated = true;
         }
     }
 
-    inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len);
+    inline void getGrad() override {
+        grad_func(this->in1->value.val, this->in1->gradient.val, in2->value.val, in2->gradient.val, this->value.val, this->gradient.val, len, grad);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
         if (this->in2->hasInputs) {
-            this->in2->grad();
+            this->in2->getGrad();
         }
     }
 };
 
-template <typename T>
+template <typename T, class Kernel>
 struct Node_binary_flex : INode<T> {
     INode<T>* in2 = nullptr;
 
-    flexBinaryOp<T> op = nullptr;
-    flexBinaryGrad<T> grad_op = nullptr;
+    using Op = class Kernel::Op;
+    Op op;
+    flexBinaryOp<T,Op> val_func = nullptr;
+    using Grad = class Kernel::Grad;
+    Grad grad;
+    flexBinaryGrad<T,Grad> grad_func = nullptr;
 
     int* strideA = nullptr;
     int* strideB = nullptr;
@@ -169,8 +177,8 @@ struct Node_binary_flex : INode<T> {
     size_t strideLen;
 
     template <typename... Args>
-    Node_binary_flex(flexBinaryOp<T> operation, flexBinaryGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
-    : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+    Node_binary_flex(flexBinaryOp<T,Op> operation, flexBinaryGrad<T,Grad> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
+    : in2(in2_ptr), val_func(operation), grad_func(derivative), INode<T>(in1_ptr, args...) {}
 
     ~Node_binary_flex() {
         delete[] strideA;
@@ -185,19 +193,20 @@ struct Node_binary_flex : INode<T> {
             this->in1->eval();
             this->in2->eval();
 
-            op(this->in1->value.val, this->in2->value.val, this->value.val, strideA, strideB, strideC, reps, count, strideLen);
+            val_func(this->in1->value.val, this->in2->value.val, this->value.val, strideA, strideB, strideC, reps, count, strideLen, op);
             this->evaluated = true;
         }
     }
 
-    inline void grad() override {
-        grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, strideA, strideB, strideC, reps, count, strideLen);
+    inline void getGrad() override {
+        grad_func(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val,
+            strideA, strideB, strideC, reps, count, strideLen, grad);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
         if (this->in2->hasInputs) {
-            this->in2->grad();
+            this->in2->getGrad();
         }
     }
 };
@@ -230,14 +239,14 @@ struct Node_matmul : INode<T> {
         }
     }
 
-    inline void grad() override {
+    inline void getGrad() override {
         grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val, a_dim+1, b_dim+1, k+1, strideA+2, strideB+2, strideC+2);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
         if (this->in2->hasInputs) {
-            this->in2->grad();
+            this->in2->getGrad();
         }
     }
 };
@@ -284,15 +293,15 @@ struct Node_batch_matmul : INode<T> {
         }
     }
 
-    inline void grad() override {
+    inline void getGrad() override {
         grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val,
             a_offset+1, b_offset+1, k+1, strideA+1, strideB+1, strideC+1, reps+1, count+1, strideLen+1);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
         if (this->in2->hasInputs) {
-            this->in2->grad();
+            this->in2->getGrad();
         }
     }
 };
@@ -331,12 +340,12 @@ struct Node_mean_dim : INode<T> {
         }
     }
 
-    inline void grad() override {
+    inline void getGrad() override {
         //grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val, this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
         grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,  this->gradient.val, divisor, c_len[1], strideA, strideC, reps, count, strideLen);
 
         if (this->in1->hasInputs) {
-            this->in1->grad();
+            this->in1->getGrad();
         }
     }
 };

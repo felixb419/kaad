@@ -23,6 +23,7 @@ INode<T>* unOperator(CompGraph<T>& rec, INode<T>* A_ptr , const UnaryKernels<T> 
     return raw;
 }
 
+/*
 // negate A
 // where A is a tensor
 template <typename T>
@@ -224,3 +225,4 @@ INode<T>* mean(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
 
     return rec.nodes.back().get();
 }
+*/

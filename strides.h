@@ -6,7 +6,8 @@
 
 template<typename T>
 struct Strides {
-    static void flexible_binary(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T>& node) {
+    template <class Kernel>
+    static void flexible_binary(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T,Kernel>& node) {
         Tensor<T>& C = node.value;
 
         node.strideLen = C.shapeLen;
@@ -96,16 +97,9 @@ struct Strides {
         delete[] shapeBlock;
     }
 
-    static void outer(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T>& node) {
+    template <class Kernel>
+    static void outer(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T,Kernel>& node) {
         Tensor<T>& C = node.value;
-
-        node.nEntries = 2;
-        node.strideLen = new size_t[2];
-        node.reps = new int*[2];
-        node.count = new int*[2];
-        node.strideA = new int*[2];
-        node.strideB = new int*[2];
-        node.strideC = new int*[2];
 
         node.strideLen = C.shapeLen;
         node.reps = new int[node.strideLen];

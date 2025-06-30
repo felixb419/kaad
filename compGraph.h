@@ -34,8 +34,7 @@ struct CompGraph {
         INode<T>& f = *df_idx;
         fill(f.gradient.val, f.gradient.val + f.gradient.len, 1.0);
     
-        //grad(df_idx);
-        f.grad();
+        f.getGrad();
     
         INode<T>* node_arr[] = {dx_idx...};
         array<Tensor<T>*, sizeof...(dx_idx)> partials;

@@ -10,12 +10,12 @@
 
 template <typename T>
 using unaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, size_t len);
-template <typename T>
-using binaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len);
+template <typename T, class Grad>
+using binaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad);
 template <typename T>
 using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
-template <typename T>
-using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+template <typename T, class Grad>
+using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Grad grad);
 template <typename T>
 using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC);
 template <typename T>
@@ -23,7 +23,7 @@ using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C
 template <typename T>
 using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
 
-template <typename T>
+template <typename T, class Grad>
 struct Gradients {
 
     //d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
@@ -31,37 +31,28 @@ struct Gradients {
     /*
     BINARY GRADS
     */
-
-    // f(A,B) = A + B
-    // df/dA = 1
-    // df/dB = 1
-    static void scalarAddRt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
+    static void scalarRhs(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
         // B has shape = (1,)
         for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i];
-            dB[0] += dC[i];
+            grad(A[i], dA[i], B[0], dB[0], C[i], dC[i]);
         }
     }
-    static void scalarAddLt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
+    static void scalarLhs(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
         // A has shape = (1,)
         for (size_t i = 0; i < len; i++) {
-            dA[0] += dC[i];
-            dB[i] += dC[i];
+            grad(A[0], dA[0], B[i], dB[i], C[i], dC[i]);
         }
     }
-    static void pointAdd_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
+    static void pointwise(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
         for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i];
-            dB[i] += dC[i];
+            grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
         }
     }
-    static void flexAdd_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Grad grad) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
-            T dc_i = dC[indC];
-            dA[indA] += dc_i;
-            dB[indB] += dc_i;
+            grad(A[indA], dA[indA], B[indB], dB[indB], C[indC], dC[indC]);
 
             for (int dim = strideLen - 1; dim >= 0; dim--) {
                 count[dim]--;
@@ -78,151 +69,7 @@ struct Gradients {
         }
         end:;
     }
-    
-    // f(A,B) = A - B
-    // df/dA = 1
-    // df/dB = -1
-    static void scalarSubRt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        // B has shape = (1,)
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i];
-            dB[0] -= dC[i];
-        }
-    }
-    static void scalarSubLt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        // A has shape = (1,)
-        for (size_t i = 0; i < len; i++) {
-            dA[0] += dC[i];
-            dB[i] -= dC[i];
-        }
-    }
-    static void pointSub_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i];
-            dB[i] -= dC[i];
-        }
-    }
-    static void flexSub_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int indA = 0, indB = 0, indC = 0;
-        while (1) {
 
-            T dc_i = dC[indC];
-            dA[indA] += dc_i;
-            dB[indB] -= dc_i;
-
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
-                count[dim]--;
-                if (count[dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
-                    break;
-                }
-
-                count[dim] = reps[dim];
-                if (dim == 0) goto end;
-            }
-        }
-        end:;
-    }
-    
-    // f(A,B) = A * B
-    // df/dA = B
-    // df/dB = A
-    static void scalarMulRt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        // B has shape = (1,)
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i] * B[0];
-            dB[0] += dC[i] * A[i];
-        }
-    }
-    static void scalarMulLt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        // A has shape = (1,)
-        for (size_t i = 0; i < len; i++) {
-            dA[0] += dC[i] * B[i];
-            dB[i] += dC[i] * A[0];
-        }
-    }
-    static void pointMul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i] * B[i];
-            dB[i] += dC[i] * A[i];
-        }
-    }
-    static void flexMul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int indA = 0, indB = 0, indC = 0;
-        while (1) {
-
-            T dc_i = dC[indC];
-            dA[indA] += dc_i * B[indB];
-            dB[indB] += dc_i * A[indA];
-
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
-                count[dim]--;
-                if (count[dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
-                    break;
-                }
-
-                count[dim] = reps[dim];
-                if (dim == 0) goto end;
-            }
-        }
-        end:;
-    }
-    
-    // f(A,B) = A / B
-    // df/dA = 1 / B
-    // df/dB = -A / B^2
-    static void scalarDivRt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        // B has shape = (1,)
-        T B_inv = 1 / B[0];
-        T B_sqr = B[0] * B[0];
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i] * B_inv;
-            dB[0] -= dC[i] * (A[i] / B_sqr);
-        }
-    }
-    static void scalarDivLt_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        // A has shape = (1,)
-        T B_inv = 1 / B[0];
-        for (size_t i = 0; i < len; i++) {
-            dA[0] += dC[i] * (1 / B[i]);
-            dB[i] -= dC[i] * (A[0] / (B[i] * B[i]));
-        }
-    }
-    static void pointDiv_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i] * (1 / B[i]);
-            dB[i] -= dC[i] * (A[i] / (B[i] * B[i]));
-        }
-    }
-    static void flexDiv_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
-        int indA = 0, indB = 0, indC = 0;
-        while (1) {
-
-            T b_i = B[indB];
-            T dc_i = dC[indC];
-            dA[indA] += dc_i * (1 / b_i);
-            dB[indB] -= dc_i * (A[indA] / (b_i * b_i));
-
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
-                count[dim]--;
-                if (count[dim] >= 0) {
-                    indA += strideA[dim];
-                    indB += strideB[dim];
-                    indC += strideC[dim];
-                    break;
-                }
-
-                count[dim] = reps[dim];
-                if (dim == 0) goto end;
-            }
-        }
-        end:;
-    }
     
     // f(A,B) = A ^ B
     // df/dA = B * A ^ (B - 1)
@@ -297,13 +144,13 @@ struct Gradients {
     // f(A,B) = A dot B
     // df/dA = B
     // df/dB = A
-    static void dot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
+    static void dot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
         for (size_t i = 0; i < len; i++) {
             dA[i] += dC[0] * B[i];
             dB[i] += dC[0] * A[i];
         }
     }
-    static void scalarDot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
+    static void scalarDot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
         for (size_t i = 0; i < len; i++) {
             dA[i] += dC[0] * B[0];
             dB[0] += dC[0] * A[i];
@@ -315,15 +162,15 @@ struct Gradients {
     // dC/dB = A^T
     static void matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC) {
         // dA = dC * B^T
-        Operations<T>::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC, strideB, strideA);
+        Operations<T,nullptr_t>::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC, strideB, strideA);
         // dB = A^T * dC
-        Operations<T>::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA+2, strideC+2, strideB+2);
+        Operations<T,nullptr_t>::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA+2, strideC+2, strideB+2);
     }
     static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
         // dA = dC * B^T
-        Operations<T>::batch_matmul(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
+        Operations<T,nullptr_t>::batch_matmul(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
         // dB = A^T * dC
-        Operations<T>::batch_matmul(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
+        Operations<T,nullptr_t>::batch_matmul(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
     }
 
     // f(A) = min(A,B)
@@ -504,7 +351,7 @@ struct Gradients {
         }
     }
     static void sum_dim_grad(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
-        Operations<T>::sum_dim(dC, dA, strideC, strideA, reps, count, strideLen);
+        Operations<T,nullptr_t>::sum_dim(dC, dA, strideC, strideA, reps, count, strideLen);
     }
 
     // f(A) = mean(A)
@@ -516,6 +363,6 @@ struct Gradients {
         }
     }
     static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
-        Operations<T>::mean_dim(dC, dA, divisor, c_len, strideC, strideA, reps, count, strideLen);
+        Operations<T,nullptr_t>::mean_dim(dC, dA, divisor, c_len, strideC, strideA, reps, count, strideLen);
     }
 };
