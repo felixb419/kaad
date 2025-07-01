@@ -13,15 +13,15 @@ using unaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, size_t len
 template <typename T, class Grad>
 using binaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad);
 template <typename T, class Grad>
-using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t strideLen, Grad grad);
+using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t D, Grad grad);
 template <typename T, class Grad>
-using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Grad grad);
+using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Grad grad);
 template <typename T>
 using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC);
 template <typename T>
-using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen);
+using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* D);
 template <typename T>
-using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
+using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D);
 
 template <typename T, class Grad>
 struct Gradients {
@@ -48,13 +48,13 @@ struct Gradients {
             grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
         }
     }
-    static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Grad grad) {
+    static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Grad grad) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
             grad(A[indA], dA[indA], B[indB], dB[indB], C[indC], dC[indC]);
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = D - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[dim] >= 0) {
                     indA += strideA[dim];
@@ -95,11 +95,11 @@ struct Gradients {
         // dB = A^T * dC
         Operations<T,nullptr_t>::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA+2, strideC+2, strideB+2);
     }
-    static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* strideLen) {
+    static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* D) {
         // dA = dC * B^T
-        Operations<T,nullptr_t>::batch_matmul(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], strideLen[0]);
+        Operations<T,nullptr_t>::batch_matmul(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], D[0]);
         // dB = A^T * dC
-        Operations<T,nullptr_t>::batch_matmul(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], strideLen[1]);
+        Operations<T,nullptr_t>::batch_matmul(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], D[1]);
     }
 
     /*
@@ -112,13 +112,13 @@ struct Gradients {
         }
     }
 
-    static void unary_flexible(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t strideLen, Grad grad) {
+    static void unary_flexible(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t D, Grad grad) {
         int indA = 0, indC = 0;
         while (1) {
 
             grad(A[indA], dA[indA], C[indC], dC[indC]);
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = D - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[dim] >= 0) {
                     indA += strideA[dim];
@@ -158,7 +158,7 @@ struct Gradients {
         }
     }
 
-    static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
-        Operations<T,nullptr_t>::mean_dim(dC, dA, divisor, c_len, strideC, strideA, reps, count, strideLen);
+    static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D) {
+        Operations<T,nullptr_t>::mean_dim(dC, dA, divisor, c_len, strideC, strideA, reps, count, D);
     }
 };

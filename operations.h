@@ -16,15 +16,15 @@ using unaryOp = void(*)(const T* A, T* C, size_t len, Op op);
 template <typename T, class Op>
 using binaryOp = void(*)(const T* A, const T* B, T* C, size_t len, Op op);
 template <typename T, class Op>
-using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen, Op op);
+using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t D, Op op);
 template <typename T, class Op>
-using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Op op);
+using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Op op);
 template <typename T>
 using matmulOp = void(*)(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC);
 template <typename T>
-using batchmatmulOp = void(*)(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen);
+using batchmatmulOp = void(*)(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D);
 template <typename T>
-using meanDimOp = void(*)(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen);
+using meanDimOp = void(*)(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D);
 
 template <typename T, class Op>
 struct Operations {
@@ -58,13 +58,13 @@ struct Operations {
     }
     // perform op flexible so that: C = op( A, B )
     // shape of C must be a valid broadcast of A and B
-    static void flexible(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen, Op op) {
+    static void flexible(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Op op) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
             op(A[indA], B[indB], C[indC]);
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = D - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[dim] >= 0) {
                     indA += strideA[dim];
@@ -126,7 +126,7 @@ struct Operations {
     // matrix multiply A and B so that C = AB
     // last two dimensions of A and B must me matrix multipliable
     // all dimensions higher than 2 are regarded as batch dimensions
-    static void batch_matmul(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void batch_matmul(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D) {
         int indA = 0, indB = 0, indC = 0;
         while (1) {
 
@@ -134,7 +134,7 @@ struct Operations {
                 C[indC] += A[indA + i*a_off] * B[indB + i*b_off];
             }
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = D - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[dim] >= 0) {
                     indA += strideA[dim];
@@ -161,13 +161,13 @@ struct Operations {
         }
     }
 
-    static void unary_flexible(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t strideLen, Op op) {
+    static void unary_flexible(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t D, Op op) {
         int indA = 0, indC = 0;
         while (1) {
 
             op(A[indA], C[indC]);
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = D - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[dim] >= 0) {
                     indA += strideA[dim];
@@ -199,13 +199,13 @@ struct Operations {
     // computes mean of tensor along dimension
     // out must be same shape as A with one dimension missing
     // dimensions index over which is summed is saved in B.shape
-    static void mean_dim(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t strideLen) {
+    static void mean_dim(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D) {
         int indA = 0, indC = 0;
         while (1) {
 
             C[indC] += A[indA];
 
-            for (int dim = strideLen - 1; dim >= 0; dim--) {
+            for (int dim = D - 1; dim >= 0; dim--) {
                 count[dim]--;
                 if (count[dim] >= 0) {
                     indA += strideA[dim];
