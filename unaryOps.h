@@ -15,10 +15,10 @@ template <typename T, class Kernel>
 INode<T>* unOperator(CompGraph<T>& rec, INode<T>* A_ptr , const UnaryKernels<T,Kernel> kernels) {
     Tensor<T>& A = A_ptr->value;
 
-    int* newShape = new int[A.shapeLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
+    int* newShape = new int[A.nDims];
+    copy(A.shape, A.shape + A.nDims, newShape);
 
-    auto newNode = make_unique<Node_unary<T,Kernel>>(kernels.op, kernels.grad, A_ptr, newShape, A.shapeLen);
+    auto newNode = make_unique<Node_unary<T,Kernel>>(kernels.op, kernels.grad, A_ptr, newShape, A.nDims);
     auto raw = newNode.get();
     rec.nodes.push_back(move(newNode));
     raw->len = A.len;
@@ -82,36 +82,36 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
     int recLen = rec.nodes.size();
     Tensor<T>& A = A_ptr->value;
 
-    if (A.shapeLen < 2) {
+    if (A.nDims < 2) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (transpose), A shapeLen hast to be > 1, shape1 ";
-        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+        errmsg << "shape error in node[" << recLen << "] (transpose), A nDims hast to be > 1, shape1 ";
+        print_arr(A.shape, A.shape + A.nDims, errmsg);
         throw invalid_argument(errmsg.str());
     }
 
     int *shape_T, *stride_T;
     if (perm.size() == 0) {
-        shape_T = new int[A.shapeLen];
-        stride_T = new int[A.shapeLen];
-        copy(A.shape, A.shape + A.shapeLen, shape_T);
-        copy(A.stride, A.stride + A.shapeLen, stride_T);
+        shape_T = new int[A.nDims];
+        stride_T = new int[A.nDims];
+        copy(A.shape, A.shape + A.nDims, shape_T);
+        copy(A.stride, A.stride + A.nDims, stride_T);
         
-        transp(A.shape, A.stride, A.shapeLen, shape_T, stride_T);
+        transp(A.shape, A.stride, A.nDims, shape_T, stride_T);
     }
     else {
-        if (perm.size() != A.shapeLen) {
+        if (perm.size() != A.nDims) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (transpose), length of perm has to be same as shapeLength of A, perm ";
+            errmsg << "shape error in node[" << recLen << "] (transpose), length of perm has to be same as nDimsgth of A, perm ";
             print_arr(perm.begin(), perm.end(), errmsg);
             errmsg << ", shape1";
-            print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+            print_arr(A.shape, A.shape + A.nDims, errmsg);
             throw invalid_argument(errmsg.str());
         }
 
-        shape_T = new int[A.shapeLen];
-        stride_T = new int[A.shapeLen];
-        int* count = new int[A.shapeLen];
-        fill(count, count + A.shapeLen, 0);
+        shape_T = new int[A.nDims];
+        stride_T = new int[A.nDims];
+        int* count = new int[A.nDims];
+        fill(count, count + A.nDims, 0);
 
         int* sh = shape_T;
         int* st = stride_T;
@@ -122,7 +122,7 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
             *(sh++) = A.shape[idx];
             *(st++) = A.stride[idx];
         } 
-        for (int* p = count; p != count + A.shapeLen; p++) {
+        for (int* p = count; p != count + A.nDims; p++) {
             if (*p != 1) {
                 ostringstream errmsg;
                 errmsg << "argument error in node[" << recLen << "] (transpose), invalid permutation, perm has to contain index of every dimension exactly once, perm ";
@@ -138,7 +138,7 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
     unaryOp<T,Op> op = Operations<T,Op>::transpose;
     unaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_pointwise;
 
-    auto newNode = make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, shape_T, stride_T, A.shapeLen);
+    auto newNode = make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, shape_T, stride_T, A.nDims);
     newNode->len = A.len;
     rec.nodes.push_back(move(newNode));
 
@@ -162,17 +162,17 @@ INode<T>* sum(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
         rec.nodes.push_back(move(newNode));
     }
     else {
-        if (dim < 0 || dim >= A.shapeLen) {
+        if (dim < 0 || dim >= A.nDims) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (sum), dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
+            errmsg << "shape error in node[" << recLen << "] (sum), dim has to be a valid shape index, dim=" << dim << ", nDims=" << A.nDims << endl;
             throw invalid_argument(errmsg.str());
         }
 
-        size_t newLen = A.shapeLen - 1;
+        size_t newLen = A.nDims - 1;
         int* newShape = new int[newLen];
 
         copy(A.shape, A.shape + dim, newShape);
-        copy(A.shape + dim + 1, A.shape + A.shapeLen, newShape + dim);
+        copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
         using Kernel = class Kernels<T>::Sum;
         using Op = class Kernel::Op;
@@ -205,17 +205,17 @@ INode<T>* mean(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
         rec.nodes.push_back(move(newNode));
     }
     else {
-        if (dim < 0 || dim >= A.shapeLen) {
+        if (dim < 0 || dim >= A.nDims) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (mean), dim has to be a valid shape index, dim=" << dim << ", shapeLen=" << A.shapeLen << endl;
+            errmsg << "shape error in node[" << recLen << "] (mean), dim has to be a valid shape index, dim=" << dim << ", nDims=" << A.nDims << endl;
             throw invalid_argument(errmsg.str());
         }
 
-        size_t newLen = A.shapeLen - 1;
+        size_t newLen = A.nDims - 1;
         int* newShape = new int[newLen];
 
         copy(A.shape, A.shape + dim, newShape);
-        copy(A.shape + dim + 1, A.shape + A.shapeLen, newShape + dim);
+        copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
         using Op = typename NullOp::Op;
         using Grad = typename NullOp::Grad;

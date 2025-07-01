@@ -24,8 +24,7 @@ int main() {
     INode<double>* x = rec.append(move(X));
     INode<double>* y = rec.append(move(Y));
 
-    //INode<double>* c = max(rec, y, max(rec, max(rec, a, max(rec, b, x)), n));
-    auto c = mean(rec, a, 0);
+    INode<double>* c = add(rec, y, add(rec, add(rec, a, add(rec, b, x)), n));
 
     cout << "A:\n" << a->value << endl;
     //cout << "B:\n" << b->value << endl;

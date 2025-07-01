@@ -24,34 +24,34 @@ INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const
     int recLen = rec.nodes.size();
     Tensor<T>& A = A_ptr->value;
     Tensor<T>& B = B_ptr->value;
-    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
+    bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
+    bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
 
-    size_t newLen = max(A.shapeLen, B.shapeLen);
+    size_t newLen = max(A.nDims, B.nDims);
     int* newShape = new int[newLen];
 
     if (B_scalar) {
-        copy(A.shape, A.shape + A.shapeLen, newShape);
+        copy(A.shape, A.shape + A.nDims, newShape);
 
-        auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, newShape, A.shapeLen);
+        auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, newShape, A.nDims);
         newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
     else if (A_scalar) {
-        copy(B.shape, B.shape + B.shapeLen, newShape);
+        copy(B.shape, B.shape + B.nDims, newShape);
 
-        auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, newShape, B.shapeLen);
+        auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, newShape, B.nDims);
         newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
-        copy(A.shape, A.shape + A.shapeLen, newShape);
+    else if (A.nDims == B.nDims && equal(A.shape, A.shape + A.nDims, B.shape)) {
+        copy(A.shape, A.shape + A.nDims, newShape);
 
-        auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape, A.shapeLen);
+        auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape, A.nDims);
         newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     }
-    else if (combine_flexible(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
+    else if (combine_flexible(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
         auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(kernels.flexOp, kernels.flexGrad, A_ptr, B_ptr, newShape, newLen);
         Strides<T>::flexible_binary(A, B, *newNode.get());
         rec.nodes.push_back(move(newNode));
@@ -59,9 +59,9 @@ INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const
     else {
         ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes are not broadcastable: shape1 ";
-        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+        print_arr(A.shape, A.shape + A.nDims, errmsg);
         errmsg << ", shape2 ";
-        print_arr(B.shape, B.shape + B.shapeLen, errmsg);
+        print_arr(B.shape, B.shape + B.nDims, errmsg);
         throw invalid_argument(errmsg.str());
     }
     return rec.nodes[recLen].get();
@@ -122,8 +122,8 @@ INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     Tensor<T>& A = A_ptr->value;
     Tensor<T>& B = B_ptr->value;
 
-    bool A_scalar = A.shapeLen == 1 && A.shape[0] == 1;
-    bool B_scalar = B.shapeLen == 1 && B.shape[0] == 1;
+    bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
+    bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
     if (B_scalar) {
         auto newNode = make_unique<Node_binary<T,NullOp>>(scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
 
@@ -135,7 +135,7 @@ INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         newNode->len = B.len;
         rec.nodes.push_back(move(newNode));
     }
-    else if (A.shapeLen == B.shapeLen && equal(A.shape, A.shape + A.shapeLen, B.shape)) {
+    else if (A.nDims == B.nDims && equal(A.shape, A.shape + A.nDims, B.shape)) {
         auto newNode = make_unique<Node_binary<T,NullOp>>(dot, dot_grad, A_ptr, B_ptr, ((T)0));
         newNode->len = A.len;
         rec.nodes.push_back(move(newNode));
@@ -144,9 +144,9 @@ INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     else {
         ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (dot), tensor shapes arent valid for dot product: shape1 ";
-        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+        print_arr(A.shape, A.shape + A.nDims, errmsg);
         errmsg << ", shape2 ";
-        print_arr(B.shape, B.shape + B.shapeLen, errmsg);
+        print_arr(B.shape, B.shape + B.nDims, errmsg);
         throw invalid_argument(errmsg.str());
     }
 
@@ -161,16 +161,16 @@ INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     Tensor<T>& A = A_ptr->value;
     Tensor<T>& B = B_ptr->value;
 
-    size_t newLen = max(A.shapeLen, B.shapeLen);
+    size_t newLen = max(A.nDims, B.nDims);
     int* newShape = new int[newLen];
 
     const char* opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!combine_matrix(A.shape, A.shapeLen, B.shape, B.shapeLen, newShape, newLen)) {
+    if (!combine_matrix(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
         ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes arent valid for " << opName << ": shape1 ";
-        print_arr(A.shape, A.shape + A.shapeLen, errmsg);
+        print_arr(A.shape, A.shape + A.nDims, errmsg);
         errmsg << ", shape2 ";
-        print_arr(B.shape, B.shape + B.shapeLen, errmsg);
+        print_arr(B.shape, B.shape + B.nDims, errmsg);
         throw invalid_argument(errmsg.str());
     }
 
@@ -196,10 +196,10 @@ INode<T>* outer(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     Tensor<T>& A = A_ptr->value;
     Tensor<T>& B = B_ptr->value;
 
-    size_t newLen = A.shapeLen + B.shapeLen;
+    size_t newLen = A.nDims + B.nDims;
     int* newShape = new int[newLen];
-    copy(A.shape, A.shape + A.shapeLen, newShape);
-    copy(B.shape, B.shape + B.shapeLen, newShape + A.shapeLen);
+    copy(A.shape, A.shape + A.nDims, newShape);
+    copy(B.shape, B.shape + B.nDims, newShape + A.nDims);
 
     using Kernel = typename Kernels<T>::Mul;
     using Op = typename Kernel::Op;
