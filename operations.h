@@ -35,21 +35,24 @@ struct Operations {
     // perform op so that: C[m,n,...] = op( A[m,n,...], B[0] )
     // shapes of C and A must be the same, shape of B must be (1)
     static void scalarRhs(const T* A, const T* B, T* C, size_t len, Op op) {
-        for (T *pA = A, *pC = C; pC != C + len; pA++, pC++) {
+        const T* pA = A;
+        for (T* pC = C; pC != C + len; pA++, pC++) {
             op(*pA, *B, *pC);
         }
     }
     // perform op so that: C[m,n,...] = op( A[0], B[m,n,...])
     // shapes of out and tensor must be the same, shape of scalar must be (1)
     static void scalarLhs(const T* A, const T* B, T* C, size_t len, Op op) {
-        for (T *pB = B, *pC = C; pC != C + len; pB++, pC++) {
+        const T* pB = B;
+        for (T* pC = C; pC != C + len; pB++, pC++) {
             op(*A, *pB, *pC);
         }
     }
     // perform op so that so that: C[m,n,...] = op( A[m,n,...], B[m,n...] )
     // shape of all operands must be indentical
     static void pointwise(const T* A, const T* B, T* C, size_t len, Op op) {
-        for (T *pA = A, *pB = B, *pC = C; pC != C + len; pA++, pB++, pC++) {
+        const T *pA = A, *pB = B;
+        for (T* pC = C; pC != C + len; pA++, pB++, pC++) {
             op(*pA, *pB, *pC);
         }
     }
@@ -80,14 +83,14 @@ struct Operations {
     // compute do product of A and B into C
     // A must be 1d vector, B and C must be scalar
     static void scalarDot(const T* A, const T* B, T* C, size_t len, Op _) {
-        for (T* pA = A; pA != A + len; pA++) {
+        for (const T* pA = A; pA != A + len; pA++) {
             *C += *pA * (*B);
         }
     }
     // compute do product of A and B into C
     // A and B must be 1d vectors of same length, C must be scalar
     static void dot(const T* A, const T* B, T* C, size_t len, Op _) {
-        for (T *pA = A, *pB = B; pA != A + len; pA++, pB++) {
+        for (const T *pA = A, *pB = B; pA != A + len; pA++, pB++) {
             *C += *pA * *pB;
         }
     }
@@ -152,7 +155,8 @@ struct Operations {
     */
 
     static void unary_pointwise(const T* A, T* C, size_t len, Op op) {
-        for (T *pA = A, *pC = C; pA != A + len; pA++, pC++) {
+        const T* pA = A;
+        for (T* pC = C; pC != C + len; pA++, pC++) {
             op(*pA, *pC);
         }
     }
@@ -186,7 +190,7 @@ struct Operations {
     // saves mean of A into out
     // B has to be a scalar
     static void mean(const T* A, T* C, size_t len, Op _) {
-        for (T* pA = A; pA != A + len; pA++) {
+        for (const T* pA = A; pA != A + len; pA++) {
             *C += *pA;
         }
         *C /= len;
