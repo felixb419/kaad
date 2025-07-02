@@ -26,26 +26,27 @@ using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T diviso
 template <typename T, class Grad>
 struct Gradients {
 
-    //d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
+    // d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
 
     /*
     BINARY GRADS
     */
     static void scalarRhs(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
-        // B has shape = (1,)
-        for (size_t i = 0; i < len; i++) {
-            grad(A[i], dA[i], B[0], dB[0], C[i], dC[i]);
+        T* end = C + len;
+        for (; C != end; A++, dA++, C++, dC++) {
+            grad(*A, *dA, *B, *dB, *C, *dC);
         }
     }
     static void scalarLhs(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
-        // A has shape = (1,)
-        for (size_t i = 0; i < len; i++) {
-            grad(A[0], dA[0], B[i], dB[i], C[i], dC[i]);
+        T* end = C + len;
+        for (; C != end; B++, dB++, C++, dC++) {
+            grad(*A, *dA, *B, *dB, *C, *dC);
         }
     }
     static void pointwise(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
-        for (size_t i = 0; i < len; i++) {
-            grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
+        T* end = C + len;
+        for (; C != end; A++, dA++, B++, dB++, C++, dC++) {
+            grad(*A, *dA, *B, *dB, *C, *dC);
         }
     }
     static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Grad grad) {
@@ -74,15 +75,17 @@ struct Gradients {
     // df/dA = B
     // df/dB = A
     static void dot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[0] * B[i];
-            dB[i] += dC[0] * A[i];
+        T* end = A + len;
+        for (; A != end; A++, dA++, B++, dB++) {
+            *dA += *dC * (*B);
+            *dB += *dC * (*A);
         }
     }
     static void scalarDot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[0] * B[0];
-            dB[0] += dC[0] * A[i];
+        T* end = A + len;
+        for (; A != end; A++, dA++) {
+            *dA += *dC * (*B);
+            *dB += *dC * (*A);
         }
     }
 
@@ -107,8 +110,9 @@ struct Gradients {
     */
 
     static void unary_pointwise(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad grad) {
-        for (size_t i = 0; i < len; i++) {
-            grad(A[i], dA[i], C[i], dC[i]);
+        T* end = C + len;
+        for (; C != end; A++, dA++, C++, dC++) {
+            grad(*A, *dA, *C, *dC);
         }
     }
 
@@ -136,16 +140,18 @@ struct Gradients {
     // f(A) = A^T
     // df/dA = 1
     static void transp_grad(const T* A, T* dA, const T* C, const T* dC, size_t len) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[i];
+        T* end = C + len;
+        for (; C != end; dA++, dC++) {
+            *dA += *dC;
         }
     }
 
     // f(A) = sum(A)
     // df_dA = tensor with shape of A filled with 1
     static void sum_grad(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += dC[0];
+        T* end = C + len;
+        for (; C != end; dA++) {
+            *dA += *dC;
         }
     }
 
@@ -153,8 +159,9 @@ struct Gradients {
     // df_dA = tensor with shape of A filled with 1 / (len of A)
     static void mean_grad(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
         T mean = dC[0] / len;
-        for (size_t i = 0; i < len; i++) {
-            dA[i] += mean;
+        T* end = C + len;
+        for (; C != end; dA++) {
+            *dA += mean;
         }
     }
 
