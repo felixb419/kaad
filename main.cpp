@@ -2,13 +2,13 @@
 
 int main() {
     system("clear");
-    int* s1 = new int[3] {2,1,3};
+    int* s1 = new int[3] {3,4};
     double* v1 = new double[32] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
-    Tensor<double> A(s1, 3, v1, 6);
+    Tensor<double> A(s1, 2, v1, 12);
 
-    int* s2 = new int[2] {4,1};
+    int* s2 = new int[2] {4,2};
     double* v2 = new double[32] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
-    Tensor<double> B(s2, 2, v2, 4);
+    Tensor<double> B(s2, 2, v2, 8);
 
     int* s3 = new int[3] {2,4,3};
     double* v3 = new double[32] {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32};
@@ -24,9 +24,10 @@ int main() {
     INode<double>* x = rec.append(move(X));
     INode<double>* y = rec.append(move(Y));
 
-    INode<double>* c = add(rec, y, add(rec, add(rec, a, add(rec, b, x)), n));
+    //INode<double>* c = add(rec, y, add(rec, add(rec, a, add(rec, b, x)), n));
+    auto c = matmul(rec, a, b);
 
-    cout << "A:\n" << a->value << endl;
+    //cout << "A:\n" << a->value << endl;
     //cout << "B:\n" << b->value << endl;
     //cout << "N:\n" << n->value << endl;
 
@@ -37,7 +38,7 @@ int main() {
     auto g = rec.getGradient(c, a, b, n, x, y);
 
     cout << "dA\n" << *g[0] << endl;
-    //cout << "dB\n" << *g[1] << endl;
+    cout << "dB\n" << *g[1] << endl;
     //cout << "dN\n" << *g[2] << endl;
     //cout << "dX\n" << *g[3] << endl;
     //cout << "dY\n" << *g[4] << endl;

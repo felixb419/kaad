@@ -100,28 +100,18 @@ struct Operations {
     // matrix multiply A and B so that C = AB
     // A and B must be 2d and width of A is equalt to height of B
     static void matmul(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC) {
-        const T* pa = A;
-        const T* pb = B;
-        T* pc = C;
-        const T* _pa;
-        const T* _pb;
-        const T* __pb;
-        for (int a_idx = 0; a_idx < a_dim; a_idx++) {
-            _pb = pb;
-            for (int b_idx = 0; b_idx < b_dim; b_idx++) {
-                _pa = pa;
-                __pb = _pb;
-                for (int i = 0; i < k; i++) {
-                    *pc += (*_pa) * (*__pb);
-
-                   _pa += strideA[1];
-                   __pb += strideB[0];
+        const T* _A;
+        const T* _B;
+        const T* __B;
+        for (int a_idx = 0; a_idx < a_dim; a_idx++, A += strideA[0], C += strideC[0]) {
+            _B = B;
+            for (int b_idx = 0; b_idx < b_dim; b_idx++, _B += strideB[1], C += strideC[1]) {
+                _A = A;
+                __B = _B;
+                for (int i = 0; i < k; i++, _A += strideA[1], __B += strideB[0]) {
+                    *C += (*_A) * (*__B);
                 }
-                _pb += strideB[1];
-                pc += strideC[1];
             }
-            pa += strideA[0];
-            pc += strideC[0];
         }
     }
         
