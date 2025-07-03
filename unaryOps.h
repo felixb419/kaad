@@ -84,8 +84,9 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
 
     if (A.nDims < 2) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (transpose), A nDims hast to be > 1, shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (transpose), A.nDims hast to be > 1 (shape1=";
         print_arr(A.shape, A.shape + A.nDims, errmsg);
+        errmsg << ")";
         throw invalid_argument(errmsg.str());
     }
 
@@ -101,10 +102,11 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
     else {
         if (perm.size() != A.nDims) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (transpose), length of perm has to be same as nDimsgth of A, perm ";
+            errmsg << "argument error in node[" << recLen << "] (transpose), perm.size() has to be same as A.nDims (perm=";
             print_arr(perm.begin(), perm.end(), errmsg);
-            errmsg << ", shape1";
+            errmsg << ", shape1=";
             print_arr(A.shape, A.shape + A.nDims, errmsg);
+            errmsg << ")";
             throw invalid_argument(errmsg.str());
         }
 
@@ -125,8 +127,9 @@ INode<T>* transpose(CompGraph<T>& rec, INode<T>* A_ptr, initializer_list<int> pe
         for (int* p = count; p != count + A.nDims; p++) {
             if (*p != 1) {
                 ostringstream errmsg;
-                errmsg << "argument error in node[" << recLen << "] (transpose), invalid permutation, perm has to contain index of every dimension exactly once, perm ";
+                errmsg << "argument error in node[" << recLen << "] (transpose), invalid permutation, perm has to contain index of every dimension exactly once (perm=";
                 print_arr(perm.begin(), perm.end(), errmsg);
+                errmsg << ")";
                 throw invalid_argument(errmsg.str());
             }
         }
@@ -164,7 +167,7 @@ INode<T>* sum(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
     else {
         if (dim < 0 || dim >= A.nDims) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (sum), dim has to be a valid shape index, dim=" << dim << ", nDims=" << A.nDims << endl;
+            errmsg << "argument error in node[" << recLen << "] (sum), dim has to be a valid index of A.shape (dim=" << dim << ", A.nDims=" << A.nDims << ")" << endl;
             throw invalid_argument(errmsg.str());
         }
 
@@ -207,7 +210,7 @@ INode<T>* mean(CompGraph<T>& rec, INode<T>* A_ptr, int dim=-1) {
     else {
         if (dim < 0 || dim >= A.nDims) {
             ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (mean), dim has to be a valid shape index, dim=" << dim << ", nDims=" << A.nDims << endl;
+            errmsg << "argument error in node[" << recLen << "] (mean), dim has to be a valid index of A.shape (dim=" << dim << ", A.nDims=" << A.nDims << ")" << endl;
             throw invalid_argument(errmsg.str());
         }
 

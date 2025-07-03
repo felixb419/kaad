@@ -58,10 +58,11 @@ INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const
     }
     else {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes are not broadcastable: shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes are not broadcastable (A.shape=";
         print_arr(A.shape, A.shape + A.nDims, errmsg);
-        errmsg << ", shape2 ";
+        errmsg << ", B.shape=";
         print_arr(B.shape, B.shape + B.nDims, errmsg);
+        errmsg << ")";
         throw invalid_argument(errmsg.str());
     }
     return rec.nodes[recLen].get();
@@ -143,10 +144,11 @@ INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     }
     else {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (dot), tensor shapes arent valid for dot product: shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (dot), tensor shapes arent valid for dot product (shape1=";
         print_arr(A.shape, A.shape + A.nDims, errmsg);
-        errmsg << ", shape2 ";
+        errmsg << ", shape2=";
         print_arr(B.shape, B.shape + B.nDims, errmsg);
+        errmsg << ")";
         throw invalid_argument(errmsg.str());
     }
 
@@ -167,10 +169,11 @@ INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
     const char* opName = newLen == 2 ? "matmul" : "batch_matmul";
     if (!combine_matrix(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
         ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes arent valid for " << opName << ": shape1 ";
+        errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes arent valid for " << opName << " (shape1=";
         print_arr(A.shape, A.shape + A.nDims, errmsg);
-        errmsg << ", shape2 ";
+        errmsg << ", shape2=";
         print_arr(B.shape, B.shape + B.nDims, errmsg);
+        errmsg << ")";
         throw invalid_argument(errmsg.str());
     }
 
