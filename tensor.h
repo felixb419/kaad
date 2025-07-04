@@ -243,13 +243,13 @@ class Tensor {
         }
 
         const T& operator()(initializer_list<int> cords) {
-            int* begin = cords.begin();
-            int* end = cords.end();
+            const int* begin = cords.begin();
+            const int* end = cords.end();
             if (end - begin != nDims) {
                 throw invalid_argument("incorrect number of coordinate dimension");
             }
             int index = 0;
-            for (int* c_p = begin, *sh_p = shape, *st_p = stride; c_p != end; c_p++) {
+            for (const int* c_p = begin, *sh_p = shape, *st_p = stride; c_p != end; c_p++) {
                 if (*c_p >= *sh_p || *c_p < 0) {
                     throw invalid_argument("out of bound coordinate");
                 }
