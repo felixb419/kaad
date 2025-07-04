@@ -1,4 +1,11 @@
-#include "kaad.h"
+#include <stdlib.h>     // for system
+#include <array>        // for array
+#include <iostream>     // for operator<<, endl, ostream, basic_ostream, cout
+#include <utility>      // for move
+#include "binaryOps.h"  // for matmul
+#include "compGraph.h"  // for CompGraph
+#include "nodes.h"      // for INode
+#include "tensor.h"     // for operator<<, Tensor
 
 int main() {
     system("clear");

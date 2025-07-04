@@ -1,7 +1,20 @@
-#include "gradients.h"
-#include "compGraph.h"
-#include "strides.h"
-#include "kernels.h"
+#include <stddef.h>          // for size_t
+#include <initializer_list>  // for initializer_list
+#include <memory>            // for make_unique
+#include <ostream>           // for operator<<, basic_ostream::operator<<
+#include <stdexcept>         // for invalid_argument
+#include "gradients.h"       // for Gradients, unaryGrad, flexUnaryGrad, mea...
+#include "kernels.h"         // for Kernels, NullOp
+#include "operations.h"      // for Operations, unaryOp, flexUnaryOp, meanDimOp
+#include "strides.h"         // for Strides
+#include "tensor.h"          // for print_arr, Tensor (ptr only), transp
+template <typename T, class Kernel> struct Node_unary;
+template <typename T, class Kernel> struct Node_unary_flex;
+template <typename T> struct CompGraph;
+template <typename T> struct INode;
+template <typename T> struct Node_mean_dim;
+
+#pragma once
 
 template <typename T, class Kernel>
 struct UnaryKernels {

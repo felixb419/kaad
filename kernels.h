@@ -1,3 +1,5 @@
+#include <cstddef> // for nullptr_t
+
 #pragma once
 
 template <typename T>
@@ -210,4 +212,4 @@ struct Kernels {
     };
 };
 
-using NullOp = class Kernels<nullptr_t>::Null;
+using NullOp = class Kernels<std::nullptr_t>::Null;

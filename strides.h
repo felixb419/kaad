@@ -1,8 +1,13 @@
-#pragma once
+#include <stddef.h>   // for size_t
+#include <algorithm>  // for copy
+#include "tensor.h"   // for Tensor (ptr only), tView, transp2D, combine_matrix
+template <typename T, class Kernel> struct Node_binary_flex;
+template <typename T, class Kernel> struct Node_unary_flex;
+template <typename T> struct Node_batch_matmul;
+template <typename T> struct Node_matmul;
+template <typename T> struct Node_mean_dim;
 
-#include "tensor.h"
-#include "compGraph.h"
-#include "operations.h"
+#pragma once
 
 template<typename T>
 struct Strides {

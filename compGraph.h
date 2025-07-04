@@ -1,6 +1,12 @@
-#pragma once
+#include <stddef.h>   // for size_t
+#include <algorithm>  // for fill
+#include <memory>     // for unique_ptr, make_unique
+#include <vector>     // for vector
+#include "tensor.h"   // for Tensor
+template <typename T> struct INode;
+template <typename T> struct Node_valued;
 
-#include "nodes.h"
+#pragma once
 
 template <typename T>
 struct CompGraph {

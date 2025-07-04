@@ -1,12 +1,7 @@
+#include <cstddef>       // for size_t, nullptr_t
+#include "operations.h"  // for Operations
+
 #pragma once
-
-#include "tensor.h"
-#include "operations.h"
-
-#include <unordered_map>
-#include <vector>
-
-#define safer_powergradient
 
 template <typename T, class Grad>
 using unaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad grad);

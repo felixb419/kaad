@@ -1,7 +1,21 @@
-#include "gradients.h"
-#include "compGraph.h"
-#include "strides.h"
-#include "kernels.h"
+#include <stddef.h>      // for size_t
+#include <algorithm>     // for equal, max
+#include <memory>        // for make_unique
+#include <ostream>       // for operator<<, basic_ostream, char_traits, ostr...
+#include <stdexcept>     // for invalid_argument
+#include "gradients.h"   // for Gradients, binaryGrad, flexBinaryGrad
+#include "kernels.h"     // for Kernels, NullOp
+#include "operations.h"  // for Operations, binaryOp, flexBinaryOp
+#include "strides.h"     // for Strides
+#include "tensor.h"      // for Tensor (ptr only), print_arr, combine_flexible
+template <typename T, class Kernel> struct Node_binary;
+template <typename T, class Kernel> struct Node_binary_flex;
+template <typename T> struct CompGraph;
+template <typename T> struct INode;
+template <typename T> struct Node_batch_matmul;
+template <typename T> struct Node_matmul;
+
+#pragma once
 
 template <typename T, class Kernel>
 struct BinaryKernels {

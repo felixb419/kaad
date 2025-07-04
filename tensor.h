@@ -1,8 +1,10 @@
+#include <stddef.h>          // for size_t
+#include <algorithm>         // for fill, copy, max
+#include <initializer_list>  // for initializer_list
+#include <iostream>          // for operator<<, ostream, cout, endl, basic_o...
+#include <stdexcept>         // for invalid_argument
+                             //
 #pragma once
-
-#include <stdexcept>
-#include <random>
-#include <iostream>
 
 using namespace std;
 

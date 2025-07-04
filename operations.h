@@ -1,12 +1,7 @@
+#include <stddef.h>  // for size_t
+#include <sstream>   // for std
+
 #pragma once
-
-#include "tensor.h"
-#include "kernels.h"
-
-#include <cmath>
-#include <sstream>
-#include <stdexcept>
-#include <vector>
 
 using namespace std;
 
