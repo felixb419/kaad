@@ -2,10 +2,16 @@
 
 #include <cstddef> // for nullptr_t
 #include <math.h>
+#include <limits>
 
 namespace kaad {
     template <typename T>
     struct Kernels {
+
+        inline static T epsilon = static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
+        inline static T max_exp = std::log(std::numeric_limits<T>::max());
+        inline static T min_exp = std::log(std::numeric_limits<T>::min());
+
         struct Null {
             struct Op {};
             struct Grad {};
@@ -140,12 +146,20 @@ namespace kaad {
         struct Sqrt {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
+#ifdef NO_STABLE_SQRT
                     C = std::sqrt(A);
+#else
+                    C = std::sqrt(std::max(A, 0));
+#endif
                 }
             };
             struct Grad {
                 constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+#ifdef NO_STABLE_SQRT
                     dA += dC / (2 * C);
+#else
+                    dA += C < epsilon ? 0 : dC / (2 * C);
+#endif
                 }
             };
         };
@@ -153,12 +167,20 @@ namespace kaad {
         struct Log{
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
+#ifdef NO_STABLE_LOG
                     C = std::log(A);
+#else
+                    C = std::log(std::max(A, epsilon));
+#endif
                 }
             };
             struct Grad {
                 constexpr void operator()(T A, T& dA, T C, T dC) const noexcept {
+#ifdef NO_STABLE_LOG
                     dA += dC / A;
+#else
+                    dA += dC / std::max(A, epsilon);
+#endif
                 }
             };
         };
@@ -166,7 +188,11 @@ namespace kaad {
         struct Exp {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
+#ifdef NO_STABLE_EXP
                     C = std::exp(A);
+#else
+                    C = std::exp(std::max(min_exp, std::min(max_exp, A)));
+#endif
                 }
             };
             struct Grad {
@@ -214,5 +240,5 @@ namespace kaad {
         };
     };
 
-    using NullOp = class Kernels<std::nullptr_t>::Null;
+    using NullOp = class Kernels<int>::Null;
 }    
