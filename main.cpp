@@ -1,12 +1,5 @@
-#include <stdlib.h>     // for system
-#include <array>        // for array
-#include <iostream>     // for operator<<, endl, ostream, basic_ostream, cout
-#include <utility>      // for move
-#include "binaryOps.h"  // for matmul
-#include "unaryOps.h"
-#include "compGraph.h"  // for CompGraph
-#include "nodes.h"      // for INode
-#include "tensor.h"     // for operator<<, Tensor
+#include <iostream>
+#include "kaad.h"
 
 using namespace kaad;
 using namespace std;
@@ -43,6 +36,7 @@ int main() {
     //cout << "B:\n" << b->value << endl;
     //cout << "N:\n" << n->value << endl;
 
+    rec.reset();
     auto e = rec.evaluate(c);
 
     cout << "C:\n" << c->value << endl;
@@ -55,3 +49,4 @@ int main() {
     cout << "dX\n" << *g[3] << endl;
     cout << "dY\n" << *g[4] << endl;
 }
+
