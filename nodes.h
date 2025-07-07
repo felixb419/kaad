@@ -36,7 +36,10 @@ namespace kaad {
         virtual ~INode() = default;
         
         inline void reset() {
-            std::fill(value.val, value.val + value.len, 0);
+            if (hasInputs) {
+                std::fill(value.val, value.val + value.len, 0);
+                evaluated = false;
+            }
             std::fill(gradient.val, gradient.val + gradient.len, 0);
         }
 

@@ -3,6 +3,7 @@
 #include <stddef.h>   // for size_t
 #include <memory>     // for unique_ptr, make_unique
 #include <vector>     // for vector
+#include <array>
 #include "tensor.h"   // for Tensor
 
 namespace kaad {
@@ -51,8 +52,8 @@ namespace kaad {
         }
 
         void reset() {
-            for (INode<T>* node : nodes) {
-                node->reset();
+            for (int i = 0; i < nodes.size(); i++) {
+                nodes[i]->reset();
             }
         }
     };
