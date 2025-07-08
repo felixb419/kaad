@@ -14,7 +14,11 @@ namespace kaad {
     struct CompGraph {
         std::vector<std::unique_ptr<INode<T>>> nodes;
 
-        INode<T>* append(Tensor<T>&& tensor) {
+        // constructs a Node valued with the given tensor_args
+        // and appends a std::uniqe_ptr pointing to Node to nodes
+        template <typename... Args>
+        INode<T>* append(Args&&... tensor_args) {
+            Tensor<T> tensor(std::forward<Args>(tensor_args)...);
             auto ptr = std::make_unique<Node_valued<T>>(std::move(tensor));
             INode<T>* raw = ptr.get();
             nodes.emplace_back(std::move(ptr));
