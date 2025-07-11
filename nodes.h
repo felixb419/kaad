@@ -186,8 +186,7 @@ namespace kaad {
         int* strideA = nullptr;
         int* strideB = nullptr;
         int* strideC = nullptr;
-        int* reps = nullptr;
-        int* count = nullptr;
+        int* c_shape = nullptr;
         size_t D;
 
         template <typename... Args>
@@ -198,8 +197,7 @@ namespace kaad {
             delete[] strideA;
             delete[] strideB;
             delete[] strideC;
-            delete[] reps;
-            delete[] count;
+            delete[] c_shape;
         }
 
         inline void eval() override {
@@ -207,14 +205,14 @@ namespace kaad {
                 this->in1->eval();
                 this->in2->eval();
 
-                val_func(this->in1->value.val, this->in2->value.val, this->value.val, strideA, strideB, strideC, reps, count, D, op);
+                val_func(this->in1->value.val, this->in2->value.val, this->value.val, strideA, strideB, strideC, c_shape, D-1, op);
                 this->evaluated = true;
             }
         }
 
         inline void getGrad() override {
             grad_func(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val,
-                strideA, strideB, strideC, reps, count, D, grad);
+                strideA, strideB, strideC, c_shape, D-1, grad);
 
             if (this->in1->hasInputs) {
                 this->in1->getGrad();

@@ -10,7 +10,7 @@ namespace kaad {
     template <typename T, class Op>
     using flexUnaryOp = void(*)(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t D, Op op);
     template <typename T, class Op>
-    using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Op op);
+    using flexBinaryOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int N, Op op);
     template <typename T>
     using matmulOp = void(*)(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC);
     template <typename T>
@@ -50,26 +50,19 @@ namespace kaad {
         }
         // perform op flexible so that: C = op( A, B )
         // shape of C must be a valid broadcast of A and B
-        static void flexible(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Op op) {
-            int indA = 0, indB = 0, indC = 0;
-            while (1) {
+        static void flexible(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int N, Op op) {
 
-                op(A[indA], B[indB], C[indC]);
-
-                for (int dim = D - 1; dim >= 0; dim--) {
-                    count[dim]--;
-                    if (count[dim] >= 0) {
-                        indA += strideA[dim];
-                        indB += strideB[dim];
-                        indC += strideC[dim];
-                        break;
-                    }
-
-                    count[dim] = reps[dim];
-                    if (dim == 0) goto end;
+            const T* end = C + (*c_shape) * (*strideC);
+            if (N == 0) {
+                for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
+                    op(*A, *B, *C);
                 }
             }
-            end:;
+            else {
+                for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
+                    flexible(A, B, C, strideA+1, strideB+1, strideC+1, c_shape+1, N-1, op);
+                }
+            }
         }
             
         // compute do product of A and B into C
@@ -209,4 +202,5 @@ namespace kaad {
             }
         }
     };
+
 }    

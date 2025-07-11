@@ -11,7 +11,7 @@ namespace kaad {
     template <typename T, class Grad>
     using flexUnaryGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t D, Grad grad);
     template <typename T, class Grad>
-    using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Grad grad);
+    using flexBinaryGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* len, int N, Grad grad);
     template <typename T>
     using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC);
     template <typename T>
@@ -45,26 +45,23 @@ namespace kaad {
                 grad(*A, *dA, *B, *dB, *C, *dC);
             }
         }
-        static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D, Grad grad) {
-            int indA = 0, indB = 0, indC = 0;
-            while (1) {
+        static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* len, int N, Grad grad) {
 
-                grad(A[indA], dA[indA], B[indB], dB[indB], C[indC], dC[indC]);
-
-                for (int dim = D - 1; dim >= 0; dim--) {
-                    count[dim]--;
-                    if (count[dim] >= 0) {
-                        indA += strideA[dim];
-                        indB += strideB[dim];
-                        indC += strideC[dim];
-                        break;
-                    }
-
-                    count[dim] = reps[dim];
-                    if (dim == 0) goto end;
+            const T* end = C + (*len) * (*strideC);
+            if (N == 0) {
+                for (; C != end;
+                    A += *strideA, B += *strideB, C += *strideC,
+                    dA += *strideA, dB += *strideB, dC += *strideC) {
+                    grad(*A, *dA, *B, *dB, *C, *dC);
                 }
             }
-            end:;
+            else {
+                for (; C < end;
+                    A += *strideA, B += *strideB, C += *strideC,
+                    dA += *strideA, dB += *strideB, dC += *strideC) {
+                    flexible(A, dA, B, dB, C, dC, strideA+1, strideB+1, strideC+1, len+1, N-1, grad);
+                }
+            }
         }
 
         // f(A,B) = A dot B
