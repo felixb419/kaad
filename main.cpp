@@ -17,19 +17,22 @@ int main() {
     auto b = rec.append(s2, 1, v2, 3);
 
     auto c = add(rec, a, b);
+    auto c_sum = sum(rec, c);
 
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;
 
     rec.reset();
 
-    auto e = rec.evaluate(c);
+    auto e = rec.evaluate(c, c_sum);
 
     cout << "C:\n" << c->value << endl;
+    cout << "Sum:\n" << c_sum->value << endl;
 
-    auto g = rec.getGradient(c, a, b);
+    auto g = rec.getGradient(c, a, b, c_sum);
 
     cout << "dA\n" << *g[0] << endl;
     cout << "dB\n" << *g[1] << endl;
+    cout << "dSum\n" << *g[2] << endl;
 }
 

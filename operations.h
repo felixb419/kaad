@@ -18,14 +18,14 @@ namespace kaad {
     template <typename T>
     using meanDimOp = void(*)(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D);
 
-    template <typename T, class Op>
-    struct Operations {
+    namespace Operations {
         /*
         BINARY OPS
         */
 
         // perform op so that: C[m,n,...] = op( A[m,n,...], B[0] )
         // shapes of C and A must be the same, shape of B must be (1)
+	    template <typename T, class Op>
         static void scalarRhs(const T* A, const T* B, T* C, size_t len, Op op) {
             T* end = C + len; 
             for (; C != end; A++, C++) {
@@ -34,6 +34,7 @@ namespace kaad {
         }
         // perform op so that: C[m,n,...] = op( A[0], B[m,n,...])
         // shapes of out and tensor must be the same, shape of scalar must be (1)
+        template <typename T, class Op>
         static void scalarLhs(const T* A, const T* B, T* C, size_t len, Op op) {
             T* end = C + len;
             for (; C != end; B++, C++) {
@@ -42,6 +43,7 @@ namespace kaad {
         }
         // perform op so that so that: C[m,n,...] = op( A[m,n,...], B[m,n...] )
         // shape of all operands must be indentical
+        template <typename T, class Op>
         static void pointwise(const T* A, const T* B, T* C, size_t len, Op op) {
             T* end = C + len;
             for (; C != end; A++, B++, C++) {
@@ -50,6 +52,7 @@ namespace kaad {
         }
         // perform op flexible so that: C = op( A, B )
         // shape of C must be a valid broadcast of A and B
+        template <typename T, class Op>
         static void flexible(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int N, Op op) {
 
             const T* end = C + (*c_shape) * (*strideC);
@@ -67,7 +70,8 @@ namespace kaad {
             
         // compute do product of A and B into C
         // A must be 1d vector, B and C must be scalar
-        static void scalarDot(const T* A, const T* B, T* C, size_t len, Op _) {
+        template <typename T>
+        static void scalarDot(const T* A, const T* B, T* C, size_t len) {
             T* end = A + len;
             for (; A != end; A++) {
                 *C += *A * (*B);
@@ -75,7 +79,8 @@ namespace kaad {
         }
         // compute do product of A and B into C
         // A and B must be 1d vectors of same length, C must be scalar
-        static void dot(const T* A, const T* B, T* C, size_t len, Op _) {
+        template <typename T>
+        static void dot(const T* A, const T* B, T* C, size_t len) {
             const T* end = A + len;
             for (; A != end; A++, B++) {
                 *C += *A * (*B);
@@ -84,6 +89,7 @@ namespace kaad {
 
         // matrix multiply A and B so that C = AB
         // A and B must be 2d and width of A is equalt to height of B
+        template <typename T>
         static void matmul(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC) {
             const T* _A;
             const T* _B;
@@ -103,6 +109,7 @@ namespace kaad {
         // matrix multiply A and B so that C = AB
         // last two dimensions of A and B must me matrix multipliable
         // all dimensions higher than 2 are regarded as batch dimensions
+        template <typename T>
         static void batch_matmul(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D) {
             int indA = 0, indB = 0, indC = 0;
             while (1) {
@@ -131,6 +138,7 @@ namespace kaad {
         UNARY OPS
         */
 
+        template <typename T, class Op>
         static void unary_pointwise(const T* A, T* C, size_t len, Op op) {
             T* end = C + len;
             for (; C != end; A++, C++) {
@@ -138,6 +146,7 @@ namespace kaad {
             }
         }
 
+        template <typename T, class Op>
         static void unary_flexible(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t D, Op op) {
             int indA = 0, indC = 0;
             while (1) {
@@ -160,13 +169,15 @@ namespace kaad {
         }
 
         // transposing doesnt change the value array so A gets copied to C
-        static void transpose(const T* A, T* C, size_t len, Op _) {
+        template <typename T>
+        static void transpose(const T* A, T* C, size_t len) {
             copy(A, A + len, C);
         }
 
         // saves mean of A into out
         // B has to be a scalar
-        static void mean(const T* A, T* C, size_t len, Op _) {
+        template <typename T>
+        static void mean(const T* A, T* C, size_t len) {
             const T* end = A + len;
             for (; A != end; A++) {
                 *C += *A;
@@ -177,6 +188,7 @@ namespace kaad {
         // computes mean of tensor along dimension
         // out must be same shape as A with one dimension missing
         // dimensions index over which is summed is saved in B.shape
+        template <typename T>
         static void mean_dim(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D) {
             int indA = 0, indC = 0;
             while (1) {

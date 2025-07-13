@@ -23,8 +23,8 @@ namespace kaad {
     struct UnaryKernels {
         using Op = class Kernel::Op;
         using Grad = class Kernel::Grad;
-        unaryOp<T,Op> op = Operations<T,Op>::unary_pointwise;
-        unaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_pointwise;
+        unaryOp<T,Op> op = Operations::unary_pointwise<T,Op>;
+        unaryGrad<T,Grad> grad = Gradients::unary_pointwise<T,Grad>;
     };
 
     template <typename T, class Kernel>
@@ -154,8 +154,8 @@ namespace kaad {
         using Kernel = class Kernels<T>::Transp;
         using Op = class Kernel::Op;
         using Grad = class Kernel::Grad;
-        unaryOp<T,Op> op = Operations<T,Op>::transpose;
-        unaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_pointwise;
+        unaryOp<T,Op> op = Operations::transpose<T,Op>;
+        unaryGrad<T,Grad> grad = Gradients::unary_pointwise<T,Grad>;
 
         auto newNode = std::make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, shape_T, stride_T, A.nDims);
         newNode->len = A.len;
@@ -172,11 +172,12 @@ namespace kaad {
         if (dim == -1) {
             int* newShape = new int[] { 1 };
 
-            using Op = typename NullOp::Op;
-            using Grad = typename NullOp::Grad;
-            unaryOp<T,Op> op = Operations<T,Op>::sum;
-            unaryGrad<T,Grad> grad = Gradients<T,Grad>::sum_grad;
-            auto newNode = std::make_unique<Node_unary<T,NullOp>>(op, grad, A_ptr, newShape, 1);
+            using Kernel = class Kernels<T>::Sum;
+            using Op = typename Kernel::Op;
+            using Grad = typename Kernel::Grad;
+            unaryOp<T,Op> op = Operations::unary_pointwise<T,Op>;
+            unaryGrad<T,Grad> grad = Gradients::unary_pointwise<T,Grad>;
+            auto newNode = std::make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, newShape, 1);
             newNode->len = A_ptr->value.len;
             rec.nodes.push_back(move(newNode));
         }
@@ -196,8 +197,8 @@ namespace kaad {
             using Kernel = class Kernels<T>::Sum;
             using Op = class Kernel::Op;
             using Grad = class Kernel::Grad;
-            flexUnaryOp<T,Op> op = Operations<T,Op>::unary_flexible;
-            flexUnaryGrad<T,Grad> grad = Gradients<T,Grad>::unary_flexible;
+            flexUnaryOp<T,Op> op = Operations::unary_flexible<T,Op>;
+            flexUnaryGrad<T,Grad> grad = Gradients::unary_flexible<T,Grad>;
 
             auto newNode = std::make_unique<Node_unary_flex<T,Kernel>>(op, grad, A_ptr, newShape, newLen);
             Strides<T>::along_dim(A, *newNode.get(), dim);
@@ -217,8 +218,8 @@ namespace kaad {
 
             using Op = typename NullOp::Op;
             using Grad = typename NullOp::Grad;
-            unaryOp<T,Op> op = Operations<T,Op>::mean;
-            unaryGrad<T,Grad> grad = Gradients<T,Grad>::mean_grad;
+            unaryOp<T,Op> op = Operations::mean<T,Op>;
+            unaryGrad<T,Grad> grad = Gradients::mean_grad<T,Grad>;
             auto newNode = std::make_unique<Node_unary<T,NullOp>>(op, grad, A_ptr, newShape, 1);
             newNode->len = A_ptr->value.len;
             rec.nodes.push_back(move(newNode));
@@ -238,8 +239,8 @@ namespace kaad {
 
             using Op = typename NullOp::Op;
             using Grad = typename NullOp::Grad;
-            meanDimOp<T> op = Operations<T,Op>::mean_dim;
-            meanDimGrad<T> grad = Gradients<T,Grad>::mean_dim_grad;
+            meanDimOp<T> op = Operations::mean_dim<T,Op>;
+            meanDimGrad<T> grad = Gradients::mean_dim_grad<T,Grad>;
             auto newNode = std::make_unique<Node_mean_dim<T>>(op, grad, A_ptr, newShape, newLen);
             Strides<T>::mean_along_dim(A, *newNode.get(), dim);
             rec.nodes.push_back(move(newNode));

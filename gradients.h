@@ -19,32 +19,35 @@ namespace kaad {
     template <typename T>
     using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D);
 
-    template <typename T, class Grad>
-    struct Gradients {
+    namespace Gradients {
 
         // d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
 
         /*
         BINARY GRADS
         */
+        template <typename T, class Grad>
         static void scalarRhs(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
             const T* end = C + len;
             for (; C != end; A++, dA++, C++, dC++) {
                 grad(*A, *dA, *B, *dB, *C, *dC);
             }
         }
+        template <typename T, class Grad>
         static void scalarLhs(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
             const T* end = C + len;
             for (; C != end; B++, dB++, C++, dC++) {
                 grad(*A, *dA, *B, *dB, *C, *dC);
             }
         }
+        template <typename T, class Grad>
         static void pointwise(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad grad) {
             const T* end = C + len;
             for (; C != end; A++, dA++, B++, dB++, C++, dC++) {
                 grad(*A, *dA, *B, *dB, *C, *dC);
             }
         }
+        template <typename T, class Grad>
         static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* len, int N, Grad grad) {
 
             const T* end = C + (*len) * (*strideC);
@@ -67,13 +70,15 @@ namespace kaad {
         // f(A,B) = A dot B
         // df/dA = B
         // df/dB = A
-        static void dot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
+        template <typename T>
+        static void dot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
             const T* end = A + len;
             for (; A != end; A++, dA++, B++, dB++) {
                 *dA += *dC * (*B);
                 *dB += *dC * (*A);
             }
         }
+        template <typename T, class Grad>
         static void scalarDot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
             const T* end = A + len;
             for (; A != end; A++, dA++) {
@@ -85,23 +90,26 @@ namespace kaad {
         // f(A,B) = AB
         // dC/dA = B^T
         // dC/dB = A^T
+        template <typename T>
         static void matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC) {
             // dA = dC * B^T
-            Operations<T,std::nullptr_t>::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC, strideB, strideA);
+            Operations::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC, strideB, strideA);
             // dB = A^T * dC
-            Operations<T,std::nullptr_t>::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA+2, strideC+2, strideB+2);
+            Operations::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA+2, strideC+2, strideB+2);
         }
+        template <typename T>
         static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* D) {
             // dA = dC * B^T
-            Operations<T,std::nullptr_t>::batch_matmul(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], D[0]);
+            Operations::batch_matmul<T>(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], D[0]);
             // dB = A^T * dC
-            Operations<T,std::nullptr_t>::batch_matmul(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], D[1]);
+            Operations::batch_matmul<T>(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], D[1]);
         }
 
         /*
         UNARY GRADS
         */
 
+        template <typename T, class Grad>
         static void unary_pointwise(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad grad) {
             const T* end = C + len;
             for (; C != end; A++, dA++, C++, dC++) {
@@ -109,6 +117,7 @@ namespace kaad {
             }
         }
 
+        template <typename T, class Grad>
         static void unary_flexible(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t D, Grad grad) {
             int indA = 0, indC = 0;
             while (1) {
@@ -132,6 +141,7 @@ namespace kaad {
 
         // f(A) = A^T
         // df/dA = 1
+        template <typename T, class Grad>
         static void transp_grad(const T* A, T* dA, const T* C, const T* dC, size_t len) {
             const T* end = C + len;
             for (; C != end; dA++, dC++) {
@@ -141,6 +151,7 @@ namespace kaad {
 
         // f(A) = sum(A)
         // df_dA = tensor with shape of A filled with 1
+        template <typename T, class Grad>
         static void sum_grad(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
             const T* end = C + len;
             for (; C != end; dA++) {
@@ -150,6 +161,7 @@ namespace kaad {
 
         // f(A) = mean(A)
         // df_dA = tensor with shape of A filled with 1 / (len of A)
+        template <typename T, class Grad>
         static void mean_grad(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
             T mean = dC[0] / len;
             const T* end = C + len;
@@ -158,8 +170,9 @@ namespace kaad {
             }
         }
 
+        template <typename T, class Grad>
         static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D) {
-            Operations<T,std::nullptr_t>::mean_dim(dC, dA, divisor, c_len, strideC, strideA, reps, count, D);
+            Operations::mean_dim<T>(dC, dA, divisor, c_len, strideC, strideA, reps, count, D);
         }
     };
 }    

@@ -25,15 +25,15 @@ namespace kaad {
         using Op = class Kernel::Op;
         using Grad = class Kernel::Grad;
 
-        binaryOp<T,Op> scalarOpRhs = Operations<T,Op>::scalarRhs;
-        binaryOp<T,Op> scalarOpLhs = Operations<T,Op>::scalarLhs;
-        binaryOp<T,Op> pointOp = Operations<T,Op>::pointwise;
-        flexBinaryOp<T,Op> flexOp = Operations<T,Op>::flexible;
+        binaryOp<T,Op> scalarOpRhs = Operations::scalarRhs<T,Op>;
+        binaryOp<T,Op> scalarOpLhs = Operations::scalarLhs<T,Op>;
+        binaryOp<T,Op> pointOp = Operations::pointwise<T,Op>;
+        flexBinaryOp<T,Op> flexOp = Operations::flexible<T,Op>;
         
-        binaryGrad<T,Grad> scalarGradRhs = Gradients<T,Grad>::scalarRhs;
-        binaryGrad<T,Grad> scalarGradLhs = Gradients<T,Grad>::scalarLhs;
-        binaryGrad<T,Grad> pointGrad = Gradients<T,Grad>::pointwise;
-        flexBinaryGrad<T,Grad> flexGrad = Gradients<T,Grad>::flexible;
+        binaryGrad<T,Grad> scalarGradRhs = Gradients::scalarRhs<T,Grad>;
+        binaryGrad<T,Grad> scalarGradLhs = Gradients::scalarLhs<T,Grad>;
+        binaryGrad<T,Grad> pointGrad = Gradients::pointwise<T,Grad>;
+        flexBinaryGrad<T,Grad> flexGrad = Gradients::flexible<T,Grad>;
     };
 
     template <typename T, class Kernel>
@@ -131,10 +131,10 @@ namespace kaad {
     INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
         using Op = class NullOp::Op;
         using Grad = class NullOp::Grad;
-        binaryOp<T,Op> scalar = Operations<T,Op>::scalarDot;
-        binaryGrad<T,Grad> scalar_grad = Gradients<T,Grad>::scalarDot_grad;
-        binaryOp<T,Op> dot = Operations<T,Op>::dot;
-        binaryGrad<T,Grad> dot_grad = Gradients<T,Grad>::dot_grad;
+        binaryOp<T,Op> scalar = Operations::scalarDot<T,Op>;
+        binaryGrad<T,Grad> scalar_grad = Gradients::scalarDot_grad<T,Grad>;
+        binaryOp<T,Op> dot = Operations::dot<T,Op>;
+        binaryGrad<T,Grad> dot_grad = Gradients::dot_grad<T,Grad>;
 
         int recLen = rec.nodes.size();
         Tensor<T>& A = A_ptr->value;
@@ -195,12 +195,12 @@ namespace kaad {
         }
 
         if (newLen == 2) {
-            auto newNode = std::make_unique<Node_matmul<T>>(Operations<T,std::nullptr_t>::matmul, Gradients<T,std::nullptr_t>::matmul_grad, A_ptr, B_ptr, newShape, newLen);
+            auto newNode = std::make_unique<Node_matmul>(Operations::matmul<T>, Gradients::matmul_grad<T>, A_ptr, B_ptr, newShape, newLen);
             Strides<T>::matmul(A, B, *newNode.get());
             rec.nodes.push_back(move(newNode));
         }
         else {
-            auto newNode = std::make_unique<Node_batch_matmul<T>>(Operations<T,std::nullptr_t>::batch_matmul, Gradients<T,std::nullptr_t>::batch_matmul_grad, A_ptr, B_ptr, newShape, newLen);
+            auto newNode = std::make_unique<Node_batch_matmul>(Operations::batch_matmul<T>, Gradients::batch_matmul_grad<T>, A_ptr, B_ptr, newShape, newLen);
             Strides<T>::batch_matmul(A, B, *newNode.get());
             rec.nodes.push_back(move(newNode));
         }
@@ -225,7 +225,7 @@ namespace kaad {
         using Op = typename Kernel::Op;
         using Grad = typename Kernel::Grad;
 
-        auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(Operations<T,Op>::flexible, Gradients<T,Grad>::flexible, A_ptr, B_ptr, newShape, newLen);
+        auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(Operations::flexible<T,Op>, Gradients::flexible<T,Grad>, A_ptr, B_ptr, newShape, newLen);
         auto raw = newNode.get();
         Strides<T>::outer(A, B, *raw);
         rec.nodes.push_back(move(newNode));
