@@ -147,6 +147,14 @@ namespace kaad {
         }
 
         template <typename T, class Op>
+        static void unary_scalarRhs(const T* A, T* C, size_t len, Op op) {
+            const T* end = A + len;
+            for (; A != end; A++) {
+                op(*A, *C);
+            }
+        }
+
+        template <typename T, class Op>
         static void unary_flexible(const T* A, T* C, int* strideA, int* strideC, int* reps, int* count, size_t D, Op op) {
             int indA = 0, indC = 0;
             while (1) {

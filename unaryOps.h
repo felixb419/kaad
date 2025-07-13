@@ -170,14 +170,13 @@ namespace kaad {
         Tensor<T>& A = A_ptr->value;
 
         if (dim == -1) {
-            int* newShape = new int[] { 1 };
-
             using Kernel = class Kernels<T>::Sum;
             using Op = typename Kernel::Op;
             using Grad = typename Kernel::Grad;
-            unaryOp<T,Op> op = Operations::unary_pointwise<T,Op>;
-            unaryGrad<T,Grad> grad = Gradients::unary_pointwise<T,Grad>;
-            auto newNode = std::make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, newShape, 1);
+            unaryOp<T,Op> op = Operations::unary_scalarRhs<T,Op>;
+            unaryGrad<T,Grad> grad = Gradients::unary_scalarRhs<T,Grad>;
+            auto newNode = std::make_unique<Node_unary<T,Kernel>>(op, grad, A_ptr, (T)0);
+            auto debug = *static_cast<Node_unary<T,Kernel>*>(newNode.get());
             newNode->len = A_ptr->value.len;
             rec.nodes.push_back(move(newNode));
         }

@@ -118,6 +118,14 @@ namespace kaad {
         }
 
         template <typename T, class Grad>
+        static void unary_scalarRhs(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad grad) {
+            const T* end = A + len;
+            for (; A != end; A++, dA++) {
+                grad(*A, *dA, *C, *dC);
+            }
+        }
+
+        template <typename T, class Grad>
         static void unary_flexible(const T* A, T* dA, const T* C, const T* dC, int* strideA, int* strideC, int* reps, int* count, size_t D, Grad grad) {
             int indA = 0, indC = 0;
             while (1) {
