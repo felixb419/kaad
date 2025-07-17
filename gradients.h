@@ -67,6 +67,26 @@ namespace kaad {
             }
         }
 
+        template <typename T, class Grad, int N>
+        static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* len, int _, Grad grad) {
+
+            const T* end = C + (*len) * (*strideC);
+            if constexpr (N <= 1) {
+                for (; C != end;
+                    A += *strideA, B += *strideB, C += *strideC,
+                    dA += *strideA, dB += *strideB, dC += *strideC) {
+                    grad(*A, *dA, *B, *dB, *C, *dC);
+                }
+            }
+            else {
+                for (; C < end;
+                    A += *strideA, B += *strideB, C += *strideC,
+                    dA += *strideA, dB += *strideB, dC += *strideC) {
+                    flexible<T,Grad,N-1>(A, dA, B, dB, C, dC, strideA+1, strideB+1, strideC+1, len+1, 0, grad);
+                }
+            }
+        }
+
         // f(A,B) = A dot B
         // df/dA = B
         // df/dB = A

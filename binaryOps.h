@@ -20,6 +20,32 @@ namespace kaad {
     template <typename T> struct Node_batch_matmul;
     template <typename T> struct Node_matmul;
 
+    #ifndef KAAD_MAX_NDIMS
+    #define KAAD_MAX_NDIMS 5
+    #endif
+
+    template <typename T, class Op, std::size_t... Is>
+    constexpr std::array<flexBinaryOp<T, Op>, sizeof...(Is)>
+    get_flexOp_dispatcher_impl(std::index_sequence<Is...>) {
+        return { &Operations::flexible<T, Op, Is>... };
+    }
+
+    template <typename T, class Op>
+    constexpr std::array<flexBinaryOp<T, Op>, KAAD_MAX_NDIMS> get_flexOp_dispatcher() {
+        return get_flexOp_dispatcher_impl<T, Op>(std::make_index_sequence<KAAD_MAX_NDIMS>());
+    }
+
+    template <typename T, class Grad, std::size_t... Is>
+    constexpr std::array<flexBinaryGrad<T, Grad>, sizeof...(Is)>
+    get_flexGrad_dispatcher_impl(std::index_sequence<Is...>) {
+        return { &Gradients::flexible<T, Grad, Is>... };
+    }
+
+    template <typename T, class Grad>
+    constexpr std::array<flexBinaryGrad<T, Grad>, KAAD_MAX_NDIMS> get_flexGrad_dispatcher() {
+        return get_flexGrad_dispatcher_impl<T, Grad>(std::make_index_sequence<KAAD_MAX_NDIMS>());
+    }
+
     template <typename T, class Kernel>
     struct BinaryKernels {
         using Op = class Kernel::Op;
@@ -69,7 +95,20 @@ namespace kaad {
             rec.nodes.push_back(move(newNode));
         }
         else if (combine_flexible(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
-            auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(kernels.flexOp, kernels.flexGrad, A_ptr, B_ptr, newShape, newLen);
+            using Op = typename Kernel::Op;
+            using Grad = typename Kernel::Grad;
+            flexBinaryOp<T,Op> Operation;
+            flexBinaryGrad<T,Grad> Gradient;
+            if (newLen <= KAAD_MAX_NDIMS) {
+                Operation = get_flexOp_dispatcher<T,Op>()[newLen];
+                Gradient = get_flexGrad_dispatcher<T,Grad>()[newLen];
+            }
+            else {
+                Operation = kernels.flexOp;
+                Gradient = kernels.flexGrad;
+            }
+
+            auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(Operation, kernels.flexGrad, A_ptr, B_ptr, newShape, newLen);
             Strides<T>::flexible_binary(A, B, *newNode.get());
             rec.nodes.push_back(move(newNode));
         }

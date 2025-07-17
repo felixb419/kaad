@@ -67,6 +67,22 @@ namespace kaad {
                 }
             }
         }
+
+        template <typename T, class Op, int N>
+        static void flexible(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int _, Op op) {
+
+            const T* end = C + (*c_shape) * (*strideC);
+            if constexpr (N <= 1) {
+                for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
+                    op(*A, *B, *C);
+                }
+            }
+            else {
+                for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
+                    flexible<T,Op,N-1>(A, B, C, strideA+1, strideB+1, strideC+1, c_shape+1, 0, op);
+                }
+            }
+        }
             
         // compute do product of A and B into C
         // A must be 1d vector, B and C must be scalar
