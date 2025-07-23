@@ -87,6 +87,20 @@ namespace kaad {
             };
         };
 
+        struct Dot {
+            struct Op {
+                constexpr void operator()(T A, T B, T& C) const noexcept {
+                    C += A * B;
+                }
+            };
+            struct Grad {
+                constexpr void operator()(T A, T& dA, T B, T& dB, T C, T dC) const noexcept {
+                    dA += dC * B;
+                    dB += dC * A;
+                }
+            };
+        };
+
         struct Min {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {

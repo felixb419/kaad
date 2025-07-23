@@ -71,9 +71,9 @@ namespace kaad {
             b_T.stride = b_T.shape + B.nDims;
             transp2D(B.shape, B.stride, B.nDims, b_T.shape, b_T.stride);
 
-            _batch_matmul(a, b, c, node.a_offset[0], node.b_offset[0], node.k[0], node.D[0], node.reps[0], node.count[0], node.strideA[0], node.strideB[0], node.strideC[0]); 
-            _batch_matmul(c, b_T, a, node.a_offset[1], node.b_offset[1], node.k[1], node.D[1], node.reps[1], node.count[1], node.strideC[1], node.strideB[1], node.strideA[1]); 
-            _batch_matmul(a_T, c, b, node.a_offset[2], node.b_offset[2], node.k[2], node.D[2], node.reps[2], node.count[2], node.strideA[2], node.strideC[2], node.strideB[2]); 
+            _batch_matmul(a, b, c, node.strideA[0], node.strideB[0], node.strideC[0], node.c_shape[0], node.a_offset[0], node.b_offset[0], node.k[0], node.D); 
+            _batch_matmul(c, b_T, a, node.strideC[1], node.strideB[1], node.strideA[1], node.c_shape[1], node.a_offset[1], node.b_offset[1], node.k[1], node.D); 
+            _batch_matmul(a_T, c, b, node.strideA[2], node.strideC[2], node.strideB[2], node.c_shape[2], node.a_offset[2], node.b_offset[2], node.k[2], node.D); 
 
             delete[] shapeBlock;
         }
@@ -176,21 +176,15 @@ namespace kaad {
             }
         }
         
-        static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, int& a_off, int& b_off, int& k, size_t& D, int*& reps, int*& count, int*& strideA, int*& strideB, int*& strideC) {
+        static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, int*& strideA, int*& strideB, int*& strideC, int*& c_shape, int& a_off, int& b_off, int& k, size_t& D) {
             a_off = A.stride[A.nDims - 1];
             b_off = B.stride[B.nDims - 2];
             k = A.shape[A.nDims - 1];
 
             D = std::max(A.nDims, B.nDims);
-            reps = new int[D];
+            c_shape = new int[D];
 
-            combine_matrix(A.shape, A.nDims, B.shape, B.nDims, reps, D);
-            for (int i = 0; i < D; i++) {
-                reps[i]--;
-            }
-
-            count = new int[D];
-            std::copy(reps, reps + D, count);
+            combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
 
             strideA = new int[D];
             strideB = new int[D];
@@ -212,25 +206,25 @@ namespace kaad {
         
             strideA[D - 1] = 0;
             strideB[D - 2] = 0;
-            int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-            for (int i = 1; i <= D; i++) {
-                idx = D - i;
+            //int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
+            //for (int i = 1; i <= D; i++) {
+            //    idx = D - i;
 
-                idxA = A.nDims - i;
-                _offsetA = offsetA;
-                offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
-                strideA[idx] -= _offsetA;
+            //    idxA = A.nDims - i;
+            //    _offsetA = offsetA;
+            //    offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
+            //    strideA[idx] -= _offsetA;
 
-                idxB = B.nDims - i;
-                _offsetB = offsetB;
-                offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
-                strideB[idx] -= _offsetB;
+            //    idxB = B.nDims - i;
+            //    _offsetB = offsetB;
+            //    offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
+            //    strideB[idx] -= _offsetB;
 
-                idxC = C.nDims - i;
-                _offsetC = offsetC;
-                offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
-                strideC[idx] -= _offsetC;
-            }
+            //    idxC = C.nDims - i;
+            //    _offsetC = offsetC;
+            //    offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+            //    strideC[idx] -= _offsetC;
+            //}
         }
 
         static void _along_dim(Tensor<T>& A, Tensor<T>& C, int dim, size_t& D, int*& reps, int*& count, int*& strideA, int*& strideC) {

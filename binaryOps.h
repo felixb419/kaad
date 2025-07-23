@@ -46,6 +46,28 @@ namespace kaad {
         return get_flexGrad_dispatcher_impl<T, Grad>(std::make_index_sequence<KAAD_MAX_NDIMS>());
     }
 
+    template <typename T, std::size_t... Is>
+    constexpr std::array<batchmatmulOp<T>, sizeof...(Is)>
+    get_batch_matmul_dispatcher_impl(std::index_sequence<Is...>) {
+        return { &Operations::batch_matmul<T, Is>... };
+    }
+
+    template <typename T>
+    constexpr std::array<batchmatmulOp<T>, KAAD_MAX_NDIMS> get_batch_matmul_dispatcher() {
+        return get_batch_matmul_dispatcher_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
+    }
+
+    template <typename T, std::size_t... Is>
+    constexpr std::array<batchmatmulGrad<T>, sizeof...(Is)>
+    get_batch_matmul_grad_dispatcher_impl(std::index_sequence<Is...>) {
+        return { &Gradients::batch_matmul_grad<T, Is>... };
+    }
+
+    template <typename T>
+    constexpr std::array<batchmatmulGrad<T>, KAAD_MAX_NDIMS> get_batch_matmul_grad_dispatcher() {
+        return get_batch_matmul_grad_dispatcher_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
+    }
+
     template <typename T, class Kernel>
     struct BinaryKernels {
         using Op = class Kernel::Op;
@@ -234,12 +256,23 @@ namespace kaad {
         }
 
         if (newLen == 2) {
-            auto newNode = std::make_unique<Node_matmul>(Operations::matmul<T>, Gradients::matmul_grad<T>, A_ptr, B_ptr, newShape, newLen);
+            auto newNode = std::make_unique<Node_matmul<T>>(Operations::matmul<T>, Gradients::matmul_grad<T>, A_ptr, B_ptr, newShape, newLen);
             Strides<T>::matmul(A, B, *newNode.get());
             rec.nodes.push_back(move(newNode));
         }
         else {
-            auto newNode = std::make_unique<Node_batch_matmul>(Operations::batch_matmul<T>, Gradients::batch_matmul_grad<T>, A_ptr, B_ptr, newShape, newLen);
+            batchmatmulOp<T> operation;
+            batchmatmulGrad<T> gradient;
+            if (newLen <= KAAD_MAX_NDIMS) {
+                operation = get_batch_matmul_dispatcher<T>()[newLen];
+		gradient = get_batch_matmul_grad_dispatcher<T>()[newLen];
+            }
+            else {
+                operation = Operations::batch_matmul<T>;
+		gradient = Gradients::batch_matmul_grad<T>;
+            }
+
+            auto newNode = std::make_unique<Node_batch_matmul<T>>(operation, gradient, A_ptr, B_ptr, newShape, newLen);
             Strides<T>::batch_matmul(A, B, *newNode.get());
             rec.nodes.push_back(move(newNode));
         }

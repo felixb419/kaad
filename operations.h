@@ -14,7 +14,7 @@ namespace kaad {
     template <typename T>
     using matmulOp = void(*)(const T* A, const T* B, T* C, int a_dim, int b_dim, int k, int* strideA, int* strideB, int* strideC);
     template <typename T>
-    using batchmatmulOp = void(*)(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D);
+    using batchmatmulOp = void(*)(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int a_off, int b_off, int k, int N);
     template <typename T>
     using meanDimOp = void(*)(const T* A, T* C, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D);
 
@@ -32,6 +32,7 @@ namespace kaad {
                 op(*A, *B, *C);
             }
         }
+
         // perform op so that: C[m,n,...] = op( A[0], B[m,n,...])
         // shapes of out and tensor must be the same, shape of scalar must be (1)
         template <typename T, class Op>
@@ -41,6 +42,7 @@ namespace kaad {
                 op(*A, *B, *C);
             }
         }
+
         // perform op so that so that: C[m,n,...] = op( A[m,n,...], B[m,n...] )
         // shape of all operands must be indentical
         template <typename T, class Op>
@@ -50,6 +52,7 @@ namespace kaad {
                 op(*A, *B, *C);
             }
         }
+
         // perform op flexible so that: C = op( A, B )
         // shape of C must be a valid broadcast of A and B
         template <typename T, class Op>
@@ -121,33 +124,47 @@ namespace kaad {
                 }
             }
         }
-            
+
         // matrix multiply A and B so that C = AB
         // last two dimensions of A and B must me matrix multipliable
         // all dimensions higher than 2 are regarded as batch dimensions
         template <typename T>
-        static void batch_matmul(const T* A, const T* B, T* C, int a_off, int b_off, int k, int* strideA, int* strideB, int* strideC, int* reps, int* count, size_t D) {
-            int indA = 0, indB = 0, indC = 0;
-            while (1) {
+        static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int a_off, int b_off, int k, int N) {
 
-                for (int i = 0; i < k; i++) {
-                    C[indC] += A[indA + i*a_off] * B[indB + i*b_off];
-                }
-
-                for (int dim = D - 1; dim >= 0; dim--) {
-                    count[dim]--;
-                    if (count[dim] >= 0) {
-                        indA += strideA[dim];
-                        indB += strideB[dim];
-                        indC += strideC[dim];
-                        break;
+            const T* end = C + (*c_shape) * (*strideC);
+            if (N <= 1) {
+                for (int i = 0; i < *c_shape; i++, A += *strideA, B += *strideB, C += *strideC) {
+                    const T *_A = A, *_B = B;
+                    for (int j = 0; j < k; j++, _A += a_off, _B += b_off) {
+                        *C += (*_A) * (*_B);
                     }
-
-                    count[dim] = reps[dim];
-                    if (dim == 0) goto end;
+                    
                 }
             }
-            end:;
+            else {
+                for (int i = 0; i < *c_shape; i++, A += *strideA, B += *strideB, C += *strideC) {
+                    batch_matmul(A, B, C, strideA+1, strideB+1, strideC+1, c_shape+1, a_off, b_off, k, N-1);
+                }
+            }
+        }
+        template <typename T, int N>
+        static void batch_matmul(const T* A, const T* B, T* C, int* strideA, int* strideB, int* strideC, int* c_shape, int a_off, int b_off, int k, int _) {
+
+            const T* end = C + (*c_shape) * (*strideC);
+            if constexpr (N <= 1) {
+                for (int i = 0; i < *c_shape; i++, A += *strideA, B += *strideB, C += *strideC) {
+                    const T *_A = A, *_B = B;
+                    for (int j = 0; j < k; j++, _A += a_off, _B += b_off) {
+                        *C += (*_A) * (*_B);
+                    }
+                    
+                }
+            }
+            else {
+                for (int i = 0; i < *c_shape; i++, A += *strideA, B += *strideB, C += *strideC) {
+                    batch_matmul<T,N-1>(A, B, C, strideA+1, strideB+1, strideC+1, c_shape+1, a_off, b_off, k, 0);
+                }
+            }
         }
 
         /*

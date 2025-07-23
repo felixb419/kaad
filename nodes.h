@@ -267,30 +267,27 @@ namespace kaad {
     struct Node_batch_matmul : INode<T> {
         INode<T>* in2 = nullptr;
 
-        batchmatmulOp<T> op = nullptr;
-        batchmatmulGrad<T> grad_op = nullptr;
+        batchmatmulOp<T> val_func = nullptr;
+        batchmatmulGrad<T> grad_func = nullptr;
 
-        int a_offset[3];
-        int b_offset[3];
-        int k[3];
         int* strideA[3];
         int* strideB[3];
         int* strideC[3];
-        int* reps[3];
-        int* count[3];
-        size_t D[3];
+        int* c_shape[3];
+        int a_offset[3];
+        int b_offset[3];
+        int k[3];
+        size_t D;
 
         template <typename... Args>
         Node_batch_matmul(batchmatmulOp<T> operation, batchmatmulGrad<T> derivative, INode<T>* in1_ptr, INode<T>* in2_ptr, Args&&... args)
-        : in2(in2_ptr), op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+        : in2(in2_ptr), val_func(operation), grad_func(derivative), INode<T>(in1_ptr, args...) {}
 
         ~Node_batch_matmul() {
             for (int i = 0; i < 3; i++) {
                 delete[] strideA[i];
                 delete[] strideB[i];
                 delete[] strideC[i];
-                delete[] reps[i];
-                delete[] count[i];
             }
         }
 
@@ -299,15 +296,15 @@ namespace kaad {
                 this->in1->eval();
                 this->in2->eval();
 
-                op(this->in1->value.val, this->in2->value.val, this->value.val,
-                    a_offset[0], b_offset[0], k[0], strideA[0], strideB[0], strideC[0], reps[0], count[0], D[0]);
+                val_func(this->in1->value.val, this->in2->value.val, this->value.val,
+                    strideA[0], strideB[0], strideC[0], c_shape[0], a_offset[0], b_offset[0], k[0], D);
                 this->evaluated = true;
             }
         }
 
         inline void getGrad() override {
-            grad_op(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val,
-                a_offset+1, b_offset+1, k+1, strideA+1, strideB+1, strideC+1, reps+1, count+1, D+1);
+            grad_func(this->in1->value.val, this->in1->gradient.val, this->in2->value.val, this->in2->gradient.val, this->value.val, this->gradient.val,
+                strideA+1, strideB+1, strideC+1, c_shape+1, a_offset+1, b_offset+1, k+1, D);
 
             if (this->in1->hasInputs) {
                 this->in1->getGrad();

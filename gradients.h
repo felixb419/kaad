@@ -15,7 +15,7 @@ namespace kaad {
     template <typename T>
     using matmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC);
     template <typename T>
-    using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* D);
+    using batchmatmulGrad = void(*)(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int N);
     template <typename T>
     using meanDimGrad = void(*)(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D);
 
@@ -71,7 +71,7 @@ namespace kaad {
         static void flexible(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* strideA, int* strideB, int* strideC, int* len, int _, Grad grad) {
 
             const T* end = C + (*len) * (*strideC);
-            if constexpr (N <= 1) {
+            if constexpr (N == 0) {
                 for (; C != end;
                     A += *strideA, B += *strideB, C += *strideC,
                     dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -79,7 +79,7 @@ namespace kaad {
                 }
             }
             else {
-                for (; C < end;
+                for (; C != end;
                     A += *strideA, B += *strideB, C += *strideC,
                     dA += *strideA, dB += *strideB, dC += *strideC) {
                     flexible<T,Grad,N-1>(A, dA, B, dB, C, dC, strideA+1, strideB+1, strideC+1, len+1, 0, grad);
@@ -117,12 +117,23 @@ namespace kaad {
             // dB = A^T * dC
             Operations::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA+2, strideC+2, strideB+2);
         }
+
         template <typename T>
-        static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_off, int* b_off, int* k, int** strideA, int** strideB, int** strideC, int** reps, int** count, size_t* D) {
+        static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int N) {
             // dA = dC * B^T
-            Operations::batch_matmul<T>(dC, B, dA, a_off[0], b_off[0], k[0], strideC[0], strideB[0], strideA[0], reps[0], count[0], D[0]);
+            Operations::batch_matmul<T>(dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0], b_off[0], k[0], N);
             // dB = A^T * dC
-            Operations::batch_matmul<T>(A, dC, dB, a_off[1], b_off[1], k[1], strideA[1], strideC[1], strideB[1], reps[1], count[1], D[1]);
+            Operations::batch_matmul<T>(A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1], a_off[1], b_off[1], k[1], N);
+
+        }
+
+        template <typename T, int N>
+        static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int _) {
+            // dA = dC * B^T
+            Operations::batch_matmul<T,N>(dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0], b_off[0], k[0], 0);
+            // dB = A^T * dC
+            Operations::batch_matmul<T,N>(A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1], a_off[1], b_off[1], k[1], 0);
+
         }
 
         /*
