@@ -5,18 +5,16 @@
 #include <limits>
 
 namespace kaad {
-    template <typename T>
-    struct Kernels {
-
-        inline static T epsilon = static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
-        inline static T max_exp = std::log(std::numeric_limits<T>::max());
-        inline static T min_exp = std::log(std::numeric_limits<T>::min());
+    namespace Kernels {
 
         struct Null {
             struct Op {};
             struct Grad {};
         };
 
+        using NullOp = class Kernels::Null;
+
+        template <typename T>
         struct Add {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -31,6 +29,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Sub {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -45,6 +44,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Mul {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -59,6 +59,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Div {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -73,6 +74,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Pow {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -87,6 +89,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Dot {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -101,6 +104,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Min {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -116,6 +120,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Max {
             struct Op {
                 constexpr void operator()(T A, T B, T& C) const noexcept {
@@ -131,6 +136,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Neg {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
@@ -144,6 +150,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Square {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
@@ -157,7 +164,9 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Sqrt {
+            inline static T epsilon = static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
 #ifdef NO_STABLE_SQRT
@@ -178,7 +187,9 @@ namespace kaad {
             };
         };
 
-        struct Log{
+        template <typename T>
+        struct Log {
+            inline static T epsilon = static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
 #ifdef NO_STABLE_LOG
@@ -199,7 +210,10 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Exp {
+            inline static T max_exp = std::log(std::numeric_limits<T>::max());
+            inline static T min_exp = std::log(std::numeric_limits<T>::min());
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
 #ifdef NO_STABLE_EXP
@@ -216,6 +230,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Abs {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
@@ -229,6 +244,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Transp {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {}
@@ -240,6 +256,7 @@ namespace kaad {
             };
         };
 
+        template <typename T>
         struct Sum {
             struct Op {
                 constexpr void operator()(T A, T& C) const noexcept {
@@ -254,5 +271,4 @@ namespace kaad {
         };
     };
 
-    using NullOp = class Kernels<int>::Null;
 }    

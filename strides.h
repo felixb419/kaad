@@ -11,9 +11,8 @@ namespace kaad {
     template <typename T> struct Node_matmul;
     template <typename T> struct Node_mean_dim;
 
-    template<typename T>
-    struct Strides {
-        template <class Kernel>
+    namespace Strides {
+        template <typename T, class Kernel>
         static void flexible_binary(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T,Kernel>& node) {
             Tensor<T>& C = node.value;
 
@@ -37,6 +36,29 @@ namespace kaad {
             }
         }
 
+        template <typename T>
+        static void _matmul(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int* strideA, int* strideB, int* strideC) {
+            a_dim = A.shape[0];
+            b_dim = B.shape[1];
+            k = A.shape[1];
+
+            std::copy(A.stride, A.stride + 2, strideA);
+            std::copy(B.stride, B.stride + 2, strideB);
+            std::copy(C.stride, C.stride + 2, strideC);
+
+            int idx, idxA, idxB, idxC;
+            int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
+            for (int i = 1; i <= 2; i++) {
+                idx = 2 - i;
+
+                idxC = C.nDims - i;
+                _offsetC = offsetC;
+                offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+                strideC[idx] -= _offsetC + strideC[idx + 1];
+            }
+        }
+
+        template <typename T>
         static void matmul(Tensor<T>& A, Tensor<T>& B, Node_matmul<T>& node) {
             tView<T> a = A.view();
             tView<T> b = B.view();
@@ -57,6 +79,40 @@ namespace kaad {
             _matmul(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA+4, node.strideC+4, node.strideB+4);
         }
 
+        template <typename T>
+        static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, int*& strideA, int*& strideB, int*& strideC, int*& c_shape, int& a_off, int& b_off, int& k, size_t& D) {
+            a_off = A.stride[A.nDims - 1];
+            b_off = B.stride[B.nDims - 2];
+            k = A.shape[A.nDims - 1];
+
+            D = std::max(A.nDims, B.nDims);
+            c_shape = new int[D];
+
+            combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
+
+            strideA = new int[D];
+            strideB = new int[D];
+            strideC = new int[D];
+
+
+            int idx, idxA, idxB, idxC;
+            for (int i = 1; i <= D; i++) {
+                idx = D - i;
+                idxA = A.nDims - i;
+                strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
+                idxB = B.nDims - i;
+                strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
+                idxC = C.nDims - i;
+                strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+            }
+
+
+        
+            strideA[D - 1] = 0;
+            strideB[D - 2] = 0;
+        }
+
+        template <typename T>
         static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node_batch_matmul<T>& node) {
             tView<T> a = A.view();
             tView<T> b = B.view();
@@ -78,7 +134,7 @@ namespace kaad {
             delete[] shapeBlock;
         }
 
-        template <class Kernel>
+        template <typename T, class Kernel>
         static void outer(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T,Kernel>& node) {
             Tensor<T>& C = node.value;
 
@@ -126,13 +182,14 @@ namespace kaad {
             }
         }
 
-        template <class Kernel>
+        template <typename T, class Kernel>
         static void along_dim(Tensor<T>& A, Node_unary_flex<T,Kernel>& node, int dim) {
             Tensor<T>& C = node.value;
 
             _along_dim(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
         }
 
+        template <typename T>
         static void mean_along_dim(Tensor<T>& A, Node_mean_dim<T>& node, int dim) {
             Tensor<T>& C = node.value;
 
@@ -143,90 +200,7 @@ namespace kaad {
             _along_dim(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
         }
 
-        private:
-
-        static void _matmul(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int* strideA, int* strideB, int* strideC) {
-            a_dim = A.shape[0];
-            b_dim = B.shape[1];
-            k = A.shape[1];
-
-            std::copy(A.stride, A.stride + 2, strideA);
-            std::copy(B.stride, B.stride + 2, strideB);
-            std::copy(C.stride, C.stride + 2, strideC);
-
-            int idx, idxA, idxB, idxC;
-            int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-            for (int i = 1; i <= 2; i++) {
-                idx = 2 - i;
-
-                //idxA = A.nDims - i;
-                //_offsetA = offsetA;
-                //offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
-                //strideA[idx] -= _offsetA;
-
-                //idxB = B.nDims - i;
-                //_offsetB = offsetB;
-                //offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
-                //strideB[idx] -= _offsetB;
-
-                idxC = C.nDims - i;
-                _offsetC = offsetC;
-                offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
-                strideC[idx] -= _offsetC + strideC[idx + 1];
-            }
-        }
-        
-        static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, int*& strideA, int*& strideB, int*& strideC, int*& c_shape, int& a_off, int& b_off, int& k, size_t& D) {
-            a_off = A.stride[A.nDims - 1];
-            b_off = B.stride[B.nDims - 2];
-            k = A.shape[A.nDims - 1];
-
-            D = std::max(A.nDims, B.nDims);
-            c_shape = new int[D];
-
-            combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
-
-            strideA = new int[D];
-            strideB = new int[D];
-            strideC = new int[D];
-
-
-            int idx, idxA, idxB, idxC;
-            for (int i = 1; i <= D; i++) {
-                idx = D - i;
-                idxA = A.nDims - i;
-                strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
-                idxB = B.nDims - i;
-                strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
-                idxC = C.nDims - i;
-                strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
-            }
-
-
-        
-            strideA[D - 1] = 0;
-            strideB[D - 2] = 0;
-            //int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-            //for (int i = 1; i <= D; i++) {
-            //    idx = D - i;
-
-            //    idxA = A.nDims - i;
-            //    _offsetA = offsetA;
-            //    offsetA += ((idxA >= 0 ? A.shape[idxA] : i) - 1) * strideA[idx];
-            //    strideA[idx] -= _offsetA;
-
-            //    idxB = B.nDims - i;
-            //    _offsetB = offsetB;
-            //    offsetB += ((idxB >= 0 ? B.shape[idxB] : i) - 1) * strideB[idx];
-            //    strideB[idx] -= _offsetB;
-
-            //    idxC = C.nDims - i;
-            //    _offsetC = offsetC;
-            //    offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
-            //    strideC[idx] -= _offsetC;
-            //}
-        }
-
+        template <typename T>
         static void _along_dim(Tensor<T>& A, Tensor<T>& C, int dim, size_t& D, int*& reps, int*& count, int*& strideA, int*& strideC) {
             D = A.nDims;
             reps = new int[D];

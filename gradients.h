@@ -91,7 +91,7 @@ namespace kaad {
         // df/dA = B
         // df/dB = A
         template <typename T>
-        static void dot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
+        static void dot(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len) {
             const T* end = A + len;
             for (; A != end; A++, dA++, B++, dB++) {
                 *dA += *dC * (*B);
@@ -99,7 +99,7 @@ namespace kaad {
             }
         }
         template <typename T, class Grad>
-        static void scalarDot_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
+        static void scalarDot(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, size_t len, Grad _) {
             const T* end = A + len;
             for (; A != end; A++, dA++) {
                 *dA += *dC * (*B);
@@ -111,7 +111,7 @@ namespace kaad {
         // dC/dA = B^T
         // dC/dB = A^T
         template <typename T>
-        static void matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC) {
+        static void matmul(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int* a_dim, int* b_dim, int* k, int* strideA, int* strideB, int* strideC) {
             // dA = dC * B^T
             Operations::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC, strideB, strideA);
             // dB = A^T * dC
@@ -119,7 +119,7 @@ namespace kaad {
         }
 
         template <typename T>
-        static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int N) {
+        static void batch_matmul(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int N) {
             // dA = dC * B^T
             Operations::batch_matmul<T>(dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0], b_off[0], k[0], N);
             // dB = A^T * dC
@@ -128,7 +128,7 @@ namespace kaad {
         }
 
         template <typename T, int N>
-        static void batch_matmul_grad(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int _) {
+        static void batch_matmul(const T* A, T* dA, const T* B, T* dB, const T* C, const T* dC, int** strideA, int** strideB, int** strideC, int** c_shape, int* a_off, int* b_off, int* k, int _) {
             // dA = dC * B^T
             Operations::batch_matmul<T,N>(dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0], b_off[0], k[0], 0);
             // dB = A^T * dC
@@ -181,7 +181,7 @@ namespace kaad {
         // f(A) = A^T
         // df/dA = 1
         template <typename T, class Grad>
-        static void transp_grad(const T* A, T* dA, const T* C, const T* dC, size_t len) {
+        static void transp(const T* A, T* dA, const T* C, const T* dC, size_t len) {
             const T* end = C + len;
             for (; C != end; dA++, dC++) {
                 *dA += *dC;
@@ -191,7 +191,7 @@ namespace kaad {
         // f(A) = sum(A)
         // df_dA = tensor with shape of A filled with 1
         template <typename T, class Grad>
-        static void sum_grad(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
+        static void sum(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
             const T* end = C + len;
             for (; C != end; dA++) {
                 *dA += *dC;
@@ -201,7 +201,7 @@ namespace kaad {
         // f(A) = mean(A)
         // df_dA = tensor with shape of A filled with 1 / (len of A)
         template <typename T, class Grad>
-        static void mean_grad(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
+        static void mean(const T* A, T* dA, const T* C, const T* dC, size_t len, Grad _) {
             T mean = dC[0] / len;
             const T* end = C + len;
             for (; C != end; dA++) {
@@ -210,7 +210,7 @@ namespace kaad {
         }
 
         template <typename T, class Grad>
-        static void mean_dim_grad(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D) {
+        static void mean_dim(const T* A, T* dA, const T* C, const T* dC, T divisor, size_t c_len, int* strideA, int* strideC, int* reps, int* count, size_t D) {
             Operations::mean_dim<T>(dC, dA, divisor, c_len, strideC, strideA, reps, count, D);
         }
     };

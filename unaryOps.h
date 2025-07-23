@@ -46,7 +46,7 @@ namespace kaad {
     // where A is a tensor
     template <typename T>
     INode<T>* negative(CompGraph<T>& rec, INode<T>* A_ptr) {
-        static const UnaryKernels<T, class Kernels<T>::Neg> negK;
+        static const UnaryKernels<T, class Kernels::Neg<T>> negK;
         return unOperator(rec, A_ptr, negK);
     }
 
@@ -54,7 +54,7 @@ namespace kaad {
     // where A is a tensor
     template <typename T>
     INode<T>* square(CompGraph<T>& rec, INode<T>* A_ptr) {
-        static const UnaryKernels<T, class Kernels<T>::Square> squareK;
+        static const UnaryKernels<T, class Kernels::Square<T>> squareK;
         return unOperator(rec, A_ptr, squareK);
     }
 
@@ -62,7 +62,7 @@ namespace kaad {
     // where A is a tensor
     template <typename T>
     INode<T>* sqrt(CompGraph<T>& rec, INode<T>* A_ptr) {
-        static const UnaryKernels<T, class Kernels<T>::Sqrt> sqrtK;
+        static const UnaryKernels<T, class Kernels::Sqrt<T>> sqrtK;
         return unOperator(rec, A_ptr, sqrtK);
     }
 
@@ -70,7 +70,7 @@ namespace kaad {
     // where A is a tensor
     template <typename T>
     INode<T>* log(CompGraph<T>& rec, INode<T>* A_ptr) {
-        static const UnaryKernels<T, class Kernels<T>::Log> logK;
+        static const UnaryKernels<T, class Kernels::Log<T>> logK;
         return unOperator(rec, A_ptr, logK);
     }
 
@@ -78,7 +78,7 @@ namespace kaad {
     // where A is a tensor
     template <typename T>
     INode<T>* exp(CompGraph<T>& rec, INode<T>* A_ptr) {
-        static const UnaryKernels<T, class Kernels<T>::Exp> expK;
+        static const UnaryKernels<T, class Kernels::Exp<T>> expK;
         return unOperator(rec, A_ptr, expK);
     }
 
@@ -86,7 +86,7 @@ namespace kaad {
     // where A is a tensor
     template <typename T>
     INode<T>* abs(CompGraph<T>& rec, INode<T>* A_ptr) {
-        static const UnaryKernels<T, class Kernels<T>::Abs> absK;
+        static const UnaryKernels<T, class Kernels::Abs<T>> absK;
         return unOperator(rec, A_ptr, absK);
     }
 
@@ -151,7 +151,7 @@ namespace kaad {
             }
         }
 
-        using Kernel = class Kernels<T>::Transp;
+        using Kernel = class Kernels::Transp<T>;
         using Op = class Kernel::Op;
         using Grad = class Kernel::Grad;
         unaryOp<T,Op> op = Operations::transpose<T,Op>;
@@ -170,7 +170,7 @@ namespace kaad {
         Tensor<T>& A = A_ptr->value;
 
         if (dim == -1) {
-            using Kernel = class Kernels<T>::Sum;
+            using Kernel = class Kernels::Sum<T>;
             using Op = typename Kernel::Op;
             using Grad = typename Kernel::Grad;
             unaryOp<T,Op> op = Operations::unary_scalarRhs<T,Op>;
@@ -193,14 +193,14 @@ namespace kaad {
             std::copy(A.shape, A.shape + dim, newShape);
             std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
-            using Kernel = class Kernels<T>::Sum;
+            using Kernel = class Kernels::Sum<T>;
             using Op = class Kernel::Op;
             using Grad = class Kernel::Grad;
             flexUnaryOp<T,Op> op = Operations::unary_flexible<T,Op>;
             flexUnaryGrad<T,Grad> grad = Gradients::unary_flexible<T,Grad>;
 
             auto newNode = std::make_unique<Node_unary_flex<T,Kernel>>(op, grad, A_ptr, newShape, newLen);
-            Strides<T>::along_dim(A, *newNode.get(), dim);
+            Strides::along_dim<T>(A, *newNode.get(), dim);
             rec.nodes.push_back(move(newNode));
         }
 
@@ -215,11 +215,11 @@ namespace kaad {
         if (dim == -1) {
             int* newShape = new int[] { 1 };
 
-            using Op = typename NullOp::Op;
-            using Grad = typename NullOp::Grad;
+            using Op = typename Kernels::NullOp::Op;
+            using Grad = typename Kernels::NullOp::Grad;
             unaryOp<T,Op> op = Operations::mean<T,Op>;
-            unaryGrad<T,Grad> grad = Gradients::mean_grad<T,Grad>;
-            auto newNode = std::make_unique<Node_unary<T,NullOp>>(op, grad, A_ptr, newShape, 1);
+            unaryGrad<T,Grad> grad = Gradients::mean<T,Grad>;
+            auto newNode = std::make_unique<Node_unary<T,Kernels::NullOp>>(op, grad, A_ptr, newShape, 1);
             newNode->len = A_ptr->value.len;
             rec.nodes.push_back(move(newNode));
         }
@@ -236,12 +236,12 @@ namespace kaad {
             std::copy(A.shape, A.shape + dim, newShape);
             std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
-            using Op = typename NullOp::Op;
-            using Grad = typename NullOp::Grad;
+            using Op = typename Kernels::NullOp::Op;
+            using Grad = typename Kernels::NullOp::Grad;
             meanDimOp<T> op = Operations::mean_dim<T,Op>;
-            meanDimGrad<T> grad = Gradients::mean_dim_grad<T,Grad>;
+            meanDimGrad<T> grad = Gradients::mean_dim<T,Grad>;
             auto newNode = std::make_unique<Node_mean_dim<T>>(op, grad, A_ptr, newShape, newLen);
-            Strides<T>::mean_along_dim(A, *newNode.get(), dim);
+            Strides::mean_along_dim<T>(A, *newNode.get(), dim);
             rec.nodes.push_back(move(newNode));
         }
 
