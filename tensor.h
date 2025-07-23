@@ -16,7 +16,7 @@ namespace kaad {
     }
 
     template <typename T>
-    inline void _print(std::ostream& stream, int* cords, int* shape, int* stride, size_t nDims, T* val, int ind, int& indent) {
+    inline void print(std::ostream& stream, int* cords, int* shape, int* stride, size_t nDims, T* val, int ind, int& indent) {
         if (ind == nDims) {
             stream << val[getIndex(cords, shape, stride, nDims)];
         }
@@ -27,7 +27,7 @@ namespace kaad {
             // iterate for size of current dimension
             for (int i = 0; i < lim - 1; i++) {
                 // print next dimension
-                _print(stream, cords, shape, stride, nDims, val, ind + 1, indent);
+                print(stream, cords, shape, stride, nDims, val, ind + 1, indent);
                 stream << ", ";
                 bool indent_here = false;
                 for (int j = 0; j < nDims - ind - 1; j++) {
@@ -40,7 +40,7 @@ namespace kaad {
                 cords[ind]++;
             }
             // last pass without trailing comma
-            _print(stream, cords, shape, stride, nDims, val, ind + 1, indent);
+            print(stream, cords, shape, stride, nDims, val, ind + 1, indent);
             cords[ind]++;
 
             stream << "]";
@@ -72,7 +72,7 @@ namespace kaad {
                 std::fill(cords, cords + view.nDims, 0);
                 int indent = 0;
             
-                _print(stream, cords, view.shape, view.stride, view.nDims, view.val, 0, indent);
+                print(stream, cords, view.shape, view.stride, view.nDims, view.val, 0, indent);
 
                 delete[] cords;
             }
@@ -268,7 +268,7 @@ namespace kaad {
                     std::fill(cords, cords + tensor.nDims, 0);
                     int indent = 0;
 
-                    _print(stream, cords, tensor.shape, tensor.stride, tensor.nDims, tensor.val, 0, indent);
+                    print(stream, cords, tensor.shape, tensor.stride, tensor.nDims, tensor.val, 0, indent);
 
                     delete[] cords;
                 }
@@ -277,7 +277,7 @@ namespace kaad {
     };
 
     template <typename T>
-    void _print_flat(std::ostream& os, int* cords, const Tensor<T>& tensor, int ind) {
+    void print_flat_impl(std::ostream& os, int* cords, const Tensor<T>& tensor, int ind) {
         if (ind == tensor.nDims) {
             os << tensor.val[getIndex(cords, tensor.shape, tensor.stride, tensor.nDims)];
         }
@@ -287,12 +287,12 @@ namespace kaad {
             // iterate for size of current dimension
             for (int i = 0; i < lim - 1; i++) {
                 // print next dimension
-                _print_flat(os, cords, tensor, ind + 1);
+                print_flat_impl(os, cords, tensor, ind + 1);
                 os << ",";
                 cords[ind]++;
             }
             // last pass without trailing comma
-            _print_flat(os, cords, tensor, ind + 1);
+            print_flat_impl(os, cords, tensor, ind + 1);
             cords[ind]++;
 
             os << "]";
@@ -304,7 +304,7 @@ namespace kaad {
         int* cords = new int[tensor.nDims];
         std::fill(cords, cords + tensor.nDims, 0);
         
-        _print_flat(stream, cords, tensor, 0);
+        print_flat_impl(stream, cords, tensor, 0);
         
         stream << std::endl;
         delete[] cords;

@@ -37,7 +37,7 @@ namespace kaad {
         }
 
         template <typename T>
-        static void _matmul(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int* strideA, int* strideB, int* strideC) {
+        static void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int* strideA, int* strideB, int* strideC) {
             a_dim = A.shape[0];
             b_dim = B.shape[1];
             k = A.shape[1];
@@ -74,13 +74,13 @@ namespace kaad {
             B_T.stride = shapeBlock + 6;
             transp2D(b.shape, b.stride, b.nDims, B_T.shape, B_T.stride);
 
-            _matmul(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA, node.strideB, node.strideC);
-            _matmul(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC+2, node.strideB+2, node.strideA+2);
-            _matmul(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA+4, node.strideC+4, node.strideB+4);
+            matmul_impl(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA, node.strideB, node.strideC);
+            matmul_impl(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC+2, node.strideB+2, node.strideA+2);
+            matmul_impl(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA+4, node.strideC+4, node.strideB+4);
         }
 
         template <typename T>
-        static void _batch_matmul(tView<T>& A, tView<T>& B, tView<T>& C, int*& strideA, int*& strideB, int*& strideC, int*& c_shape, int& a_off, int& b_off, int& k, size_t& D) {
+        static void batch_matmul_impl(tView<T>& A, tView<T>& B, tView<T>& C, int*& strideA, int*& strideB, int*& strideC, int*& c_shape, int& a_off, int& b_off, int& k, size_t& D) {
             a_off = A.stride[A.nDims - 1];
             b_off = B.stride[B.nDims - 2];
             k = A.shape[A.nDims - 1];
@@ -127,9 +127,9 @@ namespace kaad {
             b_T.stride = b_T.shape + B.nDims;
             transp2D(B.shape, B.stride, B.nDims, b_T.shape, b_T.stride);
 
-            _batch_matmul(a, b, c, node.strideA[0], node.strideB[0], node.strideC[0], node.c_shape[0], node.a_offset[0], node.b_offset[0], node.k[0], node.D); 
-            _batch_matmul(c, b_T, a, node.strideC[1], node.strideB[1], node.strideA[1], node.c_shape[1], node.a_offset[1], node.b_offset[1], node.k[1], node.D); 
-            _batch_matmul(a_T, c, b, node.strideA[2], node.strideC[2], node.strideB[2], node.c_shape[2], node.a_offset[2], node.b_offset[2], node.k[2], node.D); 
+            batch_matmul_impl(a, b, c, node.strideA[0], node.strideB[0], node.strideC[0], node.c_shape[0], node.a_offset[0], node.b_offset[0], node.k[0], node.D); 
+            batch_matmul_impl(c, b_T, a, node.strideC[1], node.strideB[1], node.strideA[1], node.c_shape[1], node.a_offset[1], node.b_offset[1], node.k[1], node.D); 
+            batch_matmul_impl(a_T, c, b, node.strideA[2], node.strideC[2], node.strideB[2], node.c_shape[2], node.a_offset[2], node.b_offset[2], node.k[2], node.D); 
 
             delete[] shapeBlock;
         }
@@ -182,26 +182,8 @@ namespace kaad {
             }
         }
 
-        template <typename T, class Kernel>
-        static void along_dim(Tensor<T>& A, Node_unary_flex<T,Kernel>& node, int dim) {
-            Tensor<T>& C = node.value;
-
-            _along_dim(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
-        }
-
         template <typename T>
-        static void mean_along_dim(Tensor<T>& A, Node_mean_dim<T>& node, int dim) {
-            Tensor<T>& C = node.value;
-
-            node.divisor = (T)A.shape[dim];
-            node.c_len[0] = C.len;
-            node.c_len[1] = A.len;
-
-            _along_dim(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
-        }
-
-        template <typename T>
-        static void _along_dim(Tensor<T>& A, Tensor<T>& C, int dim, size_t& D, int*& reps, int*& count, int*& strideA, int*& strideC) {
+        static void along_dim_impl(Tensor<T>& A, Tensor<T>& C, int dim, size_t& D, int*& reps, int*& count, int*& strideA, int*& strideC) {
             D = A.nDims;
             reps = new int[D];
             std::copy(A.shape, A.shape + A.nDims, reps);
@@ -241,6 +223,24 @@ namespace kaad {
                 offsetC += (c_shape_big[idx] - 1) * strideC[idx];
                 strideC[idx] -= _offsetC;
             }
+        }
+
+        template <typename T, class Kernel>
+        static void along_dim(Tensor<T>& A, Node_unary_flex<T,Kernel>& node, int dim) {
+            Tensor<T>& C = node.value;
+
+            along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
+        }
+
+        template <typename T>
+        static void mean_along_dim(Tensor<T>& A, Node_mean_dim<T>& node, int dim) {
+            Tensor<T>& C = node.value;
+
+            node.divisor = (T)A.shape[dim];
+            node.c_len[0] = C.len;
+            node.c_len[1] = A.len;
+
+            along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
         }
     };
 }    
