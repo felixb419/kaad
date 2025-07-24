@@ -5,3 +5,4 @@ _main
 compile_commands.json
 .vscode/
 .cache/
+.clang-format

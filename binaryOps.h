@@ -1,323 +1,343 @@
 #pragma once
 
-#include <stddef.h>      // for size_t
-#include <algorithm>     // for equal, max
-#include <memory>        // for make_unique
-#include <sstream>       // for operator<<, basic_ostream, char_traits, ostr...
-#include <stdexcept>     // for std::invalid_argument
+#include "gradients.h"  // for Gradients, binaryGrad, flexBinaryGrad
+#include "kernels.h"    // for Kernels, Kernels::NullOp
+#include "operations.h" // for Operations, binaryOp, flexBinaryOp
+#include "strides.h"    // for Strides
+#include "tensor.h"     // for Tensor (ptr only), print_arr, combine_flexible
+#include <algorithm>    // for equal, max
 #include <cstddef>
-#include "gradients.h"   // for Gradients, binaryGrad, flexBinaryGrad
-#include "kernels.h"     // for Kernels, Kernels::NullOp
-#include "operations.h"  // for Operations, binaryOp, flexBinaryOp
-#include "strides.h"     // for Strides
-#include "tensor.h"      // for Tensor (ptr only), print_arr, combine_flexible
+#include <memory>    // for make_unique
+#include <sstream>   // for operator<<, basic_ostream, char_traits, ostr...
+#include <stddef.h>  // for size_t
+#include <stdexcept> // for std::invalid_argument
 
 namespace kaad {
-    template <typename T, class Kernel> struct Node_binary;
-    template <typename T, class Kernel> struct Node_binary_flex;
-    template <typename T> struct CompGraph;
-    template <typename T> struct INode;
-    template <typename T> struct Node_batch_matmul;
-    template <typename T> struct Node_matmul;
+template <typename T, class Kernel> struct Node_binary;
+template <typename T, class Kernel> struct Node_binary_flex;
+template <typename T> struct CompGraph;
+template <typename T> struct INode;
+template <typename T> struct Node_batch_matmul;
+template <typename T> struct Node_matmul;
 
-    #ifndef KAAD_MAX_NDIMS
-    #define KAAD_MAX_NDIMS 5
-    #endif
+#ifndef KAAD_MAX_NDIMS
+#define KAAD_MAX_NDIMS 5
+#endif
 
-    template <typename T, class Op, std::size_t... Is>
-    constexpr std::array<flexBinaryOp<T, Op>, sizeof...(Is)>
-    get_flexOp_dispatcher_impl(std::index_sequence<Is...>) {
-        return { &Operations::flexible<T, Op, Is>... };
-    }
+template <typename T, class Op, std::size_t... Is>
+constexpr std::array<flexBinaryOp<T, Op>, sizeof...(Is)>
+get_flexOp_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Operations::flexible<T, Op, Is>...};
+}
 
-    template <typename T, class Op>
-    constexpr std::array<flexBinaryOp<T, Op>, KAAD_MAX_NDIMS> get_flexOp_dispatcher() {
-        return get_flexOp_dispatcher_impl<T, Op>(std::make_index_sequence<KAAD_MAX_NDIMS>());
-    }
+template <typename T, class Op>
+constexpr std::array<flexBinaryOp<T, Op>, KAAD_MAX_NDIMS>
+get_flexOp_dispatcher() {
+	return get_flexOp_dispatcher_impl<T, Op>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
 
-    template <typename T, class Grad, std::size_t... Is>
-    constexpr std::array<flexBinaryGrad<T, Grad>, sizeof...(Is)>
-    get_flexGrad_dispatcher_impl(std::index_sequence<Is...>) {
-        return { &Gradients::flexible<T, Grad, Is>... };
-    }
+template <typename T, class Grad, std::size_t... Is>
+constexpr std::array<flexBinaryGrad<T, Grad>, sizeof...(Is)>
+get_flexGrad_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Gradients::flexible<T, Grad, Is>...};
+}
 
-    template <typename T, class Grad>
-    constexpr std::array<flexBinaryGrad<T, Grad>, KAAD_MAX_NDIMS> get_flexGrad_dispatcher() {
-        return get_flexGrad_dispatcher_impl<T, Grad>(std::make_index_sequence<KAAD_MAX_NDIMS>());
-    }
+template <typename T, class Grad>
+constexpr std::array<flexBinaryGrad<T, Grad>, KAAD_MAX_NDIMS>
+get_flexGrad_dispatcher() {
+	return get_flexGrad_dispatcher_impl<T, Grad>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
 
-    template <typename T, std::size_t... Is>
-    constexpr std::array<batchmatmulOp<T>, sizeof...(Is)>
-    get_batch_matmul_dispatcher_impl(std::index_sequence<Is...>) {
-        return { &Operations::batch_matmul<T, Is>... };
-    }
+template <typename T, std::size_t... Is>
+constexpr std::array<batchmatmulOp<T>, sizeof...(Is)>
+get_batch_matmul_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Operations::batch_matmul<T, Is>...};
+}
 
-    template <typename T>
-    constexpr std::array<batchmatmulOp<T>, KAAD_MAX_NDIMS> get_batch_matmul_dispatcher() {
-        return get_batch_matmul_dispatcher_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
-    }
+template <typename T>
+constexpr std::array<batchmatmulOp<T>, KAAD_MAX_NDIMS>
+get_batch_matmul_dispatcher() {
+	return get_batch_matmul_dispatcher_impl<T>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
 
-    template <typename T, std::size_t... Is>
-    constexpr std::array<batchmatmulGrad<T>, sizeof...(Is)>
-    get_batch_matmul_grad_dispatcher_impl(std::index_sequence<Is...>) {
-        return { &Gradients::batch_matmul<T, Is>... };
-    }
+template <typename T, std::size_t... Is>
+constexpr std::array<batchmatmulGrad<T>, sizeof...(Is)>
+get_batch_matmul_grad_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Gradients::batch_matmul<T, Is>...};
+}
 
-    template <typename T>
-    constexpr std::array<batchmatmulGrad<T>, KAAD_MAX_NDIMS> get_batch_matmul_grad_dispatcher() {
-        return get_batch_matmul_grad_dispatcher_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
-    }
+template <typename T>
+constexpr std::array<batchmatmulGrad<T>, KAAD_MAX_NDIMS>
+get_batch_matmul_grad_dispatcher() {
+	return get_batch_matmul_grad_dispatcher_impl<T>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
 
-    template <typename T, class Kernel>
-    struct BinaryKernels {
-        using Op = class Kernel::Op;
-        using Grad = class Kernel::Grad;
+template <typename T, class Kernel> struct BinaryKernels {
+	using Op = class Kernel::Op;
+	using Grad = class Kernel::Grad;
 
-        binaryOp<T,Op> scalarOpRhs = Operations::scalarRhs<T,Op>;
-        binaryOp<T,Op> scalarOpLhs = Operations::scalarLhs<T,Op>;
-        binaryOp<T,Op> pointOp = Operations::pointwise<T,Op>;
-        flexBinaryOp<T,Op> flexOp = Operations::flexible<T,Op>;
-        
-        binaryGrad<T,Grad> scalarGradRhs = Gradients::scalarRhs<T,Grad>;
-        binaryGrad<T,Grad> scalarGradLhs = Gradients::scalarLhs<T,Grad>;
-        binaryGrad<T,Grad> pointGrad = Gradients::pointwise<T,Grad>;
-        flexBinaryGrad<T,Grad> flexGrad = Gradients::flexible<T,Grad>;
-    };
+	binaryOp<T, Op> scalarOpRhs = Operations::scalarRhs<T, Op>;
+	binaryOp<T, Op> scalarOpLhs = Operations::scalarLhs<T, Op>;
+	binaryOp<T, Op> pointOp = Operations::pointwise<T, Op>;
+	flexBinaryOp<T, Op> flexOp = Operations::flexible<T, Op>;
 
-    template <typename T, class Kernel>
-    INode<T>* binOperator(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr, const BinaryKernels<T,Kernel> kernels, const char* opName) {
-        int recLen = rec.nodes.size();
-        Tensor<T>& A = A_ptr->value;
-        Tensor<T>& B = B_ptr->value;
-        bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
-        bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
+	binaryGrad<T, Grad> scalarGradRhs = Gradients::scalarRhs<T, Grad>;
+	binaryGrad<T, Grad> scalarGradLhs = Gradients::scalarLhs<T, Grad>;
+	binaryGrad<T, Grad> pointGrad = Gradients::pointwise<T, Grad>;
+	flexBinaryGrad<T, Grad> flexGrad = Gradients::flexible<T, Grad>;
+};
 
-        size_t newLen = std::max(A.nDims, B.nDims);
-        int* newShape = new int[newLen];
+template <typename T, class Kernel>
+INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
+                      const BinaryKernels<T, Kernel> kernels,
+                      const char *opName) {
+	int recLen = rec.nodes.size();
+	Tensor<T> &A = A_ptr->value;
+	Tensor<T> &B = B_ptr->value;
+	bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
+	bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
 
-        if (B_scalar) {
-            std::copy(A.shape, A.shape + A.nDims, newShape);
+	size_t newLen = std::max(A.nDims, B.nDims);
+	int *newShape = new int[newLen];
 
-            auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, newShape, A.nDims);
-            newNode->len = newNode->value.len;
-            rec.nodes.push_back(move(newNode));
-        }
-        else if (A_scalar) {
-            std::copy(B.shape, B.shape + B.nDims, newShape);
+	if (B_scalar) {
+		std::copy(A.shape, A.shape + A.nDims, newShape);
 
-            auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, newShape, B.nDims);
-            newNode->len = newNode->value.len;
-            rec.nodes.push_back(move(newNode));
-        }
-        else if (A.nDims == B.nDims && std::equal(A.shape, A.shape + A.nDims, B.shape)) {
-            std::copy(A.shape, A.shape + A.nDims, newShape);
+		auto newNode = std::make_unique<Node_binary<T, Kernel>>(
+		    kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, newShape,
+		    A.nDims);
+		newNode->len = newNode->value.len;
+		rec.nodes.push_back(move(newNode));
+	} else if (A_scalar) {
+		std::copy(B.shape, B.shape + B.nDims, newShape);
 
-            auto newNode = std::make_unique<Node_binary<T,Kernel>>(kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape, A.nDims);
-            newNode->len = newNode->value.len;
-            rec.nodes.push_back(move(newNode));
-        }
-        else if (combine_flexible(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
-            using Op = typename Kernel::Op;
-            using Grad = typename Kernel::Grad;
-            flexBinaryOp<T,Op> Operation;
-            flexBinaryGrad<T,Grad> Gradient;
-            if (newLen <= KAAD_MAX_NDIMS) {
-                Operation = get_flexOp_dispatcher<T,Op>()[newLen];
-                Gradient = get_flexGrad_dispatcher<T,Grad>()[newLen];
-            }
-            else {
-                Operation = kernels.flexOp;
-                Gradient = kernels.flexGrad;
-            }
+		auto newNode = std::make_unique<Node_binary<T, Kernel>>(
+		    kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, newShape,
+		    B.nDims);
+		newNode->len = newNode->value.len;
+		rec.nodes.push_back(move(newNode));
+	} else if (A.nDims == B.nDims &&
+	           std::equal(A.shape, A.shape + A.nDims, B.shape)) {
+		std::copy(A.shape, A.shape + A.nDims, newShape);
 
-            auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(Operation, kernels.flexGrad, A_ptr, B_ptr, newShape, newLen);
-            Strides::flexible_binary<T>(A, B, *newNode.get());
-            rec.nodes.push_back(move(newNode));
-        }
-        else {
-            std::ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes are not broadcastable (A.shape=";
-            print_arr(A.shape, A.shape + A.nDims, errmsg);
-            errmsg << ", B.shape=";
-            print_arr(B.shape, B.shape + B.nDims, errmsg);
-            errmsg << ")";
-            throw std::invalid_argument(errmsg.str());
-        }
-        return rec.nodes[recLen].get();
-    }
+		auto newNode = std::make_unique<Node_binary<T, Kernel>>(
+		    kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape,
+		    A.nDims);
+		newNode->len = newNode->value.len;
+		rec.nodes.push_back(move(newNode));
+	} else if (combine_flexible(A.shape, A.nDims, B.shape, B.nDims, newShape,
+	                            newLen)) {
+		using Op = typename Kernel::Op;
+		using Grad = typename Kernel::Grad;
+		flexBinaryOp<T, Op> Operation;
+		flexBinaryGrad<T, Grad> Gradient;
+		if (newLen <= KAAD_MAX_NDIMS) {
+			Operation = get_flexOp_dispatcher<T, Op>()[newLen];
+			Gradient = get_flexGrad_dispatcher<T, Grad>()[newLen];
+		} else {
+			Operation = kernels.flexOp;
+			Gradient = kernels.flexGrad;
+		}
 
-    // add A and B
-    // where A and B are Tensors with Broadcastable shapes
-    template <typename T>
-    INode<T>* add(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Add<T>> addK;
-        return binOperator(rec, A_ptr, B_ptr, addK, "add");
-    }
+		auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
+		    Operation, Gradient, A_ptr, B_ptr, newShape, newLen);
+		Strides::flexible_binary<T>(A, B, *newNode.get());
+		rec.nodes.push_back(move(newNode));
+	} else {
+		std::ostringstream errmsg;
+		errmsg << "shape error in node[" << recLen << "] (" << opName
+		       << "), tensor shapes are not broadcastable (A.shape=";
+		print_arr(A.shape, A.shape + A.nDims, errmsg);
+		errmsg << ", B.shape=";
+		print_arr(B.shape, B.shape + B.nDims, errmsg);
+		errmsg << ")";
+		throw std::invalid_argument(errmsg.str());
+	}
+	return rec.nodes[recLen].get();
+}
 
-    // subtract B from A
-    // where A and B are Tensors with Broadcastable shapes
-    template <typename T>
-    INode<T>* sub(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Sub<T>> subK;
-        return binOperator(rec, A_ptr, B_ptr, subK, "sub");
-    }
+// add A and B
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+INode<T> *add(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Add<T>> addK;
+	return binOperator(rec, A_ptr, B_ptr, addK, "add");
+}
 
-    // multiply A and B
-    // where A and B are Tensors with Broadcastable shapes
-    template <typename T>
-    INode<T>* mul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Mul<T>> mulK;
-        return binOperator(rec, A_ptr, B_ptr, mulK, "mul");
-    }
+// subtract B from A
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+INode<T> *sub(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Sub<T>> subK;
+	return binOperator(rec, A_ptr, B_ptr, subK, "sub");
+}
 
-    // divide A by B
-    // where A and B are Tensors with Broadcastable shapes
-    template <typename T>
-    INode<T>* div(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Div<T>> divK;
-        return binOperator(rec, A_ptr, B_ptr, divK, "div");
-    }
+// multiply A and B
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+INode<T> *mul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Mul<T>> mulK;
+	return binOperator(rec, A_ptr, B_ptr, mulK, "mul");
+}
 
-    // raise A to the power of B
-    // where A and B are Tensors with Broadcastable shapes
-    template <typename T>
-    INode<T>* pow(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Pow<T>> powK;
-        return binOperator(rec, A_ptr, B_ptr, powK, "pow");
-    }
+// divide A by B
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+INode<T> *div(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Div<T>> divK;
+	return binOperator(rec, A_ptr, B_ptr, divK, "div");
+}
 
-    // compute dot prodcut of A and B
-    // where A and B are scalars or vectors with the same length
-    template <typename T>
-    INode<T>* dot(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        using Op = class Kernels::NullOp::Op;
-        using Grad = class Kernels::NullOp::Grad;
-        binaryOp<T,Op> scalar = Operations::scalarDot<T,Op>;
-        binaryGrad<T,Grad> scalar_grad = Gradients::scalarDot<T,Grad>;
-        binaryOp<T,Op> dot = Operations::dot<T,Op>;
-        binaryGrad<T,Grad> dot_grad = Gradients::dot<T,Grad>;
+// raise A to the power of B
+// where A and B are Tensors with Broadcastable shapes
+template <typename T>
+INode<T> *pow(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Pow<T>> powK;
+	return binOperator(rec, A_ptr, B_ptr, powK, "pow");
+}
 
-        int recLen = rec.nodes.size();
-        Tensor<T>& A = A_ptr->value;
-        Tensor<T>& B = B_ptr->value;
+// compute dot prodcut of A and B
+// where A and B are scalars or vectors with the same length
+template <typename T>
+INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	using Op = class Kernels::NullOp::Op;
+	using Grad = class Kernels::NullOp::Grad;
+	binaryOp<T, Op> scalar = Operations::scalarDot<T, Op>;
+	binaryGrad<T, Grad> scalar_grad = Gradients::scalarDot<T, Grad>;
+	binaryOp<T, Op> dot = Operations::dot<T, Op>;
+	binaryGrad<T, Grad> dot_grad = Gradients::dot<T, Grad>;
 
-        bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
-        bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
-        if (B_scalar) {
-            auto newNode = std::make_unique<Node_binary<T,Kernels::NullOp>>(scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
+	int recLen = rec.nodes.size();
+	Tensor<T> &A = A_ptr->value;
+	Tensor<T> &B = B_ptr->value;
 
-            newNode->len = A.len;
-            rec.nodes.push_back(move(newNode));
-        }
-        else if (A_scalar) {
-            auto newNode = std::make_unique<Node_binary<T,Kernels::NullOp>>(scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
-            newNode->len = B.len;
-            rec.nodes.push_back(move(newNode));
-        }
-        else if (A.nDims == B.nDims && std::equal(A.shape, A.shape + A.nDims, B.shape)) {
-            auto newNode = std::make_unique<Node_binary<T,Kernels::NullOp>>(dot, dot_grad, A_ptr, B_ptr, ((T)0));
-            newNode->len = A.len;
-            rec.nodes.push_back(move(newNode));
+	bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
+	bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
+	if (B_scalar) {
+		auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
+		    scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
 
-        }
-        else {
-            std::ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (dot), tensor shapes arent valid for dot product (shape1=";
-            print_arr(A.shape, A.shape + A.nDims, errmsg);
-            errmsg << ", shape2=";
-            print_arr(B.shape, B.shape + B.nDims, errmsg);
-            errmsg << ")";
-            throw std::invalid_argument(errmsg.str());
-        }
+		newNode->len = A.len;
+		rec.nodes.push_back(move(newNode));
+	} else if (A_scalar) {
+		auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
+		    scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
+		newNode->len = B.len;
+		rec.nodes.push_back(move(newNode));
+	} else if (A.nDims == B.nDims &&
+	           std::equal(A.shape, A.shape + A.nDims, B.shape)) {
+		auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
+		    dot, dot_grad, A_ptr, B_ptr, ((T)0));
+		newNode->len = A.len;
+		rec.nodes.push_back(move(newNode));
 
-        return rec.nodes.back().get();
-    }
+	} else {
+		std::ostringstream errmsg;
+		errmsg << "shape error in node[" << recLen
+		       << "] (dot), tensor shapes arent valid for dot product (shape1=";
+		print_arr(A.shape, A.shape + A.nDims, errmsg);
+		errmsg << ", shape2=";
+		print_arr(B.shape, B.shape + B.nDims, errmsg);
+		errmsg << ")";
+		throw std::invalid_argument(errmsg.str());
+	}
 
-    // matrix multiply A and B
-    // where A and B are Tensors with valid dimensions
-    template <typename T>
-    INode<T>* matmul(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        int recLen = rec.nodes.size();
-        Tensor<T>& A = A_ptr->value;
-        Tensor<T>& B = B_ptr->value;
+	return rec.nodes.back().get();
+}
 
-        size_t newLen = std::max(A.nDims, B.nDims);
-        int* newShape = new int[newLen];
+// matrix multiply A and B
+// where A and B are Tensors with valid dimensions
+template <typename T>
+INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	int recLen = rec.nodes.size();
+	Tensor<T> &A = A_ptr->value;
+	Tensor<T> &B = B_ptr->value;
 
-        const char* opName = newLen == 2 ? "matmul" : "batch_matmul";
-        if (!combine_matrix(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
-            std::ostringstream errmsg;
-            errmsg << "shape error in node[" << recLen << "] (" << opName << "), tensor shapes arent valid for " << opName << " (shape1=";
-            print_arr(A.shape, A.shape + A.nDims, errmsg);
-            errmsg << ", shape2=";
-            print_arr(B.shape, B.shape + B.nDims, errmsg);
-            errmsg << ")";
-            throw std::invalid_argument(errmsg.str());
-        }
+	size_t newLen = std::max(A.nDims, B.nDims);
+	int *newShape = new int[newLen];
 
-        if (newLen == 2) {
-            auto newNode = std::make_unique<Node_matmul<T>>(Operations::matmul<T>, Gradients::matmul<T>, A_ptr, B_ptr, newShape, newLen);
-            Strides::matmul<T>(A, B, *newNode.get());
-            rec.nodes.push_back(move(newNode));
-        }
-        else {
-            batchmatmulOp<T> operation;
-            batchmatmulGrad<T> gradient;
-            if (newLen <= KAAD_MAX_NDIMS) {
-                operation = get_batch_matmul_dispatcher<T>()[newLen];
-		gradient = get_batch_matmul_grad_dispatcher<T>()[newLen];
-            }
-            else {
-                operation = Operations::batch_matmul<T>;
-		gradient = Gradients::batch_matmul<T>;
-            }
+	const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
+	if (!combine_matrix(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
+		std::ostringstream errmsg;
+		errmsg << "shape error in node[" << recLen << "] (" << opName
+		       << "), tensor shapes arent valid for " << opName << " (shape1=";
+		print_arr(A.shape, A.shape + A.nDims, errmsg);
+		errmsg << ", shape2=";
+		print_arr(B.shape, B.shape + B.nDims, errmsg);
+		errmsg << ")";
+		throw std::invalid_argument(errmsg.str());
+	}
 
-            auto newNode = std::make_unique<Node_batch_matmul<T>>(operation, gradient, A_ptr, B_ptr, newShape, newLen);
-            Strides::batch_matmul<T>(A, B, *newNode.get());
-            rec.nodes.push_back(move(newNode));
-        }
-        
-        return rec.nodes.back().get();
-    }
+	if (newLen == 2) {
+		auto newNode = std::make_unique<Node_matmul<T>>(
+		    Operations::matmul<T>, Gradients::matmul<T>, A_ptr, B_ptr, newShape,
+		    newLen);
+		Strides::matmul<T>(A, B, *newNode.get());
+		rec.nodes.push_back(move(newNode));
+	} else {
+		batchmatmulOp<T> operation;
+		batchmatmulGrad<T> gradient;
+		if (newLen <= KAAD_MAX_NDIMS) {
+			operation = get_batch_matmul_dispatcher<T>()[newLen];
+			gradient = get_batch_matmul_grad_dispatcher<T>()[newLen];
+		} else {
+			operation = Operations::batch_matmul<T>;
+			gradient = Gradients::batch_matmul<T>;
+		}
 
-    // compute outer product of A and B
-    // where A and B are Tensors
-    template <typename T>
-    INode<T>* outer(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        int recLen = rec.nodes.size();
-        Tensor<T>& A = A_ptr->value;
-        Tensor<T>& B = B_ptr->value;
+		auto newNode = std::make_unique<Node_batch_matmul<T>>(
+		    operation, gradient, A_ptr, B_ptr, newShape, newLen);
+		Strides::batch_matmul<T>(A, B, *newNode.get());
+		rec.nodes.push_back(move(newNode));
+	}
 
-        size_t newLen = A.nDims + B.nDims;
-        int* newShape = new int[newLen];
-        std::copy(A.shape, A.shape + A.nDims, newShape);
-        std::copy(B.shape, B.shape + B.nDims, newShape + A.nDims);
+	return rec.nodes.back().get();
+}
 
-        using Kernel = typename Kernels::Mul<T>;
-        using Op = typename Kernel::Op;
-        using Grad = typename Kernel::Grad;
+// compute outer product of A and B
+// where A and B are Tensors
+template <typename T>
+INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	int recLen = rec.nodes.size();
+	Tensor<T> &A = A_ptr->value;
+	Tensor<T> &B = B_ptr->value;
 
-        auto newNode = std::make_unique<Node_binary_flex<T,Kernel>>(Operations::flexible<T,Op>, Gradients::flexible<T,Grad>, A_ptr, B_ptr, newShape, newLen);
-        auto raw = newNode.get();
-        Strides::outer<T>(A, B, *raw);
-        rec.nodes.push_back(move(newNode));
+	size_t newLen = A.nDims + B.nDims;
+	int *newShape = new int[newLen];
+	std::copy(A.shape, A.shape + A.nDims, newShape);
+	std::copy(B.shape, B.shape + B.nDims, newShape + A.nDims);
 
-        return raw;
-    }
+	using Kernel = typename Kernels::Mul<T>;
+	using Op = typename Kernel::Op;
+	using Grad = typename Kernel::Grad;
 
-    // compute pointwise minimum of A and B
-    // where A and B are Tensors with broadcastable shapes
-    template <typename T>
-    INode<T>* min(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Min<T>> minK;
-        return binOperator(rec, A_ptr, B_ptr, minK, "minimum");
-    }
+	auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
+	    Operations::flexible<T, Op>, Gradients::flexible<T, Grad>, A_ptr, B_ptr,
+	    newShape, newLen);
+	auto raw = newNode.get();
+	Strides::outer<T>(A, B, *raw);
+	rec.nodes.push_back(move(newNode));
 
-    // compute pointwise maximum of A and B
-    // where A and B are Tensors with broadcastable shapes
-    template <typename T>
-    INode<T>* max(CompGraph<T>& rec, INode<T>* A_ptr, INode<T>* B_ptr) {
-        static const BinaryKernels<T, class Kernels::Max<T>> maxK;
-        return binOperator(rec, A_ptr, B_ptr, maxK, "minimum");
-    }
-}    
+	return raw;
+}
+
+// compute pointwise minimum of A and B
+// where A and B are Tensors with broadcastable shapes
+template <typename T>
+INode<T> *min(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Min<T>> minK;
+	return binOperator(rec, A_ptr, B_ptr, minK, "minimum");
+}
+
+// compute pointwise maximum of A and B
+// where A and B are Tensors with broadcastable shapes
+template <typename T>
+INode<T> *max(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+	static const BinaryKernels<T, class Kernels::Max<T>> maxK;
+	return binOperator(rec, A_ptr, B_ptr, maxK, "minimum");
+}
+} // namespace kaad

@@ -1,246 +1,259 @@
 #pragma once
 
-#include <stddef.h>   // for size_t
-#include <algorithm>  // for copy
-#include "tensor.h"   // for Tensor (ptr only), tView, transp2D, combine_matrix
+#include "tensor.h"  // for Tensor (ptr only), tView, transp2D, combine_matrix
+#include <algorithm> // for copy
+#include <stddef.h>  // for size_t
 
 namespace kaad {
-    template <typename T, class Kernel> struct Node_binary_flex;
-    template <typename T, class Kernel> struct Node_unary_flex;
-    template <typename T> struct Node_batch_matmul;
-    template <typename T> struct Node_matmul;
-    template <typename T> struct Node_mean_dim;
+template <typename T, class Kernel> struct Node_binary_flex;
+template <typename T, class Kernel> struct Node_unary_flex;
+template <typename T> struct Node_batch_matmul;
+template <typename T> struct Node_matmul;
+template <typename T> struct Node_mean_dim;
 
-    namespace Strides {
-        template <typename T, class Kernel>
-        static void flexible_binary(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T,Kernel>& node) {
-            Tensor<T>& C = node.value;
+namespace Strides {
+template <typename T, class Kernel>
+void flexible_binary(Tensor<T> &A, Tensor<T> &B,
+                     Node_binary_flex<T, Kernel> &node) {
+	Tensor<T> &C = node.value;
 
-            node.D = C.nDims;
-            node.c_shape = new int[node.D];
-            std::copy(C.shape, C.shape + C.nDims, node.c_shape);
+	node.D = C.nDims;
+	node.c_shape = new int[node.D];
+	std::copy(C.shape, C.shape + C.nDims, node.c_shape);
 
-            node.strideA = new int[node.D];
-            node.strideB = new int[node.D];
-            node.strideC = new int[node.D];
+	node.strideA = new int[node.D];
+	node.strideB = new int[node.D];
+	node.strideC = new int[node.D];
 
-            int idx, idxA, idxB, idxC;
-            for (int i = 1; i <= node.D; i++) {
-                idx = node.D - i;
-                idxA = A.nDims - i;
-                node.strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
-                idxB = B.nDims - i;
-                node.strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
-                idxC = C.nDims - i;
-                node.strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
-            }
-        }
+	int idx, idxA, idxB, idxC;
+	for (int i = 1; i <= node.D; i++) {
+		idx = node.D - i;
+		idxA = A.nDims - i;
+		node.strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
+		idxB = B.nDims - i;
+		node.strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
+		idxC = C.nDims - i;
+		node.strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+	}
+}
 
-        template <typename T>
-        static void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int& a_dim, int& b_dim, int& k, int* strideA, int* strideB, int* strideC) {
-            a_dim = A.shape[0];
-            b_dim = B.shape[1];
-            k = A.shape[1];
+template <typename T>
+void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int &a_dim, int &b_dim,
+                 int &k, int *strideA, int *strideB, int *strideC) {
+	a_dim = A.shape[0];
+	b_dim = B.shape[1];
+	k = A.shape[1];
 
-            std::copy(A.stride, A.stride + 2, strideA);
-            std::copy(B.stride, B.stride + 2, strideB);
-            std::copy(C.stride, C.stride + 2, strideC);
+	std::copy(A.stride, A.stride + 2, strideA);
+	std::copy(B.stride, B.stride + 2, strideB);
+	std::copy(C.stride, C.stride + 2, strideC);
 
-            int idx, idxA, idxB, idxC;
-            int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-            for (int i = 1; i <= 2; i++) {
-                idx = 2 - i;
+	int idx, idxA, idxB, idxC;
+	int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
+	for (int i = 1; i <= 2; i++) {
+		idx = 2 - i;
 
-                idxC = C.nDims - i;
-                _offsetC = offsetC;
-                offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
-                strideC[idx] -= _offsetC + strideC[idx + 1];
-            }
-        }
+		idxC = C.nDims - i;
+		_offsetC = offsetC;
+		offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
+		strideC[idx] -= _offsetC + strideC[idx + 1];
+	}
+}
 
-        template <typename T>
-        static void matmul(Tensor<T>& A, Tensor<T>& B, Node_matmul<T>& node) {
-            tView<T> a = A.view();
-            tView<T> b = B.view();
-            tView<T> c = node.value.view();
+template <typename T>
+void matmul(Tensor<T> &A, Tensor<T> &B, Node_matmul<T> &node) {
+	tView<T> a = A.view();
+	tView<T> b = B.view();
+	tView<T> c = node.value.view();
 
-            int shapeBlock[8];
-            tView<T> A_T = A.view();
-            A_T.shape = shapeBlock;
-            A_T.stride = shapeBlock + 2;
-            transp2D(a.shape, a.stride, a.nDims, A_T.shape, A_T.stride);
-            tView<T> B_T = B.view();
-            B_T.shape = shapeBlock + 4;
-            B_T.stride = shapeBlock + 6;
-            transp2D(b.shape, b.stride, b.nDims, B_T.shape, B_T.stride);
+	int shapeBlock[8];
+	tView<T> A_T = A.view();
+	A_T.shape = shapeBlock;
+	A_T.stride = shapeBlock + 2;
+	transp2D(a.shape, a.stride, a.nDims, A_T.shape, A_T.stride);
+	tView<T> B_T = B.view();
+	B_T.shape = shapeBlock + 4;
+	B_T.stride = shapeBlock + 6;
+	transp2D(b.shape, b.stride, b.nDims, B_T.shape, B_T.stride);
 
-            matmul_impl(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA, node.strideB, node.strideC);
-            matmul_impl(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1], node.strideC+2, node.strideB+2, node.strideA+2);
-            matmul_impl(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2], node.strideA+4, node.strideC+4, node.strideB+4);
-        }
+	matmul_impl(a, b, c, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA,
+	            node.strideB, node.strideC);
+	matmul_impl(c, B_T, a, node.a_dim[1], node.b_dim[1], node.k[1],
+	            node.strideC + 2, node.strideB + 2, node.strideA + 2);
+	matmul_impl(A_T, c, b, node.a_dim[2], node.b_dim[2], node.k[2],
+	            node.strideA + 4, node.strideC + 4, node.strideB + 4);
+}
 
-        template <typename T>
-        static void batch_matmul_impl(tView<T>& A, tView<T>& B, tView<T>& C, int*& strideA, int*& strideB, int*& strideC, int*& c_shape, int& a_off, int& b_off, int& k, size_t& D) {
-            a_off = A.stride[A.nDims - 1];
-            b_off = B.stride[B.nDims - 2];
-            k = A.shape[A.nDims - 1];
+template <typename T>
+void batch_matmul_impl(tView<T> &A, tView<T> &B, tView<T> &C, int *&strideA,
+                       int *&strideB, int *&strideC, int *&c_shape, int &a_off,
+                       int &b_off, int &k, size_t &D) {
+	a_off = A.stride[A.nDims - 1];
+	b_off = B.stride[B.nDims - 2];
+	k = A.shape[A.nDims - 1];
 
-            D = std::max(A.nDims, B.nDims);
-            c_shape = new int[D];
+	D = std::max(A.nDims, B.nDims);
+	c_shape = new int[D];
 
-            combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
+	combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
 
-            strideA = new int[D];
-            strideB = new int[D];
-            strideC = new int[D];
+	strideA = new int[D];
+	strideB = new int[D];
+	strideC = new int[D];
 
+	int idx, idxA, idxB, idxC;
+	for (int i = 1; i <= D; i++) {
+		idx = D - i;
+		idxA = A.nDims - i;
+		strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
+		idxB = B.nDims - i;
+		strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
+		idxC = C.nDims - i;
+		strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+	}
 
-            int idx, idxA, idxB, idxC;
-            for (int i = 1; i <= D; i++) {
-                idx = D - i;
-                idxA = A.nDims - i;
-                strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
-                idxB = B.nDims - i;
-                strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
-                idxC = C.nDims - i;
-                strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
-            }
+	strideA[D - 1] = 0;
+	strideB[D - 2] = 0;
+}
 
+template <typename T>
+void batch_matmul(Tensor<T> &A, Tensor<T> &B, Node_batch_matmul<T> &node) {
+	tView<T> a = A.view();
+	tView<T> b = B.view();
+	tView<T> c = node.value.view();
+	int *shapeBlock = new int[B.nDims * 2 + A.nDims * 2];
+	tView<T> a_T = A.view();
+	a_T.shape = shapeBlock;
+	a_T.stride = a_T.shape + A.nDims;
+	transp2D(A.shape, A.stride, A.nDims, a_T.shape, a_T.stride);
+	tView<T> b_T = B.view();
+	b_T.shape = a_T.stride + A.nDims;
+	b_T.stride = b_T.shape + B.nDims;
+	transp2D(B.shape, B.stride, B.nDims, b_T.shape, b_T.stride);
 
-        
-            strideA[D - 1] = 0;
-            strideB[D - 2] = 0;
-        }
+	batch_matmul_impl(a, b, c, node.strideA[0], node.strideB[0],
+	                  node.strideC[0], node.c_shape[0], node.a_offset[0],
+	                  node.b_offset[0], node.k[0], node.D);
+	batch_matmul_impl(c, b_T, a, node.strideC[1], node.strideB[1],
+	                  node.strideA[1], node.c_shape[1], node.a_offset[1],
+	                  node.b_offset[1], node.k[1], node.D);
+	batch_matmul_impl(a_T, c, b, node.strideA[2], node.strideC[2],
+	                  node.strideB[2], node.c_shape[2], node.a_offset[2],
+	                  node.b_offset[2], node.k[2], node.D);
 
-        template <typename T>
-        static void batch_matmul(Tensor<T>& A, Tensor<T>& B, Node_batch_matmul<T>& node) {
-            tView<T> a = A.view();
-            tView<T> b = B.view();
-            tView<T> c = node.value.view();
-            int* shapeBlock = new int[B.nDims * 2 + A.nDims * 2];
-            tView<T> a_T = A.view();
-            a_T.shape = shapeBlock;
-            a_T.stride = a_T.shape + A.nDims;
-            transp2D(A.shape, A.stride, A.nDims, a_T.shape, a_T.stride);
-            tView<T> b_T = B.view();
-            b_T.shape = a_T.stride + A.nDims;
-            b_T.stride = b_T.shape + B.nDims;
-            transp2D(B.shape, B.stride, B.nDims, b_T.shape, b_T.stride);
+	delete[] shapeBlock;
+}
 
-            batch_matmul_impl(a, b, c, node.strideA[0], node.strideB[0], node.strideC[0], node.c_shape[0], node.a_offset[0], node.b_offset[0], node.k[0], node.D); 
-            batch_matmul_impl(c, b_T, a, node.strideC[1], node.strideB[1], node.strideA[1], node.c_shape[1], node.a_offset[1], node.b_offset[1], node.k[1], node.D); 
-            batch_matmul_impl(a_T, c, b, node.strideA[2], node.strideC[2], node.strideB[2], node.c_shape[2], node.a_offset[2], node.b_offset[2], node.k[2], node.D); 
+template <typename T, class Kernel>
+void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
+	Tensor<T> &C = node.value;
 
-            delete[] shapeBlock;
-        }
+	node.D = C.nDims;
+	node.reps = new int[node.D];
+	std::copy(C.shape, C.shape + C.nDims, node.reps);
+	for (int i = 0; i < node.D; i++) {
+		node.reps[i]--;
+	}
 
-        template <typename T, class Kernel>
-        static void outer(Tensor<T>& A, Tensor<T>& B, Node_binary_flex<T,Kernel>& node) {
-            Tensor<T>& C = node.value;
+	node.count = new int[node.D];
+	std::copy(node.reps, node.reps + node.D, node.count);
 
-            node.D = C.nDims;
-            node.reps = new int[node.D];
-            std::copy(C.shape, C.shape + C.nDims, node.reps);
-            for (int i = 0; i < node.D; i++) {
-                node.reps[i]--;
-            }
+	node.strideA = new int[node.D];
+	node.strideB = new int[node.D];
+	node.strideC = new int[node.D];
 
-            node.count = new int[node.D];
-            std::copy(node.reps, node.reps + node.D, node.count);
+	std::copy(C.stride, C.stride + C.nDims, node.strideC);
+	std::copy(A.stride, A.stride + A.nDims, node.strideA);
+	std::copy(B.stride, B.stride + B.nDims, node.strideB + A.nDims);
 
-            node.strideA = new int[node.D];
-            node.strideB = new int[node.D];
-            node.strideC = new int[node.D];
+	// pad A.shape with 1s on the right
+	int *a_shape_big = new int[node.D];
+	std::copy(A.shape, A.shape + A.nDims, a_shape_big);
+	a_shape_big[A.nDims] = 1;
 
-            std::copy(C.stride, C.stride + C.nDims, node.strideC);
-            std::copy(A.stride, A.stride + A.nDims, node.strideA);
-            std::copy(B.stride, B.stride + B.nDims, node.strideB + A.nDims);
+	int idx, idxA, idxB, idxC;
+	int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
+	for (int i = 1; i <= node.D; i++) {
+		idx = node.D - i;
 
-            // pad A.shape with 1s on the right
-            int* a_shape_big = new int[node.D];
-            std::copy(A.shape, A.shape + A.nDims, a_shape_big);
-            a_shape_big[A.nDims] = 1;
+		_offsetA = offsetA;
+		offsetA += (a_shape_big[idx] - 1) * node.strideA[idx];
+		node.strideA[idx] -= _offsetA;
 
-            int idx, idxA, idxB, idxC;
-            int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-            for (int i = 1; i <= node.D; i++) {
-                idx = node.D - i;
+		idxB = B.nDims - i;
+		_offsetB = offsetB;
+		offsetB += ((idxB >= 0 ? B.shape[idxB] : 1) - 1) * node.strideB[idx];
+		node.strideB[idx] -= _offsetB;
 
-                _offsetA = offsetA;
-                offsetA += (a_shape_big[idx] - 1) * node.strideA[idx];
-                node.strideA[idx] -= _offsetA;
+		idxC = C.nDims - i;
+		_offsetC = offsetC;
+		offsetC += ((idxC >= 0 ? C.shape[idxC] : 1) - 1) * node.strideC[idx];
+		node.strideC[idx] -= _offsetC;
+	}
+}
 
-                idxB = B.nDims - i;
-                _offsetB = offsetB;
-                offsetB += ((idxB >= 0 ? B.shape[idxB] : 1) - 1) * node.strideB[idx];
-                node.strideB[idx] -= _offsetB;
+template <typename T>
+void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D, int *&reps,
+                    int *&count, int *&strideA, int *&strideC) {
+	D = A.nDims;
+	reps = new int[D];
+	std::copy(A.shape, A.shape + A.nDims, reps);
+	for (int i = 0; i < D; i++) {
+		reps[i]--;
+	}
 
-                idxC = C.nDims - i;
-                _offsetC = offsetC;
-                offsetC += ((idxC >= 0 ? C.shape[idxC] : 1) - 1) * node.strideC[idx];
-                node.strideC[idx] -= _offsetC;
-            }
-        }
+	count = new int[D];
+	std::copy(reps, reps + D, count);
 
-        template <typename T>
-        static void along_dim_impl(Tensor<T>& A, Tensor<T>& C, int dim, size_t& D, int*& reps, int*& count, int*& strideA, int*& strideC) {
-            D = A.nDims;
-            reps = new int[D];
-            std::copy(A.shape, A.shape + A.nDims, reps);
-            for (int i = 0; i < D; i++) {
-                reps[i]--;
-            }
+	strideA = new int[D];
+	strideC = new int[D];
 
-            count = new int[D];
-            std::copy(reps, reps + D, count);
+	std::copy(A.stride, A.stride + A.nDims, strideA);
+	std::copy(A.stride, A.stride + A.nDims, strideC);
+	strideC[dim] = 0;
+	for (int i = 0; i < dim; i++) {
+		strideC[i] /= A.shape[dim];
+	}
 
-            strideA = new int[D];
-            strideC = new int[D];
+	// insert 1 at C.shape[dim];
+	int *c_shape_big = new int[A.nDims];
+	std::copy(C.shape, C.shape + dim, c_shape_big);
+	c_shape_big[dim] = 1;
+	std::copy(C.shape + dim, C.shape + C.nDims, c_shape_big + dim + 1);
 
-            std::copy(A.stride, A.stride + A.nDims, strideA);
-            std::copy(A.stride, A.stride + A.nDims, strideC);
-            strideC[dim] = 0;
-            for (int i = 0; i < dim; i++) {
-                strideC[i] /= A.shape[dim];
-            }
+	int idx, idxC;
+	int offsetA = 0, _offsetA, offsetC = 0, _offsetC;
+	for (int i = 1; i <= D; i++) {
+		idx = D - i;
 
-            // insert 1 at C.shape[dim];
-            int* c_shape_big = new int[A.nDims];
-            std::copy(C.shape, C.shape + dim, c_shape_big);
-            c_shape_big[dim] = 1;
-            std::copy(C.shape + dim, C.shape + C.nDims, c_shape_big + dim + 1);
+		_offsetA = offsetA;
+		offsetA += ((idx >= 0 ? A.shape[idx] : i) - 1) * strideA[idx];
+		strideA[idx] -= _offsetA;
 
-            int idx, idxC;
-            int offsetA = 0, _offsetA, offsetC = 0, _offsetC;
-            for (int i = 1; i <= D; i++) {
-                idx = D - i;
+		_offsetC = offsetC;
+		offsetC += (c_shape_big[idx] - 1) * strideC[idx];
+		strideC[idx] -= _offsetC;
+	}
+}
 
-                _offsetA = offsetA;
-                offsetA += ((idx >= 0 ? A.shape[idx] : i) - 1) * strideA[idx];
-                strideA[idx] -= _offsetA;
+template <typename T, class Kernel>
+void along_dim(Tensor<T> &A, Node_unary_flex<T, Kernel> &node, int dim) {
+	Tensor<T> &C = node.value;
 
-                _offsetC = offsetC;
-                offsetC += (c_shape_big[idx] - 1) * strideC[idx];
-                strideC[idx] -= _offsetC;
-            }
-        }
+	along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA,
+	               node.strideC);
+}
 
-        template <typename T, class Kernel>
-        static void along_dim(Tensor<T>& A, Node_unary_flex<T,Kernel>& node, int dim) {
-            Tensor<T>& C = node.value;
+template <typename T>
+void mean_along_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
+	Tensor<T> &C = node.value;
 
-            along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
-        }
+	node.divisor = (T)A.shape[dim];
+	node.c_len[0] = C.len;
+	node.c_len[1] = A.len;
 
-        template <typename T>
-        static void mean_along_dim(Tensor<T>& A, Node_mean_dim<T>& node, int dim) {
-            Tensor<T>& C = node.value;
-
-            node.divisor = (T)A.shape[dim];
-            node.c_len[0] = C.len;
-            node.c_len[1] = A.len;
-
-            along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA, node.strideC);
-        }
-    };
-}    
+	along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA,
+	               node.strideC);
+}
+}; // namespace Strides
+} // namespace kaad
