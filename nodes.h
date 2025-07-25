@@ -91,55 +91,6 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
 	}
 };
 
-template <typename T, class Kernel> struct Node_unary_flex : INode<T> {
-	using Op = class Kernel::Op;
-	Op op;
-	flexUnaryOp<T, Op> val_func = nullptr;
-	using Grad = class Kernel::Grad;
-	Grad grad;
-	flexUnaryGrad<T, Grad> grad_func = nullptr;
-
-	int *strideA = nullptr;
-	int *strideC = nullptr;
-	int *reps = nullptr;
-	int *count = nullptr;
-	size_t D = 0;
-
-	template <typename... Args>
-	Node_unary_flex(flexUnaryOp<T, Op> operation,
-	                flexUnaryGrad<T, Grad> derivative, INode<T> *in1_ptr,
-	                Args &&...args)
-	    : val_func(operation), grad_func(derivative),
-	      INode<T>(in1_ptr, args...) {}
-
-	~Node_unary_flex() {
-		delete[] strideA;
-		delete[] strideC;
-		delete[] reps;
-		delete[] count;
-	}
-
-	inline void eval() override {
-		if (!this->evaluated) {
-			this->in1->eval();
-
-			val_func(this->in1->value.val, this->value.val, strideA, strideC,
-			         reps, count, D, op);
-			this->evaluated = true;
-		}
-	}
-
-	inline void getGrad() override {
-		grad_func(this->in1->value.val, this->in1->gradient.val,
-		          this->value.val, this->gradient.val, strideA, strideC, reps,
-		          count, D, grad);
-
-		if (this->in1->hasInputs) {
-			this->in1->getGrad();
-		}
-	}
-};
-
 template <typename T, class Kernel> struct Node_binary : INode<T> {
 	INode<T> *in2 = nullptr;
 
@@ -338,6 +289,48 @@ template <typename T> struct Node_batch_matmul : INode<T> {
 		}
 		if (this->in2->hasInputs) {
 			this->in2->getGrad();
+		}
+	}
+};
+
+template <typename T> struct Node_sum_dim : INode<T> {
+	sumDimOp<T> val_func = nullptr;
+	sumDimGrad<T> grad_func = nullptr;
+
+	int *strideA = nullptr;
+	int *strideC = nullptr;
+	int *a_shape = nullptr;
+	size_t D = 0;
+
+	template <typename... Args>
+	Node_sum_dim(sumDimOp<T> operation, sumDimGrad<T> derivative,
+	             INode<T> *in1_ptr, Args &&...args)
+	    : val_func(operation), grad_func(derivative),
+	      INode<T>(in1_ptr, args...) {}
+
+	~Node_sum_dim() {
+		delete[] strideA;
+		delete[] strideC;
+		delete[] a_shape;
+	}
+
+	inline void eval() override {
+		if (!this->evaluated) {
+			this->in1->eval();
+
+			val_func(this->in1->value.val, this->value.val, strideA, strideC,
+			         a_shape, D);
+			this->evaluated = true;
+		}
+	}
+
+	inline void getGrad() override {
+		grad_func(this->in1->value.val, this->in1->gradient.val,
+		          this->value.val, this->gradient.val, strideA, strideC,
+		          a_shape, D);
+
+		if (this->in1->hasInputs) {
+			this->in1->getGrad();
 		}
 	}
 };

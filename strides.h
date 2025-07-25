@@ -9,6 +9,7 @@ template <typename T, class Kernel> struct Node_binary_flex;
 template <typename T, class Kernel> struct Node_unary_flex;
 template <typename T> struct Node_batch_matmul;
 template <typename T> struct Node_matmul;
+template <typename T> struct Node_sum_dim;
 template <typename T> struct Node_mean_dim;
 
 namespace Strides {
@@ -193,17 +194,11 @@ void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
 }
 
 template <typename T>
-void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D, int *&reps,
-                    int *&count, int *&strideA, int *&strideC) {
+void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
+                    int *&a_shape, int *&strideA, int *&strideC) {
 	D = A.nDims;
-	reps = new int[D];
-	std::copy(A.shape, A.shape + A.nDims, reps);
-	for (int i = 0; i < D; i++) {
-		reps[i]--;
-	}
-
-	count = new int[D];
-	std::copy(reps, reps + D, count);
+	a_shape = new int[D];
+	std::copy(A.shape, A.shape + A.nDims, a_shape);
 
 	strideA = new int[D];
 	strideC = new int[D];
@@ -221,27 +216,26 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D, int *&reps,
 	c_shape_big[dim] = 1;
 	std::copy(C.shape + dim, C.shape + C.nDims, c_shape_big + dim + 1);
 
-	int idx, idxC;
-	int offsetA = 0, _offsetA, offsetC = 0, _offsetC;
-	for (int i = 1; i <= D; i++) {
-		idx = D - i;
+	// int idx, idxC;
+	// int offsetA = 0, _offsetA, offsetC = 0, _offsetC;
+	// for (int i = 1; i <= D; i++) {
+	//	idx = D - i;
 
-		_offsetA = offsetA;
-		offsetA += ((idx >= 0 ? A.shape[idx] : i) - 1) * strideA[idx];
-		strideA[idx] -= _offsetA;
+	//	_offsetA = offsetA;
+	//	offsetA += ((idx >= 0 ? A.shape[idx] : i) - 1) * strideA[idx];
+	//	strideA[idx] -= _offsetA;
 
-		_offsetC = offsetC;
-		offsetC += (c_shape_big[idx] - 1) * strideC[idx];
-		strideC[idx] -= _offsetC;
-	}
+	//	_offsetC = offsetC;
+	//	offsetC += (c_shape_big[idx] - 1) * strideC[idx];
+	//	strideC[idx] -= _offsetC;
+	//}
 }
 
-template <typename T, class Kernel>
-void along_dim(Tensor<T> &A, Node_unary_flex<T, Kernel> &node, int dim) {
+template <typename T>
+void sum_dim(Tensor<T> &A, Node_sum_dim<T> &node, int dim) {
 	Tensor<T> &C = node.value;
 
-	along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA,
-	               node.strideC);
+	along_dim_impl(A, C, dim, node.D, node.a_shape, node.strideA, node.strideC);
 }
 
 template <typename T>

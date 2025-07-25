@@ -8,9 +8,6 @@ using unaryOp = void (*)(const T *A, T *C, size_t len, Op op);
 template <typename T, class Op>
 using binaryOp = void (*)(const T *A, const T *B, T *C, size_t len, Op op);
 template <typename T, class Op>
-using flexUnaryOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                             int *reps, int *count, size_t D, Op op);
-template <typename T, class Op>
 using flexBinaryOp = void (*)(const T *A, const T *B, T *C, int *strideA,
                               int *strideB, int *strideC, int *c_shape, int N,
                               Op op);
@@ -21,6 +18,9 @@ template <typename T>
 using batchmatmulOp = void (*)(const T *A, const T *B, T *C, int *strideA,
                                int *strideB, int *strideC, int *c_shape,
                                int a_off, int b_off, int k, int N);
+template <typename T>
+using sumDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
+                          int *a_shape, int N);
 template <typename T>
 using meanDimOp = void (*)(const T *A, T *C, T divisor, size_t c_len,
                            int *strideA, int *strideC, int *reps, int *count,
@@ -202,33 +202,39 @@ void unary_scalarRhs(const T *A, T *C, size_t len, Op op) {
 	}
 }
 
-template <typename T, class Op>
-void unary_flexible(const T *A, T *C, int *strideA, int *strideC, int *reps,
-                    int *count, size_t D, Op op) {
-	int indA = 0, indC = 0;
-	while (1) {
-
-		op(A[indA], C[indC]);
-
-		for (int dim = D - 1; dim >= 0; dim--) {
-			count[dim]--;
-			if (count[dim] >= 0) {
-				indA += strideA[dim];
-				indC += strideC[dim];
-				break;
-			}
-
-			count[dim] = reps[dim];
-			if (dim == 0)
-				goto end;
-		}
-	}
-end:;
-}
-
 // transposing doesnt change the value array so A gets copied to C
 template <typename T> void transpose(const T *A, T *C, size_t len) {
 	copy(A, A + len, C);
+}
+
+template <typename T>
+void sum_dim(const T *A, T *C, int *strideA, int *strideC, int *a_shape,
+             int N) {
+	const T *end = A + (*a_shape) * (*strideA);
+	if (N <= 1) {
+		for (; A != end; A += *strideA, C += *strideC) {
+			*C += *A;
+		}
+	} else {
+		for (; A != end; A += *strideA, C += *strideC) {
+			sum_dim(A, C, strideA + 1, strideC + 1, a_shape + 1, N - 1);
+		}
+	}
+}
+
+template <typename T, int N>
+void sum_dim(const T *A, T *C, int *strideA, int *strideC, int *a_shape,
+             int _) {
+	const T *end = A + (*a_shape) * (*strideA);
+	if constexpr (N <= 1) {
+		for (; A != end; A += *strideA, C += *strideC) {
+			*C += *A;
+		}
+	} else {
+		for (; A != end; A += *strideA, C += *strideC) {
+			sum_dim<T, N - 1>(A, C, strideA + 1, strideC + 1, a_shape + 1, 0);
+		}
+	}
 }
 
 // saves mean of A into out

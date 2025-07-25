@@ -200,12 +200,16 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
 		using Kernel = class Kernels::Sum<T>;
 		using Op = class Kernel::Op;
 		using Grad = class Kernel::Grad;
-		flexUnaryOp<T, Op> op = Operations::unary_flexible<T, Op>;
-		flexUnaryGrad<T, Grad> grad = Gradients::unary_flexible<T, Grad>;
+		sumDimOp<T> operation = Operations::sum_dim<T>;
+		sumDimGrad<T> gradient = Gradients::sum_dim<T>;
+		if (A.nDims <= KAAD_MAX_NDIMS) {
+			operation = get_sumDim_dispatcher<T>()[A.nDims];
+			gradient = get_sumDim_grad_dispatcher<T>()[A.nDims];
+		}
 
-		auto newNode = std::make_unique<Node_unary_flex<T, Kernel>>(
-		    op, grad, A_ptr, newShape, newLen);
-		Strides::along_dim<T>(A, *newNode.get(), dim);
+		auto newNode = std::make_unique<Node_sum_dim<T>>(
+		    operation, gradient, A_ptr, newShape, newLen);
+		Strides::sum_dim<T>(A, *newNode.get(), dim);
 		rec.nodes.push_back(move(newNode));
 	}
 

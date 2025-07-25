@@ -78,18 +78,15 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
 	                            newLen)) {
 		using Op = typename Kernel::Op;
 		using Grad = typename Kernel::Grad;
-		flexBinaryOp<T, Op> Operation;
-		flexBinaryGrad<T, Grad> Gradient;
+		flexBinaryOp<T, Op> operation = kernels.flexOp;
+		flexBinaryGrad<T, Grad> gradient = kernels.flexGrad;
 		if (newLen <= KAAD_MAX_NDIMS) {
-			Operation = get_flexOp_dispatcher<T, Op>()[newLen];
-			Gradient = get_flexGrad_dispatcher<T, Grad>()[newLen];
-		} else {
-			Operation = kernels.flexOp;
-			Gradient = kernels.flexGrad;
+			operation = get_flexOp_dispatcher<T, Op>()[newLen];
+			gradient = get_flexGrad_dispatcher<T, Grad>()[newLen];
 		}
 
 		auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-		    Operation, Gradient, A_ptr, B_ptr, newShape, newLen);
+		    operation, gradient, A_ptr, B_ptr, newShape, newLen);
 		Strides::flexible_binary<T>(A, B, *newNode.get());
 		rec.nodes.push_back(move(newNode));
 	} else {
@@ -224,14 +221,11 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
 		Strides::matmul<T>(A, B, *newNode.get());
 		rec.nodes.push_back(move(newNode));
 	} else {
-		batchmatmulOp<T> operation;
-		batchmatmulGrad<T> gradient;
+		batchmatmulOp<T> operation = Operations::batch_matmul<T>;
+		batchmatmulGrad<T> gradient = Gradients::batch_matmul<T>;
 		if (newLen <= KAAD_MAX_NDIMS) {
 			operation = get_batch_matmul_dispatcher<T>()[newLen];
 			gradient = get_batch_matmul_grad_dispatcher<T>()[newLen];
-		} else {
-			operation = Operations::batch_matmul<T>;
-			gradient = Gradients::batch_matmul<T>;
 		}
 
 		auto newNode = std::make_unique<Node_batch_matmul<T>>(

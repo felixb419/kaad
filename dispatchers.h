@@ -73,3 +73,34 @@ get_batch_matmul_grad_dispatcher() {
 	return get_batch_matmul_grad_dispatcher_impl<T>(
 	    std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
+
+/*
+sum dim Op
+*/
+template <typename T, std::size_t... Is>
+constexpr std::array<sumDimOp<T>, sizeof...(Is)>
+get_sumDim_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Operations::sum_dim<T, Is>...};
+}
+
+template <typename T>
+constexpr std::array<sumDimOp<T>, KAAD_MAX_NDIMS> get_sumDim_dispatcher() {
+	return get_sumDim_dispatcher_impl<T>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
+
+/*
+sum dim Grad
+*/
+template <typename T, std::size_t... Is>
+constexpr std::array<sumDimGrad<T>, sizeof...(Is)>
+get_sumDim_grad_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Gradients::sum_dim<T, Is>...};
+}
+
+template <typename T>
+constexpr std::array<sumDimGrad<T>, KAAD_MAX_NDIMS>
+get_sumDim_grad_dispatcher() {
+	return get_sumDim_grad_dispatcher_impl<T>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
