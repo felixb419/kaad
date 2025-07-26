@@ -179,7 +179,6 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
 		unaryGrad<T, Grad> grad = Gradients::unary_scalarRhs<T, Grad>;
 		auto newNode =
 		    std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-		auto debug = *static_cast<Node_unary<T, Kernel> *>(newNode.get());
 		newNode->len = A_ptr->value.len;
 		rec.nodes.push_back(move(newNode));
 	} else {
@@ -197,9 +196,6 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
 		std::copy(A.shape, A.shape + dim, newShape);
 		std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
-		using Kernel = class Kernels::Sum<T>;
-		using Op = class Kernel::Op;
-		using Grad = class Kernel::Grad;
 		sumDimOp<T> operation = Operations::sum_dim<T>;
 		sumDimGrad<T> gradient = Gradients::sum_dim<T>;
 		if (A.nDims <= KAAD_MAX_NDIMS) {
@@ -222,14 +218,13 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
 	Tensor<T> &A = A_ptr->value;
 
 	if (dim == -1) {
-		int *newShape = new int[]{1};
-
-		using Op = typename Kernels::NullOp::Op;
-		using Grad = typename Kernels::NullOp::Grad;
-		unaryOp<T, Op> op = Operations::mean<T, Op>;
-		unaryGrad<T, Grad> grad = Gradients::mean<T, Grad>;
-		auto newNode = std::make_unique<Node_unary<T, Kernels::NullOp>>(
-		    op, grad, A_ptr, newShape, 1);
+		using Kernel = class Kernels::Null;
+		using Op = typename Kernel::Op;
+		using Grad = typename Kernel::Grad;
+		unaryOp<T, Op> operation = Operations::mean<T, Op>;
+		unaryGrad<T, Grad> gradient = Gradients::mean<T, Grad>;
+		auto newNode = std::make_unique<Node_unary<T, Kernel>>(
+		    operation, gradient, A_ptr, (T)0);
 		newNode->len = A_ptr->value.len;
 		rec.nodes.push_back(move(newNode));
 	} else {
@@ -247,16 +242,20 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
 		std::copy(A.shape, A.shape + dim, newShape);
 		std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
-		using Op = typename Kernels::NullOp::Op;
-		using Grad = typename Kernels::NullOp::Grad;
-		meanDimOp<T> op = Operations::mean_dim<T, Op>;
-		meanDimGrad<T> grad = Gradients::mean_dim<T, Grad>;
-		auto newNode = std::make_unique<Node_mean_dim<T>>(op, grad, A_ptr,
-		                                                  newShape, newLen);
-		Strides::mean_along_dim<T>(A, *newNode.get(), dim);
+		meanDimOp<T> operation = Operations::mean_dim<T>;
+		meanDimGrad<T> gradient = Gradients::mean_dim<T>;
+		if (A.nDims <= KAAD_MAX_NDIMS) {
+			operation = get_meanDim_dispatcher<T>()[A.nDims];
+			gradient = get_meanDim_grad_dispatcher<T>()[A.nDims];
+		}
+
+		auto newNode = std::make_unique<Node_mean_dim<T>>(
+		    operation, gradient, A_ptr, newShape, newLen);
+		Strides::mean_dim<T>(A, *newNode.get(), dim);
 		rec.nodes.push_back(move(newNode));
 	}
 
 	return rec.nodes.back().get();
 }
+
 } // namespace kaad

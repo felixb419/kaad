@@ -336,47 +336,48 @@ template <typename T> struct Node_sum_dim : INode<T> {
 };
 
 template <typename T> struct Node_mean_dim : INode<T> {
-	meanDimOp<T> op = nullptr;
-	meanDimGrad<T> grad_op = nullptr;
+	meanDimOp<T> val_func = nullptr;
+	meanDimGrad<T> grad_func = nullptr;
 
-	T divisor = 0;
-	size_t c_len[2];
 	int *strideA = nullptr;
 	int *strideC = nullptr;
-	int *reps = nullptr;
-	int *count = nullptr;
+	int *a_shape = nullptr;
+	T *c_end = nullptr;
+	T *dA_end = nullptr;
 	size_t D = 0;
+	T divisor = 0;
 
 	template <typename... Args>
 	Node_mean_dim(meanDimOp<T> operation, meanDimGrad<T> derivative,
 	              INode<T> *in1_ptr, Args &&...args)
-	    : op(operation), grad_op(derivative), INode<T>(in1_ptr, args...) {}
+	    : val_func(operation), grad_func(derivative),
+	      INode<T>(in1_ptr, args...) {}
 
 	~Node_mean_dim() {
 		delete[] strideA;
 		delete[] strideC;
-		delete[] reps;
-		delete[] count;
+		delete[] a_shape;
 	}
 
 	inline void eval() override {
 		if (!this->evaluated) {
 			this->in1->eval();
 
-			op(this->in1->value.val, this->value.val, divisor, c_len[0],
-			   strideA, strideC, reps, count, D);
+			val_func(this->in1->value.val, this->value.val, strideA, strideC,
+			         a_shape, D, divisor, c_end);
 			this->evaluated = true;
 		}
 	}
 
 	inline void getGrad() override {
-		grad_op(this->in1->value.val, this->in1->gradient.val, this->value.val,
-		        this->gradient.val, divisor, c_len[1], strideA, strideC, reps,
-		        count, D);
+		grad_func(this->in1->value.val, this->in1->gradient.val,
+		          this->value.val, this->gradient.val, strideA, strideC,
+		          a_shape, D, divisor, dA_end);
 
 		if (this->in1->hasInputs) {
 			this->in1->getGrad();
 		}
 	}
 };
+
 } // namespace kaad

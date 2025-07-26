@@ -1,3 +1,4 @@
+#define KAAD_MAX_NDIMS 0
 #include "kaad.h"
 #include <iostream>
 
@@ -23,11 +24,11 @@ int main() {
 	system("clear");
 	CompGraph<double> rec;
 
-	auto a = append_rec(rec, {2, 4});
+	auto a = append_rec(rec, {2, 3, 3});
 
 	auto b = append_rec(rec, {2, 2, 1});
 
-	auto c = add(rec, a, b);
+	auto c = mean(rec, a, 2);
 
 	cout << "A:\n" << a->value << endl;
 	cout << "B:\n" << b->value << endl;
@@ -41,5 +42,5 @@ int main() {
 	auto g = rec.getGradient(c, a, b);
 
 	cout << "dA\n" << *g[0] << endl;
-	cout << "dB\n" << *g[1] << endl;
+	// cout << "dB\n" << *g[1] << endl;
 }

@@ -215,20 +215,6 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
 	std::copy(C.shape, C.shape + dim, c_shape_big);
 	c_shape_big[dim] = 1;
 	std::copy(C.shape + dim, C.shape + C.nDims, c_shape_big + dim + 1);
-
-	// int idx, idxC;
-	// int offsetA = 0, _offsetA, offsetC = 0, _offsetC;
-	// for (int i = 1; i <= D; i++) {
-	//	idx = D - i;
-
-	//	_offsetA = offsetA;
-	//	offsetA += ((idx >= 0 ? A.shape[idx] : i) - 1) * strideA[idx];
-	//	strideA[idx] -= _offsetA;
-
-	//	_offsetC = offsetC;
-	//	offsetC += (c_shape_big[idx] - 1) * strideC[idx];
-	//	strideC[idx] -= _offsetC;
-	//}
 }
 
 template <typename T>
@@ -239,15 +225,14 @@ void sum_dim(Tensor<T> &A, Node_sum_dim<T> &node, int dim) {
 }
 
 template <typename T>
-void mean_along_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
+void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
 	Tensor<T> &C = node.value;
+	Tensor<T> &dA = node.in1->gradient;
+	node.divisor = A.shape[dim];
+	node.c_end = C.val + C.len;
+	node.dA_end = dA.val + dA.len;
 
-	node.divisor = (T)A.shape[dim];
-	node.c_len[0] = C.len;
-	node.c_len[1] = A.len;
-
-	along_dim_impl(A, C, dim, node.D, node.reps, node.count, node.strideA,
-	               node.strideC);
+	along_dim_impl(A, C, dim, node.D, node.a_shape, node.strideA, node.strideC);
 }
 }; // namespace Strides
 } // namespace kaad

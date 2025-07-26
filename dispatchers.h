@@ -1,3 +1,5 @@
+#pragma once
+
 #include "gradients.h"    // for batchmatmulGrad, flexBinaryGrad, batch_matmul
 #include "operations.h"   // for batchmatmulOp, flexBinaryOp, batch_matmul
 #include <array>          // for array
@@ -102,5 +104,36 @@ template <typename T>
 constexpr std::array<sumDimGrad<T>, KAAD_MAX_NDIMS>
 get_sumDim_grad_dispatcher() {
 	return get_sumDim_grad_dispatcher_impl<T>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
+
+/*
+mean dim Op
+*/
+template <typename T, std::size_t... Is>
+constexpr std::array<meanDimOp<T>, sizeof...(Is)>
+get_meanDim_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Operations::mean_dim<T, Is>...};
+}
+
+template <typename T>
+constexpr std::array<meanDimOp<T>, KAAD_MAX_NDIMS> get_meanDim_dispatcher() {
+	return get_meanDim_dispatcher_impl<T>(
+	    std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
+
+/*
+mean dim Grad
+*/
+template <typename T, std::size_t... Is>
+constexpr std::array<meanDimGrad<T>, sizeof...(Is)>
+get_meanDim_grad_dispatcher_impl(std::index_sequence<Is...>) {
+	return {&Gradients::mean_dim<T, Is>...};
+}
+
+template <typename T>
+constexpr std::array<meanDimGrad<T>, KAAD_MAX_NDIMS>
+get_meanDim_grad_dispatcher() {
+	return get_meanDim_grad_dispatcher_impl<T>(
 	    std::make_index_sequence<KAAD_MAX_NDIMS>());
 }

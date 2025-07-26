@@ -28,9 +28,9 @@ template <typename T>
 using sumDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
                             int *strideC, int *a_shape, int N);
 template <typename T>
-using meanDimGrad = void (*)(const T *A, T *dA, const T *C, const T *dC,
-                             T divisor, size_t c_len, int *strideA,
-                             int *strideC, int *reps, int *count, size_t D);
+using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
+                             int *strideC, int *a_shape, int N, T divisor,
+                             T *c_end);
 
 namespace Gradients {
 
@@ -221,7 +221,7 @@ void transp(const T *A, T *dA, const T *C, const T *dC, size_t len) {
 	}
 }
 
-// f(A) = mean(A)
+// f(A) = sum(A)
 // df_dA = tensor with shape of A filled with 1
 template <typename T>
 void sum_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
@@ -265,12 +265,53 @@ void mean(const T *A, T *dA, const T *C, const T *dC, size_t len, Grad _) {
 	}
 }
 
-template <typename T, class Grad>
-void mean_dim(const T *A, T *dA, const T *C, const T *dC, T divisor,
-              size_t c_len, int *strideA, int *strideC, int *reps, int *count,
-              size_t D) {
-	Operations::mean_dim<T>(dC, dA, divisor, c_len, strideC, strideA, reps,
-	                        count, D);
+template <typename T>
+void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
+                   int *strideC, int *a_shape, int N) {
+	const T *end = dA + (*a_shape) * (*strideA);
+	if (N <= 1) {
+		for (; dA != end; dA += *strideA, dC += *strideC) {
+			*dA += *dC;
+		}
+	} else {
+		for (; dA != end; dA += *strideA, dC += *strideC) {
+			mean_dim_impl(A, dA, C, dC, strideA + 1, strideC + 1, a_shape + 1,
+			              N - 1);
+		}
+	}
 }
+template <typename T>
+void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
+              int *a_shape, int N, T divisor, T *dA_end) {
+	mean_dim_impl(A, dA, C, dC, strideA, strideC, a_shape, N);
+	for (; dA != dA_end; dA++) {
+		*dA /= divisor;
+	}
+}
+
+template <typename T, int N>
+void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
+                   int *strideC, int *a_shape, int _) {
+	const T *end = dA + (*a_shape) * (*strideA);
+	if constexpr (N <= 1) {
+		for (; dA != end; dA += *strideA, dC += *strideC) {
+			*dA += *dC;
+		}
+	} else {
+		for (; dA != end; dA += *strideA, dC += *strideC) {
+			mean_dim_impl<T, N - 1>(A, dA, C, dC, strideA + 1, strideC + 1,
+			                        a_shape + 1, 0);
+		}
+	}
+}
+template <typename T, int N>
+void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
+              int *a_shape, int _, T divisor, T *dA_end) {
+	mean_dim_impl<T, N>(A, dA, C, dC, strideA, strideC, a_shape, 0);
+	for (; dA != dA_end; dA++) {
+		*dA /= divisor;
+	}
+}
+
 }; // namespace Gradients
 } // namespace kaad
