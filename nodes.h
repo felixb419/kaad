@@ -315,8 +315,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
     }
 
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->value.val, this->gradient.val, strideA, strideC,
+        grad_func(this->in1->gradient.val, this->gradient.val, strideA, strideC,
                   a_offset, D);
 
         if (this->in1->hasInputs) {
