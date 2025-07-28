@@ -65,9 +65,8 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         newNode->len = newNode->value.len;
         rec.nodes.push_back(move(newNode));
     } else if (A.nDims == B.nDims &&
-               std::equal(A.shape, A.shape + A.nDims, B.shape)) {
-        // std::equal(A.shape, A.shape + A.nDims, B.shape) &&
-        // std::equal(A.stride , A.stride + A.nDims, B.stride)) {
+               std::equal(A.shape, A.shape + A.nDims, B.shape) &&
+               std::equal(A.stride, A.stride + A.nDims, B.stride)) {
         std::copy(A.shape, A.shape + A.nDims, newShape);
 
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
@@ -171,7 +170,7 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
             scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
         newNode->len = B.len;
         rec.nodes.push_back(move(newNode));
-    } else if (A.nDims == B.nDims &&
+    } else if (A.nDims == 1 && B.nDims == 1 &&
                std::equal(A.shape, A.shape + A.nDims, B.shape)) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
