@@ -13,7 +13,7 @@ using binaryGrad = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
 template <typename T, class Grad>
 using flexBinaryGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
                                 const T *C, const T *dC, int *strideA,
-                                int *strideB, int *strideC, int *len, int N,
+                                int *strideB, int *strideC, size_t *c_offset, int N,
                                 Grad grad);
 template <typename T>
 using matmulGrad = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
@@ -26,10 +26,10 @@ using batchmatmulGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
                                  int *a_off, int *b_off, int *k, int N);
 template <typename T>
 using sumDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                            int *strideC, int *a_shape, int N);
+                            int *strideC, size_t *a_offset, int N);
 template <typename T>
 using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                             int *strideC, int *a_shape, int N, T divisor,
+                             int *strideC, size_t *a_offset, int N, T divisor,
                              T *c_end);
 
 namespace Gradients {
@@ -65,9 +65,9 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 template <typename T, class Grad>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, int *len, int N,
+              int *strideA, int *strideB, int *strideC, size_t*c_offset, int N,
               Grad grad) {
-    const T *end = C + (*len) * (*strideC);
+    const T *end = C + *c_offset;
     if (N <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -77,16 +77,16 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         for (; C < end; A += *strideA, B += *strideB, C += *strideC,
                         dA += *strideA, dB += *strideB, dC += *strideC) {
             flexible(A, dA, B, dB, C, dC, strideA + 1, strideB + 1, strideC + 1,
-                     len + 1, N - 1, grad);
+                     c_offset + 1, N - 1, grad);
         }
     }
 }
 
 template <typename T, class Grad, int N>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, int *len, int _,
+              int *strideA, int *strideB, int *strideC, size_t *c_offset, int _,
               Grad grad) {
-    const T *end = C + (*len) * (*strideC);
+    const T *end = C + *c_offset;
     if constexpr (N <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -96,7 +96,7 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
             flexible<T, Grad, N - 1>(A, dA, B, dB, C, dC, strideA + 1,
-                                     strideB + 1, strideC + 1, len + 1, 0,
+                                     strideB + 1, strideC + 1, c_offset + 1, 0,
                                      grad);
         }
     }
@@ -225,23 +225,23 @@ void transp(const T *A, T *dA, const T *C, const T *dC, size_t len) {
 // df_dA = tensor with shape of A filled with 1
 template <typename T>
 void sum_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-             int *a_shape, int N) {
-    const T *end = dA + (*a_shape) * (*strideA);
+             size_t*a_offset, int N) {
+    const T *end = dA + *a_offset;
     if (N <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
         }
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
-            sum_dim(A, dA, C, dC, strideA + 1, strideC + 1, a_shape + 1, N - 1);
+            sum_dim(A, dA, C, dC, strideA + 1, strideC + 1, a_offset + 1, N - 1);
         }
     }
 }
 
 template <typename T, int N>
 void sum_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-             int *a_shape, int _) {
-    const T *end = dA + (*a_shape) * (*strideA);
+             size_t *a_offset, int _) {
+    const T *end = dA + *a_offset;
     if constexpr (N <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
@@ -249,7 +249,7 @@ void sum_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             sum_dim<T, N - 1>(A, dA, C, dC, strideA + 1, strideC + 1,
-                              a_shape + 1, 0);
+                              a_offset + 1, 0);
         }
     }
 }
@@ -267,23 +267,23 @@ void mean(const T *A, T *dA, const T *C, const T *dC, size_t len, Grad _) {
 
 template <typename T>
 void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                   int *strideC, int *a_shape, int N) {
-    const T *end = dA + (*a_shape) * (*strideA);
+                   int *strideC, size_t *a_offset, int N) {
+    const T *end = dA + *a_offset;
     if (N <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
         }
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
-            mean_dim_impl(A, dA, C, dC, strideA + 1, strideC + 1, a_shape + 1,
+            mean_dim_impl(A, dA, C, dC, strideA + 1, strideC + 1, a_offset + 1,
                           N - 1);
         }
     }
 }
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-              int *a_shape, int N, T divisor, T *dA_end) {
-    mean_dim_impl(A, dA, C, dC, strideA, strideC, a_shape, N);
+              size_t *a_offset, int N, T divisor, T *dA_end) {
+    mean_dim_impl(A, dA, C, dC, strideA, strideC, a_offset, N);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }
@@ -291,8 +291,8 @@ void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
 
 template <typename T, int N>
 void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                   int *strideC, int *a_shape, int _) {
-    const T *end = dA + (*a_shape) * (*strideA);
+                   int *strideC, size_t *a_offset, int _) {
+    const T *end = dA + *a_offset;
     if constexpr (N <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
@@ -300,14 +300,14 @@ void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             mean_dim_impl<T, N - 1>(A, dA, C, dC, strideA + 1, strideC + 1,
-                                    a_shape + 1, 0);
+                                    a_offset + 1, 0);
         }
     }
 }
 template <typename T, int N>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-              int *a_shape, int _, T divisor, T *dA_end) {
-    mean_dim_impl<T, N>(A, dA, C, dC, strideA, strideC, a_shape, 0);
+              size_t *a_offset, int _, T divisor, T *dA_end) {
+    mean_dim_impl<T, N>(A, dA, C, dC, strideA, strideC, a_offset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }

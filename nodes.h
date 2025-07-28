@@ -146,7 +146,7 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     int *strideA = nullptr;
     int *strideB = nullptr;
     int *strideC = nullptr;
-    int *c_shape = nullptr;
+    size_t *c_offset = nullptr;
     size_t D;
 
     template <typename... Args>
@@ -160,7 +160,7 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
         delete[] strideA;
         delete[] strideB;
         delete[] strideC;
-        delete[] c_shape;
+        delete[] c_offset;
     }
 
     inline void eval() override {
@@ -169,7 +169,7 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
             this->in2->eval();
 
             val_func(this->in1->value.val, this->in2->value.val,
-                     this->value.val, strideA, strideB, strideC, c_shape, D,
+                     this->value.val, strideA, strideB, strideC, c_offset, D,
                      op);
             this->evaluated = true;
         }
@@ -179,7 +179,7 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
         grad_func(this->in1->value.val, this->in1->gradient.val,
                   this->in2->value.val, this->in2->gradient.val,
                   this->value.val, this->gradient.val, strideA, strideB,
-                  strideC, c_shape, D, grad);
+                  strideC, c_offset, D, grad);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();
@@ -298,7 +298,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
 
     int *strideA = nullptr;
     int *strideC = nullptr;
-    int *a_shape = nullptr;
+    size_t *a_offset = nullptr;
     size_t D = 0;
 
     template <typename... Args>
@@ -310,7 +310,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
     ~Node_sum_dim() {
         delete[] strideA;
         delete[] strideC;
-        delete[] a_shape;
+        delete[] a_offset;
     }
 
     inline void eval() override {
@@ -318,7 +318,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
             this->in1->eval();
 
             val_func(this->in1->value.val, this->value.val, strideA, strideC,
-                     a_shape, D);
+                     a_offset, D);
             this->evaluated = true;
         }
     }
@@ -326,7 +326,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
     inline void getGrad() override {
         grad_func(this->in1->value.val, this->in1->gradient.val,
                   this->value.val, this->gradient.val, strideA, strideC,
-                  a_shape, D);
+                  a_offset, D);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();
@@ -340,7 +340,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
 
     int *strideA = nullptr;
     int *strideC = nullptr;
-    int *a_shape = nullptr;
+    size_t *a_offset = nullptr;
     T *c_end = nullptr;
     T *dA_end = nullptr;
     size_t D = 0;
@@ -355,7 +355,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
     ~Node_mean_dim() {
         delete[] strideA;
         delete[] strideC;
-        delete[] a_shape;
+        delete[] a_offset;
     }
 
     inline void eval() override {
@@ -363,7 +363,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
             this->in1->eval();
 
             val_func(this->in1->value.val, this->value.val, strideA, strideC,
-                     a_shape, D, divisor, c_end);
+                     a_offset, D, divisor, c_end);
             this->evaluated = true;
         }
     }
@@ -371,7 +371,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
     inline void getGrad() override {
         grad_func(this->in1->value.val, this->in1->gradient.val,
                   this->value.val, this->gradient.val, strideA, strideC,
-                  a_shape, D, divisor, dA_end);
+                  a_offset, D, divisor, dA_end);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();

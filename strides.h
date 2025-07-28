@@ -18,9 +18,6 @@ void flexible_binary(Tensor<T> &A, Tensor<T> &B,
     Tensor<T> &C = node.value;
 
     node.D = C.nDims;
-    node.c_shape = new int[node.D];
-    std::copy(C.shape, C.shape + C.nDims, node.c_shape);
-
     node.strideA = new int[node.D];
     node.strideB = new int[node.D];
     node.strideC = new int[node.D];
@@ -39,6 +36,11 @@ void flexible_binary(Tensor<T> &A, Tensor<T> &B,
         if (node.strideC[idx] == 0 && C.shape[idxC] == 1) {
             node.strideC[idx] = 1;
         }
+    }
+
+    node.c_offset = new size_t[node.D];
+    for (int i = 0; i < node.D; i++) {
+        node.c_offset[i] = C.shape[i] * node.strideC[i];
     }
 }
 
@@ -199,11 +201,8 @@ void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
 
 template <typename T>
 void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
-                    int *&a_shape, int *&strideA, int *&strideC) {
+                    size_t *&a_offset, int *&strideA, int *&strideC) {
     D = A.nDims;
-    a_shape = new int[D];
-    std::copy(A.shape, A.shape + A.nDims, a_shape);
-
     strideA = new int[D];
     strideC = new int[D];
 
@@ -211,7 +210,7 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
     std::copy(A.stride, A.stride + A.nDims, strideC);
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
-    for(int i = 0; i < D; i++) {
+    for (int i = 0; i < D; i++) {
         if (strideA[i] == 0 && A.shape[i] == 1) {
             strideA[i] = 1;
         }
@@ -227,13 +226,19 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
     std::copy(C.shape, C.shape + dim, c_shape_big);
     c_shape_big[dim] = 1;
     std::copy(C.shape + dim, C.shape + C.nDims, c_shape_big + dim + 1);
+
+    a_offset = new size_t[D];
+    for (int i = 0; i < D; i++) {
+        a_offset[i] = A.shape[i] * strideA[i];
+    }
 }
 
 template <typename T>
 void sum_dim(Tensor<T> &A, Node_sum_dim<T> &node, int dim) {
     Tensor<T> &C = node.value;
 
-    along_dim_impl(A, C, dim, node.D, node.a_shape, node.strideA, node.strideC);
+    along_dim_impl(A, C, dim, node.D, node.a_offset, node.strideA,
+                   node.strideC);
 }
 
 template <typename T>
@@ -244,7 +249,8 @@ void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
     node.c_end = C.val + C.len;
     node.dA_end = dA.val + dA.len;
 
-    along_dim_impl(A, C, dim, node.D, node.a_shape, node.strideA, node.strideC);
+    along_dim_impl(A, C, dim, node.D, node.a_offset, node.strideA,
+                   node.strideC);
 }
 }; // namespace Strides
 } // namespace kaad
