@@ -2,7 +2,7 @@
 
 #include "dispatchers.h" // for KAAD_MAX_NDIMS, get_batch_matmul_dispatcher
 #include "gradients.h"   // for binaryGrad, flexBinaryGrad, flexible, batch...
-#include "kernels.h"     // for NullOp, Mul
+#include "kernels.h"     // for Kernels::Null
 #include "operations.h"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
 #include "strides.h"     // for batch_matmul, flexible_binary, matmul, outer
 #include "tensor.h"      // for print_arr, combine_flexible, combine_matrix
@@ -146,8 +146,8 @@ INode<T> *pow(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
 // where A and B are scalars or vectors with the same length
 template <typename T>
 INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    using Op = class Kernels::NullOp::Op;
-    using Grad = class Kernels::NullOp::Grad;
+    using Op = class Kernels::Null::Op;
+    using Grad = class Kernels::Null::Grad;
     binaryOp<T, Op> scalar = Operations::scalarDot<T, Op>;
     binaryGrad<T, Grad> scalar_grad = Gradients::scalarDot<T, Grad>;
     binaryOp<T, Op> dot = Operations::dot<T, Op>;
@@ -160,19 +160,19 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
     bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
     if (B_scalar) {
-        auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
+        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
 
         newNode->len = A.len;
         rec.nodes.push_back(move(newNode));
     } else if (A_scalar) {
-        auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
+        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
         newNode->len = B.len;
         rec.nodes.push_back(move(newNode));
     } else if (A.nDims == 1 && B.nDims == 1 &&
                std::equal(A.shape, A.shape + A.nDims, B.shape)) {
-        auto newNode = std::make_unique<Node_binary<T, Kernels::NullOp>>(
+        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         newNode->len = A.len;
         rec.nodes.push_back(move(newNode));

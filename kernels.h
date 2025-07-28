@@ -13,8 +13,6 @@ struct Null {
     struct Grad {};
 };
 
-using NullOp = class Kernels::Null;
-
 template <typename T> struct Add {
     struct Op {
         constexpr void operator()(T A, T B, T &C) const noexcept { C = A + B; }
