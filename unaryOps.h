@@ -197,14 +197,16 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
 
         sumDimOp<T> operation = Operations::sum_dim<T>;
         sumDimGrad<T> gradient = Gradients::sum_dim<T>;
+
+        auto newNode =
+            std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
+        auto raw_ptr = newNode.get();
         if (A.nDims <= KAAD_MAX_NDIMS) {
-            operation = get_sumDim_dispatcher<T>()[A.nDims];
-            gradient = get_sumDim_grad_dispatcher<T>()[A.nDims];
+            raw_ptr->val_func = get_sumDim_dispatcher<T>()[A.nDims];
+            raw_ptr->grad_func = get_sumDim_grad_dispatcher<T>()[A.nDims];
         }
 
-        auto newNode = std::make_unique<Node_sum_dim<T>>(
-            operation, gradient, A_ptr, newShape, newLen);
-        Strides::sum_dim<T>(A, *newNode.get(), dim);
+        Strides::sum_dim<T>(A, *raw_ptr, dim);
         rec.nodes.push_back(move(newNode));
     }
 
@@ -241,16 +243,15 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
         std::copy(A.shape, A.shape + dim, newShape);
         std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
 
-        meanDimOp<T> operation = Operations::mean_dim<T>;
-        meanDimGrad<T> gradient = Gradients::mean_dim<T>;
+        auto newNode =
+            std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
+        auto raw_ptr = newNode.get();
         if (A.nDims <= KAAD_MAX_NDIMS) {
-            operation = get_meanDim_dispatcher<T>()[A.nDims];
-            gradient = get_meanDim_grad_dispatcher<T>()[A.nDims];
+            raw_ptr->val_func = get_meanDim_dispatcher<T>()[A.nDims];
+            raw_ptr->grad_func = get_meanDim_grad_dispatcher<T>()[A.nDims];
         }
 
-        auto newNode = std::make_unique<Node_mean_dim<T>>(
-            operation, gradient, A_ptr, newShape, newLen);
-        Strides::mean_dim<T>(A, *newNode.get(), dim);
+        Strides::mean_dim<T>(A, *raw_ptr, dim);
         rec.nodes.push_back(move(newNode));
     }
 

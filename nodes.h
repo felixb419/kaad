@@ -138,10 +138,10 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
 
     using Op = class Kernel::Op;
     Op op;
-    flexBinaryOp<T, Op> val_func = nullptr;
+    flexBinaryOp<T, Op> val_func = Operations::flexible<T, Op>;
     using Grad = class Kernel::Grad;
     Grad grad;
-    flexBinaryGrad<T, Grad> grad_func = nullptr;
+    flexBinaryGrad<T, Grad> grad_func = Gradients::flexible<T, Grad>;
 
     int *strideA = nullptr;
     int *strideB = nullptr;
@@ -150,11 +150,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     size_t D;
 
     template <typename... Args>
-    Node_binary_flex(flexBinaryOp<T, Op> operation,
-                     flexBinaryGrad<T, Grad> derivative, INode<T> *in1_ptr,
-                     INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), val_func(operation), grad_func(derivative),
-          INode<T>(in1_ptr, args...) {}
+    Node_binary_flex(INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
+        : in2(in2_ptr), INode<T>(in1_ptr, args...) {}
 
     ~Node_binary_flex() {
         delete[] strideA;
@@ -193,8 +190,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
 template <typename T> struct Node_matmul : INode<T> {
     INode<T> *in2 = nullptr;
 
-    matmulOp<T> op = nullptr;
-    matmulGrad<T> grad_op = nullptr;
+    matmulOp<T> op = Operations::matmul;
+    matmulGrad<T> grad_op = Gradients::matmul;
 
     int a_dim[3];
     int b_dim[3];
@@ -204,10 +201,8 @@ template <typename T> struct Node_matmul : INode<T> {
     int strideC[6];
 
     template <typename... Args>
-    Node_matmul(matmulOp<T> operation, matmulGrad<T> derivative,
-                INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), op(operation), grad_op(derivative),
-          INode<T>(in1_ptr, args...) {}
+    Node_matmul(INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
+        : in2(in2_ptr), INode<T>(in1_ptr, args...) {}
 
     inline void eval() override {
         if (!this->evaluated) {
@@ -238,8 +233,8 @@ template <typename T> struct Node_matmul : INode<T> {
 template <typename T> struct Node_batch_matmul : INode<T> {
     INode<T> *in2 = nullptr;
 
-    batchmatmulOp<T> val_func = nullptr;
-    batchmatmulGrad<T> grad_func = nullptr;
+    batchmatmulOp<T> val_func = Operations::batch_matmul;
+    batchmatmulGrad<T> grad_func = Gradients::batch_matmul;
 
     int *strideA[3];
     int *strideB[3];
@@ -251,10 +246,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
     size_t D;
 
     template <typename... Args>
-    Node_batch_matmul(batchmatmulOp<T> operation, batchmatmulGrad<T> derivative,
-                      INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), val_func(operation), grad_func(derivative),
-          INode<T>(in1_ptr, args...) {}
+    Node_batch_matmul(INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
+        : in2(in2_ptr), INode<T>(in1_ptr, args...) {}
 
     ~Node_batch_matmul() {
         for (int i = 0; i < 3; i++) {
@@ -293,8 +286,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
 };
 
 template <typename T> struct Node_sum_dim : INode<T> {
-    sumDimOp<T> val_func = nullptr;
-    sumDimGrad<T> grad_func = nullptr;
+    sumDimOp<T> val_func = Operations::sum_dim;
+    sumDimGrad<T> grad_func = Gradients::sum_dim;
 
     int *strideA = nullptr;
     int *strideC = nullptr;
@@ -302,10 +295,8 @@ template <typename T> struct Node_sum_dim : INode<T> {
     size_t D = 0;
 
     template <typename... Args>
-    Node_sum_dim(sumDimOp<T> operation, sumDimGrad<T> derivative,
-                 INode<T> *in1_ptr, Args &&...args)
-        : val_func(operation), grad_func(derivative),
-          INode<T>(in1_ptr, args...) {}
+    Node_sum_dim(INode<T> *in1_ptr, Args &&...args)
+        : INode<T>(in1_ptr, args...) {}
 
     ~Node_sum_dim() {
         delete[] strideA;
@@ -335,8 +326,8 @@ template <typename T> struct Node_sum_dim : INode<T> {
 };
 
 template <typename T> struct Node_mean_dim : INode<T> {
-    meanDimOp<T> val_func = nullptr;
-    meanDimGrad<T> grad_func = nullptr;
+    meanDimOp<T> val_func = Operations::mean_dim;
+    meanDimGrad<T> grad_func = Gradients::mean_dim;
 
     int *strideA = nullptr;
     int *strideC = nullptr;
@@ -347,10 +338,8 @@ template <typename T> struct Node_mean_dim : INode<T> {
     T divisor = 0;
 
     template <typename... Args>
-    Node_mean_dim(meanDimOp<T> operation, meanDimGrad<T> derivative,
-                  INode<T> *in1_ptr, Args &&...args)
-        : val_func(operation), grad_func(derivative),
-          INode<T>(in1_ptr, args...) {}
+    Node_mean_dim(INode<T> *in1_ptr, Args &&...args)
+        : INode<T>(in1_ptr, args...) {}
 
     ~Node_mean_dim() {
         delete[] strideA;

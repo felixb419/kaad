@@ -86,7 +86,7 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         }
 
         auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-            operation, gradient, A_ptr, B_ptr, newShape, newLen);
+            A_ptr, B_ptr, newShape, newLen);
         Strides::flexible_binary<T>(A, B, *newNode.get());
         rec.nodes.push_back(move(newNode));
     } else {
@@ -215,22 +215,20 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     }
 
     if (newLen == 2) {
-        auto newNode = std::make_unique<Node_matmul<T>>(
-            Operations::matmul<T>, Gradients::matmul<T>, A_ptr, B_ptr, newShape,
-            newLen);
+        auto newNode =
+            std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape, newLen);
         Strides::matmul<T>(A, B, *newNode.get());
         rec.nodes.push_back(move(newNode));
     } else {
-        batchmatmulOp<T> operation = Operations::batch_matmul<T>;
-        batchmatmulGrad<T> gradient = Gradients::batch_matmul<T>;
+        auto newNode = std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr,
+                                                              newShape, newLen);
+        auto raw_ptr = newNode.get();
         if (newLen <= KAAD_MAX_NDIMS) {
-            operation = get_batch_matmul_dispatcher<T>()[newLen];
-            gradient = get_batch_matmul_grad_dispatcher<T>()[newLen];
+            raw_ptr->val_func = get_batch_matmul_dispatcher<T>()[newLen];
+            raw_ptr->grad_func = get_batch_matmul_grad_dispatcher<T>()[newLen];
         }
 
-        auto newNode = std::make_unique<Node_batch_matmul<T>>(
-            operation, gradient, A_ptr, B_ptr, newShape, newLen);
-        Strides::batch_matmul<T>(A, B, *newNode.get());
+        Strides::batch_matmul<T>(A, B, *raw_ptr);
         rec.nodes.push_back(move(newNode));
     }
 
@@ -255,8 +253,7 @@ INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     using Grad = typename Kernel::Grad;
 
     auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-        Operations::flexible<T, Op>, Gradients::flexible<T, Grad>, A_ptr, B_ptr,
-        newShape, newLen);
+        A_ptr, B_ptr, newShape, newLen);
     auto raw = newNode.get();
     Strides::outer<T>(A, B, *raw);
     rec.nodes.push_back(move(newNode));
