@@ -165,96 +165,105 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     return rec.nodes.back().get();
 }
 
-template <typename T>
-INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
+template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    if (dim == -1) {
-        using Kernel = class Kernels::Sum<T>;
-        using Op = typename Kernel::Op;
-        using Grad = typename Kernel::Grad;
-        unaryOp<T, Op> op = Operations::unary_scalarRhs<T, Op>;
-        unaryGrad<T, Grad> grad = Gradients::unary_scalarRhs<T, Grad>;
-        auto newNode =
-            std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-        newNode->len = A_ptr->value.len;
-        rec.nodes.push_back(move(newNode));
-    } else {
-        if (dim < 0 || dim >= A.nDims) {
-            std::ostringstream errmsg;
-            errmsg << "argument error in node[" << recLen
-                   << "] (sum), dim has to be a valid index of A.shape (dim="
-                   << dim << ", A.nDims=" << A.nDims << ")" << std::endl;
-            throw std::invalid_argument(errmsg.str());
-        }
-
-        size_t newLen = A.nDims - 1;
-        int *newShape = new int[newLen];
-
-        std::copy(A.shape, A.shape + dim, newShape);
-        std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
-
-        sumDimOp<T> operation = Operations::sum_dim<T>;
-        sumDimGrad<T> gradient = Gradients::sum_dim<T>;
-
-        auto newNode =
-            std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
-        auto raw_ptr = newNode.get();
-        if (A.nDims <= KAAD_MAX_NDIMS) {
-            raw_ptr->val_func = get_sumDim_dispatcher<T>()[A.nDims];
-            raw_ptr->grad_func = get_sumDim_grad_dispatcher<T>()[A.nDims];
-        }
-
-        Strides::sum_dim<T>(A, *raw_ptr, dim);
-        rec.nodes.push_back(move(newNode));
-    }
-
+    using Kernel = class Kernels::Sum<T>;
+    using Op = typename Kernel::Op;
+    using Grad = typename Kernel::Grad;
+    unaryOp<T, Op> op = Operations::unary_scalarRhs<T, Op>;
+    unaryGrad<T, Grad> grad = Gradients::unary_scalarRhs<T, Grad>;
+    auto newNode =
+        std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
+    newNode->len = A_ptr->value.len;
+    rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
 
 template <typename T>
-INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim = -1) {
+INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    if (dim == -1) {
-        using Kernel = class Kernels::Null;
-        using Op = typename Kernel::Op;
-        using Grad = typename Kernel::Grad;
-        unaryOp<T, Op> operation = Operations::mean<T, Op>;
-        unaryGrad<T, Grad> gradient = Gradients::mean<T, Grad>;
-        auto newNode = std::make_unique<Node_unary<T, Kernel>>(
-            operation, gradient, A_ptr, (T)0);
-        newNode->len = A_ptr->value.len;
-        rec.nodes.push_back(move(newNode));
-    } else {
-        if (dim < 0 || dim >= A.nDims) {
-            std::ostringstream errmsg;
-            errmsg << "argument error in node[" << recLen
-                   << "] (mean), dim has to be a valid index of A.shape (dim="
-                   << dim << ", A.nDims=" << A.nDims << ")" << std::endl;
-            throw std::invalid_argument(errmsg.str());
-        }
-
-        size_t newLen = A.nDims - 1;
-        int *newShape = new int[newLen];
-
-        std::copy(A.shape, A.shape + dim, newShape);
-        std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
-
-        auto newNode =
-            std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
-        auto raw_ptr = newNode.get();
-        if (A.nDims <= KAAD_MAX_NDIMS) {
-            raw_ptr->val_func = get_meanDim_dispatcher<T>()[A.nDims];
-            raw_ptr->grad_func = get_meanDim_grad_dispatcher<T>()[A.nDims];
-        }
-
-        Strides::mean_dim<T>(A, *raw_ptr, dim);
-        rec.nodes.push_back(move(newNode));
+    if (dim < 0 || dim >= A.nDims) {
+        std::ostringstream errmsg;
+        errmsg << "argument error in node[" << recLen
+               << "] (sum), dim has to be a valid index of A.shape (dim=" << dim
+               << ", A.nDims=" << A.nDims << ")" << std::endl;
+        throw std::invalid_argument(errmsg.str());
     }
 
+    if (A.nDims == 1) {
+        return sum(rec, A_ptr);
+    }
+
+    size_t newLen = A.nDims - 1;
+    int *newShape = new int[newLen];
+
+    std::copy(A.shape, A.shape + dim, newShape);
+    std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+
+    auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
+    auto raw_ptr = newNode.get();
+    if (A.nDims <= KAAD_MAX_NDIMS) {
+        raw_ptr->val_func = get_sumDim_dispatcher<T>()[A.nDims];
+        raw_ptr->grad_func = get_sumDim_grad_dispatcher<T>()[A.nDims];
+    }
+
+    Strides::sum_dim<T>(A, *raw_ptr, dim);
+    rec.nodes.push_back(move(newNode));
+    return rec.nodes.back().get();
+}
+
+template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
+    int recLen = rec.nodes.size();
+    Tensor<T> &A = A_ptr->value;
+
+    using Kernel = class Kernels::Null;
+    using Op = typename Kernel::Op;
+    using Grad = typename Kernel::Grad;
+    unaryOp<T, Op> operation = Operations::mean<T, Op>;
+    unaryGrad<T, Grad> gradient = Gradients::mean<T, Grad>;
+    auto newNode = std::make_unique<Node_unary<T, Kernel>>(operation, gradient,
+                                                           A_ptr, (T)0);
+    newNode->len = A_ptr->value.len;
+    rec.nodes.push_back(move(newNode));
+    return rec.nodes.back().get();
+}
+
+template <typename T>
+INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim) {
+    int recLen = rec.nodes.size();
+    Tensor<T> &A = A_ptr->value;
+
+    if (dim < 0 || dim >= A.nDims) {
+        std::ostringstream errmsg;
+        errmsg << "argument error in node[" << recLen
+               << "] (mean), dim has to be a valid index of A.shape (dim="
+               << dim << ", A.nDims=" << A.nDims << ")" << std::endl;
+        throw std::invalid_argument(errmsg.str());
+    }
+
+    if (A.nDims == 1) {
+        return mean(rec, A_ptr);
+    }
+
+    size_t newLen = A.nDims - 1;
+    int *newShape = new int[newLen];
+
+    std::copy(A.shape, A.shape + dim, newShape);
+    std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+
+    auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
+    auto raw_ptr = newNode.get();
+    if (A.nDims <= KAAD_MAX_NDIMS) {
+        raw_ptr->val_func = get_meanDim_dispatcher<T>()[A.nDims];
+        raw_ptr->grad_func = get_meanDim_grad_dispatcher<T>()[A.nDims];
+    }
+
+    Strides::mean_dim<T>(A, *raw_ptr, dim);
+    rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
 
