@@ -259,8 +259,8 @@ void sum_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
 template <typename T, class Grad>
 void mean(const T *A, T *dA, const T *C, const T *dC, size_t len, Grad _) {
     T mean = dC[0] / len;
-    const T *end = C + len;
-    for (; C != end; dA++) {
+    const T *end = dA + len;
+    for (; dA != end; dA++) {
         *dA += mean;
     }
 }
