@@ -1,22 +1,23 @@
 #pragma once
 
-#include "gradients.h"      // for Gradients, unaryGrad, flexUnaryGrad, mea...
-#include "kernels.h"        // for Kernels
-#include "operations.h"     // for Operations, unaryOp, flexUnaryOp, meanDimOp
-#include "strides.h"        // for Strides
-#include "tensor.h"         // for print_arr, Tensor (ptr only), transp
+#include "dispatchers.h"    // for KAAD_MAX_NDIMS, get_meanDim_dispatcher
+#include "gradients.h"      // for unaryGrad, unary_pointwise, mean, unary_...
+#include "kernels.h"        // for Null, Sum, Transp
+#include "operations.h"     // for unaryOp, mean, transpose, unary_pointwise
+#include "strides.h"        // for mean_dim, sum_dim
+#include "tensor.h"         // for print_arr, transp
 #include <initializer_list> // for initializer_list
-#include <memory>           // for std::make_unique
+#include <memory>           // for make_unique
 #include <sstream>          // for operator<<, basic_ostream::operator<<
 #include <stddef.h>         // for size_t
-#include <stdexcept>        // for std::invalid_argument
+#include <stdexcept>        // for invalid_argument
 
 namespace kaad {
 template <typename T, class Kernel> struct Node_unary;
-template <typename T, class Kernel> struct Node_unary_flex;
 template <typename T> struct CompGraph;
 template <typename T> struct INode;
 template <typename T> struct Node_mean_dim;
+template <typename T> struct Node_sum_dim;
 
 template <typename T, class Kernel> struct UnaryKernels {
     using Op = class Kernel::Op;
