@@ -34,6 +34,11 @@ void flexible_binary(Tensor<T> &A, Tensor<T> &B,
         node.strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
         idxC = C.nDims - i;
         node.strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+        // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
+        // traversing in flexible function
+        if (node.strideC[idx] == 0 && C.shape[idxC] == 1) {
+            node.strideC[idx] = 1;
+        }
     }
 }
 
@@ -204,6 +209,14 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
 
     std::copy(A.stride, A.stride + A.nDims, strideA);
     std::copy(A.stride, A.stride + A.nDims, strideC);
+    // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
+    // traversing in flexible function
+    for(int i = 0; i < D; i++) {
+        if (strideA[i] == 0 && A.shape[i] == 1) {
+            strideA[i] = 1;
+        }
+    }
+
     strideC[dim] = 0;
     for (int i = 0; i < dim; i++) {
         strideC[i] /= A.shape[dim];
