@@ -156,14 +156,6 @@ void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
     Tensor<T> &C = node.value;
 
     node.D = C.nDims;
-    node.reps = new int[node.D];
-    std::copy(C.shape, C.shape + C.nDims, node.reps);
-    for (int i = 0; i < node.D; i++) {
-        node.reps[i]--;
-    }
-
-    node.count = new int[node.D];
-    std::copy(node.reps, node.reps + node.D, node.count);
 
     node.strideA = new int[node.D];
     node.strideB = new int[node.D];
@@ -178,24 +170,9 @@ void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
     std::copy(A.shape, A.shape + A.nDims, a_shape_big);
     a_shape_big[A.nDims] = 1;
 
-    int idx, idxA, idxB, idxC;
-    int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
-    for (int i = 1; i <= node.D; i++) {
-        idx = node.D - i;
-
-        _offsetA = offsetA;
-        offsetA += (a_shape_big[idx] - 1) * node.strideA[idx];
-        node.strideA[idx] -= _offsetA;
-
-        idxB = B.nDims - i;
-        _offsetB = offsetB;
-        offsetB += ((idxB >= 0 ? B.shape[idxB] : 1) - 1) * node.strideB[idx];
-        node.strideB[idx] -= _offsetB;
-
-        idxC = C.nDims - i;
-        _offsetC = offsetC;
-        offsetC += ((idxC >= 0 ? C.shape[idxC] : 1) - 1) * node.strideC[idx];
-        node.strideC[idx] -= _offsetC;
+    node.c_offset = new size_t[node.D];
+    for (int i = 0; i < node.D; i++) {
+        node.c_offset[i] = C.shape[i] * node.strideC[i];
     }
 }
 
