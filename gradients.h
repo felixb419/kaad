@@ -31,6 +31,9 @@ template <typename T>
 using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
                              int *strideC, size_t *a_offset, int N, T divisor,
                              T *c_end);
+template <typename T>
+using sliceGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
+                           size_t *start_offset, size_t *c_offset, int N);
 
 namespace Gradients {
 
@@ -310,6 +313,40 @@ void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
     mean_dim_impl<T, N>(A, dA, C, dC, strideA, strideC, a_offset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
+    }
+}
+
+template <typename T>
+void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
+           size_t *c_offset, int N) {
+    dA += *start_offset;
+    const T *end = dC + *c_offset;
+    if (N <= 1) {
+        for (; dC != end; dA += *strideA, dC += *strideC) {
+            *dA = *dC;
+        }
+    } else {
+        for (; dC < end; dA += *strideA, dC += *strideC) {
+            slice(dA, dC, strideA + 1, strideC + 1, start_offset + 1,
+                  c_offset + 1, N - 1);
+        }
+    }
+}
+
+template <typename T, int N>
+void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
+           size_t *c_offset, int _) {
+    dA += *start_offset;
+    const T *end = dC + *c_offset;
+    if constexpr (N <= 1) {
+        for (; dC != end; dA += *strideA, dC += *strideC) {
+            *dA = *dC;
+        }
+    } else {
+        for (; dC < end; dA += *strideA, dC += *strideC) {
+            slice<T, N - 1>(dA, dC, strideA + 1, strideC + 1, start_offset + 1,
+                            c_offset + 1, 0);
+        }
     }
 }
 

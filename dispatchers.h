@@ -137,3 +137,33 @@ get_meanDim_grad_dispatcher() {
     return get_meanDim_grad_dispatcher_impl<T>(
         std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
+
+/*
+slice Op
+*/
+template <typename T, std::size_t... Is>
+constexpr std::array<sliceOp<T>, sizeof...(Is)>
+get_slice_dispatcher_impl(std::index_sequence<Is...>) {
+    return {&Operations::slice<T, Is>...};
+}
+
+template <typename T>
+constexpr std::array<sliceOp<T>, KAAD_MAX_NDIMS> get_slice_dispatcher() {
+    return get_slice_dispatcher_impl<T>(
+        std::make_index_sequence<KAAD_MAX_NDIMS>());
+}
+
+/*
+slice Grad
+*/
+template <typename T, std::size_t... Is>
+constexpr std::array<sliceGrad<T>, sizeof...(Is)>
+get_slice_grad_dispatcher_impl(std::index_sequence<Is...>) {
+    return {&Gradients::slice<T, Is>...};
+}
+
+template <typename T>
+constexpr std::array<sliceGrad<T>, KAAD_MAX_NDIMS> get_slice_grad_dispatcher() {
+    return get_slice_grad_dispatcher_impl<T>(
+        std::make_index_sequence<KAAD_MAX_NDIMS>());
+}

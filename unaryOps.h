@@ -18,6 +18,7 @@ template <typename T> struct CompGraph;
 template <typename T> struct INode;
 template <typename T> struct Node_mean_dim;
 template <typename T> struct Node_sum_dim;
+template <typename T> struct Node_slice;
 
 template <typename T, class Kernel> struct UnaryKernels {
     using Op = class Kernel::Op;
@@ -281,4 +282,105 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
     return rec.nodes.back().get();
 }
 
+template <typename T>
+INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
+                std::initializer_list<int> _size,
+                std::initializer_list<size_t> _offset) {
+    int recLen = rec.nodes.size();
+    Tensor<T> &A = A_ptr->value;
+
+    size_t o_len = _offset.size();
+    const size_t *o_b = _offset.begin();
+    size_t s_len = _size.size();
+    const int *s_b = _size.begin();
+    if (s_len > A.nDims) {
+        std::ostringstream errmsg;
+        errmsg << "argument error in node[" << recLen
+               << "] (slice), length of _size cant be bigger than A.nDims, "
+                  "(_size length="
+               << s_len << ", A.nDims=" << A.nDims << ")" << std::endl;
+        throw std::invalid_argument(errmsg.str());
+    }
+    if (o_len > A.nDims) {
+        std::ostringstream errmsg;
+        errmsg << "argument error in node[" << recLen
+               << "] (slice), length of _offset cant be bigger than A.nDims, "
+                  "(_offset length="
+               << o_len << ", A.nDims=" << A.nDims << ")" << std::endl;
+        throw std::invalid_argument(errmsg.str());
+    }
+
+    int diff = A.nDims - o_len;
+    int *size = new int[A.nDims];
+    std::copy(A.shape, A.shape + diff, size);
+    std::copy(s_b, s_b + s_len, size + diff);
+
+    size_t *offset = new size_t[A.nDims];
+    std::fill(offset, offset + diff, 0);
+    std::copy(o_b, o_b + o_len, offset + diff);
+
+    for (int i = 0; i < A.nDims; i++) {
+        if (offset[i] + size[i] > A.shape[i]) {
+            std::ostringstream errmsg;
+            errmsg << "argument error in node[" << recLen
+                   << "] (slice), offset[" << i << "] with length[" << i
+                   << "] would overflow shape of A, (offset=";
+            print_arr(offset, offset + A.nDims, errmsg);
+            errmsg << ", length=";
+            print_arr(size, size + A.nDims, errmsg);
+            errmsg << ", shape=";
+            print_arr(A.shape, A.shape + A.nDims, errmsg);
+            errmsg << ")" << std::endl;
+            throw std::invalid_argument(errmsg.str());
+        }
+    }
+
+    size_t newLen = A.nDims;
+    int *newShape = new int[newLen];
+    std::copy(size, size + A.nDims, newShape);
+
+    auto newNode = std::make_unique<Node_slice<T>>(A_ptr, newShape, newLen);
+    auto raw_ptr = newNode.get();
+
+    if (A.nDims < KAAD_MAX_NDIMS) {
+        raw_ptr->val_func = get_slice_dispatcher<T>()[A.nDims];
+        raw_ptr->grad_func = get_slice_grad_dispatcher<T>()[A.nDims];
+    }
+
+    Strides::slice(A, *raw_ptr, offset);
+    delete[] offset;
+    delete[] size;
+
+    rec.nodes.push_back(move(newNode));
+    return rec.nodes.back().get();
+}
+/*
+template <typename T>
+INode<T> *tile(CompGraph<T> &rec, INode<T> *A_ptr,
+               std::initializer_list<uint> multiples) {
+    int recLen = rec.nodes.size();
+    Tensor<T> &A = A_ptr->value;
+
+    size_t m_len = multiples.size();
+    if (m_len > A.nDims) {
+        std::ostringstream errmsg;
+        errmsg << "argument error in node[" << recLen
+               << "] (tile), length of multiples cant be bigger than A.nDims "
+                  "(multiples size="
+               << m_len << ", A.nDims=" << A.nDims << ")" << std::endl;
+        throw std::invalid_argument(errmsg.str());
+    }
+    int *mult = new int[A.nDims];
+    int offset = A.nDims - m_len;
+    std::fill(mult, mult + offset, 1);
+    std::copy(multiples.begin(), multiples.end(), mult + offset);
+
+    int *newShape = new int[A.nDims];
+    for (int i = 0; i < A.nDims; i++) {
+        newShape[i] = A.shape[i] * mult[i];
+    }
+
+    //auto newNode = std::make_unique<Node_unary_flex<T>>
+}
+*/
 } // namespace kaad

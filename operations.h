@@ -25,6 +25,9 @@ using sumDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
 template <typename T>
 using meanDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
                            size_t *a_offset, int N, T divisor, T *c_end);
+template <typename T>
+using sliceOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
+                         size_t *start_offset, size_t *c_offset, int N);
 
 namespace Operations {
 /*
@@ -296,6 +299,40 @@ void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
     mean_dim_impl<T, N>(A, C, strideA, strideC, a_offset, 0);
     for (; C != c_end; C++) {
         *C /= divisor;
+    }
+}
+
+template <typename T>
+void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset,
+           size_t *c_offset, int N) {
+    A += *start_offset;
+    const T *end = C + *c_offset;
+    if (N <= 1) {
+        for (; C != end; A += *strideA, C += *strideC) {
+            *C = *A;
+        }
+    } else {
+        for (; C < end; A += *strideA, C += *strideC) {
+            slice(A, C, strideA + 1, strideC + 1, start_offset + 1,
+                  c_offset + 1, N - 1);
+        }
+    }
+}
+
+template <typename T, int N>
+void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset,
+           size_t *c_offset, int _) {
+    A += *start_offset;
+    const T *end = C + *c_offset;
+    if constexpr (N <= 1) {
+        for (; C != end; A += *strideA, C += *strideC) {
+            *C = *A;
+        }
+    } else {
+        for (; C < end; A += *strideA, C += *strideC) {
+            slice<T, N - 1>(A, C, strideA + 1, strideC + 1, start_offset + 1,
+                            c_offset + 1, 0);
+        }
     }
 }
 

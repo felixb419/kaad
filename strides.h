@@ -10,6 +10,7 @@ template <typename T> struct Node_batch_matmul;
 template <typename T> struct Node_matmul;
 template <typename T> struct Node_mean_dim;
 template <typename T> struct Node_sum_dim;
+template <typename T> struct Node_slice;
 
 namespace Strides {
 template <typename T, class Kernel>
@@ -222,6 +223,41 @@ void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
 
     along_dim_impl(A, C, dim, node.D, node.a_offset, node.strideA,
                    node.strideC);
+}
+
+template <typename T>
+void slice(Tensor<T> &A, Node_slice<T> &node, size_t *offset) {
+    Tensor<T> &C = node.value;
+
+    node.D = C.nDims;
+    node.strideA = new int[node.D];
+    node.strideB = new int[node.D];
+    node.strideC = new int[node.D];
+
+    int idx, idxA, idxC;
+    for (int i = 1; i <= node.D; i++) {
+        idx = node.D - i;
+        idxA = A.nDims - i;
+        node.strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
+        idxC = C.nDims - i;
+        node.strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+        // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
+        // traversing in flexible function
+        if (node.strideC[idx] == 0 && C.shape[idxC] == 1) {
+            node.strideC[idx] = 1;
+        }
+    }
+
+    node.c_offset = new size_t[node.D];
+    for (int i = 0; i < node.D; i++) {
+        node.c_offset[i] = C.shape[i] * node.strideC[i];
+    }
+
+    node.start_offset = new size_t[A.nDims];
+    std::copy(offset, offset + A.nDims, node.start_offset);
+    for (int i = 0; i < A.nDims; i++) {
+        node.start_offset[i] *= node.strideA[i];
+    }
 }
 }; // namespace Strides
 } // namespace kaad

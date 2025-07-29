@@ -367,4 +367,46 @@ template <typename T> struct Node_mean_dim : INode<T> {
     }
 };
 
+template <typename T> struct Node_slice : INode<T> {
+    sliceOp<T> val_func = Operations::slice<T>;
+    sliceGrad<T> grad_func = Gradients::slice<T>;
+
+    int *strideA = nullptr;
+    int *strideB = nullptr;
+    int *strideC = nullptr;
+    size_t *start_offset = nullptr;
+    size_t *c_offset = nullptr;
+    size_t D;
+
+    template <typename... Args>
+    Node_slice(INode<T> *in1_ptr, Args &&...args)
+        : INode<T>(in1_ptr, args...) {}
+
+    ~Node_slice() {
+        delete[] strideA;
+        delete[] strideB;
+        delete[] strideC;
+        delete[] c_offset;
+    }
+
+    inline void eval() override {
+        if (!this->evaluated) {
+            this->in1->eval();
+
+            val_func(this->in1->value.val, this->value.val, strideA, strideC,
+                     start_offset, c_offset, D);
+            this->evaluated = true;
+        }
+    }
+
+    inline void getGrad() override {
+        grad_func(this->in1->gradient.val, this->gradient.val, strideA, strideC,
+                  start_offset, c_offset, D);
+
+        if (this->in1->hasInputs) {
+            this->in1->getGrad();
+        }
+    }
+};
+
 } // namespace kaad
