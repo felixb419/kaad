@@ -314,10 +314,11 @@ void print_flat(const Tensor<T> &tensor, std::ostream &stream = std::cout) {
     delete[] cords;
 }
 
-inline void print_arr(const int *begin, const int *end,
+template <typename T>
+inline void print_arr(const T *begin, const T *end,
                       std::ostream &os = std::cout) {
     os << "[";
-    for (const int *p = begin; p != end; p++) {
+    for (const T *p = begin; p != end; p++) {
         if (p != begin) {
             os << ",";
         }
