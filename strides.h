@@ -221,12 +221,6 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
         strideC[i] /= A.shape[dim];
     }
 
-    // insert 1 at C.shape[dim];
-    int *c_shape_big = new int[A.nDims];
-    std::copy(C.shape, C.shape + dim, c_shape_big);
-    c_shape_big[dim] = 1;
-    std::copy(C.shape + dim, C.shape + C.nDims, c_shape_big + dim + 1);
-
     a_offset = new size_t[D];
     for (int i = 0; i < D; i++) {
         a_offset[i] = A.shape[i] * strideA[i];

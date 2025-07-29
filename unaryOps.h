@@ -183,7 +183,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
 }
 
 template <typename T>
-INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim) {
+INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim, bool keepNDims = 0) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -199,11 +199,17 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim) {
         return sum(rec, A_ptr);
     }
 
-    size_t newLen = A.nDims - 1;
+    size_t newLen = A.nDims;
     int *newShape = new int[newLen];
+    if (keepNDims) {
+        std::copy(A.shape, A.shape + A.nDims, newShape);
+        newShape[dim] = 1;
 
-    std::copy(A.shape, A.shape + dim, newShape);
-    std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+    } else {
+        newLen--;
+        std::copy(A.shape, A.shape + dim, newShape);
+        std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+    }
 
     auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
@@ -234,7 +240,8 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
 }
 
 template <typename T>
-INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim) {
+INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
+               bool keepNDims = 0) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -250,11 +257,17 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim) {
         return mean(rec, A_ptr);
     }
 
-    size_t newLen = A.nDims - 1;
+    size_t newLen = A.nDims;
     int *newShape = new int[newLen];
+    if (keepNDims) {
+        std::copy(A.shape, A.shape + A.nDims, newShape);
+        newShape[dim] = 1;
 
-    std::copy(A.shape, A.shape + dim, newShape);
-    std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+    } else {
+        newLen--;
+        std::copy(A.shape, A.shape + dim, newShape);
+        std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+    }
 
     auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
