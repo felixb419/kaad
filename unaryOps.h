@@ -1,11 +1,12 @@
 #pragma once
 
-#include "dispatchers.h"    // for KAAD_MAX_NDIMS, get_meanDim_dispatcher
-#include "gradients.h"      // for unaryGrad, unary_pointwise, mean, unary_...
-#include "kernels.h"        // for Null, Sum, Transp
-#include "operations.h"     // for unaryOp, mean, transpose, unary_pointwise
-#include "strides.h"        // for mean_dim, sum_dim
-#include "tensor.h"         // for print_arr, transp
+#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_meanDim_dispatcher
+#include "gradients.h"   // for unaryGrad, unary_pointwise, mean, unary_...
+#include "kernels.h"     // for Null, Sum, Transp
+#include "operations.h"  // for unaryOp, mean, transpose, unary_pointwise
+#include "strides.h"     // for mean_dim, sum_dim
+#include "tensor.h"      // for print_arr, transp
+#include "utils.h"
 #include <initializer_list> // for initializer_list
 #include <memory>           // for make_unique
 #include <sstream>          // for operator<<, basic_ostream::operator<<

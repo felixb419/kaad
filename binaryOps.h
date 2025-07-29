@@ -6,10 +6,11 @@
 #include "operations.h"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
 #include "strides.h"     // for batch_matmul, flexible_binary, matmul, outer
 #include "tensor.h"      // for print_arr, combine_flexible, combine_matrix
-#include <memory>        // for make_unique
-#include <sstream>       // for operator<<, basic_ostream, char_traits, ost...
-#include <stddef.h>      // for size_t
-#include <stdexcept>     // for invalid_argument
+#include "utils.h"
+#include <memory>    // for make_unique
+#include <sstream>   // for operator<<, basic_ostream, char_traits, ost...
+#include <stddef.h>  // for size_t
+#include <stdexcept> // for invalid_argument
 
 namespace kaad {
 
