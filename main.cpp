@@ -25,12 +25,12 @@ int main() {
 
     auto a = append_rec(rec, {6, 5});
 
-    auto b = append_rec(rec, {2, 3});
+    auto b = append_rec(rec, {1, 6, 1});
 
-    auto c = slice(rec, a, {2, 4}, {2, 1});
+    auto c = add(rec, a, b);
 
     cout << "A:\n" << a->value << endl;
-    // cout << "B:\n" << b->value << endl;
+    cout << "B:\n" << b->value << endl;
 
     rec.reset();
 
@@ -41,5 +41,5 @@ int main() {
     auto g = rec.getGradient(c, a, b);
 
     cout << "dA\n" << *g[0] << endl;
-    // cout << "dB\n" << *g[1] << endl;
+    cout << "dB\n" << *g[1] << endl;
 }

@@ -84,7 +84,7 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
 
 template <typename T, class Op, int N>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
-              int *strideC, int *c_offset, int _, Op op) {
+              int *strideC, size_t *c_offset, int _, Op op) {
     const T *end = C + *c_offset;
     if constexpr (N <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
