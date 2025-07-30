@@ -1,9 +1,9 @@
 #pragma once
 
 #include "dispatchers.h" // for KAAD_MAX_NDIMS, get_meanDim
-#include "gradients.h"   // for unaryGrad, unary_pointwise, mean, unary_...
+#include "gradients.h"   // for unaryGrad, pointwise, mean, unary_...
 #include "kernels.h"     // for Null, Sum, Transp
-#include "operations.h"  // for unaryOp, mean, transpose, unary_pointwise
+#include "operations.h"  // for unaryOp, mean, transpose, pointwise
 #include "strides.h"     // for mean_dim, sum_dim
 #include "tensor.h"      // for print_arr, transp
 #include "utils.h"
@@ -25,8 +25,8 @@ template <typename T> struct Node_slice;
 template <typename T, class Kernel> struct UnaryKernels {
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
-    unaryOp<T, Op> op = Operations::unary_pointwise<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::unary_pointwise<T, Grad>;
+    unaryOp<T, Op> op = Operations::unary::pointwise<T, Op>;
+    unaryGrad<T, Grad> grad = Gradients::binary::pointwise<T, Grad>;
 };
 
 template <typename T, class Kernel>
@@ -158,8 +158,8 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     using Kernel = class Kernels::Transp<T>;
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
-    unaryOp<T, Op> op = Operations::transpose<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::unary_pointwise<T, Grad>;
+    unaryOp<T, Op> op = Operations::unary::transpose<T, Op>;
+    unaryGrad<T, Grad> grad = Gradients::binary::pointwise<T, Grad>;
 
     auto newNode = std::make_unique<Node_unary<T, Kernel>>(
         op, grad, A_ptr, shape_T, stride_T, A.nDims);
@@ -176,8 +176,8 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     using Kernel = class Kernels::Sum<T>;
     using Op = typename Kernel::Op;
     using Grad = typename Kernel::Grad;
-    unaryOp<T, Op> op = Operations::unary_scalarRhs<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::unary_scalarRhs<T, Grad>;
+    unaryOp<T, Op> op = Operations::unary::scalarRhs<T, Op>;
+    unaryGrad<T, Grad> grad = Gradients::binary::scalarRhs<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
     newNode->end = A.val + A.len;

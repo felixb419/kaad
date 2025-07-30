@@ -32,9 +32,8 @@ using sliceOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
                          size_t *start_offset, size_t *c_offset, int N);
 
 namespace Operations {
-/*
-BINARY OPS
-*/
+
+namespace binary {
 
 // perform op so that: C[m,n,...] = op( A[m,n,...], B[0] )
 // shapes of C and A must be the same, shape of B must be (1)
@@ -129,7 +128,8 @@ void matmul(const T *A, const T *B, T *C, int a_dim, int b_dim, int k,
              b_idx++, colB += strideB[1], C += strideC[1]) {
             rowA = A;
             elemB = colB;
-            for (int i = 0; i < k; i++, rowA += strideA[1], elemB += strideB[0]) {
+            for (int i = 0; i < k;
+                 i++, rowA += strideA[1], elemB += strideB[0]) {
                 *C += (*rowA) * (*elemB);
             }
         }
@@ -184,19 +184,19 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
     }
 }
 
-/*
-UNARY OPS
-*/
+} // namespace binary
+
+namespace unary {
 
 template <typename T, class Op>
-void unary_pointwise(const T *A, T *C, const T *C_end, Op op) {
+void pointwise(const T *A, T *C, const T *C_end, Op op) {
     for (; C != C_end; A++, C++) {
         op(*A, *C);
     }
 }
 
 template <typename T, class Op>
-void unary_scalarRhs(const T *A, T *C, const T *A_end, Op op) {
+void scalarRhs(const T *A, T *C, const T *A_end, Op op) {
     for (; A != A_end; A++) {
         op(*A, *C);
     }
@@ -332,5 +332,6 @@ void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset,
     }
 }
 
+} // namespace unary
 } // namespace Operations
 } // namespace kaad

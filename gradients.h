@@ -27,7 +27,7 @@ using batchmatmulGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
 template <typename T>
 using sumDimGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
                             size_t *a_offset, int N);
-                            template <typename T>
+template <typename T>
 using meanGrad = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
 template <typename T>
 using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
@@ -41,9 +41,8 @@ namespace Gradients {
 
 // d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
 
-/*
-BINARY GRADS
-*/
+namespace binary {
+
 template <typename T, class Grad>
 void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *C_end, Grad grad) {
@@ -132,11 +131,11 @@ void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
             int *a_dim, int *b_dim, int *k, int *strideA, int *strideB,
             int *strideC) {
     // dA = dC * B^T
-    Operations::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC, strideB,
-                       strideA);
+    Operations::binary::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC,
+                               strideB, strideA);
     // dB = A^T * dC
-    Operations::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA + 2,
-                       strideC + 2, strideB + 2);
+    Operations::binary::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA + 2,
+                               strideC + 2, strideB + 2);
 }
 
 template <typename T>
@@ -144,11 +143,13 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
                   int *a_off, int *b_off, int *k, int N) {
     // dA = dC * B^T
-    Operations::batch_matmul<T>(dC, B, dA, strideC[0], strideB[0], strideA[0],
-                                c_shape[0], a_off[0], b_off[0], k[0], N);
+    Operations::binary::batch_matmul<T>(dC, B, dA, strideC[0], strideB[0],
+                                        strideA[0], c_shape[0], a_off[0],
+                                        b_off[0], k[0], N);
     // dB = A^T * dC
-    Operations::batch_matmul<T>(A, dC, dB, strideA[1], strideC[1], strideB[1],
-                                c_shape[1], a_off[1], b_off[1], k[1], N);
+    Operations::binary::batch_matmul<T>(A, dC, dB, strideA[1], strideC[1],
+                                        strideB[1], c_shape[1], a_off[1],
+                                        b_off[1], k[1], N);
 }
 
 template <typename T, int N>
@@ -156,30 +157,30 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
                   int *a_off, int *b_off, int *k, int _) {
     // dA = dC * B^T
-    Operations::batch_matmul<T, N>(dC, B, dA, strideC[0], strideB[0],
-                                   strideA[0], c_shape[0], a_off[0], b_off[0],
-                                   k[0], 0);
+    Operations::binary::batch_matmul<T, N>(dC, B, dA, strideC[0], strideB[0],
+                                           strideA[0], c_shape[0], a_off[0],
+                                           b_off[0], k[0], 0);
     // dB = A^T * dC
-    Operations::batch_matmul<T, N>(A, dC, dB, strideA[1], strideC[1],
-                                   strideB[1], c_shape[1], a_off[1], b_off[1],
-                                   k[1], 0);
+    Operations::binary::batch_matmul<T, N>(A, dC, dB, strideA[1], strideC[1],
+                                           strideB[1], c_shape[1], a_off[1],
+                                           b_off[1], k[1], 0);
 }
 
-/*
-UNARY GRADS
-*/
+} // namespace binary
+
+namespace unary {
 
 template <typename T, class Grad>
-void unary_pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
-                     Grad grad) {
+void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
+               Grad grad) {
     for (; C != C_end; A++, dA++, C++, dC++) {
         grad(*A, *dA, *C, *dC);
     }
 }
 
 template <typename T, class Grad>
-void unary_scalarRhs(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
-                     Grad grad) {
+void scalarRhs(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
+               Grad grad) {
     for (; A != A_end; A++, dA++) {
         grad(*A, *dA, *C, *dC);
     }
@@ -344,5 +345,7 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
     }
 }
 
-}; // namespace Gradients
+} // namespace unary
+
+} // namespace Gradients
 } // namespace kaad

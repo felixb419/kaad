@@ -25,15 +25,15 @@ template <typename T, class Kernel> struct BinaryKernels {
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
 
-    binaryOp<T, Op> scalarOpRhs = Operations::scalarRhs<T, Op>;
-    binaryOp<T, Op> scalarOpLhs = Operations::scalarLhs<T, Op>;
-    binaryOp<T, Op> pointOp = Operations::pointwise<T, Op>;
-    flexBinaryOp<T, Op> flexOp = Operations::flexible<T, Op>;
+    binaryOp<T, Op> scalarOpRhs = Operations::binary::scalarRhs<T, Op>;
+    binaryOp<T, Op> scalarOpLhs = Operations::binary::scalarLhs<T, Op>;
+    binaryOp<T, Op> pointOp = Operations::binary::pointwise<T, Op>;
+    flexBinaryOp<T, Op> flexOp = Operations::binary::flexible<T, Op>;
 
-    binaryGrad<T, Grad> scalarGradRhs = Gradients::scalarRhs<T, Grad>;
-    binaryGrad<T, Grad> scalarGradLhs = Gradients::scalarLhs<T, Grad>;
-    binaryGrad<T, Grad> pointGrad = Gradients::pointwise<T, Grad>;
-    flexBinaryGrad<T, Grad> flexGrad = Gradients::flexible<T, Grad>;
+    binaryGrad<T, Grad> scalarGradRhs = Gradients::binary::scalarRhs<T, Grad>;
+    binaryGrad<T, Grad> scalarGradLhs = Gradients::binary::scalarLhs<T, Grad>;
+    binaryGrad<T, Grad> pointGrad = Gradients::binary::pointwise<T, Grad>;
+    flexBinaryGrad<T, Grad> flexGrad = Gradients::binary::flexible<T, Grad>;
 };
 
 template <typename T, class Kernel>
@@ -152,10 +152,10 @@ template <typename T>
 INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     using Op = class Kernels::Null::Op;
     using Grad = class Kernels::Null::Grad;
-    binaryOp<T, Op> scalar = Operations::scalarDot<T, Op>;
-    binaryGrad<T, Grad> scalar_grad = Gradients::scalarDot<T, Grad>;
-    binaryOp<T, Op> dot = Operations::dot<T, Op>;
-    binaryGrad<T, Grad> dot_grad = Gradients::dot<T, Grad>;
+    binaryOp<T, Op> scalar = Operations::binary::scalarDot<T, Op>;
+    binaryGrad<T, Grad> scalar_grad = Gradients::binary::scalarDot<T, Grad>;
+    binaryOp<T, Op> dot = Operations::binary::dot<T, Op>;
+    binaryGrad<T, Grad> dot_grad = Gradients::binary::dot<T, Grad>;
 
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;

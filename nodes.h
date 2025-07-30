@@ -138,10 +138,10 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
 
     using Op = class Kernel::Op;
     Op op;
-    flexBinaryOp<T, Op> val_func = Operations::flexible<T, Op>;
+    flexBinaryOp<T, Op> val_func = Operations::binary::flexible<T, Op>;
     using Grad = class Kernel::Grad;
     Grad grad;
-    flexBinaryGrad<T, Grad> grad_func = Gradients::flexible<T, Grad>;
+    flexBinaryGrad<T, Grad> grad_func = Gradients::binary::flexible<T, Grad>;
 
     int *strideA = nullptr;
     int *strideB = nullptr;
@@ -190,8 +190,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
 template <typename T> struct Node_matmul : INode<T> {
     INode<T> *in2 = nullptr;
 
-    matmulOp<T> op = Operations::matmul;
-    matmulGrad<T> grad_op = Gradients::matmul;
+    matmulOp<T> op = Operations::binary::matmul;
+    matmulGrad<T> grad_op = Gradients::binary::matmul;
 
     int a_dim[3];
     int b_dim[3];
@@ -233,8 +233,8 @@ template <typename T> struct Node_matmul : INode<T> {
 template <typename T> struct Node_batch_matmul : INode<T> {
     INode<T> *in2 = nullptr;
 
-    batchmatmulOp<T> val_func = Operations::batch_matmul;
-    batchmatmulGrad<T> grad_func = Gradients::batch_matmul;
+    batchmatmulOp<T> val_func = Operations::binary::batch_matmul;
+    batchmatmulGrad<T> grad_func = Gradients::binary::batch_matmul;
 
     int *strideA[3];
     int *strideB[3];
@@ -286,8 +286,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
 };
 
 template <typename T> struct Node_sum_dim : INode<T> {
-    sumDimOp<T> val_func = Operations::sum_dim;
-    sumDimGrad<T> grad_func = Gradients::sum_dim;
+    sumDimOp<T> val_func = Operations::unary::sum_dim;
+    sumDimGrad<T> grad_func = Gradients::unary::sum_dim;
 
     int *strideA = nullptr;
     int *strideC = nullptr;
@@ -325,8 +325,8 @@ template <typename T> struct Node_sum_dim : INode<T> {
 };
 
 template <typename T> struct Node_mean : INode<T> {
-    meanOp<T> val_func = Operations::mean;
-    meanGrad<T> grad_func = Gradients::mean;
+    meanOp<T> val_func = Operations::unary::mean;
+    meanGrad<T> grad_func = Gradients::unary::mean;
 
     T *A_end = nullptr;
     T *dA_end = nullptr;
@@ -354,8 +354,8 @@ template <typename T> struct Node_mean : INode<T> {
 };
 
 template <typename T> struct Node_mean_dim : INode<T> {
-    meanDimOp<T> val_func = Operations::mean_dim;
-    meanDimGrad<T> grad_func = Gradients::mean_dim;
+    meanDimOp<T> val_func = Operations::unary::mean_dim;
+    meanDimGrad<T> grad_func = Gradients::unary::mean_dim;
 
     int *strideA = nullptr;
     int *strideC = nullptr;
@@ -397,8 +397,8 @@ template <typename T> struct Node_mean_dim : INode<T> {
 };
 
 template <typename T> struct Node_slice : INode<T> {
-    sliceOp<T> val_func = Operations::slice<T>;
-    sliceGrad<T> grad_func = Gradients::slice<T>;
+    sliceOp<T> val_func = Operations::unary::slice<T>;
+    sliceGrad<T> grad_func = Gradients::unary::slice<T>;
 
     int *strideA = nullptr;
     int *strideB = nullptr;
