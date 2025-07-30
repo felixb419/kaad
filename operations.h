@@ -5,9 +5,9 @@
 
 namespace kaad {
 template <typename T, class Op>
-using unaryOp = void (*)(const T *A, T *C, size_t len, Op op);
+using unaryOp = void (*)(const T *A, T *C, const T *C_end, Op op);
 template <typename T, class Op>
-using binaryOp = void (*)(const T *A, const T *B, T *C, size_t len, Op op);
+using binaryOp = void (*)(const T *A, const T *B, T *C, const T *C_end, Op op);
 template <typename T, class Op>
 using flexBinaryOp = void (*)(const T *A, const T *B, T *C, int *strideA,
                               int *strideB, int *strideC, size_t *c_offset,
@@ -23,6 +23,8 @@ template <typename T>
 using sumDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
                           size_t *a_offset, int N);
 template <typename T>
+using meanOp = void (*)(const T *A, T *C, const T *A_end, T divisor);
+template <typename T>
 using meanDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
                            size_t *a_offset, int N, T divisor, T *c_end);
 template <typename T>
@@ -37,9 +39,8 @@ BINARY OPS
 // perform op so that: C[m,n,...] = op( A[m,n,...], B[0] )
 // shapes of C and A must be the same, shape of B must be (1)
 template <typename T, class Op>
-void scalarRhs(const T *A, const T *B, T *C, size_t len, Op op) {
-    T *end = C + len;
-    for (; C != end; A++, C++) {
+void scalarRhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
+    for (; C != C_end; A++, C++) {
         op(*A, *B, *C);
     }
 }
@@ -47,9 +48,8 @@ void scalarRhs(const T *A, const T *B, T *C, size_t len, Op op) {
 // perform op so that: C[m,n,...] = op( A[0], B[m,n,...])
 // shapes of out and tensor must be the same, shape of scalar must be (1)
 template <typename T, class Op>
-void scalarLhs(const T *A, const T *B, T *C, size_t len, Op op) {
-    T *end = C + len;
-    for (; C != end; B++, C++) {
+void scalarLhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
+    for (; C != C_end; B++, C++) {
         op(*A, *B, *C);
     }
 }
@@ -57,9 +57,8 @@ void scalarLhs(const T *A, const T *B, T *C, size_t len, Op op) {
 // perform op so that so that: C[m,n,...] = op( A[m,n,...], B[m,n...] )
 // shape of all operands must be indentical
 template <typename T, class Op>
-void pointwise(const T *A, const T *B, T *C, size_t len, Op op) {
-    T *end = C + len;
-    for (; C != end; A++, B++, C++) {
+void pointwise(const T *A, const T *B, T *C, const T *C_end, Op op) {
+    for (; C != C_end; A++, B++, C++) {
         op(*A, *B, *C);
     }
 }
@@ -100,17 +99,17 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
 
 // compute do product of A and B into C
 // A must be 1d vector, B and C must be scalar
-template <typename T> void scalarDot(const T *A, const T *B, T *C, size_t len) {
-    T *end = A + len;
-    for (; A != end; A++) {
+template <typename T, class Grad>
+void scalarDot(const T *A, const T *B, T *C, const T *A_end, Grad _) {
+    for (; A != A_end; A++) {
         *C += *A * (*B);
     }
 }
 // compute do product of A and B into C
 // A and B must be 1d vectors of same length, C must be scalar
-template <typename T> void dot(const T *A, const T *B, T *C, size_t len) {
-    const T *end = A + len;
-    for (; A != end; A++, B++) {
+template <typename T, class Grad>
+void dot(const T *A, const T *B, T *C, const T *A_end, Grad _) {
+    for (; A != A_end; A++, B++) {
         *C += *A * (*B);
     }
 }
@@ -190,17 +189,15 @@ UNARY OPS
 */
 
 template <typename T, class Op>
-void unary_pointwise(const T *A, T *C, size_t len, Op op) {
-    T *end = C + len;
-    for (; C != end; A++, C++) {
+void unary_pointwise(const T *A, T *C, const T *C_end, Op op) {
+    for (; C != C_end; A++, C++) {
         op(*A, *C);
     }
 }
 
 template <typename T, class Op>
-void unary_scalarRhs(const T *A, T *C, size_t len, Op op) {
-    const T *end = A + len;
-    for (; A != end; A++) {
+void unary_scalarRhs(const T *A, T *C, const T *A_end, Op op) {
+    for (; A != A_end; A++) {
         op(*A, *C);
     }
 }
@@ -245,12 +242,11 @@ void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
 
 // saves mean of A into out
 // B has to be a scalar
-template <typename T, class Op> void mean(const T *A, T *C, size_t len, Op _) {
-    const T *end = A + len;
-    for (; A != end; A++) {
+template <typename T> void mean(const T *A, T *C, const T *A_end, T divisor) {
+    for (; A != A_end; A++) {
         *C += *A;
     }
-    *C /= len;
+    *C /= divisor;
 }
 
 // computes mean of tensor along dimension

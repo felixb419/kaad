@@ -63,7 +63,7 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
     Grad grad;
     unaryGrad<T, Grad> grad_func = nullptr;
 
-    size_t len = 0;
+    T *end = nullptr;
 
     template <typename... Args>
     Node_unary(unaryOp<T, Op> operation, unaryGrad<T, Grad> derivative,
@@ -75,14 +75,14 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
         if (!this->evaluated) {
             this->in1->eval();
 
-            val_func(this->in1->value.val, this->value.val, len, op);
+            val_func(this->in1->value.val, this->value.val, end, op);
             this->evaluated = true;
         }
     }
 
     inline void getGrad() override {
         grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->value.val, this->gradient.val, len, grad);
+                  this->value.val, this->gradient.val, end, grad);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();
@@ -100,7 +100,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
     Grad grad;
     binaryGrad<T, Grad> grad_func = nullptr;
 
-    size_t len = 0;
+    T *end = nullptr;
 
     template <typename... Args>
     Node_binary(binaryOp<T, Op> operation, binaryGrad<T, Grad> derivative,
@@ -113,7 +113,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->in1->eval();
             this->in2->eval();
 
-            val_func(this->in1->value.val, in2->value.val, this->value.val, len,
+            val_func(this->in1->value.val, in2->value.val, this->value.val, end,
                      op);
             this->evaluated = true;
         }
@@ -121,7 +121,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
 
     inline void getGrad() override {
         grad_func(this->in1->value.val, this->in1->gradient.val, in2->value.val,
-                  in2->gradient.val, this->value.val, this->gradient.val, len,
+                  in2->gradient.val, this->value.val, this->gradient.val, end,
                   grad);
 
         if (this->in1->hasInputs) {
@@ -317,6 +317,35 @@ template <typename T> struct Node_sum_dim : INode<T> {
     inline void getGrad() override {
         grad_func(this->in1->gradient.val, this->gradient.val, strideA, strideC,
                   a_offset, D);
+
+        if (this->in1->hasInputs) {
+            this->in1->getGrad();
+        }
+    }
+};
+
+template <typename T> struct Node_mean : INode<T> {
+    meanOp<T> val_func = Operations::mean;
+    meanGrad<T> grad_func = Gradients::mean;
+
+    T *A_end = nullptr;
+    T *dA_end = nullptr;
+    T divisor = 0;
+
+    template <typename... Args>
+    Node_mean(INode<T> *in1_ptr, Args &&...args) : INode<T>(in1_ptr, args...) {}
+
+    inline void eval() override {
+        if (!this->evaluated) {
+            this->in1->eval();
+
+            val_func(this->in1->value.val, this->value.val, A_end, divisor);
+            this->evaluated = true;
+        }
+    }
+
+    inline void getGrad() override {
+        grad_func(this->in1->gradient.val, this->gradient.val, dA_end, divisor);
 
         if (this->in1->hasInputs) {
             this->in1->getGrad();

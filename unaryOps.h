@@ -40,7 +40,7 @@ INode<T> *unOperator(CompGraph<T> &rec, INode<T> *A_ptr,
         kernels.op, kernels.grad, A_ptr, newShape, A.nDims);
     auto raw = newNode.get();
     rec.nodes.push_back(move(newNode));
-    raw->len = A.len;
+    raw->end = raw->value.val + raw->value.len;
 
     return raw;
 }
@@ -179,7 +179,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     unaryGrad<T, Grad> grad = Gradients::unary_scalarRhs<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-    newNode->len = A_ptr->value.len;
+    newNode->end = A.val + A.len;
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
@@ -229,14 +229,10 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    using Kernel = class Kernels::Null;
-    using Op = typename Kernel::Op;
-    using Grad = typename Kernel::Grad;
-    unaryOp<T, Op> operation = Operations::mean<T, Op>;
-    unaryGrad<T, Grad> gradient = Gradients::mean<T, Grad>;
-    auto newNode = std::make_unique<Node_unary<T, Kernel>>(operation, gradient,
-                                                           A_ptr, (T)0);
-    newNode->len = A_ptr->value.len;
+    auto newNode = std::make_unique<Node_mean<T>>(A_ptr, (T)0);
+    newNode->A_end = A.val + A.len;
+    newNode->dA_end = newNode->in1->gradient.val + newNode->in1->gradient.len;
+    newNode->divisor = A.len;
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }

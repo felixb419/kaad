@@ -6,10 +6,10 @@
 namespace kaad {
 template <typename T, class Grad>
 using unaryGrad = void (*)(const T *A, T *dA, const T *C, const T *dC,
-                           size_t len, Grad grad);
+                           const T *end, Grad grad);
 template <typename T, class Grad>
 using binaryGrad = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                            const T *dC, size_t len, Grad grad);
+                            const T *dC, const T *end, Grad grad);
 template <typename T, class Grad>
 using flexBinaryGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
                                 const T *C, const T *dC, int *strideA,
@@ -27,6 +27,8 @@ using batchmatmulGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
 template <typename T>
 using sumDimGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
                             size_t *a_offset, int N);
+                            template <typename T>
+using meanGrad = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
 template <typename T>
 using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
                              int *strideC, size_t *a_offset, int N, T divisor,
@@ -44,25 +46,22 @@ BINARY GRADS
 */
 template <typename T, class Grad>
 void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               size_t len, Grad grad) {
-    const T *end = C + len;
-    for (; C != end; A++, dA++, C++, dC++) {
+               const T *C_end, Grad grad) {
+    for (; C != C_end; A++, dA++, C++, dC++) {
         grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
 template <typename T, class Grad>
 void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               size_t len, Grad grad) {
-    const T *end = C + len;
-    for (; C != end; B++, dB++, C++, dC++) {
+               const T *C_end, Grad grad) {
+    for (; C != C_end; B++, dB++, C++, dC++) {
         grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
 template <typename T, class Grad>
 void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               size_t len, Grad grad) {
-    const T *end = C + len;
-    for (; C != end; A++, dA++, B++, dB++, C++, dC++) {
+               const T *C_end, Grad grad) {
+    for (; C != C_end; A++, dA++, B++, dB++, C++, dC++) {
         grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
@@ -108,20 +107,18 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 // f(A,B) = A dot B
 // df/dA = B
 // df/dB = A
-template <typename T>
+template <typename T, class Grad>
 void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-         size_t len) {
-    const T *end = A + len;
-    for (; A != end; A++, dA++, B++, dB++) {
+         const T *A_end, Grad _) {
+    for (; A != A_end; A++, dA++, B++, dB++) {
         *dA += *dC * (*B);
         *dB += *dC * (*A);
     }
 }
 template <typename T, class Grad>
 void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               size_t len, Grad _) {
-    const T *end = A + len;
-    for (; A != end; A++, dA++) {
+               const T *A_end, Grad _) {
+    for (; A != A_end; A++, dA++) {
         *dA += *dC * (*B);
         *dB += *dC * (*A);
     }
@@ -173,19 +170,17 @@ UNARY GRADS
 */
 
 template <typename T, class Grad>
-void unary_pointwise(const T *A, T *dA, const T *C, const T *dC, size_t len,
+void unary_pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
                      Grad grad) {
-    const T *end = C + len;
-    for (; C != end; A++, dA++, C++, dC++) {
+    for (; C != C_end; A++, dA++, C++, dC++) {
         grad(*A, *dA, *C, *dC);
     }
 }
 
 template <typename T, class Grad>
-void unary_scalarRhs(const T *A, T *dA, const T *C, const T *dC, size_t len,
+void unary_scalarRhs(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
                      Grad grad) {
-    const T *end = A + len;
-    for (; A != end; A++, dA++) {
+    for (; A != A_end; A++, dA++) {
         grad(*A, *dA, *C, *dC);
     }
 }
@@ -259,11 +254,10 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
 
 // f(A) = mean(A)
 // df_dA = tensor with shape of A filled with 1 / (len of A)
-template <typename T, class Grad>
-void mean(const T *A, T *dA, const T *C, const T *dC, size_t len, Grad _) {
-    T mean = dC[0] / len;
-    const T *end = dA + len;
-    for (; dA != end; dA++) {
+template <typename T>
+void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
+    T mean = *dC / divisor;
+    for (; dA != dA_end; dA++) {
         *dA += mean;
     }
 }
