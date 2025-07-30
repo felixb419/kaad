@@ -4,12 +4,12 @@
 using namespace kaad;
 using namespace std;
 
-auto append_rec(CompGraph<double> &rec, initializer_list<int> _shape) {
-    size_t nDims = _shape.size();
+auto append_rec(CompGraph<double> &rec, initializer_list<int> shape_in) {
+    size_t nDims = shape_in.size();
     int *shape = new int[nDims];
-    copy(_shape.begin(), _shape.end(), shape);
+    copy(shape_in.begin(), shape_in.end(), shape);
     size_t len = 1;
-    for (int dim : _shape) {
+    for (int dim : shape_in) {
         len *= dim;
     }
     double *val = new double[len];
@@ -25,9 +25,9 @@ int main() {
 
     auto a = append_rec(rec, {6, 5});
 
-    auto b = append_rec(rec, {1, 6, 1});
+    auto b = append_rec(rec, {5,3});
 
-    auto c = add(rec, a, b);
+    auto c = matmul(rec, a, b);
 
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;

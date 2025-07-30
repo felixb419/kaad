@@ -55,8 +55,8 @@ template <typename T> struct tView {
     T *val = nullptr;
     size_t len = 0;
 
-    tView(int *_shape, int *_stride, size_t _nDims, T *_val, size_t _len)
-        : shape(_shape), stride(_stride), nDims(_nDims), val(_val), len(_len) {}
+    tView(int *shape, int *stride, size_t nDims, T *val, size_t len)
+        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
 
     tView(const tView &other)
         : shape(other.shape), stride(other.stride), nDims(other.nDims),
@@ -169,24 +169,24 @@ template <typename T> class Tensor {
         return *this;
     }
 
-    Tensor(int *_shape, int *_stride, size_t _nDims)
-        : shape(_shape), stride(_stride), nDims(_nDims) {
+    Tensor(int *shape, int *stride, size_t nDims)
+        : shape(shape), stride(stride), nDims(nDims) {
         len = 1;
-        for (size_t i = 0; i < nDims; i++) {
-            len *= shape[i];
+        for (size_t i = 0; i < this->nDims; i++) {
+            len *= this->shape[i];
         }
 
         val = new T[len];
         std::fill(val, val + len, 0);
     }
 
-    Tensor(int *_shape, int *_stride, size_t _nDims, T *_val, size_t _len)
-        : shape(_shape), stride(_stride), nDims(_nDims), val(_val), len(_len) {}
+    Tensor(int *shape, int *stride, size_t nDims, T *val, size_t len)
+        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
 
-    Tensor(int *_shape, int *_stride, size_t _nDims, size_t _len, T _fill = 0)
-        : shape(_shape), stride(_stride), nDims(_nDims), len(_len) {
-        val = new T[len];
-        std::fill(val, val + len, _fill);
+    Tensor(int *shape, int *stride, size_t nDims, size_t len, T fill_value = 0)
+        : shape(shape), stride(stride), nDims(nDims), len(len) {
+        val = new T[this->len];
+        std::fill(val, val + this->len, fill_value);
     }
 
     Tensor(T scalar) : nDims(1), len(1) {
@@ -195,49 +195,49 @@ template <typename T> class Tensor {
         val = new T[]{scalar};
     }
 
-    Tensor(int *_shape, size_t _nDims, T *_val, size_t _len)
-        : nDims(_nDims), len(1) {
-        shape = _shape;
-        stride = new int[nDims];
+    Tensor(int *shape, size_t nDims, T *val, size_t len)
+        : nDims(nDims), len(1) {
+        this->shape = shape;
+        stride = new int[this->nDims];
 
-        int i = nDims - 1;
+        int i = this->nDims - 1;
 
         stride[i] = 1;
-        len *= shape[i];
+        this->len *= this->shape[i];
         for (i--; i >= 0; i--) {
-            stride[i] = shape[i + 1] * stride[i + 1];
-            len *= shape[i];
+            stride[i] = this->shape[i + 1] * stride[i + 1];
+            this->len *= this->shape[i];
         }
-        for (int i = 0; i < nDims; i++) {
-            stride[i] = shape[i] > 1 ? stride[i] : 0;
+        for (int i = 0; i < this->nDims; i++) {
+            stride[i] = this->shape[i] > 1 ? stride[i] : 0;
         }
 
-        if (len != _len) {
+        if (this->len != len) {
             throw std::invalid_argument(
-                "array size suggested by shape does not match _value argument");
+                "array size suggested by this->shape does not match val argument");
         }
 
-        val = _val;
+        this->val = val;
     }
 
-    Tensor(int *_shape, size_t _nDims, T _fill = 0) : nDims(_nDims), len(1) {
-        shape = _shape;
-        stride = new int[nDims];
+    Tensor(int *shape, size_t nDims, T fill_value = 0) : nDims(nDims), len(1) {
+        this->shape = shape;
+        stride = new int[this->nDims];
 
-        int i = nDims - 1;
+        int i = this->nDims - 1;
 
         stride[i] = 1;
-        len *= shape[i];
+        len *= this->shape[i];
         for (i--; i >= 0; i--) {
-            stride[i] = shape[i + 1] * stride[i + 1];
-            len *= shape[i];
+            stride[i] = this->shape[i + 1] * stride[i + 1];
+            len *= this->shape[i];
         }
-        for (int i = 0; i < nDims; i++) {
-            stride[i] = shape[i] > 1 ? stride[i] : 0;
+        for (int i = 0; i < this->nDims; i++) {
+            stride[i] = this->shape[i] > 1 ? stride[i] : 0;
         }
 
         val = new T[len];
-        std::fill(val, val + len, _fill);
+        std::fill(val, val + len, fill_value);
     }
 
     struct tView<T> view() const {

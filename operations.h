@@ -119,18 +119,18 @@ void dot(const T *A, const T *B, T *C, const T *A_end, Grad _) {
 template <typename T>
 void matmul(const T *A, const T *B, T *C, int a_dim, int b_dim, int k,
             int *strideA, int *strideB, int *strideC) {
-    const T *_A;
-    const T *_B;
-    const T *__B;
+    const T *rowA;
+    const T *colB;
+    const T *elemB;
     for (int a_idx = 0; a_idx < a_dim;
          a_idx++, A += strideA[0], C += strideC[0]) {
-        _B = B;
+        colB = B;
         for (int b_idx = 0; b_idx < b_dim;
-             b_idx++, _B += strideB[1], C += strideC[1]) {
-            _A = A;
-            __B = _B;
-            for (int i = 0; i < k; i++, _A += strideA[1], __B += strideB[0]) {
-                *C += (*_A) * (*__B);
+             b_idx++, colB += strideB[1], C += strideC[1]) {
+            rowA = A;
+            elemB = colB;
+            for (int i = 0; i < k; i++, rowA += strideA[1], elemB += strideB[0]) {
+                *C += (*rowA) * (*elemB);
             }
         }
     }
@@ -147,9 +147,9 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
     if (N <= 1) {
         for (int i = 0; i < *c_shape;
              i++, A += *strideA, B += *strideB, C += *strideC) {
-            const T *_A = A, *_B = B;
-            for (int j = 0; j < k; j++, _A += a_off, _B += b_off) {
-                *C += (*_A) * (*_B);
+            const T *rowA = A, *colB = B;
+            for (int j = 0; j < k; j++, rowA += a_off, colB += b_off) {
+                *C += (*rowA) * (*colB);
             }
         }
     } else {
@@ -169,9 +169,9 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
     if constexpr (N <= 1) {
         for (int i = 0; i < *c_shape;
              i++, A += *strideA, B += *strideB, C += *strideC) {
-            const T *_A = A, *_B = B;
-            for (int j = 0; j < k; j++, _A += a_off, _B += b_off) {
-                *C += (*_A) * (*_B);
+            const T *rowA = A, *colB = B;
+            for (int j = 0; j < k; j++, rowA += a_off, colB += b_off) {
+                *C += (*rowA) * (*colB);
             }
         }
     } else {

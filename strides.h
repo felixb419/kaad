@@ -1,6 +1,7 @@
 #pragma once
 
-#include "tensor.h" // for tView, transp2D, combine_matrix
+#include "tensor.h" // for Tensor, tView
+#include "utils.h"  // for transp2D, combine_matrix
 #include <stddef.h> // for size_t
 
 namespace kaad {
@@ -57,14 +58,14 @@ void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int &a_dim, int &b_dim,
     std::copy(C.stride, C.stride + 2, strideC);
 
     int idx, idxA, idxB, idxC;
-    int offsetA = 0, _offsetA, offsetB = 0, _offsetB, offsetC = 0, _offsetC;
+    int offsetC = 0, prevC;
     for (int i = 1; i <= 2; i++) {
         idx = 2 - i;
 
         idxC = C.nDims - i;
-        _offsetC = offsetC;
+        prevC = offsetC;
         offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
-        strideC[idx] -= _offsetC + strideC[idx + 1];
+        strideC[idx] -= prevC + strideC[idx + 1];
     }
 }
 
