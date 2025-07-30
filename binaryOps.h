@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_batch_matmul_dispatcher
+#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_batch_matmul
 #include "gradients.h"   // for binaryGrad, flexBinaryGrad, flexible, batch...
 #include "kernels.h"     // for Kernels::Null
 #include "operations.h"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
@@ -85,8 +85,8 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         flexBinaryOp<T, Op> operation = kernels.flexOp;
         flexBinaryGrad<T, Grad> gradient = kernels.flexGrad;
         if (newLen <= KAAD_MAX_NDIMS) {
-            operation = get_flexOp_dispatcher<T, Op>()[newLen];
-            gradient = get_flexGrad_dispatcher<T, Grad>()[newLen];
+            operation = dispatchers::get_flexOp<T, Op>()[newLen];
+            gradient = dispatchers::get_flexGrad<T, Grad>()[newLen];
         }
 
         auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
@@ -230,8 +230,9 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
                                                               newShape, newLen);
         auto raw_ptr = newNode.get();
         if (newLen <= KAAD_MAX_NDIMS) {
-            raw_ptr->val_func = get_batch_matmul_dispatcher<T>()[newLen];
-            raw_ptr->grad_func = get_batch_matmul_grad_dispatcher<T>()[newLen];
+            raw_ptr->val_func = dispatchers::get_batch_matmul<T>()[newLen];
+            raw_ptr->grad_func =
+                dispatchers::get_batch_matmul_grad<T>()[newLen];
         }
 
         Strides::batch_matmul<T>(A, B, *raw_ptr);

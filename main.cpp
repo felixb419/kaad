@@ -23,11 +23,11 @@ int main() {
     system("clear");
     CompGraph<double> rec;
 
-    auto a = append_rec(rec, {6, 5});
+    auto a = append_rec(rec, {6, 3});
 
-    auto b = append_rec(rec, {5,3});
+    auto b = append_rec(rec, {6, 1});
 
-    auto c = matmul(rec, a, b);
+    auto c = add(rec, a, b);
 
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;

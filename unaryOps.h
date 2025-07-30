@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_meanDim_dispatcher
+#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_meanDim
 #include "gradients.h"   // for unaryGrad, unary_pointwise, mean, unary_...
 #include "kernels.h"     // for Null, Sum, Transp
 #include "operations.h"  // for unaryOp, mean, transpose, unary_pointwise
@@ -17,6 +17,7 @@ namespace kaad {
 template <typename T, class Kernel> struct Node_unary;
 template <typename T> struct CompGraph;
 template <typename T> struct INode;
+template <typename T> struct Node_mean;
 template <typename T> struct Node_mean_dim;
 template <typename T> struct Node_sum_dim;
 template <typename T> struct Node_slice;
@@ -216,8 +217,8 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim, bool keepNDims = 0) {
     auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
     if (A.nDims <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = get_sumDim_dispatcher<T>()[A.nDims];
-        raw_ptr->grad_func = get_sumDim_grad_dispatcher<T>()[A.nDims];
+        raw_ptr->val_func = dispatchers::get_sumDim<T>()[A.nDims];
+        raw_ptr->grad_func = dispatchers::get_sumDim_grad<T>()[A.nDims];
     }
 
     Strides::sum_dim<T>(A, *raw_ptr, dim);
@@ -270,8 +271,8 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
     auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
     if (A.nDims <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = get_meanDim_dispatcher<T>()[A.nDims];
-        raw_ptr->grad_func = get_meanDim_grad_dispatcher<T>()[A.nDims];
+        raw_ptr->val_func = dispatchers::get_meanDim<T>()[A.nDims];
+        raw_ptr->grad_func = dispatchers::get_meanDim_grad<T>()[A.nDims];
     }
 
     Strides::mean_dim<T>(A, *raw_ptr, dim);
@@ -340,8 +341,8 @@ INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
     auto raw_ptr = newNode.get();
 
     if (A.nDims < KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = get_slice_dispatcher<T>()[A.nDims];
-        raw_ptr->grad_func = get_slice_grad_dispatcher<T>()[A.nDims];
+        raw_ptr->val_func = dispatchers::get_slice<T>()[A.nDims];
+        raw_ptr->grad_func = dispatchers::get_slice_grad<T>()[A.nDims];
     }
 
     Strides::slice(A, *raw_ptr, offset_owned);

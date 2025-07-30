@@ -12,158 +12,132 @@
 
 using namespace kaad;
 
-/*
-flexible Op
-*/
+namespace kaad {
+
+namespace dispatchers {
+
+/// flexible Op
 template <typename T, class Op, std::size_t... Is>
 constexpr std::array<flexBinaryOp<T, Op>, sizeof...(Is)>
-get_flexOp_dispatcher_impl(std::index_sequence<Is...>) {
+get_flexOp_impl(std::index_sequence<Is...>) {
     return {&Operations::flexible<T, Op, Is>...};
 }
 
 template <typename T, class Op>
-constexpr std::array<flexBinaryOp<T, Op>, KAAD_MAX_NDIMS>
-get_flexOp_dispatcher() {
-    return get_flexOp_dispatcher_impl<T, Op>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<flexBinaryOp<T, Op>, KAAD_MAX_NDIMS> get_flexOp() {
+    return get_flexOp_impl<T, Op>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-flexible Grad
-*/
+/// flexible Grad
 template <typename T, class Grad, std::size_t... Is>
 constexpr std::array<flexBinaryGrad<T, Grad>, sizeof...(Is)>
-get_flexGrad_dispatcher_impl(std::index_sequence<Is...>) {
+get_flexGrad_impl(std::index_sequence<Is...>) {
     return {&Gradients::flexible<T, Grad, Is>...};
 }
 
 template <typename T, class Grad>
-constexpr std::array<flexBinaryGrad<T, Grad>, KAAD_MAX_NDIMS>
-get_flexGrad_dispatcher() {
-    return get_flexGrad_dispatcher_impl<T, Grad>(
+constexpr std::array<flexBinaryGrad<T, Grad>, KAAD_MAX_NDIMS> get_flexGrad() {
+    return get_flexGrad_impl<T, Grad>(
         std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-batch matmul Op
-*/
+/// batch matmul Op
 template <typename T, std::size_t... Is>
 constexpr std::array<batchmatmulOp<T>, sizeof...(Is)>
-get_batch_matmul_dispatcher_impl(std::index_sequence<Is...>) {
+get_batch_matmul_impl(std::index_sequence<Is...>) {
     return {&Operations::batch_matmul<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<batchmatmulOp<T>, KAAD_MAX_NDIMS>
-get_batch_matmul_dispatcher() {
-    return get_batch_matmul_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<batchmatmulOp<T>, KAAD_MAX_NDIMS> get_batch_matmul() {
+    return get_batch_matmul_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-batch matmul Grad
-*/
+/// batch matmul Grad
 template <typename T, std::size_t... Is>
 constexpr std::array<batchmatmulGrad<T>, sizeof...(Is)>
-get_batch_matmul_grad_dispatcher_impl(std::index_sequence<Is...>) {
+get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
     return {&Gradients::batch_matmul<T, Is>...};
 }
 
 template <typename T>
 constexpr std::array<batchmatmulGrad<T>, KAAD_MAX_NDIMS>
-get_batch_matmul_grad_dispatcher() {
-    return get_batch_matmul_grad_dispatcher_impl<T>(
+get_batch_matmul_grad() {
+    return get_batch_matmul_grad_impl<T>(
         std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-sum dim Op
-*/
+/// sum dim Op
 template <typename T, std::size_t... Is>
 constexpr std::array<sumDimOp<T>, sizeof...(Is)>
-get_sumDim_dispatcher_impl(std::index_sequence<Is...>) {
+get_sumDim_impl(std::index_sequence<Is...>) {
     return {&Operations::sum_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<sumDimOp<T>, KAAD_MAX_NDIMS> get_sumDim_dispatcher() {
-    return get_sumDim_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<sumDimOp<T>, KAAD_MAX_NDIMS> get_sumDim() {
+    return get_sumDim_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-sum dim Grad
-*/
+/// sum dim Grad
 template <typename T, std::size_t... Is>
 constexpr std::array<sumDimGrad<T>, sizeof...(Is)>
-get_sumDim_grad_dispatcher_impl(std::index_sequence<Is...>) {
+get_sumDim_grad_impl(std::index_sequence<Is...>) {
     return {&Gradients::sum_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<sumDimGrad<T>, KAAD_MAX_NDIMS>
-get_sumDim_grad_dispatcher() {
-    return get_sumDim_grad_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<sumDimGrad<T>, KAAD_MAX_NDIMS> get_sumDim_grad() {
+    return get_sumDim_grad_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-mean dim Op
-*/
+/// mean dim Op
 template <typename T, std::size_t... Is>
 constexpr std::array<meanDimOp<T>, sizeof...(Is)>
-get_meanDim_dispatcher_impl(std::index_sequence<Is...>) {
+get_meanDim_impl(std::index_sequence<Is...>) {
     return {&Operations::mean_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<meanDimOp<T>, KAAD_MAX_NDIMS> get_meanDim_dispatcher() {
-    return get_meanDim_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<meanDimOp<T>, KAAD_MAX_NDIMS> get_meanDim() {
+    return get_meanDim_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-mean dim Grad
-*/
+/// mean dim Grad
 template <typename T, std::size_t... Is>
 constexpr std::array<meanDimGrad<T>, sizeof...(Is)>
-get_meanDim_grad_dispatcher_impl(std::index_sequence<Is...>) {
+get_meanDim_grad_impl(std::index_sequence<Is...>) {
     return {&Gradients::mean_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<meanDimGrad<T>, KAAD_MAX_NDIMS>
-get_meanDim_grad_dispatcher() {
-    return get_meanDim_grad_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<meanDimGrad<T>, KAAD_MAX_NDIMS> get_meanDim_grad() {
+    return get_meanDim_grad_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-slice Op
-*/
+/// slice Op
 template <typename T, std::size_t... Is>
 constexpr std::array<sliceOp<T>, sizeof...(Is)>
-get_slice_dispatcher_impl(std::index_sequence<Is...>) {
+get_slice_impl(std::index_sequence<Is...>) {
     return {&Operations::slice<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<sliceOp<T>, KAAD_MAX_NDIMS> get_slice_dispatcher() {
-    return get_slice_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<sliceOp<T>, KAAD_MAX_NDIMS> get_slice() {
+    return get_slice_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-/*
-slice Grad
-*/
+/// slice Grad
 template <typename T, std::size_t... Is>
 constexpr std::array<sliceGrad<T>, sizeof...(Is)>
-get_slice_grad_dispatcher_impl(std::index_sequence<Is...>) {
+get_slice_grad_impl(std::index_sequence<Is...>) {
     return {&Gradients::slice<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<sliceGrad<T>, KAAD_MAX_NDIMS> get_slice_grad_dispatcher() {
-    return get_slice_grad_dispatcher_impl<T>(
-        std::make_index_sequence<KAAD_MAX_NDIMS>());
+constexpr std::array<sliceGrad<T>, KAAD_MAX_NDIMS> get_slice_grad() {
+    return get_slice_grad_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
+
+} // namespace dispatchers
+} // namespace kaad
