@@ -252,47 +252,18 @@ template <typename T> void mean(const T *A, T *C, const T *A_end, T divisor) {
 // computes mean of tensor along dimension
 // out must be same shape as A with one dimension missing
 template <typename T>
-void mean_dim_impl(const T *A, T *C, int *strideA, int *strideC,
-                   size_t *a_offset, int N) {
-    const T *end = A + *a_offset;
-    if (N <= 1) {
-        for (; A != end; A += *strideA, C += *strideC) {
-            *C += *A;
-        }
-    } else {
-        for (; A != end; A += *strideA, C += *strideC) {
-            mean_dim_impl(A, C, strideA + 1, strideC + 1, a_offset + 1, N - 1);
-        }
-    }
-}
-template <typename T>
 void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
               int N, T divisor, T *c_end) {
-    mean_dim_impl(A, C, strideA, strideC, a_offset, N);
+    sum_dim(A, C, strideA, strideC, a_offset, N);
     for (; C != c_end; C++) {
         *C /= divisor;
     }
 }
 
 template <typename T, int N>
-void mean_dim_impl(const T *A, T *C, int *strideA, int *strideC,
-                   size_t *a_offset, int _) {
-    const T *end = A + *a_offset;
-    if constexpr (N <= 1) {
-        for (; A != end; A += *strideA, C += *strideC) {
-            *C += *A;
-        }
-    } else {
-        for (; A != end; A += *strideA, C += *strideC) {
-            mean_dim_impl<T, N - 1>(A, C, strideA + 1, strideC + 1,
-                                    a_offset + 1, 0);
-        }
-    }
-}
-template <typename T, int N>
 void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
               int _, T divisor, T *c_end) {
-    mean_dim_impl<T, N>(A, C, strideA, strideC, a_offset, 0);
+    sum_dim<T, N>(A, C, strideA, strideC, a_offset, 0);
     for (; C != c_end; C++) {
         *C /= divisor;
     }

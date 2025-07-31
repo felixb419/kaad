@@ -264,48 +264,18 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
 }
 
 template <typename T>
-void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                   int *strideC, size_t *a_offset, int N) {
-    const T *end = dA + *a_offset;
-    if (N <= 1) {
-        for (; dA != end; dA += *strideA, dC += *strideC) {
-            *dA += *dC;
-        }
-    } else {
-        for (; dA != end; dA += *strideA, dC += *strideC) {
-            mean_dim_impl(A, dA, C, dC, strideA + 1, strideC + 1, a_offset + 1,
-                          N - 1);
-        }
-    }
-}
-template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
               size_t *a_offset, int N, T divisor, T *dA_end) {
-    mean_dim_impl(A, dA, C, dC, strideA, strideC, a_offset, N);
+    sum_dim(dA, dC, strideA, strideC, a_offset, N);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }
 }
 
 template <typename T, int N>
-void mean_dim_impl(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                   int *strideC, size_t *a_offset, int _) {
-    const T *end = dA + *a_offset;
-    if constexpr (N <= 1) {
-        for (; dA != end; dA += *strideA, dC += *strideC) {
-            *dA += *dC;
-        }
-    } else {
-        for (; dA != end; dA += *strideA, dC += *strideC) {
-            mean_dim_impl<T, N - 1>(A, dA, C, dC, strideA + 1, strideC + 1,
-                                    a_offset + 1, 0);
-        }
-    }
-}
-template <typename T, int N>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
               size_t *a_offset, int _, T divisor, T *dA_end) {
-    mean_dim_impl<T, N>(A, dA, C, dC, strideA, strideC, a_offset, 0);
+    sum_dim<T, N>(dA, dC, strideA, strideC, a_offset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }
