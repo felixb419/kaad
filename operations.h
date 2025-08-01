@@ -366,8 +366,8 @@ void pointwise(const T *A, T *C, const T *C_end, Op op) {
  * @param op Operation (placeholder, not applied).
  */
 template <typename T, class Op>
-void transpose(const T *A, T *C, size_t len, Op op) {
-    std::copy(A, A + len, C);
+void transpose(const T *A, T *C, const T *A_end, Op op) {
+    std::copy(A, A_end, C);
 }
 
 /**

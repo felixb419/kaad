@@ -1,7 +1,8 @@
 #pragma once
 
-#include "gradients.h"  // for batchmatmulGrad, binaryGrad, flexBinaryGrad
-#include "operations.h" // for batchmatmulOp, binaryOp, flexBinaryOp, matmulOp
+#include "gradients.h"  // for unaryGrad, binaryGrad, batch_matmul, batchma...
+#include "kernels.h"    // for Null, Null::Op, Sum
+#include "operations.h" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
 #include "tensor.h"     // for Tensor
 #include <stddef.h>     // for size_t
 #include <utility>      // for forward
@@ -540,6 +541,71 @@ template <typename T> struct Node_batch_matmul : INode<T> {
         }
         if (this->in2->hasInputs) {
             this->in2->getGrad();
+        }
+    }
+};
+
+/**
+ * @brief A transpose operation node in a computation graph.
+ *
+ * Applies a transpose operation during forward evaluation and its corresponding
+ * gradient function during backpropagation.
+ *
+ * @tparam T The scalar type.
+ */
+template <typename T> struct Node_transp : INode<T> {
+    using Op = typename Kernels::Null::Op;
+    Op op;
+    unaryOp<T, Op> val_func =
+        Operations::unary::transpose<T>; ///< Function pointer to the value
+                                         ///< operation.
+
+    using Grad = typename Kernels::Sum<T>::Grad;
+    Grad grad;
+    unaryGrad<T, Grad> grad_func =
+        Gradients::unary::pointwise<T, Grad>; ///< Function pointer to the
+                                              ///< gradient operation.
+
+    T *A_end = nullptr; ///< Pointer to the end of the A buffer.
+    T *C_end = nullptr; ///< Pointer to the end of the C buffer.
+
+    /**
+     * @brief Constructs a transpose node with the given operation and gradient.
+     *
+     * @param in1_ptr    Pointer to the input node.
+     * @param args       Arguments to construct the output tensor.
+     */
+    template <typename... Args>
+    Node_transp(INode<T> *in1_ptr, Args &&...args)
+        : INode<T>(in1_ptr, args...) {}
+
+    /**
+     * @brief Evaluates the transpose operation if not already evaluated.
+     *
+     * Calls eval on the input node and applies `val_func` to compute this
+     * node's value.
+     */
+    inline void eval() override {
+        if (!this->evaluated) {
+            this->in1->eval();
+
+            val_func(this->in1->value.val, this->value.val, A_end, op);
+            this->evaluated = true;
+        }
+    }
+
+    /**
+     * @brief Propagates gradients back through the transpose operation.
+     *
+     * Applies `grad_func` to compute input gradients and recursively calls/
+     * `getGrad` on the input node if it has further dependencies.
+     */
+    inline void getGrad() override {
+        grad_func(this->in1->value.val, this->in1->gradient.val,
+                  this->value.val, this->gradient.val, C_end, grad);
+
+        if (this->in1->hasInputs) {
+            this->in1->getGrad();
         }
     }
 };

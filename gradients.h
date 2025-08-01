@@ -418,29 +418,6 @@ void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
 }
 
 /**
- * @brief Computes gradients for the transposition of a tensor.
- *
- * Computation performed: dA += dC
- *
- * @tparam T    Element type
- * @tparam Grad Dummy type for consistency.
- *
- * @param A     Pointer to the start of input tensor A.
- * @param dA    Pointer to the start of the gradient tensor dA.
- * @param C     Pointer to the start of the output tensor C.
- * @param dC    Pointer to the start of the gradient tensor dC.
- * @param C_end Pointer to the end of the output tensor C.
- * @param _ Ignored gradient type.
- */
-template <typename T, class Grad>
-void transp(const T *A, T *dA, const T *C, const T *dC, size_t len, Grad _) {
-    const T *end = C + len;
-    for (; C != end; dA++, dC++) {
-        *dA += *dC;
-    }
-}
-
-/**
  * @brief Computes gradient of summing a tensor A along a given dimension.
  * @tparam T Element type
  * @param dA Pointer to the start of gradient tensor dA.

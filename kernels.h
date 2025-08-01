@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm> // for max, min
-#include <cmath>     // for log, exp, pow, sqrt, abs
+#include <cmath>     // for log, pow, exp, sqrt
 #include <limits>    // for numeric_limits
 #include <stdlib.h>  // for abs
 
@@ -223,6 +223,33 @@ template <typename T> struct Dot {
                                   T dC) const noexcept {
             dA += dC * B;
             dB += dC * A;
+        }
+    };
+};
+
+/**
+ * @brief Summation kernel.
+ * @tparam T The scalar type.
+ */
+template <typename T> struct Sum {
+    struct Op {
+        /**
+         * @brief Performs the summation.
+         * @param A First operand.
+         * @param C Result.
+         */
+        constexpr void operator()(T A, T &C) const noexcept { C += A; }
+    };
+    struct Grad {
+        /**
+         * @brief Computes the gradient.
+         * @param A   Input A (unused).
+         * @param dA  Gradient accumulator for A.
+         * @param C   Output C (unused).
+         * @param dC  Gradient from the output.
+         */
+        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
+            dA += dC;
         }
     };
 };
@@ -496,59 +523,5 @@ template <typename T> struct Abs {
     };
 };
 
-/**
- * @brief Transpose kernel.
- * @tparam T The scalar type.
- */
-template <typename T> struct Transp {
-    struct Op {
-        /**
-         * @brief does nothing since transposition is handled by shape and
-         * stride alone
-         * @param A First operand (unused).
-         * @param C Result (unused).
-         */
-        constexpr void operator()(T A, T &C) const noexcept {}
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC;
-        }
-    };
-};
-
-/**
- * @brief Summation kernel.
- * @tparam T The scalar type.
- */
-template <typename T> struct Sum {
-    struct Op {
-        /**
-         * @brief Performs the summation.
-         * @param A First operand.
-         * @param C Result.
-         */
-        constexpr void operator()(T A, T &C) const noexcept { C += A; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC;
-        }
-    };
-};
 } // namespace Kernels
 } // namespace kaad

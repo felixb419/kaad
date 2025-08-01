@@ -1,12 +1,12 @@
 #pragma once
 
-#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_meanDim
-#include "gradients.h"   // for unaryGrad, pointwise, mean, unary_...
-#include "kernels.h"     // for Null, Sum, Transp
-#include "operations.h"  // for unaryOp, mean, transpose, pointwise
-#include "strides.h"     // for mean_dim, sum_dim
-#include "tensor.h"      // for print_arr, transp
-#include "utils.h"
+#include "dispatchers.h"    // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
+#include "gradients.h"      // for unaryGrad, pointwise, scalarRhs
+#include "kernels.h"        // for Sum, Null, Null::Op
+#include "operations.h"     // for unaryOp, pointwise, scalarRhs, transpose
+#include "strides.h"        // for mean_dim, slice, sum_dim
+#include "utils.h"          // for print_arr, transp
+#include <algorithm>        // for copy, fill
 #include <initializer_list> // for initializer_list
 #include <memory>           // for make_unique
 #include <sstream>          // for operator<<, basic_ostream::operator<<
@@ -14,13 +14,16 @@
 #include <stdexcept>        // for invalid_argument
 
 namespace kaad {
+
 template <typename T, class Kernel> struct Node_unary;
+template <typename T> class Tensor;
 template <typename T> struct CompGraph;
 template <typename T> struct INode;
 template <typename T> struct Node_mean;
 template <typename T> struct Node_mean_dim;
-template <typename T> struct Node_sum_dim;
 template <typename T> struct Node_slice;
+template <typename T> struct Node_sum_dim;
+template <typename T> struct Node_transp;
 
 /**
  * @brief Contains a collection of unary functions for pointwise version of the
@@ -240,18 +243,14 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
         }
     }
 
-    using Kernel = class Kernels::Transp<T>;
-    using Op = class Kernel::Op;
-    using Grad = class Kernel::Grad;
-    unaryOp<T, Op> op = Operations::unary::transpose<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::binary::pointwise<T, Grad>;
-
-    auto newNode = std::make_unique<Node_unary<T, Kernel>>(
-        op, grad, A_ptr, shape_T, stride_T, A.nDims);
-    newNode->len = A.len;
+    auto newNode =
+        std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims);
+    auto raw_ptr = newNode.get();
+    newNode->A_end = A.val + A.len;
+    newNode->C_end = raw_ptr->value.val + raw_ptr->value.len;
     rec.nodes.push_back(move(newNode));
 
-    return rec.nodes.back().get();
+    return raw_ptr;
 }
 
 /**
