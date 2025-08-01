@@ -37,12 +37,41 @@ template <typename T>
 using sliceGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
                            size_t *start_offset, size_t *c_offset, int N);
 
+/**
+ * @namespace kaad::Gradients
+ * @brief Contains elementwise binary and unary gradient implementations for
+ * various shape patterns, including scalar, pointwise, and broadcasted tensor
+ * operations.
+ */
 namespace Gradients {
 
-// d/dx[ f(g(x,...)) ] = f'(g(x,...)) * g'(x,...)
-
+/**
+ * @namespace kaad::Gradients::binary
+ * @brief Contains all binary gradient operations
+ */
 namespace binary {
 
+/**
+ * @brief Computes gradients for an elementwise operation with a scalar
+ * right-hand side.
+ *
+ * Applies the binary gradient function `grad` to compute the derivatives of a
+ * scalar-tensor operation where the right-hand side is a scalar (B).
+ *
+ * Computation performed: grad(A[i], dA[i], B[0], dB[0], C[i], dC[i]);
+ *
+ * @tparam T Element type
+ * @tparam Grad A callable object that computes the gradient.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param dA Pointer to the start of the gradient tensor dA.
+ * @param B Pointer to the scalar input B (shape = 1).
+ * @param dB Pointer to the gradient of the scalar B (shape = 1).
+ * @param C Pointer to the start of the output tensor C.
+ * @param dC Pointer to the start of the gradient tensor dC.
+ * @param C_end Pointer to the end of the output tensor C.
+ * @param grad A callable that computes the gradients.
+ */
 template <typename T, class Grad>
 void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *C_end, Grad grad) {
@@ -50,6 +79,28 @@ void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
+
+/**
+ * @brief Computes gradients for an elementwise operation with a scalar
+ * left-hand side.
+ *
+ * Applies the binary gradient function `grad` to compute the derivatives of a
+ * scalar-tensor operation where the left-hand side is a scalar (A).
+ *
+ * Computation performed: grad(A[0], dA[0], B[i], dB[i], C[i], dC[i]);
+ *
+ * @tparam T    Element type
+ * @tparam Grad A callable object that computes the gradient.
+ *
+ * @param A Pointer to the scalar input A (shape = 1).
+ * @param dA Pointer to the gradient of the scalar A (shape = 1).
+ * @param B Pointer to the start of input tensor B.
+ * @param dB Pointer to the start of the gradient tensor dB.
+ * @param C Pointer to the start of the output tensor C.
+ * @param dC Pointer to the start of the gradient tensor dC.
+ * @param C_end Pointer to the end of the output tensor C.
+ * @param grad A callable that computes the gradients.
+ */
 template <typename T, class Grad>
 void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *C_end, Grad grad) {
@@ -57,6 +108,27 @@ void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
+
+/**
+ * @brief Computes gradients for an elementwise operation with two tensors
+ *
+ * Applies the binary gradient function `grad` to compute the derivatives of a
+ * tensor operation where both tensors have the same shape and strides
+ *
+ * Computation performed: grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
+ *
+ * @tparam T The Element type
+ * @tparam Grad A callable object that computes the gradient.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param dA Pointer to the start of the gradient tensor dA.
+ * @param B Pointer to the start of input tensor B.
+ * @param dB Pointer to the start of the gradient tensor dB.
+ * @param C Pointer to the start of the output tensor C.
+ * @param dC Pointer to the start of the gradient tensor dC.
+ * @param C_end Pointer to the end of the output tensor C.
+ * @param grad A callable that computes the gradients.
+ */
 template <typename T, class Grad>
 void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *C_end, Grad grad) {
@@ -64,6 +136,37 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
+
+/**
+ * @brief Computes gradients for a broadcastable elementwise operation with
+ * arbitrary strides.
+ *
+ * Recursively applies the binary gradient function `grad` to compute the
+ * derivatives of a tensor operation where A, B, and C may have different shapes
+ * and strides.
+ *
+ * For N = 1 (innermost dimension), computes:
+ *   grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
+ * using the given strides.
+ *
+ * For N > 1, the function recursively traverses the outer dimensions.
+ *
+ * @tparam T Element type
+ * @tparam Grad A callable object that computes the gradient.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param dA Pointer to the start of the gradient tensor dA.
+ * @param B Pointer to the start of input tensor B.
+ * @param dB Pointer to the start of the gradient tensor dB.
+ * @param C Pointer to the start of output tensor C.
+ * @param dC Pointer to the start of the gradient tensor dC.
+ * @param strideA Stride array for A.
+ * @param strideB Stride array for B.
+ * @param strideC Stride array for C.
+ * @param c_offset Total number of elements and per-dim offsets of C.
+ * @param N Number of dimensions.
+ * @param grad A callable that computes the gradients.
+ */
 template <typename T, class Grad>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
               int *strideA, int *strideB, int *strideC, size_t *c_offset, int N,
@@ -83,6 +186,11 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
     }
 }
 
+/**
+ * @brief Compile-time recursive version of flexible().
+ * @see flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
+ * int *strideA, int *strideB, int *strideC, size_t *c_offset, int N, Grad grad)
+ */
 template <typename T, class Grad, int N>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
               int *strideA, int *strideB, int *strideC, size_t *c_offset, int _,
@@ -103,17 +211,24 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
     }
 }
 
-// f(A,B) = A dot B
-// df/dA = B
-// df/dB = A
-template <typename T, class Grad>
-void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-         const T *A_end, Grad _) {
-    for (; A != A_end; A++, dA++, B++, dB++) {
-        *dA += *dC * (*B);
-        *dB += *dC * (*A);
-    }
-}
+/**
+ * @brief Computes gradients for the dot product of a vector and a scalar.
+ *
+ * Computation performed: dA[i] += dC[0] * B[0]
+ *                        dB[0] += dC[0] * A[i]
+ *
+ * @tparam T    Element type
+ * @tparam Grad Dummy type for consistency.
+ *
+ * @param A Pointer to the beginning of vector A.
+ * @param dA Pointer to the beginning of gradient vector A.
+ * @param B Pointer to input scalar B.
+ * @param dB Pointer to gradient scalar B.
+ * @param C Pointer to scalar result C.
+ * @param dC Pointer to scalar gradient result C.
+ * @param A_end Pointer to the end of the input vector A.
+ * @param _ Ignored gradient type.
+ */
 template <typename T, class Grad>
 void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *A_end, Grad _) {
@@ -123,9 +238,54 @@ void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
     }
 }
 
-// f(A,B) = AB
-// dC/dA = B^T
-// dC/dB = A^T
+/**
+ * @brief Computes gradients for the dot product of two vectors.
+ *
+ * Computation performed: dA[i] += dC[0] * B[i]
+ *                        dB[i] += dC[0] * A[i]
+ *
+ * @tparam T    Element type
+ * @tparam Grad Dummy type for consistency.
+ *
+ * @param A Pointer to the beginning of vector A.
+ * @param dA Pointer to the beginning of gradient vector A.
+ * @param B Pointer to the beginning of vector B.
+ * @param dB Pointer to the beginning of gradient vector B.
+ * @param C Pointer to scalar result C.
+ * @param dC Pointer to scalar gradient result C.
+ * @param A_end Pointer to the end of the input vector A.
+ * @param _ Ignored gradient type.
+ */
+template <typename T, class Grad>
+void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
+         const T *A_end, Grad _) {
+    for (; A != A_end; A++, dA++, B++, dB++) {
+        *dA += *dC * (*B);
+        *dB += *dC * (*A);
+    }
+}
+
+/**
+ * @brief Computest the Gradient of a matrix multiplication.
+ *
+ * Computation performed: dA += dC × Bᵀ
+ *                        dB += dC × Aᵀ
+ *
+ * @tparam T Value type.
+ *
+ * @param A Pointer to input matrix A.
+ * @param dA Pointer to gradient matrix A.
+ * @param B Pointer to input matrix B.
+ * @param dB Pointer to gradient matrix B.
+ * @param C Pointer to result matrix C.
+ * @param dC Pointer to gradient matrix C.
+ * @param a_dim Rows of A.
+ * @param b_dim Columns of B.
+ * @param k Shared inner dimension (A.cols == B.rows).
+ * @param strideA Strides for matrix A.
+ * @param strideB Strides for matrix B.
+ * @param strideC Strides for matrix C.
+ */
 template <typename T>
 void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
             int *a_dim, int *b_dim, int *k, int *strideA, int *strideB,
@@ -138,6 +298,29 @@ void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                                strideC + 2, strideB + 2);
 }
 
+/**
+ * @brief Computest the Gradient of a batched matrix multiplication.
+ *
+ * Computation performed: dA += dC × Bᵀ
+ *                        dB += dC × Aᵀ
+ *
+ * @tparam T Value type.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param dA Pointer to the start of gradient tensor dA.
+ * @param B Pointer to the start of input tensor B.
+ * @param dB Pointer to the start of gradient tensor dB.
+ * @param C Pointer to the start of output tensor C.
+ * @param dC Pointer to the start of gradient tensor dC.
+ * @param strideA Strides of A.
+ * @param strideB Strides of B.
+ * @param strideC Strides of C.
+ * @param c_shape Shape of output tensor C.
+ * @param a_off Offset between A matrix rows.
+ * @param b_off Offset between B matrix columns.
+ * @param k Shared matrix inner dimension.
+ * @param N Number of dimensions.
+ */
 template <typename T>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
@@ -152,6 +335,13 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                                         b_off[1], k[1], N);
 }
 
+/**
+ * @brief Compile-time recursive version of batched matrix multiplication
+ * gradient.
+ * @see batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T
+ * *dC, int **strideA, int **strideB, int **strideC, int **c_shape, int *a_off,
+ * int *b_off, int *k, int N)
+ */
 template <typename T, int N>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
@@ -168,16 +358,31 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 
 } // namespace binary
 
+/**
+ * @namespace kaad::Gradients::unary
+ * @brief Contains all unary gradient operations
+ */
 namespace unary {
 
-template <typename T, class Grad>
-void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
-               Grad grad) {
-    for (; C != C_end; A++, dA++, C++, dC++) {
-        grad(*A, *dA, *C, *dC);
-    }
-}
-
+/**
+ * @brief Computes gradients for an elementwise operation with a scalar
+ * output.
+ *
+ * Applies the unary gradient function `grad` to compute the derivatives of a
+ * scalar-tensor operation where the output is a scalar (C).
+ *
+ * Computation performed: grad(A[i], dA[i], C[0], dC[0]);
+ *
+ * @tparam T    Element type
+ * @tparam Grad A callable object that computes the gradient.
+ *
+ * @param A     Pointer to the start of input tensor A.
+ * @param dA    Pointer to the start of the gradient tensor dA.
+ * @param C     Pointer to the start of the output tensor C.
+ * @param dC    Pointer to the start of the gradient tensor dC.
+ * @param A_end Pointer to the end of input tensor A.
+ * @param grad  A callable that computes the gradients.
+ */
 template <typename T, class Grad>
 void scalarRhs(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
                Grad grad) {
@@ -186,42 +391,65 @@ void scalarRhs(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
     }
 }
 
+/**
+ * @brief Computes gradients for an elementwise operation with a tensor.
+ *
+ * Applies the binary gradient function `grad` to compute the derivatives of a
+ * tensor operation.
+ *
+ * Computation performed: grad(A[i], dA[i], C[i], dC[i]);
+ *
+ * @tparam T    Element type
+ * @tparam Grad A callable object that computes the gradient.
+ *
+ * @param A     Pointer to the start of input tensor A.
+ * @param dA    Pointer to the start of the gradient tensor dA.
+ * @param C     Pointer to the start of the output tensor C.
+ * @param dC    Pointer to the start of the gradient tensor dC.
+ * @param C_end Pointer to the end of the output tensor C.
+ * @param grad  A callable that computes the gradients.
+ */
 template <typename T, class Grad>
-void unary_flexible(const T *A, T *dA, const T *C, const T *dC, int *strideA,
-                    int *strideC, int *reps, int *count, size_t D, Grad grad) {
-    int indA = 0, indC = 0;
-    while (1) {
-
-        grad(A[indA], dA[indA], C[indC], dC[indC]);
-
-        for (int dim = D - 1; dim >= 0; dim--) {
-            count[dim]--;
-            if (count[dim] >= 0) {
-                indA += strideA[dim];
-                indC += strideC[dim];
-                break;
-            }
-
-            count[dim] = reps[dim];
-            if (dim == 0)
-                goto end;
-        }
+void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
+               Grad grad) {
+    for (; C != C_end; A++, dA++, C++, dC++) {
+        grad(*A, *dA, *C, *dC);
     }
-end:;
 }
 
-// f(A) = A^T
-// df/dA = 1
+/**
+ * @brief Computes gradients for the transposition of a tensor.
+ *
+ * Computation performed: dA += dC
+ *
+ * @tparam T    Element type
+ * @tparam Grad Dummy type for consistency.
+ *
+ * @param A     Pointer to the start of input tensor A.
+ * @param dA    Pointer to the start of the gradient tensor dA.
+ * @param C     Pointer to the start of the output tensor C.
+ * @param dC    Pointer to the start of the gradient tensor dC.
+ * @param C_end Pointer to the end of the output tensor C.
+ * @param _ Ignored gradient type.
+ */
 template <typename T, class Grad>
-void transp(const T *A, T *dA, const T *C, const T *dC, size_t len) {
+void transp(const T *A, T *dA, const T *C, const T *dC, size_t len, Grad _) {
     const T *end = C + len;
     for (; C != end; dA++, dC++) {
         *dA += *dC;
     }
 }
 
-// f(A) = sum(A)
-// df_dA = tensor with shape of A filled with 1
+/**
+ * @brief Computes gradient of summing a tensor A along a given dimension.
+ * @tparam T Element type
+ * @param dA Pointer to the start of gradient tensor dA.
+ * @param dC Pointer to the start of gradient tensor dC.
+ * @param strideA Stride for dA
+ * @param strideC Stride for dC
+ * @param a_offset Offset array per dimension
+ * @param N Number of dimensions
+ */
 template <typename T>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
              int N) {
@@ -237,6 +465,12 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
     }
 }
 
+/**
+ * @brief Compile-time recursive version of gradient of sum of a tensor along a
+ * given dimension gradient.
+ * @see sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t
+ * *a_offset, int N)
+ */
 template <typename T, int N>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
              int _) {
@@ -253,8 +487,14 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
     }
 }
 
-// f(A) = mean(A)
-// df_dA = tensor with shape of A filled with 1 / (len of A)
+/**
+ * @brief Computes gradient of taking the mean of all Elements of A into C
+ * @tparam T Element type
+ * @param dA Pointer to the start of gradient tensor dA.
+ * @param dC Pointer to the gradient scalar dC.
+ * @param dA_end Pointer to the end of gradient tensor dA.
+ * @param divisor Divisor for distributing dC over dA.
+ */
 template <typename T>
 void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
     T mean = *dC / divisor;
@@ -263,6 +503,19 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
     }
 }
 
+/**
+ * @brief Computes gradient of taking the mean of tensor A along a given
+ * dimension.
+ * @tparam T Element type
+ * @param dA Pointer to the start of gradient tensor dA.
+ * @param dC Pointer to the start of gradient tensor dC.
+ * @param strideA Stride for dA
+ * @param strideC Stride for dC
+ * @param a_offset Offset array per dimension
+ * @param N Number of dimensions
+ * @param divisor divisor to compute mean of A (length of dimension summed over)
+ * @param dA_end Pointer to the end of gradient tensor dA.
+ */
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
               size_t *a_offset, int N, T divisor, T *dA_end) {
@@ -272,6 +525,12 @@ void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
     }
 }
 
+/**
+ * @brief Compile-time recursive version of gradient of mean of a tensor along a
+ * given dimension
+ * @see mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int
+ * *strideC, size_t *a_offset, int N, T divisor, T *dA_end)
+ */
 template <typename T, int N>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
               size_t *a_offset, int _, T divisor, T *dA_end) {
@@ -281,6 +540,17 @@ void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
     }
 }
 
+/**
+ * @brief Computes the gradient of copyine a sliced view of A into C.
+ * @tparam T Element type
+ * @param dA Pointer to the start of gradient tensor dA.
+ * @param dC Pointer to the start of gradient tensor dC.
+ * @param strideA Stride for A
+ * @param strideC Stride for C
+ * @param start_offset Offset to apply to A
+ * @param c_offset Size of output slice
+ * @param N Number of dimensions
+ */
 template <typename T>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
            size_t *c_offset, int N) {
@@ -298,6 +568,11 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
     }
 }
 
+/**
+ * @brief Compile-time recursive version of slice.
+ * @see slice(const T *A, T *C, int *strideA, int *strideC, size_t
+ * *start_offset, size_t *c_offset, int N)
+ */
 template <typename T, int N>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
            size_t *c_offset, int _) {
@@ -316,6 +591,5 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
 }
 
 } // namespace unary
-
 } // namespace Gradients
 } // namespace kaad

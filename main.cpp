@@ -23,9 +23,9 @@ int main() {
     system("clear");
     CompGraph<double> rec;
 
-    auto a = append_rec(rec, {6, 3});
+    auto a = append_rec(rec, {4, 1});
 
-    auto b = append_rec(rec, {6, 1});
+    auto b = append_rec(rec, {4, 5});
 
     auto c = add(rec, a, b);
 

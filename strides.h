@@ -13,7 +13,29 @@ template <typename T> struct Node_mean_dim;
 template <typename T> struct Node_sum_dim;
 template <typename T> struct Node_slice;
 
+/**
+ * @namespace kaad::Strides
+ * @brief Provides utilities for computing tensor traversal parameters.
+ *
+ * This namespace contains helper functions to set up stride and offset
+ * arrays used in flexible tensor operations, particularly for broadcasting
+ * and multi-dimensional iteration.
+ */
 namespace Strides {
+
+/**
+ * @brief Initializes stride and offset arrays for a binary_flex operation node.
+ *
+ * Computes per-dimension strides for input tensors A and B and output tensor C,
+ * adapting them for broadcasting and arbitrary shape alignment. Also computes
+ * the offset array for C used to control recursive multi-dimensional iteration.
+ *
+ * @tparam T      The scalar type (e.g., float, double).
+ * @tparam Kernel The kernel class providing Op and Grad.
+ * @param A       Input tensor A.
+ * @param B       Input tensor B.
+ * @param node    The binary node where traversal metadata will be stored.
+ */
 template <typename T, class Kernel>
 void flexible_binary(Tensor<T> &A, Tensor<T> &B,
                      Node_binary_flex<T, Kernel> &node) {
@@ -40,12 +62,30 @@ void flexible_binary(Tensor<T> &A, Tensor<T> &B,
         }
     }
 
-    node.c_offset = new size_t[node.D];
+    node.C_offset = new size_t[node.D];
     for (int i = 0; i < node.D; i++) {
-        node.c_offset[i] = C.shape[i] * node.strideC[i];
+        node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 }
 
+/**
+ * @brief Prepares stride and shape parameters for a 2D matrix multiplication.
+ *
+ * Extracts matrix dimensions (rows, columns, inner dimension) and copies
+ * the input/output strides. Also adjusts output strides to account for offset
+ * handling in custom kernel loops.
+ *
+ * @tparam T        The scalar type (e.g., float, double).
+ * @param A         View of the left-hand side matrix.
+ * @param B         View of the right-hand side matrix.
+ * @param C         View of the output matrix.
+ * @param a_dim     Output variable for the number of rows in A.
+ * @param b_dim     Output variable for the number of columns in B.
+ * @param k         Output variable for the shared inner dimension.
+ * @param strideA   Output stride array for A.
+ * @param strideB   Output stride array for B.
+ * @param strideC   Output stride array for C, modified for efficient traversal.
+ */
 template <typename T>
 void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int &a_dim, int &b_dim,
                  int &k, int *strideA, int *strideB, int *strideC) {
@@ -69,6 +109,18 @@ void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int &a_dim, int &b_dim,
     }
 }
 
+/**
+ * @brief Sets up metadata for computing a 2D matrix product and its gradients.
+ *
+ * Creates transposed views of A and B for gradient computation. Prepares three
+ * `matmul_impl` passes: forward pass and two backward passes (w.r.t. A and B).
+ *
+ * @tparam T     The scalar type.
+ * @param A      Input tensor A.
+ * @param B      Input tensor B.
+ * @param node   Matrix multiplication node where traversal parameters are
+ * stored.
+ */
 template <typename T>
 void matmul(Tensor<T> &A, Tensor<T> &B, Node_matmul<T> &node) {
     tView<T> a = A.view();
@@ -93,6 +145,27 @@ void matmul(Tensor<T> &A, Tensor<T> &B, Node_matmul<T> &node) {
                 node.strideA + 4, node.strideC + 4, node.strideB + 4);
 }
 
+/**
+ * @brief Initializes stride and shape metadata for batched matrix
+ * multiplication.
+ *
+ * Determines effective dimensionality, allocates and sets broadcast-compatible
+ * strides and output shape, and computes kernel offsets for custom batched
+ * traversal.
+ *
+ * @tparam T       The scalar type.
+ * @param A        View of input tensor A.
+ * @param B        View of input tensor B.
+ * @param C        View of output tensor C.
+ * @param strideA  Output stride array for A.
+ * @param strideB  Output stride array for B.
+ * @param strideC  Output stride array for C.
+ * @param c_shape  Output shape array for C.
+ * @param a_off    Output offset for A in kernel loops.
+ * @param b_off    Output offset for B in kernel loops.
+ * @param k        Output inner dimension (A.cols == B.rows).
+ * @param D        Output number of dimensions in broadcasted result.
+ */
 template <typename T>
 void batch_matmul_impl(tView<T> &A, tView<T> &B, tView<T> &C, int *&strideA,
                        int *&strideB, int *&strideC, int *&c_shape, int &a_off,
@@ -125,6 +198,18 @@ void batch_matmul_impl(tView<T> &A, tView<T> &B, tView<T> &C, int *&strideA,
     strideB[D - 2] = 0;
 }
 
+/**
+ * @brief Prepares metadata for batched matrix multiplication and gradients.
+ *
+ * Constructs transposed views of A and B for gradient computation. Calls
+ * `batch_matmul_impl` three times to configure forward and backward passes
+ * in a batched setting. Handles broadcasting and dimensional alignment.
+ *
+ * @tparam T     The scalar type.
+ * @param A      Input tensor A.
+ * @param B      Input tensor B.
+ * @param node   Batched matrix multiplication node with traversal metadata.
+ */
 template <typename T>
 void batch_matmul(Tensor<T> &A, Tensor<T> &B, Node_batch_matmul<T> &node) {
     tView<T> a = A.view();
@@ -141,18 +226,33 @@ void batch_matmul(Tensor<T> &A, Tensor<T> &B, Node_batch_matmul<T> &node) {
     transp2D(B.shape, B.stride, B.nDims, b_T.shape, b_T.stride);
 
     batch_matmul_impl(a, b, c, node.strideA[0], node.strideB[0],
-                      node.strideC[0], node.c_shape[0], node.a_offset[0],
-                      node.b_offset[0], node.k[0], node.D);
+                      node.strideC[0], node.c_shape[0], node.A_offset[0],
+                      node.B_offset[0], node.k[0], node.D);
     batch_matmul_impl(c, b_T, a, node.strideC[1], node.strideB[1],
-                      node.strideA[1], node.c_shape[1], node.a_offset[1],
-                      node.b_offset[1], node.k[1], node.D);
+                      node.strideA[1], node.c_shape[1], node.A_offset[1],
+                      node.B_offset[1], node.k[1], node.D);
     batch_matmul_impl(a_T, c, b, node.strideA[2], node.strideC[2],
-                      node.strideB[2], node.c_shape[2], node.a_offset[2],
-                      node.b_offset[2], node.k[2], node.D);
+                      node.strideB[2], node.c_shape[2], node.A_offset[2],
+                      node.B_offset[2], node.k[2], node.D);
 
     delete[] shapeBlock;
 }
 
+/**
+ * @brief Prepares stride and offset metadata for a generalized outer operation.
+ *
+ * Sets up broadcast-compatible strides for A, B, and C, along with shape
+ * padding and output offset calculation for each dimension. The resulting
+ * layout supports a binary kernel applied element-wise over the outer product
+ * of A and B.
+ *
+ * @tparam T       The scalar type (e.g., float, double).
+ * @tparam Kernel  A functor or struct implementing the binary operation.
+ * @param A        Input tensor A.
+ * @param B        Input tensor B.
+ * @param node     Binary flex node storing output tensor C and shape/stride
+ * metadata.
+ */
 template <typename T, class Kernel>
 void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
     Tensor<T> &C = node.value;
@@ -172,15 +272,34 @@ void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
     std::copy(A.shape, A.shape + A.nDims, a_shape_big);
     a_shape_big[A.nDims] = 1;
 
-    node.c_offset = new size_t[node.D];
+    node.C_offset = new size_t[node.D];
     for (int i = 0; i < node.D; i++) {
-        node.c_offset[i] = C.shape[i] * node.strideC[i];
+        node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 }
 
+/**
+ * @brief Computes stride and offset metadata for operations along a specific
+ * tensor dimension.
+ *
+ * Prepares traversal parameters for reducing or broadcasting a tensor `A` into
+ * a lower-dimensional tensor `C` along a specified axis `dim`. Strides for `A`
+ * and `C` are computed with shape-aware adjustments to handle edge cases like
+ * singleton dimensions and broadcasting.
+ *
+ * @tparam T         The scalar type (e.g., float, double).
+ * @param A          Input tensor.
+ * @param C          Output tensor (e.g., reduced along `dim`).
+ * @param dim        The dimension along which the operation is applied.
+ * @param D          (out) Number of dimensions.
+ * @param A_offset   (out) Array storing the maximum valid offset per dimension
+ * for A.
+ * @param strideA    (out) Stride array for A.
+ * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
+ */
 template <typename T>
 void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
-                    size_t *&a_offset, int *&strideA, int *&strideC) {
+                    size_t *&A_offset, int *&strideA, int *&strideC) {
     D = A.nDims;
     strideA = new int[D];
     strideC = new int[D];
@@ -200,32 +319,73 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
         strideC[i] /= A.shape[dim];
     }
 
-    a_offset = new size_t[D];
+    A_offset = new size_t[D];
     for (int i = 0; i < D; i++) {
-        a_offset[i] = A.shape[i] * strideA[i];
+        A_offset[i] = A.shape[i] * strideA[i];
     }
 }
 
+/**
+ * @brief Initializes traversal metadata for a sum operation along a specified
+ * dimension.
+ *
+ * Delegates to `along_dim_impl` to set up strides and offsets for summing
+ * tensor `A` along dimension `dim`, storing the resulting shape and traversal
+ * info in `node`.
+ *
+ * @tparam T     The scalar type.
+ * @param A      Input tensor to be reduced.
+ * @param node   Output node that stores the result and metadata.
+ * @param dim    The dimension along which to compute the sum.
+ */
 template <typename T>
 void sum_dim(Tensor<T> &A, Node_sum_dim<T> &node, int dim) {
     Tensor<T> &C = node.value;
 
-    along_dim_impl(A, C, dim, node.D, node.a_offset, node.strideA,
+    along_dim_impl(A, C, dim, node.D, node.A_offset, node.strideA,
                    node.strideC);
 }
 
+/**
+ * @brief Initializes traversal metadata for a mean operation along a specified
+ * dimension.
+ *
+ * Sets up stride, offset, and normalization information for computing the mean
+ * of tensor `A` along `dim`. Uses `along_dim_impl` to prepare traversal
+ * parameters.
+ *
+ * @tparam T     The scalar type.
+ * @param A      Input tensor.
+ * @param node   Node to store the mean result and auxiliary metadata for
+ * backward pass.
+ * @param dim    The dimension along which to compute the mean.
+ */
 template <typename T>
 void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
     Tensor<T> &C = node.value;
     Tensor<T> &dA = node.in1->gradient;
     node.divisor = A.shape[dim];
-    node.c_end = C.val + C.len;
+    node.C_end = C.val + C.len;
     node.dA_end = dA.val + dA.len;
 
-    along_dim_impl(A, C, dim, node.D, node.a_offset, node.strideA,
+    along_dim_impl(A, C, dim, node.D, node.A_offset, node.strideA,
                    node.strideC);
 }
 
+/**
+ * @brief Initializes traversal metadata for a tensor slicing operation.
+ *
+ * Sets up strides and offsets for extracting a subtensor `C` from input tensor
+ * `A` based on a specified starting `offset`. Handles broadcasting and
+ * singleton dimension edge cases to ensure valid memory traversal during
+ * evaluation.
+ *
+ * @tparam T         The scalar type.
+ * @param A          Input tensor.
+ * @param node       Node to store the sliced result and traversal metadata.
+ * @param offset     Array of offsets specifying where slicing begins in each
+ * dimension.
+ */
 template <typename T>
 void slice(Tensor<T> &A, Node_slice<T> &node, size_t *offset) {
     Tensor<T> &C = node.value;
@@ -249,9 +409,9 @@ void slice(Tensor<T> &A, Node_slice<T> &node, size_t *offset) {
         }
     }
 
-    node.c_offset = new size_t[node.D];
+    node.C_offset = new size_t[node.D];
     for (int i = 0; i < node.D; i++) {
-        node.c_offset[i] = C.shape[i] * node.strideC[i];
+        node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 
     node.start_offset = new size_t[A.nDims];

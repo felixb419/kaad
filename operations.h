@@ -10,7 +10,7 @@ template <typename T, class Op>
 using binaryOp = void (*)(const T *A, const T *B, T *C, const T *C_end, Op op);
 template <typename T, class Op>
 using flexBinaryOp = void (*)(const T *A, const T *B, T *C, int *strideA,
-                              int *strideB, int *strideC, size_t *c_offset,
+                              int *strideB, int *strideC, size_t *C_offset,
                               int N, Op op);
 template <typename T>
 using matmulOp = void (*)(const T *A, const T *B, T *C, int a_dim, int b_dim,
@@ -21,22 +21,44 @@ using batchmatmulOp = void (*)(const T *A, const T *B, T *C, int *strideA,
                                int a_off, int b_off, int k, int N);
 template <typename T>
 using sumDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                          size_t *a_offset, int N);
+                          size_t *A_offset, int N);
 template <typename T>
 using meanOp = void (*)(const T *A, T *C, const T *A_end, T divisor);
 template <typename T>
 using meanDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                           size_t *a_offset, int N, T divisor, T *c_end);
+                           size_t *A_offset, int N, T divisor, T *C_end);
 template <typename T>
 using sliceOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                         size_t *start_offset, size_t *c_offset, int N);
+                         size_t *start_offset_a, size_t *C_offset, int N);
 
+/**
+ * @namespace kaad::Operations
+ * @brief Contains elementwise binary and unary operation implementations for
+ * various shape patterns, including scalar, pointwise, and broadcasted tensor
+ * operations.
+ */
 namespace Operations {
 
+/**
+ * @namespace kaad::Operations::binary
+ * @brief Contains all binary operations
+ */
 namespace binary {
 
-// perform op so that: C[m,n,...] = op( A[m,n,...], B[0] )
-// shapes of C and A must be the same, shape of B must be (1)
+/**
+ * @brief Applies a binary operation where the right-hand side is a scalar.
+ *
+ * Computes: C[i] = op(A[i], B[0])
+ *
+ * @tparam T Element type
+ * @tparam Op A callable binary operation.
+ *
+ * @param A Pointer to the scalar input (shape = 1).
+ * @param B Pointer to the start of input tensor B.
+ * @param C Pointer to the output tensor.
+ * @param C_end Pointer to the end of output tensor.
+ * @param op The binary operation to apply.
+ */
 template <typename T, class Op>
 void scalarRhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
     for (; C != C_end; A++, C++) {
@@ -44,8 +66,20 @@ void scalarRhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
     }
 }
 
-// perform op so that: C[m,n,...] = op( A[0], B[m,n,...])
-// shapes of out and tensor must be the same, shape of scalar must be (1)
+/**
+ * @brief Applies a binary operation where the left-hand side is a scalar.
+ *
+ * Computes: C[i] = op(A[0], B[i])
+ *
+ * @tparam T Element type
+ * @tparam Op A callable binary operation.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param B Pointer to the start of input tensor B.
+ * @param C Pointer to the output tensor.
+ * @param C_end Pointer to the end of output tensor.
+ * @param op The binary operation to apply.
+ */
 template <typename T, class Op>
 void scalarLhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
     for (; C != C_end; B++, C++) {
@@ -53,8 +87,21 @@ void scalarLhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
     }
 }
 
-// perform op so that so that: C[m,n,...] = op( A[m,n,...], B[m,n...] )
-// shape of all operands must be indentical
+/**
+ * @brief Applies a binary operation on two tensors with identical shapes and
+ * strides.
+ *
+ * Computes: C[i] = op(A[i], B[i])
+ *
+ * @tparam T Element type
+ * @tparam Op A callable binary operation.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param B Pointer to the start of input tensor B.
+ * @param C Pointer to the start of output tensor C.
+ * @param C_end Pointer to the end of output tensor.
+ * @param op The binary operation to apply.
+ */
 template <typename T, class Op>
 void pointwise(const T *A, const T *B, T *C, const T *C_end, Op op) {
     for (; C != C_end; A++, B++, C++) {
@@ -62,12 +109,29 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end, Op op) {
     }
 }
 
-// perform op flexible so that: C = op( A, B )
-// shape of C must be a valid broadcast of A and B
+/**
+ * @brief Applies a binary operation with broadcasting support.
+ *
+ * Computes: C = op(A, B), using broadcasting over N dimensions.
+ * This version uses runtime recursion.
+ *
+ * @tparam T Element type
+ * @tparam Op A callable binary operation.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param B Pointer to the start of input tensor B.
+ * @param C Pointer to the start of output tensor C.
+ * @param strideA Stride array for A.
+ * @param strideB Stride array for B.
+ * @param strideC Stride array for C.
+ * @param C_offset Total number of elements and per-dim offsets of C.
+ * @param N Number of dimensions.
+ * @param op The binary operation to apply.
+ */
 template <typename T, class Op>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
-              int *strideC, size_t *c_offset, int N, Op op) {
-    const T *end = C + *c_offset;
+              int *strideC, size_t *C_offset, int N, Op op) {
+    const T *end = C + *C_offset;
     if (N <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
             op(*A, *B, *C);
@@ -75,15 +139,19 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
             flexible(A, B, C, strideA + 1, strideB + 1, strideC + 1,
-                     c_offset + 1, N - 1, op);
+                     C_offset + 1, N - 1, op);
         }
     }
 }
 
+/**
+ * @brief Compile-time recursive version of flexible().
+ * @see flexible(const T*, const T*, T*, int*, int*, int*, size_t*, int, Op)
+ */
 template <typename T, class Op, int N>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
-              int *strideC, size_t *c_offset, int _, Op op) {
-    const T *end = C + *c_offset;
+              int *strideC, size_t *C_offset, int _, Op op) {
+    const T *end = C + *C_offset;
     if constexpr (N <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
             op(*A, *B, *C);
@@ -91,30 +159,72 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
             flexible<T, Op, N - 1>(A, B, C, strideA + 1, strideB + 1,
-                                   strideC + 1, c_offset + 1, 0, op);
+                                   strideC + 1, C_offset + 1, 0, op);
         }
     }
 }
 
-// compute do product of A and B into C
-// A must be 1d vector, B and C must be scalar
-template <typename T, class Grad>
-void scalarDot(const T *A, const T *B, T *C, const T *A_end, Grad _) {
+/**
+ * @brief Computes the scalar dot product: C += Aᵀ × B
+ *
+ * A is a 1D vector, B and C are scalars. Result is accumulated into *C.
+ *
+ * @tparam T Value type.
+ * @tparam Op Dummy type for consistency.
+ *
+ * @param A Pointer to the beginning of vector A.
+ * @param B Pointer to scalar B.
+ * @param C Pointer to scalar result C.
+ * @param A_end Pointer to the end of vector A.
+ * @param _ Ignored operation type.
+ */
+template <typename T, class Op>
+void scalarDot(const T *A, const T *B, T *C, const T *A_end, Op _) {
     for (; A != A_end; A++) {
         *C += *A * (*B);
     }
 }
-// compute do product of A and B into C
-// A and B must be 1d vectors of same length, C must be scalar
-template <typename T, class Grad>
-void dot(const T *A, const T *B, T *C, const T *A_end, Grad _) {
+
+/**
+ * @brief Computes the dot product of two 1D vectors: C += Aᵀ × B
+ *
+ * A and B must be the same length. Result is accumulated into *C.
+ *
+ * @tparam T Value type.
+ * @tparam Op Dummy type for consistency.
+ *
+ * @param A Pointer to the beginning of vector A.
+ * @param B Pointer to scalar B.
+ * @param B Pointer to vector B.
+ * @param C Pointer to scalar result C.
+ * @param A_end Pointer to the end of vector A.
+ * @param _ Ignored operation type.
+ */
+template <typename T, class Op>
+void dot(const T *A, const T *B, T *C, const T *A_end, Op _) {
     for (; A != A_end; A++, B++) {
         *C += *A * (*B);
     }
 }
 
-// matrix multiply A and B so that C = AB
-// A and B must be 2d and width of A is equalt to height of B
+/**
+ * @brief Performs matrix multiplication: C = A × B
+ *
+ * A and B must be 2D matrices, with shape constraints: A.shape[1] ==
+ * B.shape[0].
+ *
+ * @tparam T Value type.
+ *
+ * @param A Pointer to matrix A.
+ * @param B Pointer to matrix B.
+ * @param C Pointer to result matrix C.
+ * @param a_dim Rows of A.
+ * @param b_dim Columns of B.
+ * @param k Shared inner dimension (A.cols == B.rows).
+ * @param strideA Strides for matrix A.
+ * @param strideB Strides for matrix B.
+ * @param strideC Strides for matrix C.
+ */
 template <typename T>
 void matmul(const T *A, const T *B, T *C, int a_dim, int b_dim, int k,
             int *strideA, int *strideB, int *strideC) {
@@ -136,9 +246,26 @@ void matmul(const T *A, const T *B, T *C, int a_dim, int b_dim, int k,
     }
 }
 
-// matrix multiply A and B so that C = AB
-// last two dimensions of A and B must me matrix multipliable
-// all dimensions higher than 2 are regarded as batch dimensions
+/**
+ * @brief Performs batched matrix multiplication: C = A × B
+ *
+ * Multiplies last two dimensions of A and B like matrices; other dimensions are
+ * batched. Recurses over higher dimensions dynamically.
+ *
+ * @tparam T Value type.
+ *
+ * @param A Pointer to the start of input tensor A.
+ * @param B Pointer to the start of input tensor B.
+ * @param C Pointer to the start of output tensor C.
+ * @param strideA Strides of A.
+ * @param strideB Strides of B.
+ * @param strideC Strides of C.
+ * @param c_shape Shape of output tensor C.
+ * @param a_off Offset between A matrix rows.
+ * @param b_off Offset between B matrix columns.
+ * @param k Shared matrix inner dimension.
+ * @param N Number of dimensions.
+ */
 template <typename T>
 void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
                   int *strideC, int *c_shape, int a_off, int b_off, int k,
@@ -161,6 +288,11 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
     }
 }
 
+/**
+ * @brief Compile-time recursive version of batched matrix multiplication.
+ * @see batch_matmul(const T*, const T*, T*, int*, int*, int*, int*, int, int,
+ * int, int)
+ */
 template <typename T, int N>
 void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
                   int *strideC, int *c_shape, int a_off, int b_off, int k,
@@ -186,15 +318,21 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
 
 } // namespace binary
 
+/**
+ * @namespace kaad::Operations::unary
+ * @brief Contains all unary operations
+ */
 namespace unary {
 
-template <typename T, class Op>
-void pointwise(const T *A, T *C, const T *C_end, Op op) {
-    for (; C != C_end; A++, C++) {
-        op(*A, *C);
-    }
-}
-
+/**
+ * @brief Applies a unary operation to each element of A and writes to C.
+ * @tparam T Element type
+ * @tparam Op Unary operation type (callable)
+ * @param A Pointer to the start of input tensor A.
+ * @param C Pointer to the start of output scalar.
+ * @param A_end Pointer to the end of input tensor A.
+ * @param op Unary operation to apply.
+ */
 template <typename T, class Op>
 void scalarRhs(const T *A, T *C, const T *A_end, Op op) {
     for (; A != A_end; A++) {
@@ -202,46 +340,90 @@ void scalarRhs(const T *A, T *C, const T *A_end, Op op) {
     }
 }
 
-// transposing doesnt change the value array so A gets copied to C
+/**
+ * @brief Applies a unary operation element-wise: C[i] = op(A[i])
+ * @tparam T Element type
+ * @tparam Op Unary operation type (callable)
+ * @param A Pointer to the start of input tensor A.
+ * @param C Pointer to the start of output tensor C.
+ * @param C_end Pointer to the end of output tensor C.
+ * @param op Unary operation to apply.
+ */
+template <typename T, class Op>
+void pointwise(const T *A, T *C, const T *C_end, Op op) {
+    for (; C != C_end; A++, C++) {
+        op(*A, *C);
+    }
+}
+
+/**
+ * @brief Transposes a tensor by copying its contents (no-op for flat arrays).
+ * @tparam T Element type
+ * @tparam Op Operation (ignored here).
+ * @param A Pointer to input tensor.
+ * @param C Pointer to output tensor.
+ * @param len Number of elements to copy.
+ * @param op Operation (placeholder, not applied).
+ */
 template <typename T, class Op>
 void transpose(const T *A, T *C, size_t len, Op op) {
     std::copy(A, A + len, C);
 }
 
-// computes sum of tensor along dimension
-// out must be same shape as A with one dimension missing
+/**
+ * @brief Computes sum of tensor A along a given dimension.
+ * @tparam T Element type
+ * @param A Pointer to the start of input tensor A.
+ * @param C Pointer to the start of output tensor C.
+ * @param strideA Stride for A
+ * @param strideC Stride for C
+ * @param A_offset Offset array per dimension
+ * @param N Number of dimensions
+ */
 template <typename T>
-void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
+void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
              int N) {
-    const T *end = A + *a_offset;
+    const T *end = A + *A_offset;
     if (N <= 1) {
         for (; A != end; A += *strideA, C += *strideC) {
             *C += *A;
         }
     } else {
         for (; A != end; A += *strideA, C += *strideC) {
-            sum_dim(A, C, strideA + 1, strideC + 1, a_offset + 1, N - 1);
+            sum_dim(A, C, strideA + 1, strideC + 1, A_offset + 1, N - 1);
         }
     }
 }
 
+/**
+ * @brief Compile-time recursive version of sum of a tensor along a given
+ * dimension gradient.
+ * @see sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
+ * int N)
+ */
 template <typename T, int N>
-void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
+void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
              int _) {
-    const T *end = A + *a_offset;
+    const T *end = A + *A_offset;
     if constexpr (N <= 1) {
         for (; A != end; A += *strideA, C += *strideC) {
             *C += *A;
         }
     } else {
         for (; A != end; A += *strideA, C += *strideC) {
-            sum_dim<T, N - 1>(A, C, strideA + 1, strideC + 1, a_offset + 1, 0);
+            sum_dim<T, N - 1>(A, C, strideA + 1, strideC + 1, A_offset + 1, 0);
         }
     }
 }
 
-// saves mean of A into out
-// B has to be a scalar
+/**
+ * @brief Computes the mean of all elements in tensor A.
+ * @tparam T Element type
+ * @param A Pointer to the start of input tensor A.
+ * @param C Pointer to the start of output scalar.
+ * @param A_end Pointer to the end of intput tensor A.
+ * @param divisor Number of elements
+ */
 template <typename T> void mean(const T *A, T *C, const T *A_end, T divisor) {
     for (; A != A_end; A++) {
         *C += *A;
@@ -249,56 +431,88 @@ template <typename T> void mean(const T *A, T *C, const T *A_end, T divisor) {
     *C /= divisor;
 }
 
-// computes mean of tensor along dimension
-// out must be same shape as A with one dimension missing
+/**
+ * @brief Computes mean of tensor A along a given dimension.
+ * @tparam T Element type
+ * @param A Pointer to the start of input tensor A.
+ * @param C Pointer to the start of output tensor C.
+ * @param strideA Stride for A
+ * @param strideC Stride for C
+ * @param A_offset Offset array per dimension
+ * @param N Number of dimensions
+ * @param divisor divisor to compute mean of A (length of dimension summed over)
+ * @param C_end Pointer to the end of output tensor C.
+ */
 template <typename T>
-void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
-              int N, T divisor, T *c_end) {
-    sum_dim(A, C, strideA, strideC, a_offset, N);
-    for (; C != c_end; C++) {
+void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
+              int N, T divisor, T *C_end) {
+    sum_dim(A, C, strideA, strideC, A_offset, N);
+    for (; C != C_end; C++) {
         *C /= divisor;
     }
 }
 
+/**
+ * @brief Compile-time recursive version of sum of a tensor along a given
+ * dimension gradient.
+ * @see mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
+ * int N, T divisor, T *C_end)
+ */
 template <typename T, int N>
-void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *a_offset,
-              int _, T divisor, T *c_end) {
-    sum_dim<T, N>(A, C, strideA, strideC, a_offset, 0);
-    for (; C != c_end; C++) {
+void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
+              int _, T divisor, T *C_end) {
+    sum_dim<T, N>(A, C, strideA, strideC, A_offset, 0);
+    for (; C != C_end; C++) {
         *C /= divisor;
     }
 }
 
+/**
+ * @brief Copies a sliced view of A into C based on offset and stride.
+ * @tparam T Element type
+ * @param A Pointer to the start of input tensor
+ * @param C Pointer to the start of output tensor
+ * @param strideA Stride for A
+ * @param strideC Stride for C
+ * @param start_offset_a Offset to apply to A
+ * @param C_offset Size of output slice
+ * @param N Number of dimensions
+ */
 template <typename T>
-void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_offset, int N) {
-    A += *start_offset;
-    const T *end = C + *c_offset;
+void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset_a,
+           size_t *C_offset, int N) {
+    A += *start_offset_a;
+    const T *end = C + *C_offset;
     if (N <= 1) {
         for (; C != end; A += *strideA, C += *strideC) {
             *C = *A;
         }
     } else {
         for (; C < end; A += *strideA, C += *strideC) {
-            slice(A, C, strideA + 1, strideC + 1, start_offset + 1,
-                  c_offset + 1, N - 1);
+            slice(A, C, strideA + 1, strideC + 1, start_offset_a + 1,
+                  C_offset + 1, N - 1);
         }
     }
 }
 
+/**
+ * @brief Compile-time recursive version of slice.
+ * @see slice(const T *A, T *C, int *strideA, int *strideC, size_t
+ * *start_offset_a, size_t *C_offset, int N)
+ */
 template <typename T, int N>
-void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_offset, int _) {
-    A += *start_offset;
-    const T *end = C + *c_offset;
+void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset_a,
+           size_t *C_offset, int _) {
+    A += *start_offset_a;
+    const T *end = C + *C_offset;
     if constexpr (N <= 1) {
         for (; C != end; A += *strideA, C += *strideC) {
             *C = *A;
         }
     } else {
         for (; C < end; A += *strideA, C += *strideC) {
-            slice<T, N - 1>(A, C, strideA + 1, strideC + 1, start_offset + 1,
-                            c_offset + 1, 0);
+            slice<T, N - 1>(A, C, strideA + 1, strideC + 1, start_offset_a + 1,
+                            C_offset + 1, 0);
         }
     }
 }
