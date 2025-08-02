@@ -362,7 +362,7 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
 
     auto newNode = std::make_unique<Node_mean<T>>(A_ptr, (T)0);
     newNode->A_end = A.val + A.len;
-    newNode->dA_end = newNode->in1->gradient.val + newNode->in1->gradient.len;
+    newNode->dA_end = newNode->A->gradient.val + newNode->A->gradient.len;
     newNode->divisor = A.len;
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();

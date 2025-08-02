@@ -23,7 +23,7 @@ namespace kaad {
  */
 template <typename T> struct INode {
 
-    INode<T> *in1 =
+    INode<T> *A =
         nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
 
     Tensor<T> value;    ///< Value computed by this node.
@@ -46,12 +46,12 @@ template <typename T> struct INode {
     /**
      * @brief Constructs an unevaluated node with a dependency on an input node.
      *
-     * @param in1_ptr Pointer to the input node.
+     * @param A_ptr Pointer to the input node.
      * @param args Arguments to construct the value tensor.
      */
     template <typename... Args>
-    INode(INode<T> *in1_ptr, Args &&...args)
-        : in1(in1_ptr), evaluated(false), value(std::forward<Args>(args)...),
+    INode(INode<T> *A_ptr, Args &&...args)
+        : A(A_ptr), evaluated(false), value(std::forward<Args>(args)...),
           hasInputs(true), gradient(value) {
         std::fill(value.val, value.val + value.len, 0);
         std::fill(gradient.val, gradient.val + gradient.len, 0);
@@ -140,14 +140,14 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      *
      * @param operation  Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
-     * @param in1_ptr    Pointer to the input node.
+     * @param A_ptr    Pointer to the input node.
      * @param args       Arguments to construct the output tensor.
      */
     template <typename... Args>
     Node_unary(unaryOp<T, Op> operation, unaryGrad<T, Grad> derivative,
-               INode<T> *in1_ptr, Args &&...args)
-        : val_func(operation), grad_func(derivative),
-          INode<T>(in1_ptr, args...) {}
+               INode<T> *A_ptr, Args &&...args)
+        : val_func(operation), grad_func(derivative), INode<T>(A_ptr, args...) {
+    }
 
     /**
      * @brief Evaluates the unary operation if not already evaluated.
@@ -157,9 +157,9 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
+            this->A->eval();
 
-            val_func(this->in1->value.val, this->value.val, end, op);
+            val_func(this->A->value.val, this->value.val, end, op);
             this->evaluated = true;
         }
     }
@@ -171,11 +171,11 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->value.val, this->gradient.val, end, grad);
+        grad_func(this->A->value.val, this->A->gradient.val, this->value.val,
+                  this->gradient.val, end, grad);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
     }
 };
@@ -191,7 +191,7 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
  * operation.
  */
 template <typename T, class Kernel> struct Node_binary : INode<T> {
-    INode<T> *in2 = nullptr; ///< Pointer to the second input Node.
+    INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     using Op = class Kernel::Op; ///< Type alias for the operation kernel.
     Op op;
@@ -214,15 +214,15 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      *
      * @param operation Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
-     * @param in1_ptr Pointer to the first input node.
-     * @param in2_ptr Pointer to the second input node.
+     * @param A_ptr Pointer to the first input node.
+     * @param B_ptr Pointer to the second input node.
      * @param args Arguments to construct the output tensor.
      */
     template <typename... Args>
     Node_binary(binaryOp<T, Op> operation, binaryGrad<T, Grad> derivative,
-                INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), val_func(operation), grad_func(derivative),
-          INode<T>(in1_ptr, args...) {}
+                INode<T> *A_ptr, INode<T> *B_ptr, Args &&...args)
+        : B(B_ptr), val_func(operation), grad_func(derivative),
+          INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Evaluates the binary operation if not already evaluated.
@@ -232,10 +232,10 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
-            this->in2->eval();
+            this->A->eval();
+            this->B->eval();
 
-            val_func(this->in1->value.val, in2->value.val, this->value.val, end,
+            val_func(this->A->value.val, B->value.val, this->value.val, end,
                      op);
             this->evaluated = true;
         }
@@ -248,15 +248,15 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val, in2->value.val,
-                  in2->gradient.val, this->value.val, this->gradient.val, end,
+        grad_func(this->A->value.val, this->A->gradient.val, B->value.val,
+                  B->gradient.val, this->value.val, this->gradient.val, end,
                   grad);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
-        if (this->in2->hasInputs) {
-            this->in2->getGrad();
+        if (this->B->hasInputs) {
+            this->B->getGrad();
         }
     }
 };
@@ -273,7 +273,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
  * operation.
  */
 template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
-    INode<T> *in2 = nullptr; ///< Pointer to the second input Node.
+    INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     using Op = class Kernel::Op; ///< Type alias for the operation kernel.
     Op op;
@@ -299,13 +299,13 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
      * @brief Constructs a binary_flex operation node with binary_flex operation
      * and gradient.
      *
-     * @param in1_ptr Pointer to the first input node.
-     * @param in2_ptr Pointer to the second input node.
+     * @param A_ptr Pointer to the first input node.
+     * @param B_ptr Pointer to the second input node.
      * @param args Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_binary_flex(INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), INode<T>(in1_ptr, args...) {}
+    Node_binary_flex(INode<T> *A_ptr, INode<T> *B_ptr, Args &&...args)
+        : B(B_ptr), INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Destructor for Node_binary_flex.
@@ -327,12 +327,11 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
-            this->in2->eval();
+            this->A->eval();
+            this->B->eval();
 
-            val_func(this->in1->value.val, this->in2->value.val,
-                     this->value.val, strideA, strideB, strideC, C_offset, D,
-                     op);
+            val_func(this->A->value.val, this->B->value.val, this->value.val,
+                     strideA, strideB, strideC, C_offset, D, op);
             this->evaluated = true;
         }
     }
@@ -344,16 +343,15 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->in2->value.val, this->in2->gradient.val,
-                  this->value.val, this->gradient.val, strideA, strideB,
-                  strideC, C_offset, D, grad);
+        grad_func(this->A->value.val, this->A->gradient.val, this->B->value.val,
+                  this->B->gradient.val, this->value.val, this->gradient.val,
+                  strideA, strideB, strideC, C_offset, D, grad);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
-        if (this->in2->hasInputs) {
-            this->in2->getGrad();
+        if (this->B->hasInputs) {
+            this->B->getGrad();
         }
     }
 };
@@ -368,7 +366,7 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_matmul : INode<T> {
-    INode<T> *in2 = nullptr; ///< Pointer to the second input Node.
+    INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     matmulOp<T> val_func =
         Operations::binary::matmul; ///< Function pointer to the matmul
@@ -394,13 +392,13 @@ template <typename T> struct Node_matmul : INode<T> {
     /**
      * @brief Constructs a matmul node.
      *
-     * @param in1_ptr Pointer to the first input node.
-     * @param in2_ptr Pointer to the second input node.
+     * @param A_ptr Pointer to the first input node.
+     * @param B_ptr Pointer to the second input node.
      * @param args Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_matmul(INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), INode<T>(in1_ptr, args...) {}
+    Node_matmul(INode<T> *A_ptr, INode<T> *B_ptr, Args &&...args)
+        : B(B_ptr), INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Evaluates the matmul operation if not already evaluated.
@@ -410,12 +408,11 @@ template <typename T> struct Node_matmul : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
-            this->in2->eval();
+            this->A->eval();
+            this->B->eval();
 
-            val_func(this->in1->value.val, this->in2->value.val,
-                     this->value.val, a_dim[0], b_dim[0], k[0], strideA,
-                     strideB, strideC);
+            val_func(this->A->value.val, this->B->value.val, this->value.val,
+                     a_dim[0], b_dim[0], k[0], strideA, strideB, strideC);
             this->evaluated = true;
         }
     }
@@ -427,16 +424,16 @@ template <typename T> struct Node_matmul : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->in2->value.val, this->in2->gradient.val,
-                  this->value.val, this->gradient.val, a_dim + 1, b_dim + 1,
-                  k + 1, strideA + 2, strideB + 2, strideC + 2);
+        grad_func(this->A->value.val, this->A->gradient.val, this->B->value.val,
+                  this->B->gradient.val, this->value.val, this->gradient.val,
+                  a_dim + 1, b_dim + 1, k + 1, strideA + 2, strideB + 2,
+                  strideC + 2);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
-        if (this->in2->hasInputs) {
-            this->in2->getGrad();
+        if (this->B->hasInputs) {
+            this->B->getGrad();
         }
     }
 };
@@ -453,7 +450,7 @@ template <typename T> struct Node_matmul : INode<T> {
  * operation.
  */
 template <typename T> struct Node_batch_matmul : INode<T> {
-    INode<T> *in2 = nullptr; ///< Pointer to the second input Node.
+    INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     batchmatmulOp<T> val_func =
         Operations::binary::batch_matmul; ///< Function pointer to the
@@ -482,13 +479,13 @@ template <typename T> struct Node_batch_matmul : INode<T> {
     /**
      * @brief Constructs a batch_matmul node.
      *
-     * @param in1_ptr Pointer to the first input node.
-     * @param in2_ptr Pointer to the second input node.
+     * @param A_ptr Pointer to the first input node.
+     * @param B_ptr Pointer to the second input node.
      * @param args Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_batch_matmul(INode<T> *in1_ptr, INode<T> *in2_ptr, Args &&...args)
-        : in2(in2_ptr), INode<T>(in1_ptr, args...) {}
+    Node_batch_matmul(INode<T> *A_ptr, INode<T> *B_ptr, Args &&...args)
+        : B(B_ptr), INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Destructor for Node_batch_matmul.
@@ -513,12 +510,12 @@ template <typename T> struct Node_batch_matmul : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
-            this->in2->eval();
+            this->A->eval();
+            this->B->eval();
 
-            val_func(this->in1->value.val, this->in2->value.val,
-                     this->value.val, strideA[0], strideB[0], strideC[0],
-                     c_shape[0], A_offset[0], B_offset[0], k[0], D);
+            val_func(this->A->value.val, this->B->value.val, this->value.val,
+                     strideA[0], strideB[0], strideC[0], c_shape[0],
+                     A_offset[0], B_offset[0], k[0], D);
             this->evaluated = true;
         }
     }
@@ -530,17 +527,16 @@ template <typename T> struct Node_batch_matmul : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->in2->value.val, this->in2->gradient.val,
-                  this->value.val, this->gradient.val, strideA + 1, strideB + 1,
-                  strideC + 1, c_shape + 1, A_offset + 1, B_offset + 1, k + 1,
-                  D);
+        grad_func(this->A->value.val, this->A->gradient.val, this->B->value.val,
+                  this->B->gradient.val, this->value.val, this->gradient.val,
+                  strideA + 1, strideB + 1, strideC + 1, c_shape + 1,
+                  A_offset + 1, B_offset + 1, k + 1, D);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
-        if (this->in2->hasInputs) {
-            this->in2->getGrad();
+        if (this->B->hasInputs) {
+            this->B->getGrad();
         }
     }
 };
@@ -572,12 +568,11 @@ template <typename T> struct Node_transp : INode<T> {
     /**
      * @brief Constructs a transpose node with the given operation and gradient.
      *
-     * @param in1_ptr    Pointer to the input node.
+     * @param A_ptr    Pointer to the input node.
      * @param args       Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_transp(INode<T> *in1_ptr, Args &&...args)
-        : INode<T>(in1_ptr, args...) {}
+    Node_transp(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Evaluates the transpose operation if not already evaluated.
@@ -587,9 +582,9 @@ template <typename T> struct Node_transp : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
+            this->A->eval();
 
-            val_func(this->in1->value.val, this->value.val, A_end, op);
+            val_func(this->A->value.val, this->value.val, A_end, op);
             this->evaluated = true;
         }
     }
@@ -601,11 +596,11 @@ template <typename T> struct Node_transp : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->value.val, this->gradient.val, C_end, grad);
+        grad_func(this->A->value.val, this->A->gradient.val, this->value.val,
+                  this->gradient.val, C_end, grad);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
     }
 };
@@ -634,12 +629,11 @@ template <typename T> struct Node_sum_dim : INode<T> {
     /**
      * @brief Constructs a sum_dim node.
      *
-     * @param in1_ptr    Pointer to the input node.
+     * @param A_ptr    Pointer to the input node.
      * @param args       Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_sum_dim(INode<T> *in1_ptr, Args &&...args)
-        : INode<T>(in1_ptr, args...) {}
+    Node_sum_dim(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Destructor for Node_sum_dim.
@@ -660,9 +654,9 @@ template <typename T> struct Node_sum_dim : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
+            this->A->eval();
 
-            val_func(this->in1->value.val, this->value.val, strideA, strideC,
+            val_func(this->A->value.val, this->value.val, strideA, strideC,
                      A_offset, D);
             this->evaluated = true;
         }
@@ -675,11 +669,11 @@ template <typename T> struct Node_sum_dim : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->gradient.val, this->gradient.val, strideA, strideC,
+        grad_func(this->A->gradient.val, this->gradient.val, strideA, strideC,
                   A_offset, D);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
     }
 };
@@ -706,11 +700,11 @@ template <typename T> struct Node_mean : INode<T> {
     /**
      * @brief Constructs a mean node.
      *
-     * @param in1_ptr Pointer to the input node.
+     * @param A_ptr Pointer to the input node.
      * @param args Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_mean(INode<T> *in1_ptr, Args &&...args) : INode<T>(in1_ptr, args...) {}
+    Node_mean(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Evaluates the mean operation if not already evaluated.
@@ -720,9 +714,9 @@ template <typename T> struct Node_mean : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
+            this->A->eval();
 
-            val_func(this->in1->value.val, this->value.val, A_end, divisor);
+            val_func(this->A->value.val, this->value.val, A_end, divisor);
             this->evaluated = true;
         }
     }
@@ -734,10 +728,10 @@ template <typename T> struct Node_mean : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->gradient.val, this->gradient.val, dA_end, divisor);
+        grad_func(this->A->gradient.val, this->gradient.val, dA_end, divisor);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
     }
 };
@@ -769,12 +763,11 @@ template <typename T> struct Node_mean_dim : INode<T> {
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
      *
-     * @param in1_ptr    Pointer to the input node.
+     * @param A_ptr    Pointer to the input node.
      * @param args       Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_mean_dim(INode<T> *in1_ptr, Args &&...args)
-        : INode<T>(in1_ptr, args...) {}
+    Node_mean_dim(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Destructor for Node_mean_dim.
@@ -795,9 +788,9 @@ template <typename T> struct Node_mean_dim : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
+            this->A->eval();
 
-            val_func(this->in1->value.val, this->value.val, strideA, strideC,
+            val_func(this->A->value.val, this->value.val, strideA, strideC,
                      A_offset, D, divisor, C_end);
             this->evaluated = true;
         }
@@ -810,12 +803,12 @@ template <typename T> struct Node_mean_dim : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->value.val, this->in1->gradient.val,
-                  this->value.val, this->gradient.val, strideA, strideC,
-                  A_offset, D, divisor, dA_end);
+        grad_func(this->A->value.val, this->A->gradient.val, this->value.val,
+                  this->gradient.val, strideA, strideC, A_offset, D, divisor,
+                  dA_end);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
     }
 };
@@ -842,12 +835,11 @@ template <typename T> struct Node_slice : INode<T> {
     /**
      * @brief Constructs a slice node.
      *
-     * @param in1_ptr    Pointer to the input node.
+     * @param A_ptr    Pointer to the input node.
      * @param args       Arguments to construct the output tensor.
      */
     template <typename... Args>
-    Node_slice(INode<T> *in1_ptr, Args &&...args)
-        : INode<T>(in1_ptr, args...) {}
+    Node_slice(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
 
     /**
      * @brief Destructor for Node_slice.
@@ -869,9 +861,9 @@ template <typename T> struct Node_slice : INode<T> {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->in1->eval();
+            this->A->eval();
 
-            val_func(this->in1->value.val, this->value.val, strideA, strideC,
+            val_func(this->A->value.val, this->value.val, strideA, strideC,
                      start_offset_a, C_offset, D);
             this->evaluated = true;
         }
@@ -884,11 +876,11 @@ template <typename T> struct Node_slice : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->in1->gradient.val, this->gradient.val, strideA, strideC,
+        grad_func(this->A->gradient.val, this->gradient.val, strideA, strideC,
                   start_offset_a, C_offset, D);
 
-        if (this->in1->hasInputs) {
-            this->in1->getGrad();
+        if (this->A->hasInputs) {
+            this->A->getGrad();
         }
     }
 };

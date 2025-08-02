@@ -363,7 +363,7 @@ void sum_dim(Tensor<T> &A, Node_sum_dim<T> &node, int dim) {
 template <typename T>
 void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
     Tensor<T> &C = node.value;
-    Tensor<T> &dA = node.in1->gradient;
+    Tensor<T> &dA = node.A->gradient;
     node.divisor = A.shape[dim];
     node.C_end = C.val + C.len;
     node.dA_end = dA.val + dA.len;
