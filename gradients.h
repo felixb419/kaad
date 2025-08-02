@@ -384,7 +384,7 @@ namespace unary {
  * @param grad  A callable that computes the gradients.
  */
 template <typename T, class Grad>
-void scalarRhs(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
+void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
                Grad grad) {
     for (; A != A_end; A++, dA++) {
         grad(*A, *dA, *C, *dC);

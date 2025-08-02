@@ -273,8 +273,8 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     using Kernel = class Kernels::Sum<T>;
     using Op = typename Kernel::Op;
     using Grad = typename Kernel::Grad;
-    unaryOp<T, Op> op = Operations::unary::scalarRhs<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::binary::scalarRhs<T, Grad>;
+    unaryOp<T, Op> op = Operations::unary::scalarOut<T, Op>;
+    unaryGrad<T, Grad> grad = Gradients::unary::scalarOut<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
     newNode->end = A.val + A.len;

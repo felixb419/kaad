@@ -334,7 +334,7 @@ namespace unary {
  * @param op Unary operation to apply.
  */
 template <typename T, class Op>
-void scalarRhs(const T *A, T *C, const T *A_end, Op op) {
+void scalarOut(const T *A, T *C, const T *A_end, Op op) {
     for (; A != A_end; A++) {
         op(*A, *C);
     }
