@@ -34,7 +34,7 @@ struct Null {
 };
 
 /**
- * @brief Addition kernel.
+ * @brief Binary kernel for addition.
  * @tparam T The scalar type.
  */
 template <typename T> struct Add {
@@ -66,7 +66,7 @@ template <typename T> struct Add {
 };
 
 /**
- * @brief Subtraction kernel.
+ * @brief Binary kernel for subtraction.
  * @tparam T The scalar type.
  */
 template <typename T> struct Sub {
@@ -98,7 +98,7 @@ template <typename T> struct Sub {
 };
 
 /**
- * @brief Multiplication kernel.
+ * @brief Binary kernel for multiplication.
  * @tparam T The scalar type.
  */
 template <typename T> struct Mul {
@@ -130,7 +130,7 @@ template <typename T> struct Mul {
 };
 
 /**
- * @brief Division kernel.
+ * @brief Binary kernel for division.
  * @tparam T The scalar type.
  */
 template <typename T> struct Div {
@@ -162,7 +162,7 @@ template <typename T> struct Div {
 };
 
 /**
- * @brief Power kernel.
+ * @brief Binary kernel for power.
  * @tparam T The scalar type.
  */
 template <typename T> struct Pow {
@@ -196,7 +196,7 @@ template <typename T> struct Pow {
 };
 
 /**
- * @brief Dot kernel.
+ * @brief Binary kernel for dot.
  * @tparam T The scalar type.
  */
 template <typename T> struct Dot {
@@ -228,34 +228,7 @@ template <typename T> struct Dot {
 };
 
 /**
- * @brief Summation kernel.
- * @tparam T The scalar type.
- */
-template <typename T> struct Sum {
-    struct Op {
-        /**
-         * @brief Performs the summation.
-         * @param A First operand.
-         * @param C Result.
-         */
-        constexpr void operator()(T A, T &C) const noexcept { C += A; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC;
-        }
-    };
-};
-
-/**
- * @brief Minimum kernel.
+ * @brief Binary kernel for minimum.
  * @tparam T The scalar type.
  */
 template <typename T> struct Min {
@@ -290,7 +263,7 @@ template <typename T> struct Min {
 };
 
 /**
- * @brief Maximum kernel.
+ * @brief Binary kernel for maximum.
  * @tparam T The scalar type.
  */
 template <typename T> struct Max {
@@ -325,7 +298,34 @@ template <typename T> struct Max {
 };
 
 /**
- * @brief Negation kernel.
+ * @brief Unary kernel for summation.
+ * @tparam T The scalar type.
+ */
+template <typename T> struct Sum {
+    struct Op {
+        /**
+         * @brief Performs the summation.
+         * @param A First operand.
+         * @param C Result.
+         */
+        constexpr void operator()(T A, T &C) const noexcept { C += A; }
+    };
+    struct Grad {
+        /**
+         * @brief Computes the gradient.
+         * @param A   Input A (unused).
+         * @param dA  Gradient accumulator for A.
+         * @param C   Output C (unused).
+         * @param dC  Gradient from the output.
+         */
+        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
+            dA += dC;
+        }
+    };
+};
+
+/**
+ * @brief Unary kernel for negation.
  * @tparam T The scalar type.
  */
 template <typename T> struct Neg {
@@ -352,7 +352,7 @@ template <typename T> struct Neg {
 };
 
 /**
- * @brief Square kernel.
+ * @brief Unary kernel for square.
  * @tparam T The scalar type.
  */
 template <typename T> struct Square {
@@ -379,7 +379,7 @@ template <typename T> struct Square {
 };
 
 /**
- * @brief Squareroot kernel.
+ * @brief Unary kernel for squareroot.
  * @tparam T The scalar type.
  */
 template <typename T> struct Sqrt {
@@ -420,7 +420,7 @@ template <typename T> struct Sqrt {
 };
 
 /**
- * @brief Logarithm kernel.
+ * @brief Unary kernel for logarithm.
  * @tparam T The scalar type.
  */
 template <typename T> struct Log {
@@ -461,7 +461,7 @@ template <typename T> struct Log {
 };
 
 /**
- * @brief Exponent kernel.
+ * @brief Unary kernel for exponent.
  * @tparam T The scalar type.
  */
 template <typename T> struct Exp {
@@ -497,7 +497,7 @@ template <typename T> struct Exp {
 };
 
 /**
- * @brief Abs kernel.
+ * @brief Unary kernel for abs.
  * @tparam T The scalar type.
  */
 template <typename T> struct Abs {
