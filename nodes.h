@@ -375,19 +375,28 @@ template <typename T> struct Node_matmul : INode<T> {
         Gradients::binary::matmul; ///< Function pointer to the matmul gradient.
 
     /**
-     * @brief Stride arrays for A, B, and C for each stage of computation.
+     * @brief Stride arrays for tensors A, B, and C for all computation stages.
      *
-     * Index convention:
-     * - [0] Forward pass (C = A * B)
-     * - [1] Gradient w.r.t. A (dA = dC * Bᵗ)
-     * - [2] Gradient w.r.t. B (dB = Aᵗ * dC)
+     * Each stride array is a flattened array of size 6, containing strides for
+     * all 3 passes (forward and both backward gradients).
+     *
+     * Index layout for each stride array:
+     * - [0..1] Forward pass (C = A * B)
+     * - [2..3] Gradient w.r.t. A (dA = dC * Bᵗ)
+     * - [4..5] Gradient w.r.t. B (dB = Aᵗ * dC)
+     *
+     * Each pair of entries represents strides for rows and columns, or outer
+     * and inner dimensions, depending on layout.
      */
-    int a_dim[3];   ///< The Number of rows of the A tensor.
-    int b_dim[3];   ///< The Number of columns of the B tensor.
-    int k[3];       ///< The shared inner dimensions of the tensors.
-    int strideA[6]; ///< Stride array for tensor A.
-    int strideB[6]; ///< Stride array for tensor B.
-    int strideC[6]; ///< Stride array for tensor C.
+    int a_dim[3]; ///< Number of rows of tensor A for each computation stage.
+    int b_dim[3]; ///< Number of columns of tensor B for each computation stage.
+    int k[3];     ///< Shared inner dimension for each computation stage.
+    int strideA[6]; ///< Flattened stride pairs for tensor A (2 per stage × 3
+                    ///< stages).
+    int strideB[6]; ///< Flattened stride pairs for tensor B (2 per stage × 3
+                    ///< stages).
+    int strideC[6]; ///< Flattened stride pairs for tensor C (2 per stage × 3
+                    ///< stages).
 
     /**
      * @brief Constructs a matmul node.
