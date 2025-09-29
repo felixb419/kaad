@@ -1,0 +1,2 @@
+PERF:
+    make stride function transpose dimensions so biggest is highest
