@@ -1,8 +1,8 @@
 #pragma once
 
-#include "tensor.hpp" // for Tensor, tView
-#include "utils.hpp"  // for transp2D, combine_matrix
-#include <cstddef>    // for size_t
+#include "tensor/tensor.hpp" // for Tensor, tView
+#include "utils.hpp"         // for transp2D, combine_matrix
+#include <cstddef>           // for size_t
 
 namespace kaad {
 

@@ -3,7 +3,7 @@
 #include "binaryOps.hpp"
 #include "compGraph.hpp"
 #include "nodes.hpp"
-#include "tensor.hpp"
+#include "tensor/tensor.hpp"
 #include "unaryOps.hpp"
 
 /**

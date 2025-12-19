@@ -3,9 +3,9 @@
 #include "gradients.hpp"  // for unaryGrad, binaryGrad, batch_matmul, batchma...
 #include "kernels.hpp"    // for Null, Null::Op, Sum
 #include "operations.hpp" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
-#include "tensor.hpp"     // for Tensor
-#include <cstddef>        // for size_t
-#include <utility>        // for std::forward
+#include "tensor/tensor.hpp" // for Tensor
+#include <cstddef>           // for size_t
+#include <utility>           // for std::forward
 
 namespace kaad {
 

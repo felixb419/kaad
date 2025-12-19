@@ -6,130 +6,10 @@
 #include <iostream>  // for std::operator<<, std::ostream, std::cout, std::end
 #include <stdexcept> // for std::invalid_argument
 
+#include "common.hpp" // for kaad::detail::print_tensor
+#include "tView.hpp"  // for kaad::tView
+
 namespace kaad {
-
-/**
- * @brief Recursively prints the contents of a tensor in nested list format.
- *
- * This function is used to format and output the tensor data in a
- * human-readable nested list representation.
- *
- * @tparam T The data type of the tensor values.
- * @param stream The output stream to write the tensor representation to.
- * @param cords The current coordinates (indices) within the tensor.
- * @param shape The shape of the tensor (size of each dimension).
- * @param stride The stride values for indexing into the flat data array.
- * @param nDims The number of dimensions in the tensor.
- * @param val Pointer to the flat array containing the tensor data.
- * @param ind The current recursion depth (dimension index).
- * @param indent Tracks the current indentation level for formatted output.
- */
-template <typename T>
-inline void print(std::ostream &stream, int *cords, int *shape, int *stride,
-                  size_t nDims, T *val, int ind, int &indent) {
-    if (ind == nDims) {
-        int idx = 0;
-        for (int i = 0; i < nDims; i++) {
-            idx += (cords[i] % shape[i]) * stride[i];
-        }
-        stream << val[idx];
-    } else {
-        int lim = shape[ind];
-        stream << "[";
-        indent++;
-        // iterate for size of current dimension
-        for (int i = 0; i < lim - 1; i++) {
-            // print next dimension
-            print(stream, cords, shape, stride, nDims, val, ind + 1, indent);
-            stream << ", ";
-            bool indent_here = false;
-            for (int j = 0; j < nDims - ind - 1; j++) {
-                stream << std::endl;
-                indent_here = true;
-            }
-            for (int j = 0; j < indent && indent_here; j++) {
-                stream << " ";
-            }
-            cords[ind]++;
-        }
-        // last pass without trailing comma
-        print(stream, cords, shape, stride, nDims, val, ind + 1, indent);
-        cords[ind]++;
-
-        stream << "]";
-        indent--;
-    }
-}
-
-/**
- * @brief Lightweight view into a tensor's shape, stride, and data.
- *
- * This struct allows for non-owning access to tensor metadata and values,
- * useful for read-only operations or efficient slicing without copying.
- *
- * @tparam T The data type stored in the tensor.
- */
-template <typename T> struct tView {
-    /// Pointer to the shape array, where shape[i] is the size along dimension
-    /// i.
-    int *shape = nullptr;
-    /// Pointer to the stride array, where stride[i] gives the step to the next
-    /// element in dimension i.
-    int *stride = nullptr;
-    /// Number of dimensions in the tensor.
-    size_t nDims = 0;
-    /// Pointer to the flat data array storing the tensor elements.
-    T *val = nullptr;
-    /// Total number of elements in the tensor.
-    size_t len = 0;
-
-    /**
-     * @brief Default constructor.
-     */
-    tView() {}
-
-    /**
-     * @brief Copy constructor.
-     */
-    tView(const tView &other)
-        : shape(other.shape), stride(other.stride), nDims(other.nDims),
-          val(other.val), len(other.len) {}
-
-    /**
-     * @brief Constructs a tView from shape, stride, and data pointer.
-     *
-     * @param shape Pointer to the shape array.
-     * @param stride Pointer to the stride array.
-     * @param nDims Number of dimensions.
-     * @param val Pointer to the tensor values.
-     * @param len Total number of elements.
-     */
-    tView(int *shape, int *stride, size_t nDims, T *val, size_t len)
-        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
-
-    /**
-     * @brief Overloads the stream output operator to print the tensor view.
-     *
-     * @param stream Output stream.
-     * @param view The tensor view to print.
-     * @return std::ostream& The updated output stream.
-     */
-    friend std::ostream &operator<<(std::ostream &stream, tView<T> view) {
-        if (view.nDims == 0) {
-            std::cout << "[]";
-        } else {
-            int *cords = new int[view.nDims];
-            std::fill(cords, cords + view.nDims, 0);
-            int indent = 0;
-
-            print(stream, cords, view.shape, view.stride, view.nDims, view.val,
-                  0, indent);
-
-            delete[] cords;
-        }
-        return stream;
-    }
-};
 
 /**
  * @brief A class representing a multi-dimensional tensor.
@@ -437,8 +317,8 @@ template <typename T> class Tensor {
             std::fill(cords, cords + tensor.nDims, 0);
             int indent = 0;
 
-            print(stream, cords, tensor.shape, tensor.stride, tensor.nDims,
-                  tensor.val, 0, indent);
+            detail::print_tensor(stream, cords, tensor.shape, tensor.stride,
+                                 tensor.nDims, tensor.val, 0, indent);
 
             delete[] cords;
         }

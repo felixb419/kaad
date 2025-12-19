@@ -5,7 +5,7 @@
 #include "kernels.hpp"     // for Kernels::Null
 #include "operations.hpp"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
 #include "strides.hpp"     // for batch_matmul, flexible_binary, matmul, outer
-#include "tensor.hpp"      // for print_arr, combine_flexible, combine_matrix
+#include "tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
 #include "utils.hpp"
 #include <cstddef> // for size_t
 #include <memory>  // for std::make_unique
