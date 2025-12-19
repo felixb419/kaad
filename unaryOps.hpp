@@ -6,12 +6,12 @@
 #include "operations.hpp"   // for unaryOp, pointwise, scalarRhs, transpose
 #include "strides.hpp"      // for mean_dim, slice, sum_dim
 #include "utils.hpp"        // for print_arr, transp
-#include <algorithm>        // for copy, fill
+#include <algorithm>        // for std::copy, std::fill
 #include <cstddef>          // for size_t
-#include <initializer_list> // for initializer_list
-#include <memory>           // for make_unique
-#include <sstream>          // for operator<<, basic_ostream::operator<<
-#include <stdexcept>        // for invalid_argument
+#include <initializer_list> // for std::initializer_list
+#include <memory>           // for std::make_unique
+#include <sstream>   // for std::operator<<, std::basic_ostream::operator<<
+#include <stdexcept> // for std::invalid_argument
 
 namespace kaad {
 

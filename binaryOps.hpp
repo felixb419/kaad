@@ -7,10 +7,10 @@
 #include "strides.hpp"     // for batch_matmul, flexible_binary, matmul, outer
 #include "tensor.hpp"      // for print_arr, combine_flexible, combine_matrix
 #include "utils.hpp"
-#include <cstddef>   // for size_t
-#include <memory>    // for make_unique
-#include <sstream>   // for operator<<, basic_ostream, char_traits, ost...
-#include <stdexcept> // for invalid_argument
+#include <cstddef> // for size_t
+#include <memory>  // for std::make_unique
+#include <sstream> // for std::operator<<, std::basic_ostream, std::char_traits, std::ostringstream
+#include <stdexcept> // for std::invalid_argument
 
 namespace kaad {
 

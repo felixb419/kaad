@@ -5,7 +5,7 @@
 #include "operations.hpp" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
 #include "tensor.hpp"     // for Tensor
 #include <cstddef>        // for size_t
-#include <utility>        // for forward
+#include <utility>        // for std::forward
 
 namespace kaad {
 

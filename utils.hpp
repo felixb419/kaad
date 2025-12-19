@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tensor.hpp"
-#include <iostream>
+#include <iostream> // for std::ostream, std::cout, std::endl
 
 namespace kaad {
 

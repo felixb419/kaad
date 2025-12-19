@@ -1,10 +1,10 @@
 #pragma once
 
-#include <algorithm>        // for copy, max, fill
+#include <algorithm>        // for std::copy, std::max, std::fill
 #include <cstddef>          // for size_t
-#include <initializer_list> // for initializer_list
-#include <iostream>         // for operator<<, ostream, cout, endl, basic_o...
-#include <stdexcept>        // for invalid_argument
+#include <initializer_list> // for std::initializer_list
+#include <iostream>  // for std::operator<<, std::ostream, std::cout, std::end
+#include <stdexcept> // for std::invalid_argument
 
 namespace kaad {
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "tensor.hpp" // for Tensor
-#include <array>      // for array
+#include <array>      // for std::array
 #include <cstddef>    // for size_t
-#include <memory>     // for unique_ptr, make_unique
-#include <utility>    // for forward
-#include <vector>     // for vector
+#include <memory>     // for std::unique_ptr, std::make_unique
+#include <utility>    // for std::forward
+#include <vector>     // for std::vector
 
 namespace kaad {
 template <typename T> struct INode;
