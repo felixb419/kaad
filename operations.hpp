@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm> // for std::copy
-#include <stddef.h>  // for size_t
+#include <cstddef>   // for size_t
 
 namespace kaad {
 template <typename T, class Op>

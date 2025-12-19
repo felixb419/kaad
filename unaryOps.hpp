@@ -1,16 +1,16 @@
 #pragma once
 
-#include "dispatchers.h"    // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
-#include "gradients.h"      // for unaryGrad, pointwise, scalarRhs
-#include "kernels.h"        // for Sum, Null, Null::Op
-#include "operations.h"     // for unaryOp, pointwise, scalarRhs, transpose
-#include "strides.h"        // for mean_dim, slice, sum_dim
-#include "utils.h"          // for print_arr, transp
+#include "dispatchers.hpp"  // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
+#include "gradients.hpp"    // for unaryGrad, pointwise, scalarRhs
+#include "kernels.hpp"      // for Sum, Null, Null::Op
+#include "operations.hpp"   // for unaryOp, pointwise, scalarRhs, transpose
+#include "strides.hpp"      // for mean_dim, slice, sum_dim
+#include "utils.hpp"        // for print_arr, transp
 #include <algorithm>        // for copy, fill
+#include <cstddef>          // for size_t
 #include <initializer_list> // for initializer_list
 #include <memory>           // for make_unique
 #include <sstream>          // for operator<<, basic_ostream::operator<<
-#include <stddef.h>         // for size_t
 #include <stdexcept>        // for invalid_argument
 
 namespace kaad {

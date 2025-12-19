@@ -1,10 +1,10 @@
 #pragma once
 
-#include "gradients.h"    // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
-#include "operations.h"   // for batchmatmulOp, flexBinaryOp, meanDimOp
+#include "gradients.hpp"  // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
+#include "operations.hpp" // for batchmatmulOp, flexBinaryOp, meanDimOp
 #include <array>          // for array
-#include <bits/utility.h> // for index_sequence, make_index_sequence
 #include <cstddef>        // for size_t
+#include <utility>        // for index_sequence, make_index_sequence
 
 #ifndef KAAD_MAX_NDIMS
 #define KAAD_MAX_NDIMS 5
@@ -155,5 +155,5 @@ constexpr std::array<sliceGrad<T>, KAAD_MAX_NDIMS> get_slice_grad() {
     return get_slice_grad_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-} // namespace dispatchers
+} // namespace Dispatchers
 } // namespace kaad

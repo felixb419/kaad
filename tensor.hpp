@@ -1,9 +1,9 @@
 #pragma once
 
 #include <algorithm>        // for copy, max, fill
+#include <cstddef>          // for size_t
 #include <initializer_list> // for initializer_list
 #include <iostream>         // for operator<<, ostream, cout, endl, basic_o...
-#include <stddef.h>         // for size_t
 #include <stdexcept>        // for invalid_argument
 
 namespace kaad {

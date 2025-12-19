@@ -1,10 +1,10 @@
 #pragma once
 
-#include "binaryOps.h"
-#include "compGraph.h"
-#include "nodes.h"
-#include "tensor.h"
-#include "unaryOps.h"
+#include "binaryOps.hpp"
+#include "compGraph.hpp"
+#include "nodes.hpp"
+#include "tensor.hpp"
+#include "unaryOps.hpp"
 
 /**
  * @mainpage KAAD Documentation
@@ -22,7 +22,7 @@
  * - Backward-mode automatic differentiation
  *
  * ## Getting Started
- * 1. Include the header file: `"kaad.h"`.
+ * 1. Include the header file: `"kaad.hpp"`.
  * 2. Create a `kaad::CompGraph<T>` object.
  * 3. Use the `append` member function to add leaf nodes (which hold value and
  * gradient tensors).

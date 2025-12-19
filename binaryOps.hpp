@@ -1,15 +1,15 @@
 #pragma once
 
-#include "dispatchers.h" // for KAAD_MAX_NDIMS, get_batch_matmul
-#include "gradients.h"   // for binaryGrad, flexBinaryGrad, flexible, batch...
-#include "kernels.h"     // for Kernels::Null
-#include "operations.h"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
-#include "strides.h"     // for batch_matmul, flexible_binary, matmul, outer
-#include "tensor.h"      // for print_arr, combine_flexible, combine_matrix
-#include "utils.h"
+#include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_batch_matmul
+#include "gradients.hpp"   // for binaryGrad, flexBinaryGrad, flexible, batch...
+#include "kernels.hpp"     // for Kernels::Null
+#include "operations.hpp"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
+#include "strides.hpp"     // for batch_matmul, flexible_binary, matmul, outer
+#include "tensor.hpp"      // for print_arr, combine_flexible, combine_matrix
+#include "utils.hpp"
+#include <cstddef>   // for size_t
 #include <memory>    // for make_unique
 #include <sstream>   // for operator<<, basic_ostream, char_traits, ost...
-#include <stddef.h>  // for size_t
 #include <stdexcept> // for invalid_argument
 
 namespace kaad {
@@ -22,10 +22,10 @@ template <typename T> struct Node_batch_matmul;
 template <typename T> struct Node_matmul;
 
 /**
- * @brief Contains a collection of binary functions for multiple versions (sclalarRhs,
- * scalarLhs, pointwise, flexible) of the operation and gradient of a given
- * binary Kernel.
- * 
+ * @brief Contains a collection of binary functions for multiple versions
+ * (sclalarRhs, scalarLhs, pointwise, flexible) of the operation and gradient of
+ * a given binary Kernel.
+ *
  * @tparam T Datatype the operations are performed on (e.g. float, double, ...).
  * @tparam Kernel Kernel the functions should be using.
  */

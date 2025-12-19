@@ -1,7 +1,7 @@
 #pragma once
 
-#include "operations.h" // for batch_matmul, matmul
-#include <cstddef>      // for size_t
+#include "operations.hpp" // for batch_matmul, matmul
+#include <cstddef>        // for size_t
 
 namespace kaad {
 template <typename T, class Grad>

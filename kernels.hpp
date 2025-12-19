@@ -2,8 +2,8 @@
 
 #include <algorithm> // for max, min
 #include <cmath>     // for log, pow, exp, sqrt
+#include <cstdlib>   // for abs
 #include <limits>    // for numeric_limits
-#include <stdlib.h>  // for abs
 
 namespace kaad {
 

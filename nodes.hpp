@@ -1,11 +1,11 @@
 #pragma once
 
-#include "gradients.h"  // for unaryGrad, binaryGrad, batch_matmul, batchma...
-#include "kernels.h"    // for Null, Null::Op, Sum
-#include "operations.h" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
-#include "tensor.h"     // for Tensor
-#include <stddef.h>     // for size_t
-#include <utility>      // for forward
+#include "gradients.hpp"  // for unaryGrad, binaryGrad, batch_matmul, batchma...
+#include "kernels.hpp"    // for Null, Null::Op, Sum
+#include "operations.hpp" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
+#include "tensor.hpp"     // for Tensor
+#include <cstddef>        // for size_t
+#include <utility>        // for forward
 
 namespace kaad {
 

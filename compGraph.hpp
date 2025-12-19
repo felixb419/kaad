@@ -1,11 +1,11 @@
 #pragma once
 
-#include "tensor.h" // for Tensor
-#include <array>    // for array
-#include <memory>   // for unique_ptr, make_unique
-#include <stddef.h> // for size_t
-#include <utility>  // for forward
-#include <vector>   // for vector
+#include "tensor.hpp" // for Tensor
+#include <array>      // for array
+#include <cstddef>    // for size_t
+#include <memory>     // for unique_ptr, make_unique
+#include <utility>    // for forward
+#include <vector>     // for vector
 
 namespace kaad {
 template <typename T> struct INode;
@@ -33,7 +33,7 @@ template <typename T> struct CompGraph {
      *
      * @tparam Args Variadic template parameter pack for tensor constructor
      * arguments.
-     * 
+     *
      * @param tensor_args Arguments forwarded to the Tensor<T> constructor.
      * @return A raw pointer to the newly created Node_valued<T>.
      */
@@ -53,7 +53,7 @@ template <typename T> struct CompGraph {
      * resulting Tensor<T> values in the same order.
      *
      * @tparam ptrs Variadic template parameter pack of INode<T>* types.
-     * 
+     *
      * @param node_ptrs A list of pointers to nodes to be evaluated.
      * @return An array of Tensor<T>* pointers, each corresponding to the value
      * of the evaluated node.
@@ -79,7 +79,7 @@ template <typename T> struct CompGraph {
      * gradient tensors corresponding to each input node in `dx_ptrs`.
      *
      * @tparam ptrs Variadic template parameter pack of INode<T>* types.
-     * 
+     *
      * @param df_ptr Pointer to the output node (target function) with respect
      * to which gradients are computed.
      * @param dx_ptrs A list of input node pointers for which the gradients are
