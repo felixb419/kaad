@@ -36,7 +36,7 @@ template <typename T, class Kernel> struct UnaryKernels {
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
     unaryOp<T, Op> op = Operations::unary::pointwise<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::binary::pointwise<T, Grad>;
+    unaryGrad<T, Grad> grad = Gradients::unary::pointwise<T, Grad>;
 };
 
 /**
