@@ -139,68 +139,6 @@ template <typename T> class Tensor {
     }
 
     /**
-     * @brief Constructor from shape and stride.
-     *
-     * Initializes tensor memory based on shape and stride arrays.
-     *
-     * @param shape Pointer to the shape array.
-     * @param stride Pointer to the stride array.
-     * @param nDims Number of dimensions.
-     */
-    Tensor(int *shape, int *stride, size_t nDims)
-        : shape(shape), stride(stride), nDims(nDims) {
-        len = 1;
-        for (size_t i = 0; i < this->nDims; i++) {
-            len *= this->shape[i];
-        }
-
-        val = new T[len];
-        std::fill(val, val + len, 0);
-    }
-
-    /**
-     * @brief Constructor from shape, stride, value array, and total length.
-     *
-     * @param shape Shape array.
-     * @param stride Stride array.
-     * @param nDims Number of dimensions.
-     * @param val Value array.
-     * @param len Total number of elements.
-     */
-    Tensor(int *shape, int *stride, size_t nDims, T *val, size_t len)
-        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
-
-    /**
-     * @brief Constructor from shape, stride, length, and a fill value.
-     *
-     * Allocates a new tensor and fills it with the given value.
-     *
-     * @param shape Shape array.
-     * @param stride Stride array.
-     * @param nDims Number of dimensions.
-     * @param len Number of elements.
-     * @param fill_value Value to fill the tensor with (default 0).
-     */
-    Tensor(int *shape, int *stride, size_t nDims, size_t len, T fill_value = 0)
-        : shape(shape), stride(stride), nDims(nDims), len(len) {
-        val = new T[this->len];
-        std::fill(val, val + this->len, fill_value);
-    }
-
-    /**
-     * @brief Constructor for scalar tensors.
-     *
-     * Creates a 1D tensor with a single element.
-     *
-     * @param scalar The scalar value.
-     */
-    Tensor(T scalar) : nDims(1), len(1) {
-        shape = new int[]{1};
-        stride = new int[]{0};
-        val = new T[]{scalar};
-    }
-
-    /**
      * @brief Constructor from shape and value pointer, automatically computes
      * stride.
      *

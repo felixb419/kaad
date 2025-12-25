@@ -1,0 +1,11 @@
+rework constructors:
+
+Tensor(std::span<int> shape, std::span<T> elems)
+
+Tensor(std::span<int> shape, fill=0)
+
+
+
+
+make constructors fool proof
+

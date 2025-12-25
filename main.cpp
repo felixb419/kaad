@@ -27,7 +27,7 @@ int main() {
 
     auto b = append_rec(rec, {4, 5});
 
-    auto c = add(rec, a, b);
+    auto c = add(rec, exp(rec, a), b);
 
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;
