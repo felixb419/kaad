@@ -213,32 +213,6 @@ template <typename T> class Tensor {
     }
 
     /**
-     * @brief Indexing operator using coordinate list.
-     *
-     * Throws if coordinates are out of bounds or wrong dimension count.
-     *
-     * @param cords The coordinate indices.
-     * @return The value at the given coordinates.
-     */
-    const T &operator()(std::initializer_list<int> cords) {
-        const int *begin = cords.begin();
-        const int *end = cords.end();
-        if (end - begin != nDims) {
-            throw std::invalid_argument(
-                "incorrect number of coordinate dimension");
-        }
-        int index = 0;
-        for (const int *c_p = begin, *sh_p = shape, *st_p = stride; c_p != end;
-             c_p++) {
-            if (*c_p >= *sh_p || *c_p < 0) {
-                throw std::invalid_argument("out of bound coordinate");
-            }
-            index += (*c_p) * (*st_p);
-        }
-        return shape[index];
-    }
-
-    /**
      * @brief Stream output operator.
      *
      * Prints the tensor in a readable format.

@@ -1,7 +1,6 @@
 REFACTOR:
     use std::vector instead of raw pointers (and use rule of 0)
     rework tensor constructors
-    maybe remove operator()
     make sure tView is even needed
 
 PERF:
