@@ -136,7 +136,7 @@ template <typename T> class Tensor {
      * @param tensor The tensor to print.
      * @return Reference to the output stream.
      */
-    friend std::ostream &operator<<(std::ostream &os, Tensor<T> tensor) {
+    friend std::ostream &operator<<(std::ostream &os, const Tensor<T> &tensor) {
         if (tensor.nDims() == 0) {
             std::cout << "[]";
         } else {

@@ -1,5 +1,4 @@
 #include "common.hpp" // for kaad::detail::print_tensor
-#include <algorithm>  // for std::fill
 #include <cstddef>    // for std::size_t
 #include <iostream>   // for std::ostream, std::cout
 #include <vector>     // for std::vector
@@ -47,7 +46,8 @@ template <typename T> struct tView {
      * @param view The tensor view to print.
      * @return std::ostream& The updated output stream.
      */
-    friend std::ostream &operator<<(std::ostream &stream, tView<T> view) {
+    friend std::ostream &operator<<(std::ostream &stream,
+                                    const tView<T> &view) {
         if (view.nDims() == 0) {
             std::cout << "[]";
         } else {
