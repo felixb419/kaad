@@ -2,6 +2,7 @@
 #include <algorithm>  // for std::fill
 #include <cstddef>    // for std::size_t
 #include <iostream>   // for std::ostream, std::cout
+#include <vector>     // for std::vector
 
 namespace kaad {
 
@@ -14,18 +15,13 @@ namespace kaad {
  * @tparam T The data type stored in the tensor.
  */
 template <typename T> struct tView {
-    /// Pointer to the shape array, where shape[i] is the size along dimension
-    /// i.
-    int *shape = nullptr;
-    /// Pointer to the stride array, where stride[i] gives the step to the next
-    /// element in dimension i.
-    int *stride = nullptr;
-    /// Number of dimensions in the tensor.
-    std::size_t nDims = 0;
-    /// Pointer to the flat data array storing the tensor elements.
-    T *val = nullptr;
-    /// Total number of elements in the tensor.
-    std::size_t len = 0;
+    std::vector<int> &shape; ///< Referehce to the vector containing the
+                             ///< size of the tensor in each dimension.
+    std::vector<int> &
+        stride; ///< Referehce to the vector containing the stride of the tensor
+                ///< (steps needed to move one element in each dimension).
+    std::vector<T> &
+        val; ///< Referehce to the vector containing the elements of the Tensor.
 
     /**
      * @brief Default constructor.
@@ -33,23 +29,16 @@ template <typename T> struct tView {
     tView() {}
 
     /**
-     * @brief Copy constructor.
+     * @brief Constructs a tensor view.
+     * @param shape Reference to shape vector.
+     * @param stride Reference to stride vector.
+     * @param val Reference to element vector.
      */
-    tView(const tView &other)
-        : shape(other.shape), stride(other.stride), nDims(other.nDims),
-          val(other.val), len(other.len) {}
+    tView(std::vector<int> &shape, std::vector<int> &stride,
+          std::vector<T> &val)
+        : shape(shape), stride(stride), val(val) {}
 
-    /**
-     * @brief Constructs a tView from shape, stride, and data pointer.
-     *
-     * @param shape Pointer to the shape array.
-     * @param stride Pointer to the stride array.
-     * @param nDims Number of dimensions.
-     * @param val Pointer to the tensor values.
-     * @param len Total number of elements.
-     */
-    tView(int *shape, int *stride, std::size_t nDims, T *val, std::size_t len)
-        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
+    size_t nDims() const { return this->shape.size(); }
 
     /**
      * @brief Overloads the stream output operator to print the tensor view.
@@ -59,15 +48,15 @@ template <typename T> struct tView {
      * @return std::ostream& The updated output stream.
      */
     friend std::ostream &operator<<(std::ostream &stream, tView<T> view) {
-        if (view.nDims == 0) {
+        if (view.nDims() == 0) {
             std::cout << "[]";
         } else {
-            int *cords = new int[view.nDims];
-            std::fill(cords, cords + view.nDims, 0);
+            int *cords = new int[view.nDims()];
+            std::fill(cords, cords + view.nDims(), 0);
             int indent = 0;
 
             detail::print_tensor(stream, cords, view.shape, view.stride,
-                                 view.nDims, view.val, 0, indent);
+                                 view.nDims(), view.val, 0, indent);
 
             delete[] cords;
         }

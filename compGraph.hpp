@@ -91,7 +91,7 @@ template <typename T> struct CompGraph {
     std::array<Tensor<T> *, sizeof...(ptrs)> getGradient(INode<T> *df_ptr,
                                                          ptrs... dx_ptrs) {
         INode<T> &f = *df_ptr;
-        std::fill(f.gradient.val, f.gradient.val + f.gradient.len, 1.0);
+        std::fill(f.gradient.val.begin(), f.gradient.val.end(), 1.0);
 
         f.getGrad();
 

@@ -60,14 +60,11 @@ INode<T> *unOperator(CompGraph<T> &rec, INode<T> *A_ptr,
                      const UnaryKernels<T, Kernel> kernels) {
     Tensor<T> &A = A_ptr->value;
 
-    int *newShape = new int[A.nDims];
-    std::copy(A.shape, A.shape + A.nDims, newShape);
-
     auto newNode = std::make_unique<Node_unary<T, Kernel>>(
-        kernels.op, kernels.grad, A_ptr, newShape, A.nDims);
+        kernels.op, kernels.grad, A_ptr, A.shape);
     auto raw = newNode.get();
     rec.nodes.push_back(move(newNode));
-    raw->end = raw->value.val + raw->value.len;
+    raw->end = raw->value.val.data() + raw->value.val.size();
 
     return raw;
 }
@@ -185,40 +182,40 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    if (A.nDims < 2) {
+    if (A.nDims() < 2) {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen
-               << "] (transpose), A.nDims hast to be > 1 (shape1=";
-        print_arr(A.shape, A.shape + A.nDims, errmsg);
+               << "] (transpose), A.nDims() hast to be > 1 (shape1=";
+        print_arr(A.shape, A.shape + A.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
 
     int *shape_T, *stride_T;
     if (perm.size() == 0) {
-        shape_T = new int[A.nDims];
-        stride_T = new int[A.nDims];
-        std::copy(A.shape, A.shape + A.nDims, shape_T);
-        std::copy(A.stride, A.stride + A.nDims, stride_T);
+        shape_T = new int[A.nDims()];
+        stride_T = new int[A.nDims()];
+        std::copy(A.shape, A.shape + A.nDims(), shape_T);
+        std::copy(A.stride, A.stride + A.nDims(), stride_T);
 
-        transp(A.shape, A.stride, A.nDims, shape_T, stride_T);
+        transp(A.shape, A.stride, A.nDims(), shape_T, stride_T);
     } else {
-        if (perm.size() != A.nDims) {
+        if (perm.size() != A.nDims()) {
             std::ostringstream errmsg;
             errmsg << "argument error in node[" << recLen
-                   << "] (transpose), perm.size() has to be same as A.nDims "
+                   << "] (transpose), perm.size() has to be same as A.nDims() "
                       "(perm=";
             print_arr(perm.begin(), perm.end(), errmsg);
             errmsg << ", shape1=";
-            print_arr(A.shape, A.shape + A.nDims, errmsg);
+            print_arr(A.shape, A.shape + A.nDims(), errmsg);
             errmsg << ")";
             throw std::invalid_argument(errmsg.str());
         }
 
-        shape_T = new int[A.nDims];
-        stride_T = new int[A.nDims];
-        int *count = new int[A.nDims];
-        std::fill(count, count + A.nDims, 0);
+        shape_T = new int[A.nDims()];
+        stride_T = new int[A.nDims()];
+        int *count = new int[A.nDims()];
+        std::fill(count, count + A.nDims(), 0);
 
         int *sh = shape_T;
         int *st = stride_T;
@@ -229,7 +226,7 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
             *(sh++) = A.shape[idx];
             *(st++) = A.stride[idx];
         }
-        for (int *p = count; p != count + A.nDims; p++) {
+        for (int *p = count; p != count + A.nDims(); p++) {
             if (*p != 1) {
                 std::ostringstream errmsg;
                 errmsg
@@ -244,7 +241,7 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     }
 
     auto newNode =
-        std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims);
+        std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims());
     auto raw_ptr = newNode.get();
     newNode->A_end = A.val + A.len;
     newNode->C_end = raw_ptr->value.val + raw_ptr->value.len;
@@ -307,35 +304,35 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim, bool keepNDims = 0) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    if (dim < 0 || dim >= A.nDims) {
+    if (dim < 0 || dim >= A.nDims()) {
         std::ostringstream errmsg;
         errmsg << "argument error in node[" << recLen
                << "] (sum), dim has to be a valid index of A.shape (dim=" << dim
-               << ", A.nDims=" << A.nDims << ")" << std::endl;
+               << ", A.nDims()=" << A.nDims() << ")" << std::endl;
         throw std::invalid_argument(errmsg.str());
     }
 
-    if (A.nDims == 1) {
+    if (A.nDims() == 1) {
         return sum(rec, A_ptr);
     }
 
-    size_t newLen = A.nDims;
+    size_t newLen = A.nDims();
     int *newShape = new int[newLen];
     if (keepNDims) {
-        std::copy(A.shape, A.shape + A.nDims, newShape);
+        std::copy(A.shape, A.shape + A.nDims(), newShape);
         newShape[dim] = 1;
 
     } else {
         newLen--;
         std::copy(A.shape, A.shape + dim, newShape);
-        std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+        std::copy(A.shape + dim + 1, A.shape + A.nDims(), newShape + dim);
     }
 
     auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
-    if (A.nDims <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = Dispatchers::get_sumDim<T>()[A.nDims];
-        raw_ptr->grad_func = Dispatchers::get_sumDim_grad<T>()[A.nDims];
+    if (A.nDims() <= KAAD_MAX_NDIMS) {
+        raw_ptr->val_func = Dispatchers::get_sumDim<T>()[A.nDims()];
+        raw_ptr->grad_func = Dispatchers::get_sumDim_grad<T>()[A.nDims()];
     }
 
     Strides::sum_dim<T>(A, *raw_ptr, dim);
@@ -395,35 +392,35 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    if (dim < 0 || dim >= A.nDims) {
+    if (dim < 0 || dim >= A.nDims()) {
         std::ostringstream errmsg;
         errmsg << "argument error in node[" << recLen
                << "] (mean), dim has to be a valid index of A.shape (dim="
-               << dim << ", A.nDims=" << A.nDims << ")" << std::endl;
+               << dim << ", A.nDims()=" << A.nDims() << ")" << std::endl;
         throw std::invalid_argument(errmsg.str());
     }
 
-    if (A.nDims == 1) {
+    if (A.nDims() == 1) {
         return mean(rec, A_ptr);
     }
 
-    size_t newLen = A.nDims;
+    size_t newLen = A.nDims();
     int *newShape = new int[newLen];
     if (keepNDims) {
-        std::copy(A.shape, A.shape + A.nDims, newShape);
+        std::copy(A.shape, A.shape + A.nDims(), newShape);
         newShape[dim] = 1;
 
     } else {
         newLen--;
         std::copy(A.shape, A.shape + dim, newShape);
-        std::copy(A.shape + dim + 1, A.shape + A.nDims, newShape + dim);
+        std::copy(A.shape + dim + 1, A.shape + A.nDims(), newShape + dim);
     }
 
     auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
-    if (A.nDims <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = Dispatchers::get_meanDim<T>()[A.nDims];
-        raw_ptr->grad_func = Dispatchers::get_meanDim_grad<T>()[A.nDims];
+    if (A.nDims() <= KAAD_MAX_NDIMS) {
+        raw_ptr->val_func = Dispatchers::get_meanDim<T>()[A.nDims()];
+        raw_ptr->grad_func = Dispatchers::get_meanDim_grad<T>()[A.nDims()];
     }
 
     Strides::mean_dim<T>(A, *raw_ptr, dim);
@@ -458,58 +455,58 @@ INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
     const size_t *o_b = offset.begin();
     size_t s_len = size.size();
     const int *s_b = size.begin();
-    if (s_len > A.nDims) {
+    if (s_len > A.nDims()) {
         std::ostringstream errmsg;
         errmsg << "argument error in node[" << recLen
-               << "] (slice), length of size cant be bigger than A.nDims, "
+               << "] (slice), length of size cant be bigger than A.nDims(), "
                   "(size length="
-               << s_len << ", A.nDims=" << A.nDims << ")" << std::endl;
+               << s_len << ", A.nDims()=" << A.nDims() << ")" << std::endl;
         throw std::invalid_argument(errmsg.str());
     }
-    if (o_len > A.nDims) {
+    if (o_len > A.nDims()) {
         std::ostringstream errmsg;
         errmsg << "argument error in node[" << recLen
-               << "] (slice), length of offset cant be bigger than A.nDims, "
+               << "] (slice), length of offset cant be bigger than A.nDims(), "
                   "(offset length="
-               << o_len << ", A.nDims=" << A.nDims << ")" << std::endl;
+               << o_len << ", A.nDims()=" << A.nDims() << ")" << std::endl;
         throw std::invalid_argument(errmsg.str());
     }
 
-    int diff = A.nDims - o_len;
-    int *size_owned = new int[A.nDims];
+    int diff = A.nDims() - o_len;
+    int *size_owned = new int[A.nDims()];
     std::copy(A.shape, A.shape + diff, size_owned);
     std::copy(s_b, s_b + s_len, size_owned + diff);
 
-    size_t *offset_owned = new size_t[A.nDims];
+    size_t *offset_owned = new size_t[A.nDims()];
     std::fill(offset_owned, offset_owned + diff, 0);
     std::copy(o_b, o_b + o_len, offset_owned + diff);
 
-    for (int i = 0; i < A.nDims; i++) {
+    for (int i = 0; i < A.nDims(); i++) {
         if (offset_owned[i] + size_owned[i] > A.shape[i]) {
             std::ostringstream errmsg;
             errmsg << "argument error in node[" << recLen
                    << "] (slice), offset[" << i << "] with length[" << i
                    << "] would overflow shape of A, (offset=";
-            print_arr(offset_owned, offset_owned + A.nDims, errmsg);
+            print_arr(offset_owned, offset_owned + A.nDims(), errmsg);
             errmsg << ", length=";
-            print_arr(size_owned, size_owned + A.nDims, errmsg);
+            print_arr(size_owned, size_owned + A.nDims(), errmsg);
             errmsg << ", shape=";
-            print_arr(A.shape, A.shape + A.nDims, errmsg);
+            print_arr(A.shape, A.shape + A.nDims(), errmsg);
             errmsg << ")" << std::endl;
             throw std::invalid_argument(errmsg.str());
         }
     }
 
-    size_t newLen = A.nDims;
+    size_t newLen = A.nDims();
     int *newShape = new int[newLen];
-    std::copy(size_owned, size_owned + A.nDims, newShape);
+    std::copy(size_owned, size_owned + A.nDims(), newShape);
 
     auto newNode = std::make_unique<Node_slice<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
 
-    if (A.nDims < KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = Dispatchers::get_slice<T>()[A.nDims];
-        raw_ptr->grad_func = Dispatchers::get_slice_grad<T>()[A.nDims];
+    if (A.nDims() < KAAD_MAX_NDIMS) {
+        raw_ptr->val_func = Dispatchers::get_slice<T>()[A.nDims()];
+        raw_ptr->grad_func = Dispatchers::get_slice_grad<T>()[A.nDims()];
     }
 
     Strides::slice(A, *raw_ptr, offset_owned);

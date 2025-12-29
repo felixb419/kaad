@@ -1,15 +1,50 @@
 #pragma once
 
-#include <algorithm>        // for std::copy, std::max, std::fill
-#include <cstddef>          // for size_t
-#include <initializer_list> // for std::initializer_list
+#include <algorithm> // for std::copy, std::max, std::fill
+#include <concepts>  // for concept
+#include <cstddef>   // for size_t
 #include <iostream>  // for std::operator<<, std::ostream, std::cout, std::end
+#include <ranges>    // for std::ranges
 #include <stdexcept> // for std::invalid_argument
+#include <vector>    // for std::vector
 
 #include "common.hpp" // for kaad::detail::print_tensor
 #include "tView.hpp"  // for kaad::tView
 
 namespace kaad {
+
+namespace detail {
+static void compute_stride(std::vector<int> &stride, int &len,
+                           const std::vector<int> &shape) {
+    stride.resize(shape.size());
+
+    len = 1;
+    int i = shape.size() - 1;
+
+    len *= shape[i];
+    stride[i--] = 1;
+
+    for (; i >= 0; i--) {
+        len *= shape[i];
+
+        stride[i] = shape[i + 1] * stride[i + 1];
+    }
+
+    for (size_t i = 0; i < stride.size(); i++) {
+        if (shape[i] <= 1) {
+            stride[i] = 0;
+        }
+    }
+}
+} // namespace detail
+
+template <typename R>
+concept IntegralRange =
+    std::ranges::input_range<R> && std::integral<std::ranges::range_value_t<R>>;
+
+template <typename R, typename T>
+concept ValueRange = std::ranges::input_range<R> &&
+                     std::same_as<std::ranges::range_value_t<R>, T>;
 
 /**
  * @brief A class representing a multi-dimensional tensor.
@@ -21,186 +56,51 @@ namespace kaad {
  */
 template <typename T> class Tensor {
   public:
-    /// Pointer to the shape array, where shape[i] is the size along dimension
-    /// i.
-    int *shape = nullptr;
-    /// Pointer to the stride array, where stride[i] is the step size to move
-    /// along dimension i.
-    int *stride = nullptr;
-    /// Number of dimensions of the tensor.
-    size_t nDims = 0;
-    /// Pointer to the raw tensor values.
-    T *val = nullptr;
-    /// Total number of elements in the tensor.
-    size_t len = 0;
+    std::vector<int>
+        shape; ///< Vector containing the size of the tensor in each dimension.
+    std::vector<int>
+        stride; ///< Vector containing the stride of the tensor (steps needed to
+                ///< move one element in each dimension).
+    std::vector<T> val; ///< Vector containing the elements of the Tensor.
 
     /// @brief Default constructor.
     Tensor() {}
 
     /**
-     * @brief Destructor.
-     *
-     * Releases memory allocated for shape, stride, and value arrays.
+     * @brief Constructs a tensor.
+     * @param shape Array with the shape of the tensor.
+     * @param shape Array with the values of the tensor.
      */
-    ~Tensor() {
-        delete[] shape;
-        delete[] stride;
-        delete[] val;
-    }
+    template <IntegralRange IR, typename VR>
+        requires ValueRange<VR, T>
+    explicit Tensor(IR shape, VR val)
+        : shape(std::ranges::begin(shape), std::ranges::end(shape)),
+          val(std::ranges::begin(val), std::ranges::end(val)) {
+        int len;
+        detail::compute_stride(this->stride, len, this->shape);
 
-    // std::copy constructor
-    Tensor(const Tensor<T> &other) {
-        nDims = other.nDims;
-        shape = new int[nDims];
-        std::copy(other.shape, other.shape + nDims, shape);
-        stride = new int[nDims];
-        std::copy(other.stride, other.stride + nDims, stride);
-
-        len = other.len;
-        val = new T[len];
-        std::copy(other.val, other.val + len, val);
+        if (len != val.size()) {
+            throw std::invalid_argument(
+                "length suggested by shape and length of val dont match");
+        }
     }
 
     /**
-     * @brief Copy constructor.
-     *
-     * Deep copies shape, stride, and value arrays from another tensor.
-     *
-     * @param other The tensor to copy from.
+     * @brief Constructs a tensor.
+     * @param shape Array with the shape of the tensor.
+     * @param fill Value to fill the tensor with.
      */
-    Tensor &operator=(const Tensor &other) {
-        if (this != &other) {
-            if (nDims != other.nDims) {
-                nDims = other.nDims;
-                delete[] shape;
-                shape = new int[nDims];
-                delete[] stride;
-                stride = new int[nDims];
-            }
-            std::copy(other.shape, other.shape + nDims, shape);
-            std::copy(other.stride, other.stride + nDims, stride);
+    template <IntegralRange IR>
+    Tensor(IR shape, T fill = 0)
+        : shape(std::ranges::begin(shape), std::ranges::end(shape)) {
+        int len;
+        detail::compute_stride(this->stride, len, this->shape);
 
-            if (len != other.len) {
-                len = other.len;
-                delete[] val;
-                val = new T[len];
-            }
-            std::copy(other.val, other.val + len, val);
-        }
-
-        return *this;
+        this->val.resize(len);
+        std::fill(this->val.begin(), this->val.end(), fill);
     }
 
-    /**
-     * @brief Move constructor.
-     *
-     * Transfers ownership of the data from another tensor.
-     *
-     * @param other The tensor to move from.
-     */
-    Tensor(Tensor &&other) noexcept
-        : shape(other.shape), stride(other.stride), nDims(other.nDims),
-          val(other.val), len(other.len) {
-        other.shape = nullptr;
-        other.stride = nullptr;
-        other.nDims = 0;
-        other.val = nullptr;
-        other.len = 0;
-    }
-
-    /**
-     * @brief Move assignment operator.
-     *
-     * Transfers ownership of the data from another tensor.
-     *
-     * @param other The tensor to move from.
-     * @return Reference to this tensor.
-     */
-    Tensor &operator=(Tensor &&other) {
-        if (this != &other) {
-            delete[] shape;
-            delete[] stride;
-            delete[] val;
-
-            shape = other.shape;
-            stride = other.stride;
-            nDims = other.nDims;
-            val = other.val;
-            len = other.len;
-
-            other.shape = nullptr;
-            other.stride = nullptr;
-            other.nDims = 0;
-            other.val = nullptr;
-            other.len = 0;
-        }
-
-        return *this;
-    }
-
-    /**
-     * @brief Constructor from shape and value pointer, automatically computes
-     * stride.
-     *
-     * @param shape Shape array.
-     * @param nDims Number of dimensions.
-     * @param val Value array.
-     * @param len Number of elements (must match shape product).
-     */
-    Tensor(int *shape, size_t nDims, T *val, size_t len)
-        : nDims(nDims), len(1) {
-        this->shape = shape;
-        stride = new int[this->nDims];
-
-        int i = this->nDims - 1;
-
-        stride[i] = 1;
-        this->len *= this->shape[i];
-        for (i--; i >= 0; i--) {
-            stride[i] = this->shape[i + 1] * stride[i + 1];
-            this->len *= this->shape[i];
-        }
-        for (int i = 0; i < this->nDims; i++) {
-            stride[i] = this->shape[i] > 1 ? stride[i] : 0;
-        }
-
-        if (this->len != len) {
-            throw std::invalid_argument("array size suggested by this->shape "
-                                        "does not match val argument");
-        }
-
-        this->val = val;
-    }
-
-    /**
-     * @brief Constructor from shape and optional fill value.
-     *
-     * Stride is automatically computed and tensor is filled with the given
-     * value.
-     *
-     * @param shape Shape array.
-     * @param nDims Number of dimensions.
-     * @param fill_value Fill value (default 0).
-     */
-    Tensor(int *shape, size_t nDims, T fill_value = 0) : nDims(nDims), len(1) {
-        this->shape = shape;
-        stride = new int[this->nDims];
-
-        int i = this->nDims - 1;
-
-        stride[i] = 1;
-        len *= this->shape[i];
-        for (i--; i >= 0; i--) {
-            stride[i] = this->shape[i + 1] * stride[i + 1];
-            len *= this->shape[i];
-        }
-        for (int i = 0; i < this->nDims; i++) {
-            stride[i] = this->shape[i] > 1 ? stride[i] : 0;
-        }
-
-        val = new T[len];
-        std::fill(val, val + len, fill_value);
-    }
+    size_t nDims() const { return this->shape.size(); }
 
     /**
      * @brief Creates a view of the tensor.
@@ -209,7 +109,7 @@ template <typename T> class Tensor {
      * tensor.
      */
     struct tView<T> view() const {
-        return tView<T>(shape, stride, nDims, val, len);
+        return tView<T>(this->shape, this->stride, this->val);
     }
 
     /**
@@ -221,20 +121,21 @@ template <typename T> class Tensor {
      * @param tensor The tensor to print.
      * @return Reference to the output stream.
      */
-    friend std::ostream &operator<<(std::ostream &stream, Tensor<T> tensor) {
-        if (tensor.nDims == 0) {
+    friend std::ostream &operator<<(std::ostream &os, Tensor<T> tensor) {
+        if (tensor.nDims() == 0) {
             std::cout << "[]";
         } else {
-            int *cords = new int[tensor.nDims];
-            std::fill(cords, cords + tensor.nDims, 0);
+            int *cords = new int[tensor.nDims()];
+            std::fill(cords, cords + tensor.nDims(), 0);
             int indent = 0;
 
-            detail::print_tensor(stream, cords, tensor.shape, tensor.stride,
-                                 tensor.nDims, tensor.val, 0, indent);
+            detail::print_tensor(os, cords, tensor.shape.data(),
+                                 tensor.stride.data(), tensor.nDims(),
+                                 tensor.val.data(), 0, indent);
 
             delete[] cords;
         }
-        return stream;
+        return os;
     }
 };
 } // namespace kaad

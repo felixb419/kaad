@@ -70,43 +70,35 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
-    bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
-    bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
+    bool A_scalar = A.nDims() == 1 && A.shape[0] == 1;
+    bool B_scalar = B.nDims() == 1 && B.shape[0] == 1;
 
-    size_t newLen = std::max(A.nDims, B.nDims);
-    int *newShape = new int[newLen];
+    size_t newLen = std::max(A.nDims(), B.nDims());
+    std::vector<int> newShape(newLen);
 
     if (B_scalar) {
-        std::copy(A.shape, A.shape + A.nDims, newShape);
-
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, newShape,
-            A.nDims);
+            kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.val + raw_ptr->value.len;
+        raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
         rec.nodes.push_back(move(newNode));
     } else if (A_scalar) {
-        std::copy(B.shape, B.shape + B.nDims, newShape);
+        auto newNode = std::make_unique<Node_binary<T, Kernel>>(
+            kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, B.shape);
+        auto raw_ptr = newNode.get();
+        raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
+        rec.nodes.push_back(move(newNode));
+    } else if (A.nDims() == B.nDims() &&
+               std::equal(A.shape.begin(), A.shape.end(), B.shape.data()) &&
+               std::equal(A.stride.begin(), A.stride.end(), B.stride.data())) {
 
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, newShape,
-            B.nDims);
+            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.val + raw_ptr->value.len;
+        raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
         rec.nodes.push_back(move(newNode));
-    } else if (A.nDims == B.nDims &&
-               std::equal(A.shape, A.shape + A.nDims, B.shape) &&
-               std::equal(A.stride, A.stride + A.nDims, B.stride)) {
-        std::copy(A.shape, A.shape + A.nDims, newShape);
-
-        auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, newShape,
-            A.nDims);
-        auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.val + raw_ptr->value.len;
-        rec.nodes.push_back(move(newNode));
-    } else if (combine_flexible(A.shape, A.nDims, B.shape, B.nDims, newShape,
-                                newLen)) {
+    } else if (combine_flexible(A.shape.data(), A.nDims(), B.shape.data(),
+                                B.nDims(), newShape.data(), newLen)) {
         using Op = typename Kernel::Op;
         using Grad = typename Kernel::Grad;
         flexBinaryOp<T, Op> operation = kernels.flexOp;
@@ -117,16 +109,16 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         }
 
         auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-            A_ptr, B_ptr, newShape, newLen);
+            A_ptr, B_ptr, newShape);
         Strides::flexible_binary<T>(A, B, *newNode.get());
         rec.nodes.push_back(move(newNode));
     } else {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName
                << "), tensor shapes are not broadcastable (A.shape=";
-        print_arr(A.shape, A.shape + A.nDims, errmsg);
+        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
         errmsg << ", B.shape=";
-        print_arr(B.shape, B.shape + B.nDims, errmsg);
+        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
@@ -261,8 +253,8 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
 
-    bool A_scalar = A.nDims == 1 && A.shape[0] == 1;
-    bool B_scalar = B.nDims == 1 && B.shape[0] == 1;
+    bool A_scalar = A.nDims() == 1 && A.shape[0] == 1;
+    bool B_scalar = B.nDims() == 1 && B.shape[0] == 1;
     if (B_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
@@ -275,8 +267,8 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         auto raw_ptr = newNode.get();
         raw_ptr->end = B.val + B.len;
         rec.nodes.push_back(move(newNode));
-    } else if (A.nDims == 1 && B.nDims == 1 &&
-               std::equal(A.shape, A.shape + A.nDims, B.shape)) {
+    } else if (A.nDims() == 1 && B.nDims() == 1 &&
+               std::equal(A.shape, A.shape + A.nDims(), B.shape)) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
@@ -287,9 +279,9 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen
                << "] (dot), tensor shapes arent valid for dot product (shape1=";
-        print_arr(A.shape, A.shape + A.nDims, errmsg);
+        print_arr(A.shape, A.shape + A.nDims(), errmsg);
         errmsg << ", shape2=";
-        print_arr(B.shape, B.shape + B.nDims, errmsg);
+        print_arr(B.shape, B.shape + B.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
@@ -323,17 +315,18 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
 
-    size_t newLen = std::max(A.nDims, B.nDims);
+    size_t newLen = std::max(A.nDims(), B.nDims());
     int *newShape = new int[newLen];
 
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!combine_matrix(A.shape, A.nDims, B.shape, B.nDims, newShape, newLen)) {
+    if (!combine_matrix(A.shape, A.nDims(), B.shape, B.nDims(), newShape,
+                        newLen)) {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName
                << "), tensor shapes arent valid for " << opName << " (shape1=";
-        print_arr(A.shape, A.shape + A.nDims, errmsg);
+        print_arr(A.shape, A.shape + A.nDims(), errmsg);
         errmsg << ", shape2=";
-        print_arr(B.shape, B.shape + B.nDims, errmsg);
+        print_arr(B.shape, B.shape + B.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
@@ -387,10 +380,10 @@ INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
 
-    size_t newLen = A.nDims + B.nDims;
+    size_t newLen = A.nDims() + B.nDims();
     int *newShape = new int[newLen];
-    std::copy(A.shape, A.shape + A.nDims, newShape);
-    std::copy(B.shape, B.shape + B.nDims, newShape + A.nDims);
+    std::copy(A.shape, A.shape + A.nDims(), newShape);
+    std::copy(B.shape, B.shape + B.nDims(), newShape + A.nDims());
 
     using Kernel = typename Kernels::Mul<T>;
     using Op = typename Kernel::Op;

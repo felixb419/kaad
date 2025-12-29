@@ -40,7 +40,7 @@ template <typename T> struct INode {
     INode(Tensor<T> &&tensor)
         : value(std::move(tensor)), gradient(value), evaluated(true),
           hasInputs(false) {
-        std::fill(gradient.val, gradient.val + gradient.len, 0);
+        std::fill(gradient.val.begin(), gradient.val.end(), 0);
     }
 
     /**
@@ -53,8 +53,8 @@ template <typename T> struct INode {
     INode(INode<T> *A_ptr, Args &&...args)
         : A(A_ptr), evaluated(false), value(std::forward<Args>(args)...),
           hasInputs(true), gradient(value) {
-        std::fill(value.val, value.val + value.len, 0);
-        std::fill(gradient.val, gradient.val + gradient.len, 0);
+        std::fill(value.val.begin(), value.val.end(), 0);
+        std::fill(gradient.val.begin(), gradient.val.end(), 0);
     }
 
     /// Virtual destructor for polymorphic deletion
@@ -68,10 +68,10 @@ template <typename T> struct INode {
      */
     inline void reset() {
         if (hasInputs) {
-            std::fill(value.val, value.val + value.len, 0);
+            std::fill(value.val.begin(), value.val.end(), 0);
             evaluated = false;
         }
-        std::fill(gradient.val, gradient.val + gradient.len, 0);
+        std::fill(gradient.val.begin(), gradient.val.end(), 0);
     }
 
     /**
@@ -159,7 +159,8 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val, this->value.val, end, op);
+            val_func(this->A->value.val.data(), this->value.val.data(), end,
+                     op);
             this->evaluated = true;
         }
     }
@@ -171,8 +172,8 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val, this->A->gradient.val, this->value.val,
-                  this->gradient.val, end, grad);
+        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
+                  this->value.val.data(), this->gradient.val.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
@@ -235,8 +236,8 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val, B->value.val, this->value.val, end,
-                     op);
+            val_func(this->A->value.val.data(), B->value.val.data(),
+                     this->value.val.data(), end, op);
             this->evaluated = true;
         }
     }
@@ -248,9 +249,9 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val, this->A->gradient.val, B->value.val,
-                  B->gradient.val, this->value.val, this->gradient.val, end,
-                  grad);
+        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
+                  B->value.val.data(), B->gradient.val.data(),
+                  this->value.val.data(), this->gradient.val.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
@@ -330,8 +331,9 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val, this->B->value.val, this->value.val,
-                     strideA, strideB, strideC, C_offset, D, op);
+            val_func(this->A->value.val.data(), this->B->value.val.data(),
+                     this->value.val.data(), strideA, strideB, strideC,
+                     C_offset, D, op);
             this->evaluated = true;
         }
     }
@@ -343,9 +345,10 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val, this->A->gradient.val, this->B->value.val,
-                  this->B->gradient.val, this->value.val, this->gradient.val,
-                  strideA, strideB, strideC, C_offset, D, grad);
+        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
+                  this->B->value.val.data(), this->B->gradient.val.data(),
+                  this->value.val.data(), this->gradient.val.data(), strideA,
+                  strideB, strideC, C_offset, D, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

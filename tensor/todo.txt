@@ -1,11 +1,11 @@
-rework constructors:
-
-Tensor(std::span<int> shape, std::span<T> elems)
-
-Tensor(std::span<int> shape, fill=0)
-
-
-
-
 make constructors fool proof
 
+actualize print_tensor signature
+(?) prevent unnecessary val copying in constructors
+add constructor that takes initializer_list
+make operator<< take a const& of a tensor
+
+later:
+actualize combine_flexible signature
+actualize print_arr
+actualize grad_func and val_func signatures
