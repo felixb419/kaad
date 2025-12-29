@@ -1,5 +1,10 @@
 REFACTOR:
     make sure tView is even needed
+    make tensor constructors foolproof
+    actualize combine_flexible signature
+    actualize print_arr
+    actualize grad_func and val_func signatures
 
 PERF:
     make stride function transpose dimensions so biggest is highest
+    (?) prevent unnecessary val copying in tensor constructor

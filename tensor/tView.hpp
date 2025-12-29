@@ -51,14 +51,11 @@ template <typename T> struct tView {
         if (view.nDims() == 0) {
             std::cout << "[]";
         } else {
-            int *cords = new int[view.nDims()];
-            std::fill(cords, cords + view.nDims(), 0);
+            std::vector<int> cords(view.nDims());
             int indent = 0;
 
             detail::print_tensor(stream, cords, view.shape, view.stride,
-                                 view.nDims(), view.val, 0, indent);
-
-            delete[] cords;
+                                 view.val, 0, indent);
         }
         return stream;
     }

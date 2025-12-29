@@ -125,15 +125,11 @@ template <typename T> class Tensor {
         if (tensor.nDims() == 0) {
             std::cout << "[]";
         } else {
-            int *cords = new int[tensor.nDims()];
-            std::fill(cords, cords + tensor.nDims(), 0);
+            std::vector<int> cords(tensor.nDims());
             int indent = 0;
 
-            detail::print_tensor(os, cords, tensor.shape.data(),
-                                 tensor.stride.data(), tensor.nDims(),
-                                 tensor.val.data(), 0, indent);
-
-            delete[] cords;
+            detail::print_tensor(os, cords, tensor.shape, tensor.stride,
+                                 tensor.val, 0, indent);
         }
         return os;
     }
