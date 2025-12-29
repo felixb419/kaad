@@ -1,2 +1,1 @@
-add constructor that takes initializer_list
 make operator<< take a const& of a tensor

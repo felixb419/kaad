@@ -1,8 +1,9 @@
 #pragma once
 
-#include <algorithm> // for std::copy, std::max, std::fill
-#include <concepts>  // for concept
-#include <cstddef>   // for size_t
+#include <algorithm>        // for std::copy, std::max, std::fill
+#include <concepts>         // for concept
+#include <cstddef>          // for size_t
+#include <initializer_list> // for std::initializer_list
 #include <iostream>  // for std::operator<<, std::ostream, std::cout, std::end
 #include <ranges>    // for std::ranges
 #include <stdexcept> // for std::invalid_argument
@@ -93,6 +94,20 @@ template <typename T> class Tensor {
     template <IntegralRange IR>
     Tensor(IR shape, T fill = 0)
         : shape(std::ranges::begin(shape), std::ranges::end(shape)) {
+        int len;
+        detail::compute_stride(this->stride, len, this->shape);
+
+        this->val.resize(len);
+        std::fill(this->val.begin(), this->val.end(), fill);
+    }
+
+    /**
+     * @brief Constructs a tensor.
+     * @param shape Initializer list with the shape of the tensor.
+     * @param fill Value to fill the tensor with.
+     */
+    Tensor(std::initializer_list<int> shape, T fill = 0)
+        : shape(shape.begin(), shape.end()) {
         int len;
         detail::compute_stride(this->stride, len, this->shape);
 
