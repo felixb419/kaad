@@ -3,7 +3,7 @@
 #include "tensor/tensor.hpp" // for Tensor
 #include "tensorfuncs/gradients.hpp" // for unaryGrad, binaryGrad, batch_matmul, batchma...
 #include "tensorfuncs/kernels.hpp" // for Null, Null::Op, Sum
-#include "tensorfuncs/operations.hpp" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
+#include "tensorfuncs/primal_ops.hpp" // for unaryOp, binaryOp, batch_matmul, batchmatmulOp
 #include <cstddef>                    // for size_t
 #include <utility>                    // for std::forward
 
@@ -280,8 +280,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     Op op;
 
     flexBinaryOp<T, Op> val_func =
-        Operations::binary::flexible<T, Op>; ///< Function pointer to the value
-                                             ///< operation.
+        tensorfuncs::primal::binary::flexible<T, Op>; ///< Function pointer to
+                                                      ///< the value operation.
 
     using Grad = class Kernel::Grad; ///< Type alias for the gradient kernel.
     Grad grad;
@@ -372,8 +372,8 @@ template <typename T> struct Node_matmul : INode<T> {
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     matmulOp<T> val_func =
-        Operations::binary::matmul; ///< Function pointer to the matmul
-                                    ///< operation.
+        tensorfuncs::primal::binary::matmul; ///< Function pointer to the matmul
+                                             ///< operation.
     matmulGrad<T> grad_func =
         Gradients::binary::matmul; ///< Function pointer to the matmul gradient.
 
@@ -465,8 +465,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     batchmatmulOp<T> val_func =
-        Operations::binary::batch_matmul; ///< Function pointer to the
-                                          ///< batch_matmul operation.
+        tensorfuncs::primal::binary::batch_matmul; ///< Function pointer to the
+                                                   ///< batch_matmul operation.
     batchmatmulGrad<T> grad_func =
         Gradients::binary::batch_matmul; ///< Function pointer to the
                                          ///< batch_matmul gradient.
@@ -565,8 +565,8 @@ template <typename T> struct Node_transp : INode<T> {
     using Op = typename Kernels::Null::Op;
     Op op;
     unaryOp<T, Op> val_func =
-        Operations::unary::transpose<T>; ///< Function pointer to the value
-                                         ///< operation.
+        tensorfuncs::primal::unary::transpose<T>; ///< Function pointer to the
+                                                  ///< value operation.
 
     using Grad = typename Kernels::Sum<T>::Grad;
     Grad grad;
@@ -627,8 +627,8 @@ template <typename T> struct Node_transp : INode<T> {
  */
 template <typename T> struct Node_sum_dim : INode<T> {
     sumDimOp<T> val_func =
-        Operations::unary::sum_dim; ///< Function pointer to the sum_dim
-                                    ///< operation.
+        tensorfuncs::primal::unary::sum_dim; ///< Function pointer to the
+                                             ///< sum_dim operation.
     sumDimGrad<T> grad_func =
         Gradients::unary::sum_dim; ///< Function pointer to the sum_dim
                                    ///< gradient.
@@ -699,7 +699,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_mean : INode<T> {
-    meanOp<T> val_func = Operations::unary::mean;
+    meanOp<T> val_func = tensorfuncs::primal::unary::mean;
     meanGrad<T> grad_func = Gradients::unary::mean;
 
     T *A_end =
@@ -757,7 +757,7 @@ template <typename T> struct Node_mean : INode<T> {
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_mean_dim : INode<T> {
-    meanDimOp<T> val_func = Operations::unary::mean_dim;
+    meanDimOp<T> val_func = tensorfuncs::primal::unary::mean_dim;
     meanDimGrad<T> grad_func = Gradients::unary::mean_dim;
 
     int *strideA = nullptr; ///< stride Array for A.
@@ -834,7 +834,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_slice : INode<T> {
-    sliceOp<T> val_func = Operations::unary::slice<T>;
+    sliceOp<T> val_func = tensorfuncs::primal::unary::slice<T>;
     sliceGrad<T> grad_func = Gradients::unary::slice<T>;
 
     int *strideA = nullptr;           ///< Stride array for tensor A.

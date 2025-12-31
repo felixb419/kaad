@@ -1,10 +1,10 @@
 #pragma once
 
-#include "tensorfuncs/gradients.hpp"  // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
-#include "tensorfuncs/operations.hpp" // for batchmatmulOp, flexBinaryOp, meanDimOp
-#include <array>          // for std::array
-#include <cstddef>        // for size_t
-#include <utility>        // for std::index_sequence, std::make_index_sequence
+#include "tensorfuncs/gradients.hpp" // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
+#include "tensorfuncs/primal_ops.hpp" // for batchmatmulOp, flexBinaryOp, meanDimOp
+#include <array>                      // for std::array
+#include <cstddef>                    // for size_t
+#include <utility> // for std::index_sequence, std::make_index_sequence
 
 #ifndef KAAD_MAX_NDIMS
 #define KAAD_MAX_NDIMS 5
@@ -36,7 +36,7 @@ namespace Dispatchers {
 template <typename T, class Op, size_t... Is>
 constexpr std::array<flexBinaryOp<T, Op>, sizeof...(Is)>
 get_flexOp_impl(std::index_sequence<Is...>) {
-    return {&Operations::binary::flexible<T, Op, Is>...};
+    return {&tensorfuncs::primal::binary::flexible<T, Op, Is>...};
 }
 
 template <typename T, class Op>
@@ -61,7 +61,7 @@ constexpr std::array<flexBinaryGrad<T, Grad>, KAAD_MAX_NDIMS> get_flexGrad() {
 template <typename T, size_t... Is>
 constexpr std::array<batchmatmulOp<T>, sizeof...(Is)>
 get_batch_matmul_impl(std::index_sequence<Is...>) {
-    return {&Operations::binary::batch_matmul<T, Is>...};
+    return {&tensorfuncs::primal::binary::batch_matmul<T, Is>...};
 }
 
 template <typename T>
@@ -87,7 +87,7 @@ get_batch_matmul_grad() {
 template <typename T, size_t... Is>
 constexpr std::array<sumDimOp<T>, sizeof...(Is)>
 get_sumDim_impl(std::index_sequence<Is...>) {
-    return {&Operations::unary::sum_dim<T, Is>...};
+    return {&tensorfuncs::primal::unary::sum_dim<T, Is>...};
 }
 
 template <typename T>
@@ -111,7 +111,7 @@ constexpr std::array<sumDimGrad<T>, KAAD_MAX_NDIMS> get_sumDim_grad() {
 template <typename T, size_t... Is>
 constexpr std::array<meanDimOp<T>, sizeof...(Is)>
 get_meanDim_impl(std::index_sequence<Is...>) {
-    return {&Operations::unary::mean_dim<T, Is>...};
+    return {&tensorfuncs::primal::unary::mean_dim<T, Is>...};
 }
 
 template <typename T>
@@ -135,7 +135,7 @@ constexpr std::array<meanDimGrad<T>, KAAD_MAX_NDIMS> get_meanDim_grad() {
 template <typename T, size_t... Is>
 constexpr std::array<sliceOp<T>, sizeof...(Is)>
 get_slice_impl(std::index_sequence<Is...>) {
-    return {&Operations::unary::slice<T, Is>...};
+    return {&tensorfuncs::primal::unary::slice<T, Is>...};
 }
 
 template <typename T>

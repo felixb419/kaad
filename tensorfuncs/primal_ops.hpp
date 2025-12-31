@@ -37,7 +37,7 @@ using sliceOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
  * various shape patterns, including scalar, pointwise, and broadcasted tensor
  * operations.
  */
-namespace Operations {
+namespace tensorfuncs::primal {
 
 /**
  * @namespace kaad::Operations::binary
@@ -518,5 +518,5 @@ void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset_a,
 }
 
 } // namespace unary
-} // namespace Operations
+} // namespace tensorfuncs::primal
 } // namespace kaad

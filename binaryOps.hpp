@@ -1,11 +1,11 @@
 #pragma once
 
-#include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_batch_matmul
-#include "tensorfuncs/gradients.hpp"   // for binaryGrad, flexBinaryGrad, flexible, batch...
-#include "tensorfuncs/kernels.hpp"     // for Kernels::Null
-#include "tensorfuncs/operations.hpp"  // for binaryOp, flexBinaryOp, flexible, batch_matmul
-#include "tensorfuncs/strides.hpp"     // for batch_matmul, flexible_binary, matmul, outer
+#include "dispatchers.hpp"   // for KAAD_MAX_NDIMS, get_batch_matmul
 #include "tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
+#include "tensorfuncs/gradients.hpp" // for binaryGrad, flexBinaryGrad, flexible, batch...
+#include "tensorfuncs/kernels.hpp" // for Kernels::Null
+#include "tensorfuncs/primal_ops.hpp" // for binaryOp, flexBinaryOp, flexible, batch_matmul
+#include "tensorfuncs/strides.hpp" // for batch_matmul, flexible_binary, matmul, outer
 #include "utils.hpp"
 #include <cstddef> // for size_t
 #include <memory>  // for std::make_unique
@@ -33,10 +33,10 @@ template <typename T, class Kernel> struct BinaryKernels {
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
 
-    binaryOp<T, Op> scalarOpRhs = Operations::binary::scalarRhs<T, Op>;
-    binaryOp<T, Op> scalarOpLhs = Operations::binary::scalarLhs<T, Op>;
-    binaryOp<T, Op> pointOp = Operations::binary::pointwise<T, Op>;
-    flexBinaryOp<T, Op> flexOp = Operations::binary::flexible<T, Op>;
+    binaryOp<T, Op> scalarOpRhs = tensorfuncs::primal::binary::scalarRhs<T, Op>;
+    binaryOp<T, Op> scalarOpLhs = tensorfuncs::primal::binary::scalarLhs<T, Op>;
+    binaryOp<T, Op> pointOp = tensorfuncs::primal::binary::pointwise<T, Op>;
+    flexBinaryOp<T, Op> flexOp = tensorfuncs::primal::binary::flexible<T, Op>;
 
     binaryGrad<T, Grad> scalarGradRhs = Gradients::binary::scalarRhs<T, Grad>;
     binaryGrad<T, Grad> scalarGradLhs = Gradients::binary::scalarLhs<T, Grad>;
@@ -244,9 +244,9 @@ template <typename T>
 INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     using Op = class Kernels::Null::Op;
     using Grad = class Kernels::Null::Grad;
-    binaryOp<T, Op> scalar = Operations::binary::scalarDot<T, Op>;
+    binaryOp<T, Op> scalar = tensorfuncs::primal::binary::scalarDot<T, Op>;
     binaryGrad<T, Grad> scalar_grad = Gradients::binary::scalarDot<T, Grad>;
-    binaryOp<T, Op> dot = Operations::binary::dot<T, Op>;
+    binaryOp<T, Op> dot = tensorfuncs::primal::binary::dot<T, Op>;
     binaryGrad<T, Grad> dot_grad = Gradients::binary::dot<T, Grad>;
 
     int recLen = rec.nodes.size();

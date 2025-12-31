@@ -1,6 +1,6 @@
 #pragma once
 
-#include "operations.hpp" // for batch_matmul, matmul
+#include "primal_ops.hpp" // for batch_matmul, matmul
 #include <cstddef>        // for size_t
 
 namespace kaad {
@@ -291,11 +291,11 @@ void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
             int *a_dim, int *b_dim, int *k, int *strideA, int *strideB,
             int *strideC) {
     // dA = dC * B^T
-    Operations::binary::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0], strideC,
-                               strideB, strideA);
+    tensorfuncs::primal::binary::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0],
+                                        strideC, strideB, strideA);
     // dB = A^T * dC
-    Operations::binary::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1], strideA + 2,
-                               strideC + 2, strideB + 2);
+    tensorfuncs::primal::binary::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1],
+                                        strideA + 2, strideC + 2, strideB + 2);
 }
 
 /**
@@ -326,13 +326,13 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
                   int *a_off, int *b_off, int *k, int N) {
     // dA = dC * B^T
-    Operations::binary::batch_matmul<T>(dC, B, dA, strideC[0], strideB[0],
-                                        strideA[0], c_shape[0], a_off[0],
-                                        b_off[0], k[0], N);
+    tensorfuncs::primal::binary::batch_matmul<T>(
+        dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0],
+        b_off[0], k[0], N);
     // dB = A^T * dC
-    Operations::binary::batch_matmul<T>(A, dC, dB, strideA[1], strideC[1],
-                                        strideB[1], c_shape[1], a_off[1],
-                                        b_off[1], k[1], N);
+    tensorfuncs::primal::binary::batch_matmul<T>(
+        A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1], a_off[1],
+        b_off[1], k[1], N);
 }
 
 /**
@@ -347,13 +347,13 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
                   int *a_off, int *b_off, int *k, int _) {
     // dA = dC * B^T
-    Operations::binary::batch_matmul<T, N>(dC, B, dA, strideC[0], strideB[0],
-                                           strideA[0], c_shape[0], a_off[0],
-                                           b_off[0], k[0], 0);
+    tensorfuncs::primal::binary::batch_matmul<T, N>(
+        dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0],
+        b_off[0], k[0], 0);
     // dB = A^T * dC
-    Operations::binary::batch_matmul<T, N>(A, dC, dB, strideA[1], strideC[1],
-                                           strideB[1], c_shape[1], a_off[1],
-                                           b_off[1], k[1], 0);
+    tensorfuncs::primal::binary::batch_matmul<T, N>(
+        A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1], a_off[1],
+        b_off[1], k[1], 0);
 }
 
 } // namespace binary
