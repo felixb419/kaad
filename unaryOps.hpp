@@ -1,10 +1,10 @@
 #pragma once
 
 #include "dispatchers.hpp"  // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
-#include "gradients.hpp"    // for unaryGrad, pointwise, scalarRhs
-#include "kernels.hpp"      // for Sum, Null, Null::Op
-#include "operations.hpp"   // for unaryOp, pointwise, scalarRhs, transpose
-#include "strides.hpp"      // for mean_dim, slice, sum_dim
+#include "tensorfuncs/gradients.hpp"    // for unaryGrad, pointwise, scalarRhs
+#include "tensorfuncs/kernels.hpp"      // for Sum, Null, Null::Op
+#include "tensorfuncs/operations.hpp"   // for unaryOp, pointwise, scalarRhs, transpose
+#include "tensorfuncs/strides.hpp"      // for mean_dim, slice, sum_dim
 #include "utils.hpp"        // for print_arr, transp
 #include <algorithm>        // for std::copy, std::fill
 #include <cstddef>          // for size_t

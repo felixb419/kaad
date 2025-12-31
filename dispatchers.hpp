@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gradients.hpp"  // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
-#include "operations.hpp" // for batchmatmulOp, flexBinaryOp, meanDimOp
+#include "tensorfuncs/gradients.hpp"  // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
+#include "tensorfuncs/operations.hpp" // for batchmatmulOp, flexBinaryOp, meanDimOp
 #include <array>          // for std::array
 #include <cstddef>        // for size_t
 #include <utility>        // for std::index_sequence, std::make_index_sequence
