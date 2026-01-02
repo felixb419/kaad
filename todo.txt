@@ -1,9 +1,14 @@
+DOC:
+    add note on broadcasting in primal_ops.hpp
+    rework gradient comments
+
 REFACTOR:
     make sure tView is even needed
     make tensor constructors foolproof
     actualize combine_flexible signature
     actualize print_arr
     actualize grad_func and val_func signatures
+    change transpose to noop
 
 PERF:
     make stride function transpose dimensions so biggest is highest
