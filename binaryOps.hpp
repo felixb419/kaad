@@ -2,7 +2,7 @@
 
 #include "dispatchers.hpp"   // for KAAD_MAX_NDIMS, get_batch_matmul
 #include "tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
-#include "tensorfuncs/gradients.hpp" // for binaryGrad, flexBinaryGrad, flexible, batch...
+#include "tensorfuncs/adjoint_ops.hpp" // for binaryGrad, flexBinaryGrad, flexible, batch...
 #include "tensorfuncs/kernels.hpp" // for Kernels::Null
 #include "tensorfuncs/primal_ops.hpp" // for binaryOp, flexBinaryOp, flexible, batch_matmul
 #include "tensorfuncs/strides.hpp" // for batch_matmul, flexible_binary, matmul, outer
@@ -38,10 +38,14 @@ template <typename T, class Kernel> struct BinaryKernels {
     binaryOp<T, Op> pointOp = tensorfuncs::primal::binary::pointwise<T, Op>;
     flexBinaryOp<T, Op> flexOp = tensorfuncs::primal::binary::flexible<T, Op>;
 
-    binaryGrad<T, Grad> scalarGradRhs = Gradients::binary::scalarRhs<T, Grad>;
-    binaryGrad<T, Grad> scalarGradLhs = Gradients::binary::scalarLhs<T, Grad>;
-    binaryGrad<T, Grad> pointGrad = Gradients::binary::pointwise<T, Grad>;
-    flexBinaryGrad<T, Grad> flexGrad = Gradients::binary::flexible<T, Grad>;
+    binaryGrad<T, Grad> scalarGradRhs =
+        tensorfuncs::adjoint::binary::scalarRhs<T, Grad>;
+    binaryGrad<T, Grad> scalarGradLhs =
+        tensorfuncs::adjoint::binary::scalarLhs<T, Grad>;
+    binaryGrad<T, Grad> pointGrad =
+        tensorfuncs::adjoint::binary::pointwise<T, Grad>;
+    flexBinaryGrad<T, Grad> flexGrad =
+        tensorfuncs::adjoint::binary::flexible<T, Grad>;
 };
 
 /**
@@ -245,9 +249,10 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     using Op = class Kernels::Null::Op;
     using Grad = class Kernels::Null::Grad;
     binaryOp<T, Op> scalar = tensorfuncs::primal::binary::scalarDot<T, Op>;
-    binaryGrad<T, Grad> scalar_grad = Gradients::binary::scalarDot<T, Grad>;
+    binaryGrad<T, Grad> scalar_grad =
+        tensorfuncs::adjoint::binary::scalarDot<T, Grad>;
     binaryOp<T, Op> dot = tensorfuncs::primal::binary::dot<T, Op>;
-    binaryGrad<T, Grad> dot_grad = Gradients::binary::dot<T, Grad>;
+    binaryGrad<T, Grad> dot_grad = tensorfuncs::adjoint::binary::dot<T, Grad>;
 
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;

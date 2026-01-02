@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tensorfuncs/gradients.hpp" // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
+#include "tensorfuncs/adjoint_ops.hpp" // for batchmatmulGrad, flexBinaryGrad, meanDimGrad
 #include "tensorfuncs/primal_ops.hpp" // for batchmatmulOp, flexBinaryOp, meanDimOp
 #include <array>                      // for std::array
 #include <cstddef>                    // for size_t
@@ -48,7 +48,7 @@ constexpr std::array<flexBinaryOp<T, Op>, KAAD_MAX_NDIMS> get_flexOp() {
 template <typename T, class Grad, size_t... Is>
 constexpr std::array<flexBinaryGrad<T, Grad>, sizeof...(Is)>
 get_flexGrad_impl(std::index_sequence<Is...>) {
-    return {&Gradients::binary::flexible<T, Grad, Is>...};
+    return {&tensorfuncs::adjoint::binary::flexible<T, Grad, Is>...};
 }
 
 template <typename T, class Grad>
@@ -73,7 +73,7 @@ constexpr std::array<batchmatmulOp<T>, KAAD_MAX_NDIMS> get_batch_matmul() {
 template <typename T, size_t... Is>
 constexpr std::array<batchmatmulGrad<T>, sizeof...(Is)>
 get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
-    return {&Gradients::binary::batch_matmul<T, Is>...};
+    return {&tensorfuncs::adjoint::binary::batch_matmul<T, Is>...};
 }
 
 template <typename T>
@@ -99,7 +99,7 @@ constexpr std::array<sumDimOp<T>, KAAD_MAX_NDIMS> get_sumDim() {
 template <typename T, size_t... Is>
 constexpr std::array<sumDimGrad<T>, sizeof...(Is)>
 get_sumDim_grad_impl(std::index_sequence<Is...>) {
-    return {&Gradients::unary::sum_dim<T, Is>...};
+    return {&tensorfuncs::adjoint::unary::sum_dim<T, Is>...};
 }
 
 template <typename T>
@@ -123,7 +123,7 @@ constexpr std::array<meanDimOp<T>, KAAD_MAX_NDIMS> get_meanDim() {
 template <typename T, size_t... Is>
 constexpr std::array<meanDimGrad<T>, sizeof...(Is)>
 get_meanDim_grad_impl(std::index_sequence<Is...>) {
-    return {&Gradients::unary::mean_dim<T, Is>...};
+    return {&tensorfuncs::adjoint::unary::mean_dim<T, Is>...};
 }
 
 template <typename T>
@@ -147,7 +147,7 @@ constexpr std::array<sliceOp<T>, KAAD_MAX_NDIMS> get_slice() {
 template <typename T, size_t... Is>
 constexpr std::array<sliceGrad<T>, sizeof...(Is)>
 get_slice_grad_impl(std::index_sequence<Is...>) {
-    return {&Gradients::unary::slice<T, Is>...};
+    return {&tensorfuncs::adjoint::unary::slice<T, Is>...};
 }
 
 template <typename T>

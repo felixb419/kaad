@@ -38,16 +38,14 @@ using sliceGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
                            size_t *start_offset, size_t *c_offset, int N);
 
 /**
- * @namespace kaad::Gradients
- * @brief Contains elementwise binary and unary gradient implementations for
- * various shape patterns, including scalar, pointwise, and broadcasted tensor
+ * @namespace tensorfuncs::adjoint
+ * @brief Contains adjoint (e.g. used for backward computation) tensor
  * operations.
  */
-namespace Gradients {
+namespace tensorfuncs::adjoint {
 
 /**
- * @namespace kaad::Gradients::binary
- * @brief Contains all binary gradient operations
+ * @namespace kaad::tensoruncs::adjoint
  */
 namespace binary {
 
@@ -359,8 +357,7 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 } // namespace binary
 
 /**
- * @namespace kaad::Gradients::unary
- * @brief Contains all unary gradient operations
+ * @namespace kaad::tensorfuncs::adjoint::unary
  */
 namespace unary {
 
@@ -568,5 +565,5 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
 }
 
 } // namespace unary
-} // namespace Gradients
+} // namespace tensorfuncs::adjoint
 } // namespace kaad

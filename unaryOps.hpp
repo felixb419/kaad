@@ -1,8 +1,8 @@
 #pragma once
 
 #include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
-#include "tensorfuncs/gradients.hpp" // for unaryGrad, pointwise, scalarRhs
-#include "tensorfuncs/kernels.hpp"   // for Sum, Null, Null::Op
+#include "tensorfuncs/adjoint_ops.hpp" // for unaryGrad, pointwise, scalarRhs
+#include "tensorfuncs/kernels.hpp"     // for Sum, Null, Null::Op
 #include "tensorfuncs/primal_ops.hpp" // for unaryOp, pointwise, scalarRhs, transpose
 #include "tensorfuncs/strides.hpp" // for mean_dim, slice, sum_dim
 #include "utils.hpp"               // for print_arr, transp
@@ -36,7 +36,7 @@ template <typename T, class Kernel> struct UnaryKernels {
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
     unaryOp<T, Op> op = tensorfuncs::primal::unary::pointwise<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::unary::pointwise<T, Grad>;
+    unaryGrad<T, Grad> grad = tensorfuncs::adjoint::unary::pointwise<T, Grad>;
 };
 
 /**
@@ -271,7 +271,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     using Op = typename Kernel::Op;
     using Grad = typename Kernel::Grad;
     unaryOp<T, Op> op = tensorfuncs::primal::unary::scalarOut<T, Op>;
-    unaryGrad<T, Grad> grad = Gradients::unary::scalarOut<T, Grad>;
+    unaryGrad<T, Grad> grad = tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
     newNode->end = A.val + A.len;
