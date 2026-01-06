@@ -19,6 +19,8 @@ int main() {
 
     auto c = add(rec, exp(rec, a), mul(rec, b, d));
 
+    auto c2 = dot(rec, a, b);
+
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;
     cout << "D:\n" << d->value << endl;

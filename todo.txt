@@ -3,13 +3,17 @@ DOC:
     rework gradient comments
 
 REFACTOR:
-    make sure tView is even needed
+    rework tensor_view
+    make functions take tview where possible (strides, functions)
     make tensor constructors foolproof
     actualize combine_flexible signature
     actualize print_arr
     actualize grad_func and val_func signatures
     change transpose to noop
 
+FEAT:
+    add overloads for tensor (size/len, begin, end, data)
+    make members private
+
 PERF:
     make stride function transpose dimensions so biggest is highest
-    (?) prevent unnecessary val copying in tensor constructor

@@ -264,29 +264,29 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = A.val + A.len;
+        raw_ptr->end = A.val.data() + A.val.size();
         rec.nodes.push_back(move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = B.val + B.len;
+        raw_ptr->end = B.val.data() + B.val.size();
         rec.nodes.push_back(move(newNode));
     } else if (A.nDims() == 1 && B.nDims() == 1 &&
-               std::equal(A.shape, A.shape + A.nDims(), B.shape)) {
+               std::equal(A.shape.begin(), A.shape.end(), B.shape.begin())) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = A.val + A.len;
+        raw_ptr->end = A.val.data() + A.val.size();
         rec.nodes.push_back(move(newNode));
 
     } else {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen
                << "] (dot), tensor shapes arent valid for dot product (shape1=";
-        print_arr(A.shape, A.shape + A.nDims(), errmsg);
+        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
         errmsg << ", shape2=";
-        print_arr(B.shape, B.shape + B.nDims(), errmsg);
+        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
