@@ -115,6 +115,12 @@ template <typename T> class Tensor {
         std::fill(this->val.begin(), this->val.end(), fill);
     }
 
+    Tensor(T scalar) : shape(1), stride(1), val(1) {
+        this->shape[0] = 1;
+        this->stride[0] = 0;
+        this->val[0] = scalar;
+    }
+
     size_t nDims() const { return this->shape.size(); }
 
     /**
