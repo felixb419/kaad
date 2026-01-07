@@ -386,9 +386,9 @@ INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Tensor<T> &B = B_ptr->value;
 
     size_t newLen = A.nDims() + B.nDims();
-    int *newShape = new int[newLen];
-    std::copy(A.shape, A.shape + A.nDims(), newShape);
-    std::copy(B.shape, B.shape + B.nDims(), newShape + A.nDims());
+    std::vector<int> newShape(newLen);
+    std::copy(A.shape.begin(), A.shape.end(), newShape.begin());
+    std::copy(B.shape.begin(), B.shape.end(), newShape.begin() + A.nDims());
 
     using Kernel = typename Kernels::Mul<T>;
     using Op = typename Kernel::Op;

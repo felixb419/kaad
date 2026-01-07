@@ -263,14 +263,9 @@ void outer(Tensor<T> &A, Tensor<T> &B, Node_binary_flex<T, Kernel> &node) {
     node.strideB = new int[node.D];
     node.strideC = new int[node.D];
 
-    std::copy(C.stride, C.stride + C.nDims(), node.strideC);
-    std::copy(A.stride, A.stride + A.nDims(), node.strideA);
-    std::copy(B.stride, B.stride + B.nDims(), node.strideB + A.nDims());
-
-    // pad A.shape with 1s on the right
-    int *a_shape_big = new int[node.D];
-    std::copy(A.shape, A.shape + A.nDims(), a_shape_big);
-    a_shape_big[A.nDims()] = 1;
+    std::copy(C.stride.begin(), C.stride.end(), node.strideC);
+    std::copy(A.stride.begin(), A.stride.end(), node.strideA);
+    std::copy(B.stride.begin(), B.stride.end(), node.strideB + A.nDims());
 
     node.C_offset = new size_t[node.D];
     for (int i = 0; i < node.D; i++) {

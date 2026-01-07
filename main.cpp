@@ -20,6 +20,8 @@ int main() {
     auto c = add(rec, exp(rec, a), mul(rec, b, d));
 
     auto c2 = dot(rec, a, b);
+    // c2 = matmul(rec, a, b);
+    c2 = outer(rec, a, b);
 
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;
