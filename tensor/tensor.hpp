@@ -92,6 +92,24 @@ template <typename T> class Tensor {
      * @param fill Value to fill the tensor with.
      */
     template <IntegralRange IR>
+    Tensor(IR shape, IR stride, T fill = 0)
+        : shape(std::ranges::begin(shape), std::ranges::end(shape)),
+          stride(std::ranges::begin(stride), std::ranges::end(stride)) {
+        int len = 1;
+        for (int d : shape) {
+            len *= d;
+        }
+
+        this->val.resize(len);
+        std::fill(this->val.begin(), this->val.end(), fill);
+    }
+
+    /**
+     * @brief Constructs a tensor.
+     * @param shape Array with the shape of the tensor.
+     * @param fill Value to fill the tensor with.
+     */
+    template <IntegralRange IR>
     Tensor(IR shape, T fill = 0)
         : shape(std::ranges::begin(shape), std::ranges::end(shape)) {
         int len;
