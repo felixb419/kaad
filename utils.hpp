@@ -131,8 +131,8 @@ bool combine_flexible(int *shape1, const size_t nDims1, int *shape2,
  * @param newLen Total number of dimensions in the result.
  * @return true if matmul broadcasting is possible, false otherwise.
  */
-bool combine_matrix(int *shape1, const size_t nDims1, int *shape2,
-                    const size_t nDims2, int *newShape, size_t newLen) {
+bool combine_matrix(const int *shape1, size_t nDims1, const int *shape2,
+                    size_t nDims2, int *newShape, size_t newLen) {
     if (shape1[nDims1 - 1] != shape2[nDims2 - 2]) {
         return false;
     }
