@@ -9,8 +9,8 @@
 #include <stdexcept> // for std::invalid_argument
 #include <vector>    // for std::vector
 
-#include "common.hpp" // for kaad::detail::print_tensor
-#include "tView.hpp"  // for kaad::tView
+#include "common.hpp"      // for kaad::detail::print_tensor
+#include "tensor_view.hpp" // for kaad::Tensor_view
 
 namespace kaad {
 
@@ -144,11 +144,11 @@ template <typename T> class Tensor {
     /**
      * @brief Creates a view of the tensor.
      *
-     * @return A tView<T> structure representing a non-owning view of the
+     * @return A Tensor_view<T> structure representing a non-owning view of the
      * tensor.
      */
-    struct tView<T> view() const {
-        return tView<T>(this->shape, this->stride, this->val);
+    struct Tensor_view<T> view() const {
+        return Tensor_view<T>(this->shape, this->stride, this->val);
     }
 
     /**

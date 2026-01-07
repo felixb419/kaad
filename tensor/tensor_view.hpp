@@ -13,7 +13,7 @@ namespace kaad {
  *
  * @tparam T The data type stored in the tensor.
  */
-template <typename T> struct tView {
+template <typename T> struct Tensor_view {
     std::vector<int> &shape; ///< Referehce to the vector containing the
                              ///< size of the tensor in each dimension.
     std::vector<int> &
@@ -25,7 +25,7 @@ template <typename T> struct tView {
     /**
      * @brief Default constructor.
      */
-    tView() {}
+    Tensor_view() {}
 
     /**
      * @brief Constructs a tensor view.
@@ -33,8 +33,8 @@ template <typename T> struct tView {
      * @param stride Reference to stride vector.
      * @param val Reference to element vector.
      */
-    tView(std::vector<int> &shape, std::vector<int> &stride,
-          std::vector<T> &val)
+    Tensor_view(std::vector<int> &shape, std::vector<int> &stride,
+                std::vector<T> &val)
         : shape(shape), stride(stride), val(val) {}
 
     size_t nDims() const { return this->shape.size(); }
@@ -47,7 +47,7 @@ template <typename T> struct tView {
      * @return std::ostream& The updated output stream.
      */
     friend std::ostream &operator<<(std::ostream &stream,
-                                    const tView<T> &view) {
+                                    const Tensor_view<T> &view) {
         if (view.nDims() == 0) {
             std::cout << "[]";
         } else {

@@ -37,7 +37,7 @@ int main() {
     auto sa = slice(rec, a, {4, 1}, {2, 2});
     auto c = add(rec, exp(rec, sa), mul(rec, b, d));
 
-    // call_all_operators(rec, a, b);
+    call_all_operators(rec, a, b);
 
     cout << "A:\n" << a->value << endl;
     cout << "B:\n" << b->value << endl;

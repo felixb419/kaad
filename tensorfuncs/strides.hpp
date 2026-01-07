@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../tensor/tensor.hpp" // for Tensor, tView
+#include "../tensor/tensor.hpp" // for Tensor, Tensor_view
 #include "../utils.hpp"         // for transp2D, combine_matrix
 #include <cstddef>              // for size_t
 
@@ -87,8 +87,9 @@ void flexible_binary(Tensor<T> &A, Tensor<T> &B,
  * @param strideC   Output stride array for C, modified for efficient traversal.
  */
 template <typename T>
-void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int &a_dim, int &b_dim,
-                 int &k, int *strideA, int *strideB, int *strideC) {
+void matmul_impl(Tensor_view<T> A, Tensor_view<T> B, Tensor_view<T> C,
+                 int &a_dim, int &b_dim, int &k, int *strideA, int *strideB,
+                 int *strideC) {
     a_dim = A.shape[0];
     b_dim = B.shape[1];
     k = A.shape[1];
@@ -123,16 +124,16 @@ void matmul_impl(tView<T> A, tView<T> B, tView<T> C, int &a_dim, int &b_dim,
  */
 template <typename T>
 void matmul(Tensor<T> &A, Tensor<T> &B, Node_matmul<T> &node) {
-    tView<T> a = A.view();
-    tView<T> b = B.view();
-    tView<T> c = node.value.view();
+    Tensor_view<T> a = A.view();
+    Tensor_view<T> b = B.view();
+    Tensor_view<T> c = node.value.view();
 
     int shapeBlock[8];
-    tView<T> A_T = A.view();
+    Tensor_view<T> A_T = A.view();
     A_T.shape = shapeBlock;
     A_T.stride = shapeBlock + 2;
     transp2D(a.shape, a.stride, a.nDims(), A_T.shape, A_T.stride);
-    tView<T> B_T = B.view();
+    Tensor_view<T> B_T = B.view();
     B_T.shape = shapeBlock + 4;
     B_T.stride = shapeBlock + 6;
     transp2D(b.shape, b.stride, b.nDims(), B_T.shape, B_T.stride);
@@ -167,9 +168,10 @@ void matmul(Tensor<T> &A, Tensor<T> &B, Node_matmul<T> &node) {
  * @param D        Output number of dimensions in broadcasted result.
  */
 template <typename T>
-void batch_matmul_impl(tView<T> &A, tView<T> &B, tView<T> &C, int *&strideA,
-                       int *&strideB, int *&strideC, int *&c_shape, int &a_off,
-                       int &b_off, int &k, size_t &D) {
+void batch_matmul_impl(Tensor_view<T> &A, Tensor_view<T> &B, Tensor_view<T> &C,
+                       int *&strideA, int *&strideB, int *&strideC,
+                       int *&c_shape, int &a_off, int &b_off, int &k,
+                       size_t &D) {
     a_off = A.stride[A.nDims() - 1];
     b_off = B.stride[B.nDims() - 2];
     k = A.shape[A.nDims() - 1];
@@ -212,15 +214,15 @@ void batch_matmul_impl(tView<T> &A, tView<T> &B, tView<T> &C, int *&strideA,
  */
 template <typename T>
 void batch_matmul(Tensor<T> &A, Tensor<T> &B, Node_batch_matmul<T> &node) {
-    tView<T> a = A.view();
-    tView<T> b = B.view();
-    tView<T> c = node.value.view();
+    Tensor_view<T> a = A.view();
+    Tensor_view<T> b = B.view();
+    Tensor_view<T> c = node.value.view();
     int *shapeBlock = new int[B.nDims() * 2 + A.nDims() * 2];
-    tView<T> a_T = A.view();
+    Tensor_view<T> a_T = A.view();
     a_T.shape = shapeBlock;
     a_T.stride = a_T.shape + A.nDims();
     transp2D(A.shape, A.stride, A.nDims(), a_T.shape, a_T.stride);
-    tView<T> b_T = B.view();
+    Tensor_view<T> b_T = B.view();
     b_T.shape = a_T.stride + A.nDims();
     b_T.stride = b_T.shape + B.nDims();
     transp2D(B.shape, B.stride, B.nDims(), b_T.shape, b_T.stride);
