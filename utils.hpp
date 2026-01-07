@@ -189,7 +189,8 @@ void transp(int *shape, int *stride, size_t len) {
  * @param shape_T Output transposed shape.
  * @param stride_T Output transposed stride.
  */
-void transp(int *shape, int *stride, size_t len, int *shape_T, int *stride_T) {
+void transp(const int *shape, const int *stride, size_t len, int *shape_T,
+            int *stride_T) {
     for (int i = 0, j = len - 1; i < len; i++, j--) {
         shape_T[j] = shape[i];
         stride_T[j] = stride[i];
@@ -224,7 +225,7 @@ void transp2D(int *shape, int *stride, size_t len) {
  * @param shape_T Output transposed shape.
  * @param stride_T Output transposed stride.
  */
-void transp2D(int *shape, int *stride, size_t len, int *shape_T,
+void transp2D(const int *shape, const int *stride, size_t len, int *shape_T,
               int *stride_T) {
     std::copy(shape, shape + len - 2, shape_T);
     shape_T[len - 2] = shape[len - 1];
