@@ -299,8 +299,8 @@ void along_dim_impl(Tensor<T> &A, Tensor<T> &C, int dim, size_t &D,
     strideA = new int[D];
     strideC = new int[D];
 
-    std::copy(A.stride, A.stride + A.nDims(), strideA);
-    std::copy(A.stride, A.stride + A.nDims(), strideC);
+    std::copy(A.stride.begin(), A.stride.end(), strideA);
+    std::copy(A.stride.begin(), A.stride.end(), strideC);
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
     for (int i = 0; i < D; i++) {
@@ -360,8 +360,8 @@ void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
     Tensor<T> &C = node.value;
     Tensor<T> &dA = node.A->gradient;
     node.divisor = A.shape[dim];
-    node.C_end = C.val + C.len;
-    node.dA_end = dA.val + dA.len;
+    node.C_end = C.val.data() + C.val.size();
+    node.dA_end = dA.val.data() + dA.val.size();
 
     along_dim_impl(A, C, dim, node.D, node.A_offset, node.strideA,
                    node.strideC);
@@ -382,7 +382,7 @@ void mean_dim(Tensor<T> &A, Node_mean_dim<T> &node, int dim) {
  * dimension.
  */
 template <typename T>
-void slice(Tensor<T> &A, Node_slice<T> &node, size_t *offset) {
+void slice(Tensor<T> &A, Node_slice<T> &node, int *offset) {
     Tensor<T> &C = node.value;
 
     node.D = C.nDims();
@@ -409,10 +409,10 @@ void slice(Tensor<T> &A, Node_slice<T> &node, size_t *offset) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 
-    node.start_offset = new size_t[A.nDims()];
-    std::copy(offset, offset + A.nDims(), node.start_offset);
+    node.start_offset_a = new size_t[A.nDims()];
+    std::copy(offset, offset + A.nDims(), node.start_offset_a);
     for (int i = 0; i < A.nDims(); i++) {
-        node.start_offset[i] *= node.strideA[i];
+        node.start_offset_a[i] *= node.strideA[i];
     }
 }
 }; // namespace Strides

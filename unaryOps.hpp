@@ -186,19 +186,19 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen
                << "] (transpose), A.nDims() hast to be > 1 (shape1=";
-        print_arr(A.shape, A.shape + A.nDims(), errmsg);
+        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
 
-    int *shape_T, *stride_T;
+    std::vector<int> shape_T(A.nDims());
+    std::vector<int> stride_T(A.nDims());
     if (perm.size() == 0) {
-        shape_T = new int[A.nDims()];
-        stride_T = new int[A.nDims()];
-        std::copy(A.shape, A.shape + A.nDims(), shape_T);
-        std::copy(A.stride, A.stride + A.nDims(), stride_T);
+        std::copy(A.shape.begin(), A.shape.end(), shape_T.begin());
+        std::copy(A.stride.begin(), A.stride.end(), stride_T.begin());
 
-        transp(A.shape, A.stride, A.nDims(), shape_T, stride_T);
+        transp(A.shape.data(), A.stride.data(), A.nDims(), shape_T.data(),
+               stride_T.data());
     } else {
         if (perm.size() != A.nDims()) {
             std::ostringstream errmsg;
@@ -207,18 +207,16 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
                       "(perm=";
             print_arr(perm.begin(), perm.end(), errmsg);
             errmsg << ", shape1=";
-            print_arr(A.shape, A.shape + A.nDims(), errmsg);
+            print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
             errmsg << ")";
             throw std::invalid_argument(errmsg.str());
         }
 
-        shape_T = new int[A.nDims()];
-        stride_T = new int[A.nDims()];
         int *count = new int[A.nDims()];
         std::fill(count, count + A.nDims(), 0);
 
-        int *sh = shape_T;
-        int *st = stride_T;
+        int *sh = shape_T.data();
+        int *st = stride_T.data();
         for (int idx : perm) {
 
             count[idx]++;
@@ -243,8 +241,8 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     auto newNode =
         std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims());
     auto raw_ptr = newNode.get();
-    newNode->A_end = A.val + A.len;
-    newNode->C_end = raw_ptr->value.val + raw_ptr->value.len;
+    newNode->A_end = A.val.data() + A.val.size();
+    newNode->C_end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
     rec.nodes.push_back(move(newNode));
 
     return raw_ptr;
@@ -274,7 +272,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     unaryGrad<T, Grad> grad = tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-    newNode->end = A.val + A.len;
+    newNode->end = A.val.data() + A.val.size();
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
@@ -300,7 +298,8 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
  * along the specified dimension.
  */
 template <typename T>
-INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim, bool keepNDims = 0) {
+INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
+              bool keepNDims = false) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -317,15 +316,16 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim, bool keepNDims = 0) {
     }
 
     size_t newLen = A.nDims();
-    int *newShape = new int[newLen];
+    std::vector<int> newShape(newLen);
     if (keepNDims) {
-        std::copy(A.shape, A.shape + A.nDims(), newShape);
+        std::copy(A.shape.begin(), A.shape.end(), newShape.begin());
         newShape[dim] = 1;
 
     } else {
         newLen--;
-        std::copy(A.shape, A.shape + dim, newShape);
-        std::copy(A.shape + dim + 1, A.shape + A.nDims(), newShape + dim);
+        std::copy(A.shape.begin(), A.shape.begin() + dim, newShape.begin());
+        std::copy(A.shape.begin() + dim + 1, A.shape.end(),
+                  newShape.begin() + dim);
     }
 
     auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
@@ -358,9 +358,10 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
     Tensor<T> &A = A_ptr->value;
 
     auto newNode = std::make_unique<Node_mean<T>>(A_ptr, (T)0);
-    newNode->A_end = A.val + A.len;
-    newNode->dA_end = newNode->A->gradient.val + newNode->A->gradient.len;
-    newNode->divisor = A.len;
+    newNode->A_end = A.val.data() + A.val.size();
+    newNode->dA_end =
+        newNode->A->gradient.val.data() + newNode->A->gradient.val.size();
+    newNode->divisor = A.val.size();
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
@@ -405,15 +406,16 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
     }
 
     size_t newLen = A.nDims();
-    int *newShape = new int[newLen];
+    std::vector<int> newShape(newLen);
     if (keepNDims) {
-        std::copy(A.shape, A.shape + A.nDims(), newShape);
+        std::copy(A.shape.begin(), A.shape.end(), newShape.begin());
         newShape[dim] = 1;
 
     } else {
         newLen--;
-        std::copy(A.shape, A.shape + dim, newShape);
-        std::copy(A.shape + dim + 1, A.shape + A.nDims(), newShape + dim);
+        std::copy(A.shape.begin(), A.shape.begin() + dim, newShape.begin());
+        std::copy(A.shape.begin() + dim + 1, A.shape.end(),
+                  newShape.begin() + dim);
     }
 
     auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
@@ -447,39 +449,39 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
 template <typename T>
 INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
                 std::initializer_list<int> size,
-                std::initializer_list<size_t> offset) {
+                std::initializer_list<int> offset) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    size_t o_len = offset.size();
-    const size_t *o_b = offset.begin();
-    size_t s_len = size.size();
-    const int *s_b = size.begin();
-    if (s_len > A.nDims()) {
+    if (size.size() > A.nDims()) {
         std::ostringstream errmsg;
         errmsg << "argument error in node[" << recLen
                << "] (slice), length of size cant be bigger than A.nDims(), "
                   "(size length="
-               << s_len << ", A.nDims()=" << A.nDims() << ")" << std::endl;
+               << size.size() << ", A.nDims()=" << A.nDims() << ")"
+               << std::endl;
         throw std::invalid_argument(errmsg.str());
     }
-    if (o_len > A.nDims()) {
+    if (offset.size() > A.nDims()) {
         std::ostringstream errmsg;
         errmsg << "argument error in node[" << recLen
                << "] (slice), length of offset cant be bigger than A.nDims(), "
                   "(offset length="
-               << o_len << ", A.nDims()=" << A.nDims() << ")" << std::endl;
+               << offset.size() << ", A.nDims()=" << A.nDims() << ")"
+               << std::endl;
         throw std::invalid_argument(errmsg.str());
     }
 
-    int diff = A.nDims() - o_len;
-    int *size_owned = new int[A.nDims()];
-    std::copy(A.shape, A.shape + diff, size_owned);
-    std::copy(s_b, s_b + s_len, size_owned + diff);
+    int diff = A.nDims() - offset.size();
+    std::vector<int> size_owned(A.nDims());
+    std::copy(A.shape.begin(), A.shape.begin() + diff, size_owned.begin());
+    std::copy(size.begin(), size.begin() + size.size(),
+              size_owned.begin() + diff);
 
-    size_t *offset_owned = new size_t[A.nDims()];
-    std::fill(offset_owned, offset_owned + diff, 0);
-    std::copy(o_b, o_b + o_len, offset_owned + diff);
+    std::vector<int> offset_owned(A.nDims());
+    std::fill(offset_owned.begin(), offset_owned.begin() + diff, 0);
+    std::copy(offset.begin(), offset.begin() + offset.size(),
+              offset_owned.begin() + diff);
 
     for (int i = 0; i < A.nDims(); i++) {
         if (offset_owned[i] + size_owned[i] > A.shape[i]) {
@@ -487,19 +489,20 @@ INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
             errmsg << "argument error in node[" << recLen
                    << "] (slice), offset[" << i << "] with length[" << i
                    << "] would overflow shape of A, (offset=";
-            print_arr(offset_owned, offset_owned + A.nDims(), errmsg);
+            print_arr(offset_owned.data(), offset_owned.data() + A.nDims(),
+                      errmsg);
             errmsg << ", length=";
-            print_arr(size_owned, size_owned + A.nDims(), errmsg);
+            print_arr(size_owned.data(), size_owned.data() + A.nDims(), errmsg);
             errmsg << ", shape=";
-            print_arr(A.shape, A.shape + A.nDims(), errmsg);
+            print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
             errmsg << ")" << std::endl;
             throw std::invalid_argument(errmsg.str());
         }
     }
 
     size_t newLen = A.nDims();
-    int *newShape = new int[newLen];
-    std::copy(size_owned, size_owned + A.nDims(), newShape);
+    std::vector<int> newShape(newLen);
+    std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 
     auto newNode = std::make_unique<Node_slice<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
@@ -509,9 +512,7 @@ INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
         raw_ptr->grad_func = Dispatchers::get_slice_grad<T>()[A.nDims()];
     }
 
-    Strides::slice(A, *raw_ptr, offset_owned);
-    delete[] offset_owned;
-    delete[] size_owned;
+    Strides::slice(A, *raw_ptr, offset_owned.data());
 
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();

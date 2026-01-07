@@ -10,12 +10,15 @@ REFACTOR:
     actualize combine_flexible signature
     actualize print_arr
     actualize grad_func and val_func signatures
+    (?) actualize transp, transp2D
     change transpose to noop
     code duplication in: binaryOps, unaryOps, strides
+    improve names of node members
+    make members private
 
 FEAT:
     add overloads for tensor (size/len, begin, end, data)
-    make members private
+    make default recorder variable
 
 PERF:
     make stride function transpose dimensions so biggest is highest
