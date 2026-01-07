@@ -9,7 +9,7 @@ void call_all_operators(kaad::CompGraph<T> &rec, kaad::INode<T> *a,
                         kaad::INode<T> *b) {
     add(rec, a, b);
     dot(rec, a, b);
-    // c2 = matmul(rec, a, b);
+    matmul(rec, a, b);
     outer(rec, a, b);
 
     exp(rec, a);

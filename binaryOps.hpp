@@ -321,29 +321,28 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Tensor<T> &B = B_ptr->value;
 
     size_t newLen = std::max(A.nDims(), B.nDims());
-    int *newShape = new int[newLen];
+    std::vector<int> newShape(newLen);
 
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!combine_matrix(A.shape, A.nDims(), B.shape, B.nDims(), newShape,
-                        newLen)) {
+    if (!combine_matrix(A.shape.data(), A.nDims(), B.shape.data(), B.nDims(),
+                        newShape.data(), newLen)) {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName
                << "), tensor shapes arent valid for " << opName << " (shape1=";
-        print_arr(A.shape, A.shape + A.nDims(), errmsg);
+        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
         errmsg << ", shape2=";
-        print_arr(B.shape, B.shape + B.nDims(), errmsg);
+        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
         errmsg << ")";
         throw std::invalid_argument(errmsg.str());
     }
 
     if (newLen == 2) {
-        auto newNode =
-            std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape, newLen);
+        auto newNode = std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape);
         Strides::matmul<T>(A, B, *newNode.get());
         rec.nodes.push_back(move(newNode));
     } else {
-        auto newNode = std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr,
-                                                              newShape, newLen);
+        auto newNode =
+            std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
         auto raw_ptr = newNode.get();
         if (newLen <= KAAD_MAX_NDIMS) {
             raw_ptr->val_func = Dispatchers::get_batch_matmul<T>()[newLen];

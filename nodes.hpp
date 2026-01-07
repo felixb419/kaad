@@ -425,8 +425,9 @@ template <typename T> struct Node_matmul : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val, this->B->value.val, this->value.val,
-                     a_dim[0], b_dim[0], k[0], strideA, strideB, strideC);
+            val_func(this->A->value.val.data(), this->B->value.val.data(),
+                     this->value.val.data(), a_dim[0], b_dim[0], k[0], strideA,
+                     strideB, strideC);
             this->evaluated = true;
         }
     }
@@ -438,10 +439,10 @@ template <typename T> struct Node_matmul : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val, this->A->gradient.val, this->B->value.val,
-                  this->B->gradient.val, this->value.val, this->gradient.val,
-                  a_dim + 1, b_dim + 1, k + 1, strideA + 2, strideB + 2,
-                  strideC + 2);
+        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
+                  this->B->value.val.data(), this->B->gradient.val.data(),
+                  this->value.val.data(), this->gradient.val.data(), a_dim + 1,
+                  b_dim + 1, k + 1, strideA + 2, strideB + 2, strideC + 2);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
@@ -527,9 +528,9 @@ template <typename T> struct Node_batch_matmul : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val, this->B->value.val, this->value.val,
-                     strideA[0], strideB[0], strideC[0], c_shape[0],
-                     A_offset[0], B_offset[0], k[0], D);
+            val_func(this->A->value.val.data(), this->B->value.val.data(),
+                     this->value.val.data(), strideA[0], strideB[0], strideC[0],
+                     c_shape[0], A_offset[0], B_offset[0], k[0], D);
             this->evaluated = true;
         }
     }
@@ -541,8 +542,9 @@ template <typename T> struct Node_batch_matmul : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val, this->A->gradient.val, this->B->value.val,
-                  this->B->gradient.val, this->value.val, this->gradient.val,
+        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
+                  this->B->value.val.data(), this->B->gradient.val.data(),
+                  this->value.val.data(), this->gradient.val.data(),
                   strideA + 1, strideB + 1, strideC + 1, c_shape + 1,
                   A_offset + 1, B_offset + 1, k + 1, D);
 
