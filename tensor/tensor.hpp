@@ -143,12 +143,13 @@ template <typename T> class Tensor {
 
     /**
      * @brief Creates a view of the tensor.
-     *
-     * @return A Tensor_view<T> structure representing a non-owning view of the
-     * tensor.
+     * @return A Tensor_view<T> structure representing a non-owning immutable
+     * view of the tensor.
      */
     struct Tensor_view<T> view() const {
-        return Tensor_view<T>(this->shape, this->stride, this->val);
+        return Tensor_view<T>(this->shape.data(), this->stride.data(),
+                              this->nDims(), this->val.data(),
+                              this->val.size());
     }
 
     /**

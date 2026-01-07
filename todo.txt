@@ -3,7 +3,6 @@ DOC:
     rework gradient comments
 
 REFACTOR:
-    rework tensor_view
     add conversion operator
     make functions take tview where possible (strides, functions)
     make tensor constructors foolproof

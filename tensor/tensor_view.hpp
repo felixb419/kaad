@@ -6,21 +6,15 @@
 namespace kaad {
 
 /**
- * @brief Lightweight view into a tensor's shape, stride, and data.
- *
- * This struct allows for non-owning access to tensor metadata and values,
- * useful for read-only operations or efficient slicing without copying.
- *
+ * @brief Lightweight immutable view into a tensor's shape, stride, and data.
  * @tparam T The data type stored in the tensor.
  */
 template <typename T> struct Tensor_view {
-    std::vector<int> &shape; ///< Referehce to the vector containing the
-                             ///< size of the tensor in each dimension.
-    std::vector<int> &
-        stride; ///< Referehce to the vector containing the stride of the tensor
-                ///< (steps needed to move one element in each dimension).
-    std::vector<T> &
-        val; ///< Referehce to the vector containing the elements of the Tensor.
+    const int *shape = nullptr;  ///< Pointer to the shape array.
+    const int *stride = nullptr; ///< Pointer to the stride array.
+    std::size_t nDims = 0;       ///< Length of the shape and stride arrays.
+    const T *val = nullptr;      ///< Pointer to the value array.
+    std::size_t len = 0;         ///< Length of the value array.
 
     /**
      * @brief Default constructor.
@@ -29,15 +23,15 @@ template <typename T> struct Tensor_view {
 
     /**
      * @brief Constructs a tensor view.
-     * @param shape Reference to shape vector.
-     * @param stride Reference to stride vector.
-     * @param val Reference to element vector.
+     * @param shape Pointer to the shape array.
+     * @param shape Pointer to the stride array.
+     * @param nDims Length of the shape and stride arrays.
+     * @param val Pointer to the value array.
+     * @param len Length of the value array.
      */
-    Tensor_view(std::vector<int> &shape, std::vector<int> &stride,
-                std::vector<T> &val)
-        : shape(shape), stride(stride), val(val) {}
-
-    size_t nDims() const { return this->shape.size(); }
+    Tensor_view(const int *shape, const int *stride, std::size_t nDims,
+                const T *val, std::size_t len)
+        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
 
     /**
      * @brief Overloads the stream output operator to print the tensor view.
@@ -48,10 +42,10 @@ template <typename T> struct Tensor_view {
      */
     friend std::ostream &operator<<(std::ostream &stream,
                                     const Tensor_view<T> &view) {
-        if (view.nDims() == 0) {
+        if (view.nDims == 0) {
             std::cout << "[]";
         } else {
-            std::vector<int> cords(view.nDims());
+            std::vector<int> cords(view.nDims);
             int indent = 0;
 
             detail::print_tensor(stream, cords, view.shape, view.stride,
