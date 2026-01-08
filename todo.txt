@@ -3,6 +3,7 @@ DOC:
     rework gradient comments
 
 REFACTOR:
+    move functions into namespace
     add conversion operator
     make functions take tview where possible (strides, functions)
     make tensor constructors foolproof

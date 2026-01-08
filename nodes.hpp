@@ -579,8 +579,8 @@ template <typename T> struct Node_transp : INode<T> {
                                                          ///< to the gradient
                                                          ///< operation.
 
-    T *A_end = nullptr; ///< Pointer to the end of the A buffer.
-    T *C_end = nullptr; ///< Pointer to the end of the C buffer.
+    const T *A_end = nullptr; ///< Pointer to the end of the A buffer.
+    const T *C_end = nullptr; ///< Pointer to the end of the C buffer.
 
     /**
      * @brief Constructs a transpose node with the given operation and gradient.
@@ -709,9 +709,9 @@ template <typename T> struct Node_mean : INode<T> {
     meanOp<T> val_func = tensorfuncs::primal::unary::mean;
     meanGrad<T> grad_func = tensorfuncs::adjoint::unary::mean;
 
-    T *A_end =
+    const T *A_end =
         nullptr; ///< Pointer to the end of the A buffer (used for iteration).
-    T *dA_end =
+    const T *dA_end =
         nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
     T divisor = 0; ///< Divisor to compute the mean of the A tensor (length of A
                    ///< buffer).
@@ -773,9 +773,9 @@ template <typename T> struct Node_mean_dim : INode<T> {
     int *strideC = nullptr; ///< stride Array for C.
     size_t *A_offset =
         nullptr; ///< Total number of elements and per-dim offsets of A.
-    T *C_end =
+    const T *C_end =
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
-    T *dA_end =
+    const T *dA_end =
         nullptr;  ///< Pointer to the end of the dA buffer (used for iteration).
     size_t D = 0; ///< Number of the dimensions of the A tensor.
     T divisor = 0; ///< Divisor to compute the mean of the A tensor (length of A

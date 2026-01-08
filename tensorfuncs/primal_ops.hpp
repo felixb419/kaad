@@ -26,7 +26,7 @@ template <typename T>
 using meanOp = void (*)(const T *A, T *C, const T *A_end, T divisor);
 template <typename T>
 using meanDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                           size_t *A_offset, int N, T divisor, T *C_end);
+                           size_t *A_offset, int N, T divisor, const T *C_end);
 template <typename T>
 using sliceOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
                          size_t *start_offset_a, size_t *C_offset, int N);
@@ -414,7 +414,7 @@ template <typename T> void mean(const T *A, T *C, const T *A_end, T divisor) {
  */
 template <typename T>
 void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
-              int N, T divisor, T *C_end) {
+              int N, T divisor, const T *C_end) {
     sum_dim(A, C, strideA, strideC, A_offset, N);
     for (; C != C_end; C++) {
         *C /= divisor;
@@ -428,7 +428,7 @@ void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
  */
 template <typename T, int N>
 void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
-              int _, T divisor, T *C_end) {
+              int _, T divisor, const T *C_end) {
     sum_dim<T, N>(A, C, strideA, strideC, A_offset, 0);
     for (; C != C_end; C++) {
         *C /= divisor;

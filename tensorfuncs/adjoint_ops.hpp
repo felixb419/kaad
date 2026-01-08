@@ -32,7 +32,7 @@ using meanGrad = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
 template <typename T>
 using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
                              int *strideC, size_t *a_offset, int N, T divisor,
-                             T *c_end);
+                             const T *c_end);
 template <typename T>
 using sliceGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
                            size_t *start_offset, size_t *c_offset, int N);
@@ -492,7 +492,7 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
  */
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-              size_t *a_offset, int N, T divisor, T *dA_end) {
+              size_t *a_offset, int N, T divisor, const T *dA_end) {
     sum_dim(dA, dC, strideA, strideC, a_offset, N);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
@@ -507,7 +507,7 @@ void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
  */
 template <typename T, int N>
 void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-              size_t *a_offset, int _, T divisor, T *dA_end) {
+              size_t *a_offset, int _, T divisor, const T *dA_end) {
     sum_dim<T, N>(dA, dC, strideA, strideC, a_offset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
