@@ -153,6 +153,17 @@ template <typename T> class Tensor {
     }
 
     /**
+     * @brief Creates a view of the tensor.
+     * @return A Tensor_view<T> structure representing a non-owning mutable
+     * view of the tensor.
+     */
+    struct Tensor_view<T> view_mut() {
+        return Tensor_view_mut<T>(this->shape.data(), this->stride.data(),
+                                  this->nDims(), this->val.data(),
+                                  this->val.size());
+    }
+
+    /**
      * @brief Stream output operator.
      *
      * Prints the tensor in a readable format.

@@ -1,6 +1,4 @@
-DOC:
-    add note on broadcasting in primal_ops.hpp
-    rework gradient comments
+[ TODO ]
 
 REFACTOR:
     make functions take tview where possible (strides, functions)
@@ -15,7 +13,6 @@ REFACTOR:
     make members private
     remove auto keyword
     possibly remove stride functions and combine into get_Node
-    gradient comments
 
 FEAT:
     add overloads for tensor (size/len, begin, end, data)
@@ -26,3 +23,7 @@ PERF:
 
 DOC:
     add definitions (operation=operation on in/out tensors, operator=operation on nodes)
+    add note on broadcasting in primal_ops.hpp
+    rework gradient comments
+    rename val member to elements in Tensor
+    rename val member to data in Tensor_view_view
