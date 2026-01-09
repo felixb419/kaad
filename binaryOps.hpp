@@ -114,7 +114,7 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
 
         auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
             A_ptr, B_ptr, newShape);
-        Strides::flexible_binary<T>(A, B, *newNode.get());
+        Strides::flexible_binary<T>(*newNode.get());
         rec.nodes.push_back(move(newNode));
     } else {
         std::ostringstream errmsg;
@@ -338,7 +338,7 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
 
     if (newLen == 2) {
         auto newNode = std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape);
-        Strides::matmul<T>(A, B, *newNode.get());
+        Strides::matmul<T>(*newNode.get());
         rec.nodes.push_back(move(newNode));
     } else {
         auto newNode =
@@ -350,7 +350,7 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
                 Dispatchers::get_batch_matmul_grad<T>()[newLen];
         }
 
-        Strides::batch_matmul<T>(A, B, *raw_ptr);
+        Strides::batch_matmul<T>(*raw_ptr);
         rec.nodes.push_back(move(newNode));
     }
 
@@ -396,7 +396,7 @@ INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
         A_ptr, B_ptr, newShape, newLen);
     auto raw = newNode.get();
-    Strides::outer<T>(A, B, *raw);
+    Strides::outer<T>(*raw);
     rec.nodes.push_back(move(newNode));
 
     return raw;

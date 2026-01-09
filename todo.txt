@@ -4,7 +4,6 @@ DOC:
 
 REFACTOR:
     move functions into namespace
-    add conversion operator
     make functions take tview where possible (strides, functions)
     make tensor constructors foolproof
     actualize combine_flexible, combine_matrix signature
@@ -15,6 +14,8 @@ REFACTOR:
     code duplication in: binaryOps, unaryOps, strides
     improve names of node members
     make members private
+    remove auto keyword
+    possibly remove stride functions and combine into get_Node
 
 FEAT:
     add overloads for tensor (size/len, begin, end, data)

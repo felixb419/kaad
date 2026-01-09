@@ -335,7 +335,7 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
         raw_ptr->grad_func = Dispatchers::get_sumDim_grad<T>()[A.nDims()];
     }
 
-    Strides::sum_dim<T>(A, *raw_ptr, dim);
+    Strides::sum_dim<T>(*raw_ptr, dim);
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
@@ -425,7 +425,7 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
         raw_ptr->grad_func = Dispatchers::get_meanDim_grad<T>()[A.nDims()];
     }
 
-    Strides::mean_dim<T>(A, *raw_ptr, dim);
+    Strides::mean_dim<T>(*raw_ptr, dim);
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
 }
@@ -512,7 +512,7 @@ INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
         raw_ptr->grad_func = Dispatchers::get_slice_grad<T>()[A.nDims()];
     }
 
-    Strides::slice(A, *raw_ptr, offset_owned.data());
+    Strides::slice(*raw_ptr, offset_owned.data());
 
     rec.nodes.push_back(move(newNode));
     return rec.nodes.back().get();
