@@ -3,7 +3,6 @@ DOC:
     rework gradient comments
 
 REFACTOR:
-    move functions into namespace
     make functions take tview where possible (strides, functions)
     make tensor constructors foolproof
     actualize combine_flexible, combine_matrix signature
@@ -16,6 +15,7 @@ REFACTOR:
     make members private
     remove auto keyword
     possibly remove stride functions and combine into get_Node
+    gradient comments
 
 FEAT:
     add overloads for tensor (size/len, begin, end, data)

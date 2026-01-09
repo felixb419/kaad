@@ -1,15 +1,15 @@
 #pragma once
 
 #include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
-#include "tensorfuncs/adjoint_ops.hpp" // for unaryGrad, pointwise, scalarRhs
+#include "tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "tensorfuncs/kernels.hpp"     // for Sum, Null, Null::Op
-#include "tensorfuncs/primal_ops.hpp" // for unaryOp, pointwise, scalarRhs, transpose
-#include "tensorfuncs/strides.hpp" // for mean_dim, slice, sum_dim
-#include "utils.hpp"               // for print_arr, transp
-#include <algorithm>               // for std::copy, std::fill
-#include <cstddef>                 // for size_t
-#include <initializer_list>        // for std::initializer_list
-#include <memory>                  // for std::make_unique
+#include "tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "tensorfuncs/strides.hpp"     // for mean_dim, slice, sum_dim
+#include "utils.hpp"                   // for print_arr, transp
+#include <algorithm>                   // for std::copy, std::fill
+#include <cstddef>                     // for size_t
+#include <initializer_list>            // for std::initializer_list
+#include <memory>                      // for std::make_unique
 #include <sstream>   // for std::operator<<, std::basic_ostream::operator<<
 #include <stdexcept> // for std::invalid_argument
 
@@ -35,8 +35,10 @@ template <typename T> struct Node_transp;
 template <typename T, class Kernel> struct UnaryKernels {
     using Op = class Kernel::Op;
     using Grad = class Kernel::Grad;
-    unaryOp<T, Op> op = tensorfuncs::primal::unary::pointwise<T, Op>;
-    unaryGrad<T, Grad> grad = tensorfuncs::adjoint::unary::pointwise<T, Grad>;
+    tensorfuncs::primal::unary::pointwise_fn<T, Op> op =
+        tensorfuncs::primal::unary::pointwise<T, Op>;
+    tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> grad =
+        tensorfuncs::adjoint::unary::pointwise<T, Grad>;
 };
 
 /**
@@ -268,8 +270,10 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     using Kernel = class Kernels::Sum<T>;
     using Op = typename Kernel::Op;
     using Grad = typename Kernel::Grad;
-    unaryOp<T, Op> op = tensorfuncs::primal::unary::scalarOut<T, Op>;
-    unaryGrad<T, Grad> grad = tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
+    tensorfuncs::primal::unary::pointwise_fn<T, Op> op =
+        tensorfuncs::primal::unary::scalarOut<T, Op>;
+    tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> grad =
+        tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
     newNode->end = A.val.data() + A.val.size();

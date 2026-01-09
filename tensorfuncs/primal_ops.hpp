@@ -4,32 +4,6 @@
 #include <cstddef>   // for size_t
 
 namespace kaad {
-template <typename T, class Op>
-using unaryOp = void (*)(const T *A, T *C, const T *C_end, Op op);
-template <typename T, class Op>
-using binaryOp = void (*)(const T *A, const T *B, T *C, const T *C_end, Op op);
-template <typename T, class Op>
-using flexBinaryOp = void (*)(const T *A, const T *B, T *C, int *strideA,
-                              int *strideB, int *strideC, size_t *C_offset,
-                              int N, Op op);
-template <typename T>
-using matmulOp = void (*)(const T *A, const T *B, T *C, int a_dim, int b_dim,
-                          int k, int *strideA, int *strideB, int *strideC);
-template <typename T>
-using batchmatmulOp = void (*)(const T *A, const T *B, T *C, int *strideA,
-                               int *strideB, int *strideC, int *c_shape,
-                               int a_off, int b_off, int k, int N);
-template <typename T>
-using sumDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                          size_t *A_offset, int N);
-template <typename T>
-using meanOp = void (*)(const T *A, T *C, const T *A_end, T divisor);
-template <typename T>
-using meanDimOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                           size_t *A_offset, int N, T divisor, const T *C_end);
-template <typename T>
-using sliceOp = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                         size_t *start_offset_a, size_t *C_offset, int N);
 
 /**
  * @namespace tensorfuncs::primal
@@ -41,6 +15,24 @@ namespace tensorfuncs::primal {
  * @namespace kaad::tensorfuncs::adjoint::binary
  */
 namespace binary {
+
+template <typename T, class Op>
+using pointwise_fn = void (*)(const T *A, const T *B, T *C, const T *C_end,
+                              Op op);
+
+template <typename T, class Op>
+using flexible_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
+                             int *strideB, int *strideC, size_t *C_offset,
+                             int N, Op op);
+
+template <typename T>
+using matmul_fn = void (*)(const T *A, const T *B, T *C, int a_dim, int b_dim,
+                           int k, int *strideA, int *strideB, int *strideC);
+
+template <typename T>
+using batch_matmul_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
+                                 int *strideB, int *strideC, int *c_shape,
+                                 int a_off, int b_off, int k, int N);
 
 /**
  * @brief Applies Op(A,B) to A(tensor) and B(scalar).
@@ -291,6 +283,25 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
  * @namespace kaad::Operations::unary
  */
 namespace unary {
+
+template <typename T, class Op>
+using pointwise_fn = void (*)(const T *A, T *C, const T *C_end, Op op);
+
+template <typename T>
+using sum_dim_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
+                            size_t *A_offset, int N);
+
+template <typename T>
+using mean_fn = void (*)(const T *A, T *C, const T *A_end, T divisor);
+
+template <typename T>
+using mean_dim_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
+                             size_t *A_offset, int N, T divisor,
+                             const T *C_end);
+
+template <typename T>
+using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
+                          size_t *start_offset_a, size_t *C_offset, int N);
 
 /**
  * @brief Applies a unary operation to A(tensor).

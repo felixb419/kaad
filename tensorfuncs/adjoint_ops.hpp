@@ -4,38 +4,6 @@
 #include <cstddef>        // for size_t
 
 namespace kaad {
-template <typename T, class Grad>
-using unaryGrad = void (*)(const T *A, T *dA, const T *C, const T *dC,
-                           const T *end, Grad grad);
-template <typename T, class Grad>
-using binaryGrad = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                            const T *dC, const T *end, Grad grad);
-template <typename T, class Grad>
-using flexBinaryGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
-                                const T *C, const T *dC, int *strideA,
-                                int *strideB, int *strideC, size_t *c_offset,
-                                int N, Grad grad);
-template <typename T>
-using matmulGrad = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                            const T *dC, int *a_dim, int *b_dim, int *k,
-                            int *strideA, int *strideB, int *strideC);
-template <typename T>
-using batchmatmulGrad = void (*)(const T *A, T *dA, const T *B, T *dB,
-                                 const T *C, const T *dC, int **strideA,
-                                 int **strideB, int **strideC, int **c_shape,
-                                 int *a_off, int *b_off, int *k, int N);
-template <typename T>
-using sumDimGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                            size_t *a_offset, int N);
-template <typename T>
-using meanGrad = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
-template <typename T>
-using meanDimGrad = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                             int *strideC, size_t *a_offset, int N, T divisor,
-                             const T *c_end);
-template <typename T>
-using sliceGrad = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                           size_t *start_offset, size_t *c_offset, int N);
 
 /**
  * @namespace tensorfuncs::adjoint
@@ -48,6 +16,26 @@ namespace tensorfuncs::adjoint {
  * @namespace kaad::tensoruncs::adjoint
  */
 namespace binary {
+
+template <typename T, class Grad>
+using pointwise_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
+                              const T *dC, const T *end, Grad grad);
+
+template <typename T, class Grad>
+using flexible_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
+                             const T *dC, int *strideA, int *strideB,
+                             int *strideC, size_t *c_offset, int N, Grad grad);
+
+template <typename T>
+using matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
+                           const T *dC, int *a_dim, int *b_dim, int *k,
+                           int *strideA, int *strideB, int *strideC);
+
+template <typename T>
+using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
+                                 const T *C, const T *dC, int **strideA,
+                                 int **strideB, int **strideC, int **c_shape,
+                                 int *a_off, int *b_off, int *k, int N);
 
 /**
  * @brief Computes gradients for an elementwise operation with a scalar
@@ -360,6 +348,26 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @namespace kaad::tensorfuncs::adjoint::unary
  */
 namespace unary {
+
+template <typename T, class Grad>
+using pointwise_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
+                              const T *end, Grad grad);
+
+template <typename T>
+using sum_dim_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
+                            size_t *a_offset, int N);
+
+template <typename T>
+using mean_fn = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
+
+template <typename T>
+using mean_dim_fn = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
+                             int *strideC, size_t *a_offset, int N, T divisor,
+                             const T *c_end);
+
+template <typename T>
+using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
+                          size_t *start_offset, size_t *c_offset, int N);
 
 /**
  * @brief Computes gradients for an elementwise operation with a scalar
