@@ -1,12 +1,6 @@
 [ TODO ]
 
 REFACTOR:
-    make functions take tview where possible (strides, functions)
-    make tensor constructors foolproof
-    actualize combine_flexible, combine_matrix signature
-    actualize print_arr
-    actualize grad_func and val_func signatures
-    (?) actualize transp, transp2D
     change transpose to noop
     code duplication in: binaryOps, unaryOps, strides
     improve names of node members

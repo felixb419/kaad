@@ -65,7 +65,7 @@ INode<T> *unOperator(CompGraph<T> &rec, INode<T> *A_ptr,
     auto newNode = std::make_unique<Node_unary<T, Kernel>>(
         kernels.op, kernels.grad, A_ptr, A.shape);
     auto raw = newNode.get();
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
     raw->end = raw->value.val.data() + raw->value.val.size();
 
     return raw;
@@ -245,7 +245,7 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     auto raw_ptr = newNode.get();
     newNode->A_end = A.val.data() + A.val.size();
     newNode->C_end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
 
     return raw_ptr;
 }
@@ -277,7 +277,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
     newNode->end = A.val.data() + A.val.size();
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
 
@@ -340,7 +340,7 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
     }
 
     Strides::sum_dim<T>(*raw_ptr, dim);
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
 
@@ -366,7 +366,7 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
     newNode->dA_end =
         newNode->A->gradient.val.data() + newNode->A->gradient.val.size();
     newNode->divisor = A.val.size();
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
 
@@ -430,7 +430,7 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
     }
 
     Strides::mean_dim<T>(*raw_ptr, dim);
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
 
@@ -518,7 +518,7 @@ INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
 
     Strides::slice(*raw_ptr, offset_owned.data());
 
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
 } // namespace kaad

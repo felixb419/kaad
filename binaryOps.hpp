@@ -89,13 +89,13 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
         raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, B.shape);
         auto raw_ptr = newNode.get();
         raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == B.nDims() &&
                std::equal(A.shape.begin(), A.shape.end(), B.shape.data()) &&
                std::equal(A.stride.begin(), A.stride.end(), B.stride.data())) {
@@ -104,7 +104,7 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
         raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else if (combine_flexible(A.shape.data(), A.nDims(), B.shape.data(),
                                 B.nDims(), newShape.data(), newLen)) {
         using Op = typename Kernel::Op;
@@ -121,7 +121,7 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
             A_ptr, B_ptr, newShape);
         Strides::flexible_binary<T>(*newNode.get());
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else {
         std::ostringstream errmsg;
         errmsg << "shape error in node[" << recLen << "] (" << opName
@@ -274,20 +274,20 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
         raw_ptr->end = A.val.data() + A.val.size();
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
         auto raw_ptr = newNode.get();
         raw_ptr->end = B.val.data() + B.val.size();
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == 1 && B.nDims() == 1 &&
                std::equal(A.shape.begin(), A.shape.end(), B.shape.begin())) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
         raw_ptr->end = A.val.data() + A.val.size();
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
 
     } else {
         std::ostringstream errmsg;
@@ -348,7 +348,7 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     if (newLen == 2) {
         auto newNode = std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape);
         Strides::matmul<T>(*newNode.get());
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     } else {
         auto newNode =
             std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
@@ -360,7 +360,7 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         }
 
         Strides::batch_matmul<T>(*raw_ptr);
-        rec.nodes.push_back(move(newNode));
+        rec.nodes.push_back(std::move(newNode));
     }
 
     return rec.nodes.back().get();
@@ -406,7 +406,7 @@ INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         A_ptr, B_ptr, newShape, newLen);
     auto raw = newNode.get();
     Strides::outer<T>(*raw);
-    rec.nodes.push_back(move(newNode));
+    rec.nodes.push_back(std::move(newNode));
 
     return raw;
 }
