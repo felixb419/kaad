@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tensor/tensor.hpp" // for Tensor
+#include "../tensor/tensor.hpp" // for Tensor
 #include <array>             // for std::array
 #include <cstddef>           // for size_t
 #include <memory>            // for std::unique_ptr, std::make_unique

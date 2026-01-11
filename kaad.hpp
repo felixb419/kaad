@@ -1,10 +1,10 @@
 #pragma once
 
-#include "binaryOps.hpp"
-#include "compGraph.hpp"
-#include "nodes.hpp"
+#include "computation_graph/operators/binaryOps.hpp"
+#include "computation_graph/compGraph.hpp"
+#include "computation_graph/nodes.hpp"
 #include "tensor/tensor.hpp"
-#include "unaryOps.hpp"
+#include "computation_graph/operators/unaryOps.hpp"
 
 /**
  * @mainpage KAAD Documentation

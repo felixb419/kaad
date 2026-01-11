@@ -1,12 +1,12 @@
 #pragma once
 
 #include "dispatchers.hpp"   // for KAAD_MAX_NDIMS, get_batch_matmul
-#include "tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
-#include "tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "tensorfuncs/kernels.hpp"     // for Kernels::Null
-#include "tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "tensorfuncs/strides.hpp" // for batch_matmul, flexible_binary, matmul, outer
-#include "utils.hpp"
+#include "../../tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
+#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
+#include "../../tensorfuncs/kernels.hpp"     // for Kernels::Null
+#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../tensorfuncs/strides.hpp" // for batch_matmul, flexible_binary, matmul, outer
+#include "../../utils.hpp"
 #include <cstddef> // for size_t
 #include <memory>  // for std::make_unique
 #include <sstream> // for std::operator<<, std::basic_ostream, std::char_traits, std::ostringstream

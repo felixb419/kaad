@@ -1,7 +1,7 @@
 #pragma once
 
-#include "tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
+#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include <array>                       // for std::array
 #include <cstddef>                     // for size_t
 #include <utility> // for std::index_sequence, std::make_index_sequence

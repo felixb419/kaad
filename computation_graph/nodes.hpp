@@ -1,9 +1,9 @@
 #pragma once
 
-#include "tensor/tensor.hpp"           // for Tensor
-#include "tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "tensorfuncs/kernels.hpp"     // for Null, Null::Op, Sum
-#include "tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../tensor/tensor.hpp"           // for Tensor
+#include "../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
+#include "../tensorfuncs/kernels.hpp"     // for Null, Null::Op, Sum
+#include "../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include <cstddef>                     // for size_t
 #include <utility>                     // for std::forward
 

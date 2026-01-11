@@ -1,11 +1,11 @@
 #pragma once
 
 #include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
-#include "tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "tensorfuncs/kernels.hpp"     // for Sum, Null, Null::Op
-#include "tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "tensorfuncs/strides.hpp"     // for mean_dim, slice, sum_dim
-#include "utils.hpp"                   // for print_arr, transp
+#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
+#include "../../tensorfuncs/kernels.hpp"     // for Sum, Null, Null::Op
+#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../tensorfuncs/strides.hpp"     // for mean_dim, slice, sum_dim
+#include "../../utils.hpp"                   // for print_arr, transp
 #include <algorithm>                   // for std::copy, std::fill
 #include <cstddef>                     // for size_t
 #include <initializer_list>            // for std::initializer_list
