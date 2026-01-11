@@ -1,0 +1,85 @@
+#pragma once
+
+#include "../../tensor/tensor.hpp" // for Tensor
+#include <utility>                 // for std::forward
+
+namespace kaad {
+
+/**
+ * @brief Abstract base class representing a node in a computation graph.
+ *
+ * Each node holds a value tensor and a corresponding gradient tensor.
+ * Nodes can be evaluated to compute their output, and gradients can be
+ * backpropagated through them. Derived classes must implement the `eval` and
+ * `getGrad` methods. Traversal-related members (e.g., strides, offsets) are not
+ * initialized in the node constructors but are instead set externally by the
+ * corresponding helper functions in the Strides namespace.
+ *
+ * @tparam T The scalar type (e.g., float or double).
+ */
+template <typename T> struct INode {
+
+    INode<T> *A =
+        nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
+
+    Tensor<T> value;    ///< Value computed by this node.
+    Tensor<T> gradient; ///< Gradient associated with this node.
+
+    bool evaluated = false; ///< Whether this node is currently evaluated.
+    bool hasInputs = false; ///< Whether this node depends on any input nodes.
+
+    /**
+     * @brief Constructs a leaf node with a pre-evaluated tensor value.
+     *
+     * @param tensor The tensor value to assign to this node.
+     */
+    INode(Tensor<T> &&tensor)
+        : value(std::move(tensor)), gradient(value), evaluated(true),
+          hasInputs(false) {
+        std::fill(gradient.val.begin(), gradient.val.end(), 0);
+    }
+
+    /**
+     * @brief Constructs an unevaluated node with a dependency on an input node.
+     *
+     * @param A_ptr Pointer to the input node.
+     * @param args Arguments to construct the value tensor.
+     */
+    template <typename... Args>
+    INode(INode<T> *A_ptr, Args &&...args)
+        : A(A_ptr), evaluated(false), value(std::forward<Args>(args)...),
+          hasInputs(true), gradient(value) {
+        std::fill(value.val.begin(), value.val.end(), 0);
+        std::fill(gradient.val.begin(), gradient.val.end(), 0);
+    }
+
+    /// Virtual destructor for polymorphic deletion
+    virtual ~INode() = default;
+
+    /**
+     * @brief Resets the value and gradient of the node.
+     *
+     * Clears the value tensor and sets the `evaluated` flag to false if the
+     * node has inputs. Clears the gradient tensor in all cases.
+     */
+    inline void reset() {
+        if (hasInputs) {
+            std::fill(value.val.begin(), value.val.end(), 0);
+            evaluated = false;
+        }
+        std::fill(gradient.val.begin(), gradient.val.end(), 0);
+    }
+
+    /**
+     * @brief Evaluates the node's value. Must be implemented by derived
+     * classes.
+     */
+    inline virtual void eval() = 0;
+    /**
+     * @brief Computes the gradient for this node. Must be implemented by
+     * derived classes.
+     */
+    inline virtual void getGrad() = 0;
+};
+
+} // namespace kaad
