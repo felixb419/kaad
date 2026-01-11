@@ -571,7 +571,7 @@ template <typename T> struct Node_transp : INode<T> {
     using Op = typename Kernels::Null::Op;
     Op op;
     tensorfuncs::primal::unary::pointwise_fn<T, Op> val_func =
-        tensorfuncs::primal::unary::transpose<T>; ///< Function pointer to the
+        tensorfuncs::primal::unary::noop<T>; ///< Function pointer to the
                                                   ///< value operation.
 
     using Grad = typename Kernels::Sum<T>::Grad;

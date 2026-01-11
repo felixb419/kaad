@@ -1,7 +1,6 @@
 [ TODO ]
 
 REFACTOR:
-    change transpose to noop
     code duplication in: binaryOps, unaryOps, strides
     improve names of node members
     make members private

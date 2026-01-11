@@ -304,6 +304,20 @@ using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
                           size_t *start_offset_a, size_t *C_offset, int N);
 
 /**
+ * @brief Performs no operation (copies A to C).
+ * @tparam T Element type
+ * @tparam Op Operation (ignored here).
+ * @param A Pointer to input tensor.
+ * @param C Pointer to output tensor.
+ * @param A_end Pointer to the end of A.
+ * @param op Instance of the callable class (ignored here).
+ */
+template <typename T, class Op>
+void noop(const T *A, T *C, const T *A_end, Op op) {
+    std::copy(A, A_end, C);
+}
+
+/**
  * @brief Applies a unary operation to A(tensor).
  * @tparam T Element type
  * @tparam Op A Callable unary operation.
@@ -333,20 +347,6 @@ void pointwise(const T *A, T *C, const T *C_end, Op op) {
     for (; C != C_end; A++, C++) {
         op(*A, *C);
     }
-}
-
-/**
- * @brief Transposes a tensor by copying its contents (no-op for flat arrays).
- * @tparam T Element type
- * @tparam Op Operation (ignored here).
- * @param A Pointer to input tensor.
- * @param C Pointer to output tensor.
- * @param len Number of elements to copy.
- * @param op Operation (placeholder, not applied).
- */
-template <typename T, class Op>
-void transpose(const T *A, T *C, const T *A_end, Op op) {
-    std::copy(A, A_end, C);
 }
 
 /**
