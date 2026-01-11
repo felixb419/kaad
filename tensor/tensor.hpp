@@ -101,7 +101,7 @@ template <typename T> class Tensor {
         }
 
         this->val.resize(len);
-        std::fill(this->val.begin(), this->val.end(), fill);
+        std::fill(this->data(), this->end(), fill);
     }
 
     /**
@@ -116,7 +116,7 @@ template <typename T> class Tensor {
         detail::compute_stride(this->stride, len, this->shape);
 
         this->val.resize(len);
-        std::fill(this->val.begin(), this->val.end(), fill);
+        std::fill(this->data(), this->end(), fill);
     }
 
     /**
@@ -130,7 +130,7 @@ template <typename T> class Tensor {
         detail::compute_stride(this->stride, len, this->shape);
 
         this->val.resize(len);
-        std::fill(this->val.begin(), this->val.end(), fill);
+        std::fill(this->val.begin(), this->end(), fill);
     }
 
     Tensor(T scalar) : shape(1), stride(1), val(1) {
@@ -139,7 +139,51 @@ template <typename T> class Tensor {
         this->val[0] = scalar;
     }
 
+    /**
+     * @brief Get number of dimensions of the tensor.
+     * @return Length of the shape array.
+     */
     size_t nDims() const { return this->shape.size(); }
+
+    /**
+     * @brief Get number of elements in the tensor.
+     * @return Length of the value array.
+     */
+    std::size_t nElems() const {
+        return this->val.size();
+    } 
+
+    /**
+     * @brief Get a pointer to the value array.
+     * @return Pointer to the start of the value array.
+     */
+    T *data() {
+        return this->val.data();
+    } 
+
+    /**
+     * @brief Get a const pointer to the value array.
+     * @return Const pointer to the start of the value array.
+     */
+    const T *data() const {
+        return this->val.data();
+    } 
+
+    /**
+     * @brief Get a pointer to the end of the value array.
+     * @return Pointer to one past the last element.
+     */
+    T *end() {
+        return &(*this->val.end());
+    }
+
+    /**
+     * @brief Get a const pointer to the end of the value array.
+     * @return Const pointer to one past the last element.
+     */
+    const T *end() const {
+        return &(*this->val.end());
+    }
 
     /**
      * @brief Creates a view of the tensor.
@@ -148,8 +192,8 @@ template <typename T> class Tensor {
      */
     struct Tensor_view<T> view() const {
         return Tensor_view<T>(this->shape.data(), this->stride.data(),
-                              this->nDims(), this->val.data(),
-                              this->val.size());
+                              this->nDims(), this->data(),
+                              this->nElems());
     }
 
     /**
@@ -159,8 +203,8 @@ template <typename T> class Tensor {
      */
     struct Tensor_view<T> view_mut() {
         return Tensor_view_mut<T>(this->shape.data(), this->stride.data(),
-                                  this->nDims(), this->val.data(),
-                                  this->val.size());
+                                  this->nDims(), this->data(),
+                                  this->nElems());
     }
 
     /**

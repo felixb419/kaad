@@ -66,7 +66,7 @@ INode<T> *unOperator(CompGraph<T> &rec, INode<T> *A_ptr,
         kernels.op, kernels.grad, A_ptr, A.shape);
     auto raw = newNode.get();
     rec.nodes.push_back(std::move(newNode));
-    raw->end = raw->value.val.data() + raw->value.val.size();
+    raw->end = raw->value.data() + raw->value.nElems();
 
     return raw;
 }
@@ -243,8 +243,8 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
     auto newNode =
         std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims());
     auto raw_ptr = newNode.get();
-    newNode->A_end = A.val.data() + A.val.size();
-    newNode->C_end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
+    newNode->A_end = A.data() + A.nElems();
+    newNode->C_end = raw_ptr->value.data() + raw_ptr->value.nElems();
     rec.nodes.push_back(std::move(newNode));
 
     return raw_ptr;
@@ -276,7 +276,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
         tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-    newNode->end = A.val.data() + A.val.size();
+    newNode->end = A.data() + A.nElems();
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
@@ -362,9 +362,9 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
     Tensor<T> &A = A_ptr->value;
 
     auto newNode = std::make_unique<Node_mean<T>>(A_ptr, (T)0);
-    newNode->A_end = A.val.data() + A.val.size();
+    newNode->A_end = A.data() + A.nElems();
     newNode->dA_end =
-        newNode->A->gradient.val.data() + newNode->A->gradient.val.size();
+        newNode->A->gradient.data() + newNode->A->gradient.nElems();
     newNode->divisor = A.val.size();
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();

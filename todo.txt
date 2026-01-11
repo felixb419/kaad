@@ -8,8 +8,8 @@ REFACTOR:
     possibly remove stride functions and combine into get_Node
 
 FEAT:
-    add overloads for tensor (size/len, begin, end, data)
     make default recorder variable
+    (?) Tensor::iterator type
 
 PERF:
     make stride function transpose dimensions so biggest is highest

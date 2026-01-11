@@ -160,8 +160,7 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val.data(), this->value.val.data(), end,
-                     op);
+            val_func(this->A->value.data(), this->value.data(), end, op);
             this->evaluated = true;
         }
     }
@@ -173,8 +172,8 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(), end, grad);
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
@@ -238,8 +237,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val.data(), B->value.val.data(),
-                     this->value.val.data(), end, op);
+            val_func(this->A->value.data(), B->value.data(), this->value.data(), end, op);
             this->evaluated = true;
         }
     }
@@ -251,9 +249,9 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  B->value.val.data(), B->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(), end, grad);
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  B->value.data(), B->gradient.data(),
+                  this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
@@ -334,8 +332,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val.data(), this->B->value.val.data(),
-                     this->value.val.data(), strideA, strideB, strideC,
+            val_func(this->A->value.data(), this->B->value.data(),
+                     this->value.data(), strideA, strideB, strideC,
                      C_offset, D, op);
             this->evaluated = true;
         }
@@ -348,9 +346,9 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  this->B->value.val.data(), this->B->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(), strideA,
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  this->B->value.data(), this->B->gradient.data(),
+                  this->value.data(), this->gradient.data(), strideA,
                   strideB, strideC, C_offset, D, grad);
 
         if (this->A->hasInputs) {
@@ -427,8 +425,8 @@ template <typename T> struct Node_matmul : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val.data(), this->B->value.val.data(),
-                     this->value.val.data(), a_dim[0], b_dim[0], k[0], strideA,
+            val_func(this->A->value.data(), this->B->value.data(),
+                     this->value.data(), a_dim[0], b_dim[0], k[0], strideA,
                      strideB, strideC);
             this->evaluated = true;
         }
@@ -441,9 +439,9 @@ template <typename T> struct Node_matmul : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  this->B->value.val.data(), this->B->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(), a_dim + 1,
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  this->B->value.data(), this->B->gradient.data(),
+                  this->value.data(), this->gradient.data(), a_dim + 1,
                   b_dim + 1, k + 1, strideA + 2, strideB + 2, strideC + 2);
 
         if (this->A->hasInputs) {
@@ -530,8 +528,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.val.data(), this->B->value.val.data(),
-                     this->value.val.data(), strideA[0], strideB[0], strideC[0],
+            val_func(this->A->value.data(), this->B->value.data(),
+                     this->value.data(), strideA[0], strideB[0], strideC[0],
                      c_shape[0], A_offset[0], B_offset[0], k[0], D);
             this->evaluated = true;
         }
@@ -544,9 +542,9 @@ template <typename T> struct Node_batch_matmul : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  this->B->value.val.data(), this->B->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(),
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  this->B->value.data(), this->B->gradient.data(),
+                  this->value.data(), this->gradient.data(),
                   strideA + 1, strideB + 1, strideC + 1, c_shape + 1,
                   A_offset + 1, B_offset + 1, k + 1, D);
 
@@ -603,7 +601,7 @@ template <typename T> struct Node_transp : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val.data(), this->value.val.data(), A_end,
+            val_func(this->A->value.data(), this->value.data(), A_end,
                      op);
             this->evaluated = true;
         }
@@ -616,8 +614,8 @@ template <typename T> struct Node_transp : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(), C_end,
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  this->value.data(), this->gradient.data(), C_end,
                   grad);
 
         if (this->A->hasInputs) {
@@ -677,7 +675,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val.data(), this->value.val.data(), strideA,
+            val_func(this->A->value.data(), this->value.data(), strideA,
                      strideC, A_offset, D);
             this->evaluated = true;
         }
@@ -690,7 +688,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.val.data(), this->gradient.val.data(),
+        grad_func(this->A->gradient.data(), this->gradient.data(),
                   strideA, strideC, A_offset, D);
 
         if (this->A->hasInputs) {
@@ -739,7 +737,7 @@ template <typename T> struct Node_mean : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val.data(), this->value.val.data(), A_end,
+            val_func(this->A->value.data(), this->value.data(), A_end,
                      divisor);
             this->evaluated = true;
         }
@@ -752,7 +750,7 @@ template <typename T> struct Node_mean : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.val.data(), this->gradient.val.data(),
+        grad_func(this->A->gradient.data(), this->gradient.data(),
                   dA_end, divisor);
 
         if (this->A->hasInputs) {
@@ -817,7 +815,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val.data(), this->value.val.data(), strideA,
+            val_func(this->A->value.data(), this->value.data(), strideA,
                      strideC, A_offset, D, divisor, C_end);
             this->evaluated = true;
         }
@@ -830,8 +828,8 @@ template <typename T> struct Node_mean_dim : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.val.data(), this->A->gradient.val.data(),
-                  this->value.val.data(), this->gradient.val.data(), strideA,
+        grad_func(this->A->value.data(), this->A->gradient.data(),
+                  this->value.data(), this->gradient.data(), strideA,
                   strideC, A_offset, D, divisor, dA_end);
 
         if (this->A->hasInputs) {
@@ -892,7 +890,7 @@ template <typename T> struct Node_slice : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.val.data(), this->value.val.data(), strideA,
+            val_func(this->A->value.data(), this->value.data(), strideA,
                      strideC, start_offset_a, C_offset, D);
             this->evaluated = true;
         }
@@ -905,7 +903,7 @@ template <typename T> struct Node_slice : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.val.data(), this->gradient.val.data(),
+        grad_func(this->A->gradient.data(), this->gradient.data(),
                   strideA, strideC, start_offset_a, C_offset, D);
 
         if (this->A->hasInputs) {

@@ -88,13 +88,13 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
+        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.val.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, B.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
+        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.val.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == B.nDims() &&
                std::equal(A.shape.begin(), A.shape.end(), B.shape.data()) &&
@@ -103,7 +103,7 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.val.data() + raw_ptr->value.val.size();
+        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.val.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (combine_flexible(A.shape.data(), A.nDims(), B.shape.data(),
                                 B.nDims(), newShape.data(), newLen)) {
@@ -273,20 +273,20 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = A.val.data() + A.val.size();
+        raw_ptr->end = A.data() + A.val.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = B.val.data() + B.val.size();
+        raw_ptr->end = B.data() + B.val.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == 1 && B.nDims() == 1 &&
                std::equal(A.shape.begin(), A.shape.end(), B.shape.begin())) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = A.val.data() + A.val.size();
+        raw_ptr->end = A.data() + A.val.size();
         rec.nodes.push_back(std::move(newNode));
 
     } else {
