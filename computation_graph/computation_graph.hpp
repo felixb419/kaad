@@ -19,7 +19,7 @@ template <typename T> struct Node_valued;
  *
  * @tparam T The data type of the tensor values.
  */
-template <typename T> struct CompGraph {
+template <typename T> struct Computation_graph {
     std::vector<std::unique_ptr<INode<T>>>
         nodes; ///< Holds unique pointers pointing to computation nodes
 

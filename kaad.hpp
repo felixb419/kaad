@@ -1,7 +1,7 @@
 #pragma once
 
 #include "computation_graph/operators/binaryOps.hpp"
-#include "computation_graph/compGraph.hpp"
+#include "computation_graph/computation_graph.hpp"
 #include "computation_graph/nodes.hpp"
 #include "tensor/tensor.hpp"
 #include "computation_graph/operators/unaryOps.hpp"

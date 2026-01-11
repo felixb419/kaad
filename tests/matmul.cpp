@@ -7,7 +7,7 @@ using T = double;
 
 int main() {
     system("clear");
-    CompGraph<T> rec;
+    Computation_graph<T> rec;
 
     std::vector<int> a_shape = {3, 5};
     auto a = rec.append(a_shape, 10);

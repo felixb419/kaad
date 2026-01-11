@@ -17,7 +17,7 @@ namespace kaad {
 
 template <typename T, class Kernel> struct Node_unary;
 template <typename T> class Tensor;
-template <typename T> struct CompGraph;
+template <typename T> struct Computation_graph;
 template <typename T> struct INode;
 template <typename T> struct Node_mean;
 template <typename T> struct Node_mean_dim;
@@ -58,7 +58,7 @@ template <typename T, class Kernel> struct UnaryKernels {
  * @return Pointer to the newly created unary operation node.
  */
 template <typename T, class Kernel>
-INode<T> *unOperator(CompGraph<T> &rec, INode<T> *A_ptr,
+INode<T> *unOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
                      const UnaryKernels<T, Kernel> kernels) {
     Tensor<T> &A = A_ptr->value;
 
@@ -81,7 +81,7 @@ INode<T> *unOperator(CompGraph<T> &rec, INode<T> *A_ptr,
  * @return A pointer to the new node representing the negated tensor,
  *         with the same shape as A.
  */
-template <typename T> INode<T> *negative(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *negative(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Neg<T>> negK;
     return unOperator(rec, A_ptr, negK);
 }
@@ -96,7 +96,7 @@ template <typename T> INode<T> *negative(CompGraph<T> &rec, INode<T> *A_ptr) {
  * @return A pointer to the new node representing the element-wise square of A,
  *         with the same shape as the input tensor.
  */
-template <typename T> INode<T> *square(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *square(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Square<T>> squareK;
     return unOperator(rec, A_ptr, squareK);
 }
@@ -111,7 +111,7 @@ template <typename T> INode<T> *square(CompGraph<T> &rec, INode<T> *A_ptr) {
  * @return A pointer to the new node representing the element-wise square root
  * of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *sqrt(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *sqrt(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Sqrt<T>> sqrtK;
     return unOperator(rec, A_ptr, sqrtK);
 }
@@ -126,7 +126,7 @@ template <typename T> INode<T> *sqrt(CompGraph<T> &rec, INode<T> *A_ptr) {
  * @return A pointer to the new node representing the element-wise logarithm
  * of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *log(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *log(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Log<T>> logK;
     return unOperator(rec, A_ptr, logK);
 }
@@ -141,7 +141,7 @@ template <typename T> INode<T> *log(CompGraph<T> &rec, INode<T> *A_ptr) {
  * @return A pointer to the new node representing the element-wise exponent
  * of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *exp(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *exp(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Exp<T>> expK;
     return unOperator(rec, A_ptr, expK);
 }
@@ -156,7 +156,7 @@ template <typename T> INode<T> *exp(CompGraph<T> &rec, INode<T> *A_ptr) {
  * @return A pointer to the new node representing the element-wise absolute
  * value of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *abs(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *abs(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Abs<T>> absK;
     return unOperator(rec, A_ptr, absK);
 }
@@ -179,7 +179,7 @@ template <typename T> INode<T> *abs(CompGraph<T> &rec, INode<T> *A_ptr) {
  *         with shape adjusted according to `perm` or full transpose.
  */
 template <typename T>
-INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
+INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
                     std::initializer_list<int> perm = {}) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
@@ -263,7 +263,7 @@ INode<T> *transpose(CompGraph<T> &rec, INode<T> *A_ptr,
  * @return A pointer to the new node representing the scalar sum of all elements
  * of A.
  */
-template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -302,7 +302,7 @@ template <typename T> INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr) {
  * along the specified dimension.
  */
 template <typename T>
-INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
+INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
               bool keepNDims = false) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
@@ -357,7 +357,7 @@ INode<T> *sum(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
  * @return A pointer to the new node representing the scalar mean of all
  * elements of A.
  */
-template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
+template <typename T> INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -392,7 +392,7 @@ template <typename T> INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr) {
  * reduction along the specified dimension.
  */
 template <typename T>
-INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
+INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
                bool keepNDims = 0) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
@@ -451,7 +451,7 @@ INode<T> *mean(CompGraph<T> &rec, INode<T> *A_ptr, int dim,
  * @return A pointer to the new node representing the sliced tensor.
  */
 template <typename T>
-INode<T> *slice(CompGraph<T> &rec, INode<T> *A_ptr,
+INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
                 std::initializer_list<int> size,
                 std::initializer_list<int> offset) {
     int recLen = rec.nodes.size();

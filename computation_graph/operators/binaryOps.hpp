@@ -16,7 +16,7 @@ namespace kaad {
 
 template <typename T, class Kernel> struct Node_binary;
 template <typename T, class Kernel> struct Node_binary_flex;
-template <typename T> struct CompGraph;
+template <typename T> struct Computation_graph;
 template <typename T> struct INode;
 template <typename T> struct Node_batch_matmul;
 template <typename T> struct Node_matmul;
@@ -72,7 +72,7 @@ template <typename T, class Kernel> struct BinaryKernels {
  * @return Pointer to the newly created binary operation node.
  */
 template <typename T, class Kernel>
-INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
+INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
                       const BinaryKernels<T, Kernel> kernels,
                       const char *opName) {
     int recLen = rec.nodes.size();
@@ -150,7 +150,7 @@ INode<T> *binOperator(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
  * B.
  */
 template <typename T>
-INode<T> *add(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *add(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Add<T>> addK;
     return binOperator(rec, A_ptr, B_ptr, addK, "add");
 }
@@ -170,7 +170,7 @@ INode<T> *add(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * A and B.
  */
 template <typename T>
-INode<T> *sub(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *sub(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Sub<T>> subK;
     return binOperator(rec, A_ptr, B_ptr, subK, "sub");
 }
@@ -191,7 +191,7 @@ INode<T> *sub(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * and B.
  */
 template <typename T>
-INode<T> *mul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *mul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Mul<T>> mulK;
     return binOperator(rec, A_ptr, B_ptr, mulK, "mul");
 }
@@ -211,7 +211,7 @@ INode<T> *mul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * and B.
  */
 template <typename T>
-INode<T> *div(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *div(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Div<T>> divK;
     return binOperator(rec, A_ptr, B_ptr, divK, "div");
 }
@@ -231,7 +231,7 @@ INode<T> *div(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * and B.
  */
 template <typename T>
-INode<T> *pow(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *pow(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Pow<T>> powK;
     return binOperator(rec, A_ptr, B_ptr, powK, "pow");
 }
@@ -251,7 +251,7 @@ INode<T> *pow(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * of A and B.
  */
 template <typename T>
-INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     using Op = class Kernels::Null::Op;
     using Grad = class Kernels::Null::Grad;
     tensorfuncs::primal::binary::pointwise_fn<T, Op> scalar =
@@ -324,7 +324,7 @@ INode<T> *dot(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * product of A and B.
  */
 template <typename T>
-INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
@@ -388,7 +388,7 @@ INode<T> *matmul(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * of A and B.
  */
 template <typename T>
-INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
@@ -426,7 +426,7 @@ INode<T> *outer(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * and B.
  */
 template <typename T>
-INode<T> *min(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *min(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Min<T>> minK;
     return binOperator(rec, A_ptr, B_ptr, minK, "minimum");
 }
@@ -446,8 +446,9 @@ INode<T> *min(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  * and B.
  */
 template <typename T>
-INode<T> *max(CompGraph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+INode<T> *max(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     static const BinaryKernels<T, class Kernels::Max<T>> maxK;
     return binOperator(rec, A_ptr, B_ptr, maxK, "minimum");
 }
+
 } // namespace kaad

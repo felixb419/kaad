@@ -5,7 +5,7 @@ using namespace kaad;
 using namespace std;
 using T = double;
 
-void call_all_operators(kaad::CompGraph<T> &rec, kaad::INode<T> *a,
+void call_all_operators(kaad::Computation_graph<T> &rec, kaad::INode<T> *a,
                         kaad::INode<T> *b) {
     add(rec, a, b);
     dot(rec, a, b);
@@ -23,7 +23,7 @@ void call_all_operators(kaad::CompGraph<T> &rec, kaad::INode<T> *a,
 
 int main() {
     system("clear");
-    CompGraph<T> rec;
+    Computation_graph<T> rec;
 
     std::vector<int> a_shape = {8, 8};
     auto a = rec.append(a_shape, 10);
