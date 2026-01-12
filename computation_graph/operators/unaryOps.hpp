@@ -1,15 +1,15 @@
 #pragma once
 
-#include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Sum, Null, Null::Op
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for mean_dim, slice, sum_dim
 #include "../../utils.hpp"                   // for print_arr, transp
-#include <algorithm>                   // for std::copy, std::fill
-#include <cstddef>                     // for size_t
-#include <initializer_list>            // for std::initializer_list
-#include <memory>                      // for std::make_unique
+#include "dispatchers.hpp"  // for KAAD_MAX_NDIMS, get_meanDim, get_meanDim...
+#include <algorithm>        // for std::copy, std::fill
+#include <cstddef>          // for size_t
+#include <initializer_list> // for std::initializer_list
+#include <memory>           // for std::make_unique
 #include <sstream>   // for std::operator<<, std::basic_ostream::operator<<
 #include <stdexcept> // for std::invalid_argument
 
@@ -81,7 +81,8 @@ INode<T> *unOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
  * @return A pointer to the new node representing the negated tensor,
  *         with the same shape as A.
  */
-template <typename T> INode<T> *negative(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *negative(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Neg<T>> negK;
     return unOperator(rec, A_ptr, negK);
 }
@@ -96,7 +97,8 @@ template <typename T> INode<T> *negative(Computation_graph<T> &rec, INode<T> *A_
  * @return A pointer to the new node representing the element-wise square of A,
  *         with the same shape as the input tensor.
  */
-template <typename T> INode<T> *square(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *square(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Square<T>> squareK;
     return unOperator(rec, A_ptr, squareK);
 }
@@ -111,7 +113,8 @@ template <typename T> INode<T> *square(Computation_graph<T> &rec, INode<T> *A_pt
  * @return A pointer to the new node representing the element-wise square root
  * of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *sqrt(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *sqrt(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Sqrt<T>> sqrtK;
     return unOperator(rec, A_ptr, sqrtK);
 }
@@ -126,7 +129,8 @@ template <typename T> INode<T> *sqrt(Computation_graph<T> &rec, INode<T> *A_ptr)
  * @return A pointer to the new node representing the element-wise logarithm
  * of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *log(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *log(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Log<T>> logK;
     return unOperator(rec, A_ptr, logK);
 }
@@ -141,7 +145,8 @@ template <typename T> INode<T> *log(Computation_graph<T> &rec, INode<T> *A_ptr) 
  * @return A pointer to the new node representing the element-wise exponent
  * of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *exp(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *exp(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Exp<T>> expK;
     return unOperator(rec, A_ptr, expK);
 }
@@ -156,7 +161,8 @@ template <typename T> INode<T> *exp(Computation_graph<T> &rec, INode<T> *A_ptr) 
  * @return A pointer to the new node representing the element-wise absolute
  * value of A, with the same shape as the input tensor.
  */
-template <typename T> INode<T> *abs(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *abs(Computation_graph<T> &rec, INode<T> *A_ptr) {
     static const UnaryKernels<T, class Kernels::Abs<T>> absK;
     return unOperator(rec, A_ptr, absK);
 }
@@ -263,7 +269,8 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
  * @return A pointer to the new node representing the scalar sum of all elements
  * of A.
  */
-template <typename T> INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -335,8 +342,9 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
     auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
     if (A.nDims() <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = Dispatchers::get_sumDim<T>()[A.nDims()];
-        raw_ptr->grad_func = Dispatchers::get_sumDim_grad<T>()[A.nDims()];
+        raw_ptr->val_func = detail::Dispatchers::get_sumDim<T>()[A.nDims()];
+        raw_ptr->grad_func =
+            detail::Dispatchers::get_sumDim_grad<T>()[A.nDims()];
     }
 
     Strides::sum_dim<T>(*raw_ptr, dim);
@@ -357,7 +365,8 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
  * @return A pointer to the new node representing the scalar mean of all
  * elements of A.
  */
-template <typename T> INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr) {
+template <typename T>
+INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
@@ -425,8 +434,9 @@ INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
     auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
     auto raw_ptr = newNode.get();
     if (A.nDims() <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = Dispatchers::get_meanDim<T>()[A.nDims()];
-        raw_ptr->grad_func = Dispatchers::get_meanDim_grad<T>()[A.nDims()];
+        raw_ptr->val_func = detail::Dispatchers::get_meanDim<T>()[A.nDims()];
+        raw_ptr->grad_func =
+            detail::Dispatchers::get_meanDim_grad<T>()[A.nDims()];
     }
 
     Strides::mean_dim<T>(*raw_ptr, dim);
@@ -512,8 +522,9 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
     auto raw_ptr = newNode.get();
 
     if (A.nDims() < KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = Dispatchers::get_slice<T>()[A.nDims()];
-        raw_ptr->grad_func = Dispatchers::get_slice_grad<T>()[A.nDims()];
+        raw_ptr->val_func = detail::Dispatchers::get_slice<T>()[A.nDims()];
+        raw_ptr->grad_func =
+            detail::Dispatchers::get_slice_grad<T>()[A.nDims()];
     }
 
     Strides::slice(*raw_ptr, offset_owned.data());

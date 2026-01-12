@@ -1,14 +1,14 @@
 #pragma once
 
-#include "dispatchers.hpp"   // for KAAD_MAX_NDIMS, get_batch_matmul
 #include "../../tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Null
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp" // for batch_matmul, flexible_binary, matmul, outer
 #include "../../utils.hpp"
-#include <cstddef> // for size_t
-#include <memory>  // for std::make_unique
+#include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_batch_matmul
+#include <cstddef>         // for size_t
+#include <memory>          // for std::make_unique
 #include <sstream> // for std::operator<<, std::basic_ostream, std::char_traits, std::ostringstream
 #include <stdexcept> // for std::invalid_argument
 
@@ -72,8 +72,8 @@ template <typename T, class Kernel> struct BinaryKernels {
  * @return Pointer to the newly created binary operation node.
  */
 template <typename T, class Kernel>
-INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr,
-                      const BinaryKernels<T, Kernel> kernels,
+INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
+                      INode<T> *B_ptr, const BinaryKernels<T, Kernel> kernels,
                       const char *opName) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
@@ -114,8 +114,8 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_pt
         tensorfuncs::adjoint::binary::flexible_fn<T, Grad> gradient =
             kernels.flexGrad;
         if (newLen <= KAAD_MAX_NDIMS) {
-            operation = Dispatchers::get_flexOp<T, Op>()[newLen];
-            gradient = Dispatchers::get_flexGrad<T, Grad>()[newLen];
+            operation = detail::Dispatchers::get_flexOp<T, Op>()[newLen];
+            gradient = detail::Dispatchers::get_flexGrad<T, Grad>()[newLen];
         }
 
         auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
@@ -354,9 +354,10 @@ INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
             std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
         auto raw_ptr = newNode.get();
         if (newLen <= KAAD_MAX_NDIMS) {
-            raw_ptr->val_func = Dispatchers::get_batch_matmul<T>()[newLen];
+            raw_ptr->val_func =
+                detail::Dispatchers::get_batch_matmul<T>()[newLen];
             raw_ptr->grad_func =
-                Dispatchers::get_batch_matmul_grad<T>()[newLen];
+                detail::Dispatchers::get_batch_matmul_grad<T>()[newLen];
         }
 
         Strides::batch_matmul<T>(*raw_ptr);

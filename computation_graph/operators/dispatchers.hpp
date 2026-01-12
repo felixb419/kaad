@@ -2,17 +2,15 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include <array>                       // for std::array
-#include <cstddef>                     // for size_t
+#include <array>                             // for std::array
+#include <cstddef>                           // for size_t
 #include <utility> // for std::index_sequence, std::make_index_sequence
+
+namespace kaad {
 
 #ifndef KAAD_MAX_NDIMS
 #define KAAD_MAX_NDIMS 5
 #endif
-
-using namespace kaad;
-
-namespace kaad {
 
 /**
  * @namespace kaad::Dispatchers
@@ -30,7 +28,7 @@ namespace kaad {
  * Typical users do not need to call these functions directly unless
  * implementing new operators.
  */
-namespace Dispatchers {
+namespace detail::Dispatchers {
 
 /// @brief Returns full table of flexible binary operation implementations.
 template <typename T, class Op, size_t... Is>
@@ -173,5 +171,5 @@ get_slice_grad() {
     return get_slice_grad_impl<T>(std::make_index_sequence<KAAD_MAX_NDIMS>());
 }
 
-} // namespace Dispatchers
+} // namespace detail::Dispatchers
 } // namespace kaad
