@@ -1,0 +1,80 @@
+#pragma once
+
+#include "../../tensor/tensor.hpp"       // for Tensor
+#include "../../tensorfuncs/strides.hpp" // for matmul, batch_matmul
+#include "dispatchers.hpp"               // for get_batch_matmul
+#include <memory>                        // for std::make_unique
+#include <sstream> // for std::operator<<, std::basic_ostream, std::char_traits, std::ostringstream
+
+namespace kaad {
+
+template <typename T> struct Computation_graph;
+template <typename T> struct INode;
+template <typename T> struct Node_matmul;
+template <typename T> struct Node_batch_matmul;
+
+/**
+ * @brief Adds a matrix multiplication node (A × B) to the computation graph.
+ *
+ * Performs matrix multiplication between two input tensor nodes `A_ptr` and
+ * `B_ptr`. Supports both standard 2D matrix multiplication and batched matrix
+ * multiplication:
+ * - If both tensors are 2D, performs standard matrix multiplication.
+ * - If tensors have more than 2 dimensions, performs batched matrix
+ * multiplication over the leading dimensions. For example, multiplying tensors
+ * of shape (batch, M, K) × (batch, K, N) yields a result of shape (batch, M,
+ * N).
+ *
+ * @tparam T The data type of the tensor values.
+ *
+ * @param rec The computation graph to which the node will be added.
+ * @param A_ptr Pointer to the left-hand-side input tensor node A.
+ * @param B_ptr Pointer to the right-hand-side input tensor node B.
+ * @return A pointer to the new node representing the matrix (or batched)
+ * product of A and B.
+ */
+template <typename T>
+INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+    int recLen = rec.nodes.size();
+    Tensor<T> &A = A_ptr->value;
+    Tensor<T> &B = B_ptr->value;
+
+    size_t newLen = std::max(A.nDims(), B.nDims());
+    std::vector<int> newShape(newLen);
+
+    const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
+    if (!combine_matrix(A.shape.data(), A.nDims(), B.shape.data(), B.nDims(),
+                        newShape.data(), newLen)) {
+        std::ostringstream errmsg;
+        errmsg << "shape error in node[" << recLen << "] (" << opName
+               << "), tensor shapes arent valid for " << opName << " (shape1=";
+        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
+        errmsg << ", shape2=";
+        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
+        errmsg << ")";
+        throw std::invalid_argument(errmsg.str());
+    }
+
+    if (newLen == 2) {
+        auto newNode = std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape);
+        Strides::matmul<T>(*newNode.get());
+        rec.nodes.push_back(std::move(newNode));
+    } else {
+        auto newNode =
+            std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
+        auto raw_ptr = newNode.get();
+        if (newLen <= KAAD_MAX_NDIMS) {
+            raw_ptr->val_func =
+                detail::Dispatchers::get_batch_matmul<T>()[newLen];
+            raw_ptr->grad_func =
+                detail::Dispatchers::get_batch_matmul_grad<T>()[newLen];
+        }
+
+        Strides::batch_matmul<T>(*raw_ptr);
+        rec.nodes.push_back(std::move(newNode));
+    }
+
+    return rec.nodes.back().get();
+}
+
+} // namespace kaad

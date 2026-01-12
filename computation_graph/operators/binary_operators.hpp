@@ -1,25 +1,23 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for print_arr, combine_flexible, combine_matrix
+#include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Kernels::Null
+#include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../../tensorfuncs/strides.hpp" // for batch_matmul, flexible_binary, matmul, outer
-#include "../../utils.hpp"
-#include "dispatchers.hpp" // for KAAD_MAX_NDIMS, get_batch_matmul
-#include <cstddef>         // for size_t
-#include <memory>          // for std::make_unique
-#include <sstream> // for std::operator<<, std::basic_ostream, std::char_traits, std::ostringstream
-#include <stdexcept> // for std::invalid_argument
+#include "../../tensorfuncs/strides.hpp"     // for flexible_binary
+#include "dispatchers.hpp"                   // for Dispatchers
+#include <cstddef>                           // for size_t
+#include <memory>                            // for std::make_unique
+#include <sstream>                           // for std::ostringstream
 
 namespace kaad {
 
-template <typename T, class Kernel> struct Node_binary;
-template <typename T, class Kernel> struct Node_binary_flex;
 template <typename T> struct Computation_graph;
 template <typename T> struct INode;
-template <typename T> struct Node_batch_matmul;
-template <typename T> struct Node_matmul;
+template <typename T, class Kernel> struct Node_binary;
+template <typename T, class Kernel> struct Node_binary_flex;
+
+namespace detail {
 
 /**
  * @brief Contains a collection of binary functions for multiple versions
@@ -135,6 +133,8 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
     return rec.nodes.back().get();
 }
 
+} // namespace detail
+
 /**
  * @brief Adds a binary addition node (A + B) to the computation graph.
  *
@@ -151,7 +151,7 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
  */
 template <typename T>
 INode<T> *add(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Add<T>> addK;
+    static const detail::BinaryKernels<T, class Kernels::Add<T>> addK;
     return binOperator(rec, A_ptr, B_ptr, addK, "add");
 }
 
@@ -171,7 +171,7 @@ INode<T> *add(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  */
 template <typename T>
 INode<T> *sub(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Sub<T>> subK;
+    static const detail::BinaryKernels<T, class Kernels::Sub<T>> subK;
     return binOperator(rec, A_ptr, B_ptr, subK, "sub");
 }
 
@@ -192,7 +192,7 @@ INode<T> *sub(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  */
 template <typename T>
 INode<T> *mul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Mul<T>> mulK;
+    static const detail::BinaryKernels<T, class Kernels::Mul<T>> mulK;
     return binOperator(rec, A_ptr, B_ptr, mulK, "mul");
 }
 
@@ -212,7 +212,7 @@ INode<T> *mul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  */
 template <typename T>
 INode<T> *div(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Div<T>> divK;
+    static const detail::BinaryKernels<T, class Kernels::Div<T>> divK;
     return binOperator(rec, A_ptr, B_ptr, divK, "div");
 }
 
@@ -232,184 +232,8 @@ INode<T> *div(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  */
 template <typename T>
 INode<T> *pow(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Pow<T>> powK;
+    static const detail::BinaryKernels<T, class Kernels::Pow<T>> powK;
     return binOperator(rec, A_ptr, B_ptr, powK, "pow");
-}
-
-/**
- * @brief Adds a binary dot product node (A ⋅ B) to the computation graph.
- *
- * Computes the element-wise dot product of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
- *
- * @tparam T The data type of the tensor values.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise dot product
- * of A and B.
- */
-template <typename T>
-INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    using Op = class Kernels::Null::Op;
-    using Grad = class Kernels::Null::Grad;
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> scalar =
-        tensorfuncs::primal::binary::scalarDot<T, Op>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> scalar_grad =
-        tensorfuncs::adjoint::binary::scalarDot<T, Grad>;
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> dot =
-        tensorfuncs::primal::binary::dot<T, Op>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> dot_grad =
-        tensorfuncs::adjoint::binary::dot<T, Grad>;
-
-    int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
-    Tensor<T> &B = B_ptr->value;
-
-    bool A_scalar = A.nDims() == 1 && A.shape[0] == 1;
-    bool B_scalar = B.nDims() == 1 && B.shape[0] == 1;
-    if (B_scalar) {
-        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
-            scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
-        auto raw_ptr = newNode.get();
-        raw_ptr->end = A.data() + A.val.size();
-        rec.nodes.push_back(std::move(newNode));
-    } else if (A_scalar) {
-        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
-            scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
-        auto raw_ptr = newNode.get();
-        raw_ptr->end = B.data() + B.val.size();
-        rec.nodes.push_back(std::move(newNode));
-    } else if (A.nDims() == 1 && B.nDims() == 1 &&
-               std::equal(A.shape.begin(), A.shape.end(), B.shape.begin())) {
-        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
-            dot, dot_grad, A_ptr, B_ptr, ((T)0));
-        auto raw_ptr = newNode.get();
-        raw_ptr->end = A.data() + A.val.size();
-        rec.nodes.push_back(std::move(newNode));
-
-    } else {
-        std::ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen
-               << "] (dot), tensor shapes arent valid for dot product (shape1=";
-        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-        errmsg << ", shape2=";
-        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
-        errmsg << ")";
-        throw std::invalid_argument(errmsg.str());
-    }
-
-    return rec.nodes.back().get();
-}
-
-/**
- * @brief Adds a matrix multiplication node (A × B) to the computation graph.
- *
- * Performs matrix multiplication between two input tensor nodes `A_ptr` and
- * `B_ptr`. Supports both standard 2D matrix multiplication and batched matrix
- * multiplication:
- * - If both tensors are 2D, performs standard matrix multiplication.
- * - If tensors have more than 2 dimensions, performs batched matrix
- * multiplication over the leading dimensions. For example, multiplying tensors
- * of shape (batch, M, K) × (batch, K, N) yields a result of shape (batch, M,
- * N).
- *
- * @tparam T The data type of the tensor values.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the left-hand-side input tensor node A.
- * @param B_ptr Pointer to the right-hand-side input tensor node B.
- * @return A pointer to the new node representing the matrix (or batched)
- * product of A and B.
- */
-template <typename T>
-INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
-    Tensor<T> &B = B_ptr->value;
-
-    size_t newLen = std::max(A.nDims(), B.nDims());
-    std::vector<int> newShape(newLen);
-
-    const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!combine_matrix(A.shape.data(), A.nDims(), B.shape.data(), B.nDims(),
-                        newShape.data(), newLen)) {
-        std::ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName
-               << "), tensor shapes arent valid for " << opName << " (shape1=";
-        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-        errmsg << ", shape2=";
-        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
-        errmsg << ")";
-        throw std::invalid_argument(errmsg.str());
-    }
-
-    if (newLen == 2) {
-        auto newNode = std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape);
-        Strides::matmul<T>(*newNode.get());
-        rec.nodes.push_back(std::move(newNode));
-    } else {
-        auto newNode =
-            std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
-        auto raw_ptr = newNode.get();
-        if (newLen <= KAAD_MAX_NDIMS) {
-            raw_ptr->val_func =
-                detail::Dispatchers::get_batch_matmul<T>()[newLen];
-            raw_ptr->grad_func =
-                detail::Dispatchers::get_batch_matmul_grad<T>()[newLen];
-        }
-
-        Strides::batch_matmul<T>(*raw_ptr);
-        rec.nodes.push_back(std::move(newNode));
-    }
-
-    return rec.nodes.back().get();
-}
-
-/**
- * @brief Adds a generalized outer product node to the computation graph.
- *
- * Computes the outer product of two input tensor nodes `A_ptr` and `B_ptr`.
- * The result is a tensor whose shape is the concatenation of the shapes of A
- * and B. For example:
- * - If A has shape (m,) and B has shape (n,), the result has shape (m, n).
- * - If A has shape (m, k) and B has shape (n, p), the result has shape (m, k,
- * n, p).
- *
- * Each element of the output is computed as the product of an element from A
- * and an element from B, preserving the full structure of both input tensors.
- *
- * @tparam T The data type of the tensor values.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the generalized outer product
- * of A and B.
- */
-template <typename T>
-INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
-    Tensor<T> &B = B_ptr->value;
-
-    size_t newLen = A.nDims() + B.nDims();
-    std::vector<int> newShape(newLen);
-    std::copy(A.shape.begin(), A.shape.end(), newShape.begin());
-    std::copy(B.shape.begin(), B.shape.end(), newShape.begin() + A.nDims());
-
-    using Kernel = typename Kernels::Mul<T>;
-    using Op = typename Kernel::Op;
-    using Grad = typename Kernel::Grad;
-
-    auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-        A_ptr, B_ptr, newShape, newLen);
-    auto raw = newNode.get();
-    Strides::outer<T>(*raw);
-    rec.nodes.push_back(std::move(newNode));
-
-    return raw;
 }
 
 /**
@@ -428,7 +252,7 @@ INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  */
 template <typename T>
 INode<T> *min(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Min<T>> minK;
+    static const detail::BinaryKernels<T, class Kernels::Min<T>> minK;
     return binOperator(rec, A_ptr, B_ptr, minK, "minimum");
 }
 
@@ -448,7 +272,7 @@ INode<T> *min(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
  */
 template <typename T>
 INode<T> *max(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    static const BinaryKernels<T, class Kernels::Max<T>> maxK;
+    static const detail::BinaryKernels<T, class Kernels::Max<T>> maxK;
     return binOperator(rec, A_ptr, B_ptr, maxK, "minimum");
 }
 
