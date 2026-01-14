@@ -86,13 +86,13 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.val.size();
+        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.nElems();
         rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, B.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.val.size();
+        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.nElems();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == B.nDims() &&
                std::equal(A.shape.begin(), A.shape.end(), B.shape.data()) &&
@@ -101,7 +101,7 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape);
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.val.size();
+        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.nElems();
         rec.nodes.push_back(std::move(newNode));
     } else if (combine_flexible(A.shape.data(), A.nDims(), B.shape.data(),
                                 B.nDims(), newShape.data(), newLen)) {

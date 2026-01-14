@@ -36,7 +36,7 @@ INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr) {
     newNode->A_end = A.data() + A.nElems();
     newNode->dA_end =
         newNode->A->gradient.data() + newNode->A->gradient.nElems();
-    newNode->divisor = A.val.size();
+    newNode->divisor = A.nElems();
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }

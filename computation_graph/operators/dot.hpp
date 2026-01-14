@@ -50,20 +50,20 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = A.data() + A.val.size();
+        raw_ptr->end = A.data() + A.nElems();
         rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = B.data() + B.val.size();
+        raw_ptr->end = B.data() + B.nElems();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == 1 && B.nDims() == 1 &&
                std::equal(A.shape.begin(), A.shape.end(), B.shape.begin())) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
-        raw_ptr->end = A.data() + A.val.size();
+        raw_ptr->end = A.data() + A.nElems();
         rec.nodes.push_back(std::move(newNode));
 
     } else {
