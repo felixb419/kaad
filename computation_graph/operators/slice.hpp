@@ -3,8 +3,10 @@
 #include "../../tensor/tensor.hpp"       // for Tensor
 #include "../../tensorfuncs/strides.hpp" // for slice
 #include "dispatchers.hpp"               // for get_slice
+#include "exceptions.hpp"                // for argument_error
 #include <memory>                        // for std::make_unique
-#include <sstream>                       // for  std::ostringstream
+#include <span>                          // for  std::span
+#include <string>                        // for  std::string
 
 namespace kaad {
 
@@ -36,22 +38,16 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
     Tensor<T> &A = A_ptr->value;
 
     if (size.size() > A.nDims()) {
-        std::ostringstream errmsg;
-        errmsg << "argument error in node[" << recLen
-               << "] (slice), length of size cant be bigger than A.nDims(), "
-                  "(size length="
-               << size.size() << ", A.nDims()=" << A.nDims() << ")"
-               << std::endl;
-        throw std::invalid_argument(errmsg.str());
+        std::span<const int> size_span(size.begin(), size.size());
+        throw argument_error(recLen, "slice",
+                             "length of size is bigger than A.nDims()",
+                             {{"size", size_span}, {"A.shape", A.shape}});
     }
     if (offset.size() > A.nDims()) {
-        std::ostringstream errmsg;
-        errmsg << "argument error in node[" << recLen
-               << "] (slice), length of offset cant be bigger than A.nDims(), "
-                  "(offset length="
-               << offset.size() << ", A.nDims()=" << A.nDims() << ")"
-               << std::endl;
-        throw std::invalid_argument(errmsg.str());
+        std::span<const int> offset_span(offset.begin(), offset.size());
+        throw argument_error(recLen, "slice",
+                             "length of offset is bigger than A.nDims()",
+                             {{"offset", offset_span}, {"A.shape", A.shape}});
     }
 
     int diff = A.nDims() - offset.size();
@@ -67,18 +63,15 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
 
     for (int i = 0; i < A.nDims(); i++) {
         if (offset_owned[i] + size_owned[i] > A.shape[i]) {
-            std::ostringstream errmsg;
-            errmsg << "argument error in node[" << recLen
-                   << "] (slice), offset[" << i << "] with length[" << i
-                   << "] would overflow shape of A, (offset=";
-            print_arr(offset_owned.data(), offset_owned.data() + A.nDims(),
-                      errmsg);
-            errmsg << ", length=";
-            print_arr(size_owned.data(), size_owned.data() + A.nDims(), errmsg);
-            errmsg << ", shape=";
-            print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-            errmsg << ")" << std::endl;
-            throw std::invalid_argument(errmsg.str());
+            std::span<const int> size_span(size.begin(), size.size());
+            std::span<const int> offset_span(offset.begin(), offset.size());
+            std::string idx_str = std::to_string(i);
+            std::string msg = "offset[" + idx_str + "] + length[" + idx_str +
+                              "] > A.shape[" + idx_str + "]";
+            throw argument_error(recLen, "slice", msg.c_str(),
+                                 {{"size", size_span},
+                                  {"offset", offset_span},
+                                  {"A.shape", A.shape}});
         }
     }
 

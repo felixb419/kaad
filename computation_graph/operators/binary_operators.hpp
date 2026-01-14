@@ -6,9 +6,9 @@
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for flexible_binary
 #include "dispatchers.hpp"                   // for Dispatchers
+#include "exceptions.hpp"                    // for shape_error
 #include <cstddef>                           // for size_t
 #include <memory>                            // for std::make_unique
-#include <sstream>                           // for std::ostringstream
 
 namespace kaad {
 
@@ -121,14 +121,9 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
         Strides::flexible_binary<T>(*newNode.get());
         rec.nodes.push_back(std::move(newNode));
     } else {
-        std::ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName
-               << "), tensor shapes are not broadcastable (A.shape=";
-        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-        errmsg << ", B.shape=";
-        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
-        errmsg << ")";
-        throw std::invalid_argument(errmsg.str());
+        throw shape_error(recLen, opName,
+                          "incompatible tensor shapes for binary operation",
+                          {{"A.shape", A.shape}, {"B.shape", B.shape}});
     }
     return rec.nodes.back().get();
 }

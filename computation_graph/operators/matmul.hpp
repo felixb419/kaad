@@ -3,8 +3,8 @@
 #include "../../tensor/tensor.hpp"       // for Tensor
 #include "../../tensorfuncs/strides.hpp" // for matmul, batch_matmul
 #include "dispatchers.hpp"               // for get_batch_matmul
+#include "exceptions.hpp"                // for shape_error
 #include <memory>                        // for std::make_unique
-#include <sstream> // for std::operator<<, std::basic_ostream, std::char_traits, std::ostringstream
 
 namespace kaad {
 
@@ -45,14 +45,10 @@ INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
     if (!combine_matrix(A.shape.data(), A.nDims(), B.shape.data(), B.nDims(),
                         newShape.data(), newLen)) {
-        std::ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen << "] (" << opName
-               << "), tensor shapes arent valid for " << opName << " (shape1=";
-        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-        errmsg << ", shape2=";
-        print_arr(B.shape.data(), B.shape.data() + B.nDims(), errmsg);
-        errmsg << ")";
-        throw std::invalid_argument(errmsg.str());
+        throw shape_error(
+            recLen, opName,
+            "incompatible tensor shapes for matrix multiplication",
+            {{"A.shape", A.shape}, {"B.shape", B.shape}});
     }
 
     if (newLen == 2) {

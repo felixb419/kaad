@@ -7,6 +7,7 @@ using T = double;
 
 void call_all_operators(kaad::Computation_graph<T> &rec, kaad::INode<T> *a,
                         kaad::INode<T> *b) {
+    slice(rec, a, {1, 1}, {3, 33});
     add(rec, a, b);
     dot(rec, a, b);
     matmul(rec, a, b);
@@ -34,26 +35,26 @@ int main() {
     std::vector<int> d_shape = {4, 5};
     auto d = rec.append(d_shape, 20);
 
-    auto sa = slice(rec, a, {4, 1}, {2, 2});
-    auto c = add(rec, exp(rec, sa), mul(rec, b, d));
-
+    // auto sa = slice(rec, a, {4, 1}, {2, 2});
+    // auto c = add(rec, exp(rec, sa), mul(rec, b, d));
+    //
     call_all_operators(rec, a, b);
 
-    cout << "A:\n" << a->value << endl;
-    cout << "B:\n" << b->value << endl;
-    cout << "D:\n" << d->value << endl;
-
-    rec.reset();
-
-    auto e = rec.evaluate(c);
-
-    cout << "C:\n" << c->value << endl;
-
-    auto g = rec.getGradient(c, a, b, d);
-
-    cout << "dA\n" << *g[0] << endl;
-    cout << "dB\n" << *g[1] << endl;
-    cout << "dD\n" << *g[2] << endl;
+    // cout << "A:\n" << a->value << endl;
+    // cout << "B:\n" << b->value << endl;
+    // cout << "D:\n" << d->value << endl;
+    //
+    // rec.reset();
+    //
+    // auto e = rec.evaluate(c);
+    //
+    // cout << "C:\n" << c->value << endl;
+    //
+    // auto g = rec.getGradient(c, a, b, d);
+    //
+    // cout << "dA\n" << *g[0] << endl;
+    // cout << "dB\n" << *g[1] << endl;
+    // cout << "dD\n" << *g[2] << endl;
 
     return 0;
 }

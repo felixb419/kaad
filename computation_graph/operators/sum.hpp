@@ -5,6 +5,7 @@
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
 #include "../../tensorfuncs/strides.hpp"     // for sum_dim
 #include "dispatchers.hpp"                   // for get_sumDim
+#include "exceptions.hpp"                    // for argument_error
 #include <memory>                            // for std::make_unique
 #include <sstream>                           // for std::ostringstream
 
@@ -73,11 +74,9 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
     Tensor<T> &A = A_ptr->value;
 
     if (dim < 0 || dim >= A.nDims()) {
-        std::ostringstream errmsg;
-        errmsg << "argument error in node[" << recLen
-               << "] (sum), dim has to be a valid index of A.shape (dim=" << dim
-               << ", A.nDims()=" << A.nDims() << ")" << std::endl;
-        throw std::invalid_argument(errmsg.str());
+        throw argument_error(recLen, "sum",
+                             "dim has to be a valid index of A.shape",
+                             {{"A.shape", A.shape}}, {{"dim", dim}});
     }
 
     if (A.nDims() == 1) {

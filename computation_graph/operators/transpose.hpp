@@ -2,9 +2,9 @@
 
 #include "../../tensor/tensor.hpp" // for Tensor
 #include "../../utils.hpp"         // for print_arr
+#include "exceptions.hpp"          // for shape_error, argument_error
 #include <initializer_list>        // for std::initializer_list
 #include <memory>                  // for std::make_unique
-#include <sstream>                 // for std::ostringstream
 
 namespace kaad {
 
@@ -36,12 +36,8 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
     Tensor<T> &A = A_ptr->value;
 
     if (A.nDims() < 2) {
-        std::ostringstream errmsg;
-        errmsg << "shape error in node[" << recLen
-               << "] (transpose), A.nDims() hast to be > 1 (shape1=";
-        print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-        errmsg << ")";
-        throw std::invalid_argument(errmsg.str());
+        throw shape_error(recLen, "transpose", "A.nDims() hast to be > 1",
+                          {{"A.shape", A.shape}});
     }
 
     std::vector<int> shape_T(A.nDims());
@@ -54,15 +50,9 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
                stride_T.data());
     } else {
         if (perm.size() != A.nDims()) {
-            std::ostringstream errmsg;
-            errmsg << "argument error in node[" << recLen
-                   << "] (transpose), perm.size() has to be same as A.nDims() "
-                      "(perm=";
-            print_arr(perm.begin(), perm.end(), errmsg);
-            errmsg << ", shape1=";
-            print_arr(A.shape.data(), A.shape.data() + A.nDims(), errmsg);
-            errmsg << ")";
-            throw std::invalid_argument(errmsg.str());
+            throw argument_error(recLen, "transpose",
+                                 "perm.size() has to be same as A.nDims()",
+                                 {{"A.shape", A.shape}});
         }
 
         int *count = new int[A.nDims()];
@@ -79,14 +69,12 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
         }
         for (int *p = count; p != count + A.nDims(); p++) {
             if (*p != 1) {
-                std::ostringstream errmsg;
-                errmsg
-                    << "argument error in node[" << recLen
-                    << "] (transpose), invalid permutation, perm has to "
-                       "contain index of every dimension exactly once (perm=";
-                print_arr(perm.begin(), perm.end(), errmsg);
-                errmsg << ")";
-                throw std::invalid_argument(errmsg.str());
+                // change to print perm instead of A.shape
+                throw argument_error(
+                    recLen, "transpose",
+                    "perm has to contain index of every dimension "
+                    "exactly once",
+                    {{"A.shape", A.shape}});
             }
         }
     }

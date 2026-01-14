@@ -3,6 +3,7 @@
 #include "../../tensor/tensor.hpp"       // for Tensor
 #include "../../tensorfuncs/strides.hpp" // for mean_dim
 #include "dispatchers.hpp"               // for get_meanDim
+#include "exceptions.hpp"                // for param_error
 #include <memory>                        // for std::make_unique
 #include <sstream>                       // for std::ostringstream
 
@@ -68,11 +69,9 @@ INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
     Tensor<T> &A = A_ptr->value;
 
     if (dim < 0 || dim >= A.nDims()) {
-        std::ostringstream errmsg;
-        errmsg << "argument error in node[" << recLen
-               << "] (mean), dim has to be a valid index of A.shape (dim="
-               << dim << ", A.nDims()=" << A.nDims() << ")" << std::endl;
-        throw std::invalid_argument(errmsg.str());
+        throw argument_error(recLen, "mean",
+                             "dim has to be a valid index of A.shape",
+                             {{"A.shape", A.shape}}, {{"dim", dim}});
     }
 
     if (A.nDims() == 1) {
