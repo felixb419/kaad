@@ -57,6 +57,17 @@ concept ValueRange = std::ranges::input_range<R> &&
  */
 template <typename T> class Tensor {
   public:
+    using value_type = T;
+    using reference = T &;
+    using const_reference = const T &;
+    using pointer = T *;
+    using const_pointer = const T *;
+
+    using iterator = T *;
+    using const_iterator = const T *;
+    using difference_type = std::ptrdiff_t;
+    using size_type = std::size_t;
+
     std::vector<int>
         shape; ///< Vector containing the size of the tensor in each dimension.
     std::vector<int>
@@ -143,13 +154,13 @@ template <typename T> class Tensor {
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */
-    size_t nDims() const { return this->shape.size(); }
+    size_type nDims() const { return this->shape.size(); }
 
     /**
      * @brief Get number of elements in the tensor.
      * @return Length of the value array.
      */
-    std::size_t nElems() const { return this->elements.size(); }
+    size_type nElems() const { return this->elements.size(); }
 
     /**
      * @brief Get a const pointer to the value array.
