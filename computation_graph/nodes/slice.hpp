@@ -58,8 +58,8 @@ template <typename T> struct Node_slice : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.data(), strideA,
-                     strideC, start_offset_a, C_offset, D);
+            val_func(this->A->value.data(), this->value.elements.data(),
+                     strideA, strideC, start_offset_a, C_offset, D);
             this->evaluated = true;
         }
     }
@@ -71,8 +71,8 @@ template <typename T> struct Node_slice : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.data(), this->gradient.data(), strideA,
-                  strideC, start_offset_a, C_offset, D);
+        grad_func(this->A->gradient.elements.data(), this->gradient.data(),
+                  strideA, strideC, start_offset_a, C_offset, D);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

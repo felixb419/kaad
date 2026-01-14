@@ -31,8 +31,8 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
     tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> grad_func =
         nullptr; ///< Function pointer to the gradient operation.
 
-    T *end = nullptr; ///< Pointer to the end of the value buffer (used for
-                      ///< iteration).
+    const T *end = nullptr; ///< Pointer to the end of the value buffer (used
+                            ///< for iteration).
 
     /**
      * @brief Constructs a binary operation node with the given operation and
@@ -62,8 +62,8 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.data(), B->value.data(), this->value.data(),
-                     end, op);
+            val_func(this->A->value.data(), this->B->value.data(),
+                     this->value.elements.data(), end, op);
             this->evaluated = true;
         }
     }
@@ -75,9 +75,9 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.data(),
-                  B->value.data(), B->gradient.data(), this->value.data(),
-                  this->gradient.data(), end, grad);
+        grad_func(this->A->value.data(), this->A->gradient.elements.data(),
+                  this->B->value.data(), this->B->gradient.elements.data(),
+                  this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

@@ -29,8 +29,8 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
     tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> grad_func =
         nullptr; ///< Function pointer to the gradient operation.
 
-    T *end = nullptr; ///< Pointer to the end of the value buffer (used for
-                      ///< iteration)
+    const T *end = nullptr; ///< Pointer to the end of the value buffer (used
+                            ///< for iteration)
 
     /**
      * @brief Constructs a unary node with the given operation and gradient.
@@ -57,7 +57,8 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.data(), end, op);
+            val_func(this->A->value.data(), this->value.elements.data(), end,
+                     op);
             this->evaluated = true;
         }
     }
@@ -69,7 +70,7 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.data(),
+        grad_func(this->A->value.data(), this->A->gradient.elements.data(),
                   this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {

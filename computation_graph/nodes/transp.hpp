@@ -51,7 +51,8 @@ template <typename T> struct Node_transp : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.data(), A_end, op);
+            val_func(this->A->value.data(), this->value.elements.data(), A_end,
+                     op);
             this->evaluated = true;
         }
     }
@@ -63,7 +64,7 @@ template <typename T> struct Node_transp : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.data(),
+        grad_func(this->A->value.data(), this->A->gradient.elements.data(),
                   this->value.data(), this->gradient.data(), C_end, grad);
 
         if (this->A->hasInputs) {

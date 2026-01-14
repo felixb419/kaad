@@ -361,9 +361,9 @@ template <typename T>
 using mean_fn = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
 
 template <typename T>
-using mean_dim_fn = void (*)(const T *A, T *dA, const T *C, T *dC, int *strideA,
-                             int *strideC, size_t *a_offset, int N, T divisor,
-                             const T *c_end);
+using mean_dim_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
+                             int *strideA, int *strideC, size_t *a_offset,
+                             int N, T divisor, const T *c_end);
 
 template <typename T>
 using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
@@ -499,8 +499,9 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
  * @param dA_end Pointer to the end of gradient tensor dA.
  */
 template <typename T>
-void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-              size_t *a_offset, int N, T divisor, const T *dA_end) {
+void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
+              int *strideC, size_t *a_offset, int N, T divisor,
+              const T *dA_end) {
     sum_dim(dA, dC, strideA, strideC, a_offset, N);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
@@ -514,8 +515,9 @@ void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
  * *strideC, size_t *a_offset, int N, T divisor, T *dA_end)
  */
 template <typename T, int N>
-void mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int *strideC,
-              size_t *a_offset, int _, T divisor, const T *dA_end) {
+void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
+              int *strideC, size_t *a_offset, int _, T divisor,
+              const T *dA_end) {
     sum_dim<T, N>(dA, dC, strideA, strideC, a_offset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;

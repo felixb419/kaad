@@ -57,8 +57,8 @@ template <typename T> struct Node_sum_dim : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.data(), strideA,
-                     strideC, A_offset, D);
+            val_func(this->A->value.data(), this->value.elements.data(),
+                     strideA, strideC, A_offset, D);
             this->evaluated = true;
         }
     }
@@ -70,8 +70,8 @@ template <typename T> struct Node_sum_dim : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.data(), this->gradient.data(), strideA,
-                  strideC, A_offset, D);
+        grad_func(this->A->gradient.elements.data(), this->gradient.data(),
+                  strideA, strideC, A_offset, D);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

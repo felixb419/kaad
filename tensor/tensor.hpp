@@ -101,7 +101,7 @@ template <typename T> class Tensor {
         }
 
         this->elements.resize(len);
-        std::fill(this->data(), this->end(), fill);
+        std::fill(this->elements.begin(), this->elements.end(), fill);
     }
 
     /**
@@ -116,7 +116,7 @@ template <typename T> class Tensor {
         detail::compute_stride(this->stride, len, this->shape);
 
         this->elements.resize(len);
-        std::fill(this->data(), this->end(), fill);
+        std::fill(this->elements.begin(), this->elements.end(), fill);
     }
 
     /**
@@ -152,22 +152,10 @@ template <typename T> class Tensor {
     std::size_t nElems() const { return this->elements.size(); }
 
     /**
-     * @brief Get a pointer to the value array.
-     * @return Pointer to the start of the value array.
-     */
-    T *data() { return this->elements.data(); }
-
-    /**
      * @brief Get a const pointer to the value array.
      * @return Const pointer to the start of the value array.
      */
     const T *data() const { return this->elements.data(); }
-
-    /**
-     * @brief Get a pointer to the end of the value array.
-     * @return Pointer to one past the last element.
-     */
-    T *end() { return &(*this->elements.end()); }
 
     /**
      * @brief Get a const pointer to the end of the value array.
