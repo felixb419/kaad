@@ -1,15 +1,17 @@
 [ TODO ]
 
 REFACTOR:
-    improve names of node members
     make members private
     remove auto keyword
     possibly remove stride functions and combine into get_Node
     (?) make transpose not be noop when nDims <= 1
+    rename val member to elements in Tensor
+    rename val member to data in Tensor_view_view
 
 FEAT:
     make default recorder variable
     (?) Tensor::iterator type
+    make inptus to std::vector
 
 PERF:
     make stride function transpose dimensions so biggest is highest
@@ -18,5 +20,5 @@ DOC:
     add definitions (operation=operation on in/out tensors, operator=operation on nodes)
     add note on broadcasting in primal_ops.hpp
     rework gradient comments
-    rename val member to elements in Tensor
-    rename val member to data in Tensor_view_view
+    rework operator comments
+    rework node comments

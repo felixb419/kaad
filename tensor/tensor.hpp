@@ -149,41 +149,31 @@ template <typename T> class Tensor {
      * @brief Get number of elements in the tensor.
      * @return Length of the value array.
      */
-    std::size_t nElems() const {
-        return this->val.size();
-    } 
+    std::size_t nElems() const { return this->val.size(); }
 
     /**
      * @brief Get a pointer to the value array.
      * @return Pointer to the start of the value array.
      */
-    T *data() {
-        return this->val.data();
-    } 
+    T *data() { return this->val.data(); }
 
     /**
      * @brief Get a const pointer to the value array.
      * @return Const pointer to the start of the value array.
      */
-    const T *data() const {
-        return this->val.data();
-    } 
+    const T *data() const { return this->val.data(); }
 
     /**
      * @brief Get a pointer to the end of the value array.
      * @return Pointer to one past the last element.
      */
-    T *end() {
-        return &(*this->val.end());
-    }
+    T *end() { return &(*this->val.end()); }
 
     /**
      * @brief Get a const pointer to the end of the value array.
      * @return Const pointer to one past the last element.
      */
-    const T *end() const {
-        return &(*this->val.end());
-    }
+    const T *end() const { return &(*this->val.end()); }
 
     /**
      * @brief Creates a view of the tensor.
@@ -192,8 +182,7 @@ template <typename T> class Tensor {
      */
     struct Tensor_view<T> view() const {
         return Tensor_view<T>(this->shape.data(), this->stride.data(),
-                              this->nDims(), this->data(),
-                              this->nElems());
+                              this->nDims(), this->data(), this->nElems());
     }
 
     /**
@@ -203,8 +192,7 @@ template <typename T> class Tensor {
      */
     struct Tensor_view<T> view_mut() {
         return Tensor_view_mut<T>(this->shape.data(), this->stride.data(),
-                                  this->nDims(), this->data(),
-                                  this->nElems());
+                                  this->nDims(), this->data(), this->nElems());
     }
 
     /**
