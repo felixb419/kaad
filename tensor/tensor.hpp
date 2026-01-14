@@ -4,10 +4,10 @@
 #include <concepts>         // for concept
 #include <cstddef>          // for size_t
 #include <initializer_list> // for std::initializer_list
-#include <iostream>  // for std::operator<<, std::ostream, std::cout, std::end
-#include <ranges>    // for std::ranges
-#include <stdexcept> // for std::invalid_argument
-#include <vector>    // for std::vector
+#include <iostream>         // for std::ostream
+#include <ranges>           // for std::ranges
+#include <stdexcept>        // for std::invalid_argument
+#include <vector>           // for std::vector
 
 #include "common.hpp"      // for kaad::detail::print_tensor
 #include "tensor_view.hpp" // for kaad::Tensor_view
@@ -205,7 +205,7 @@ template <typename T> class Tensor {
      */
     friend std::ostream &operator<<(std::ostream &os, const Tensor<T> &tensor) {
         if (tensor.nDims() == 0) {
-            std::cout << "[]";
+            os << "[]";
         } else {
             std::vector<int> cords(tensor.nDims());
             int indent = 0;
