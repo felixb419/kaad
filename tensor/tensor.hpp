@@ -62,7 +62,7 @@ template <typename T> class Tensor {
     std::vector<int>
         stride; ///< Vector containing the stride of the tensor (steps needed to
                 ///< move one element in each dimension).
-    std::vector<T> val; ///< Vector containing the elements of the Tensor.
+    std::vector<T> elements; ///< Vector containing the elements of the Tensor.
 
     /// @brief Default constructor.
     Tensor() {}
@@ -74,13 +74,13 @@ template <typename T> class Tensor {
      */
     template <IntegralRange IR, typename VR>
         requires ValueRange<VR, T>
-    explicit Tensor(IR shape, VR val)
+    explicit Tensor(IR shape, VR elements)
         : shape(std::ranges::begin(shape), std::ranges::end(shape)),
-          val(std::ranges::begin(val), std::ranges::end(val)) {
+          elements(std::ranges::begin(elements), std::ranges::end(elements)) {
         int len;
         detail::compute_stride(this->stride, len, this->shape);
 
-        if (len != val.size()) {
+        if (len != elements.size()) {
             throw std::invalid_argument(
                 "length suggested by shape and length of val dont match");
         }
@@ -100,7 +100,7 @@ template <typename T> class Tensor {
             len *= d;
         }
 
-        this->val.resize(len);
+        this->elements.resize(len);
         std::fill(this->data(), this->end(), fill);
     }
 
@@ -115,7 +115,7 @@ template <typename T> class Tensor {
         int len;
         detail::compute_stride(this->stride, len, this->shape);
 
-        this->val.resize(len);
+        this->elements.resize(len);
         std::fill(this->data(), this->end(), fill);
     }
 
@@ -129,14 +129,14 @@ template <typename T> class Tensor {
         int len;
         detail::compute_stride(this->stride, len, this->shape);
 
-        this->val.resize(len);
-        std::fill(this->val.begin(), this->end(), fill);
+        this->elements.resize(len);
+        std::fill(this->elements.begin(), this->end(), fill);
     }
 
-    Tensor(T scalar) : shape(1), stride(1), val(1) {
+    Tensor(T scalar) : shape(1), stride(1), elements(1) {
         this->shape[0] = 1;
         this->stride[0] = 0;
-        this->val[0] = scalar;
+        this->elements[0] = scalar;
     }
 
     /**
@@ -149,31 +149,31 @@ template <typename T> class Tensor {
      * @brief Get number of elements in the tensor.
      * @return Length of the value array.
      */
-    std::size_t nElems() const { return this->val.size(); }
+    std::size_t nElems() const { return this->elements.size(); }
 
     /**
      * @brief Get a pointer to the value array.
      * @return Pointer to the start of the value array.
      */
-    T *data() { return this->val.data(); }
+    T *data() { return this->elements.data(); }
 
     /**
      * @brief Get a const pointer to the value array.
      * @return Const pointer to the start of the value array.
      */
-    const T *data() const { return this->val.data(); }
+    const T *data() const { return this->elements.data(); }
 
     /**
      * @brief Get a pointer to the end of the value array.
      * @return Pointer to one past the last element.
      */
-    T *end() { return &(*this->val.end()); }
+    T *end() { return &(*this->elements.end()); }
 
     /**
      * @brief Get a const pointer to the end of the value array.
      * @return Const pointer to one past the last element.
      */
-    const T *end() const { return &(*this->val.end()); }
+    const T *end() const { return &(*this->elements.end()); }
 
     /**
      * @brief Creates a view of the tensor.
@@ -212,7 +212,7 @@ template <typename T> class Tensor {
             int indent = 0;
 
             detail::print_tensor(os, cords, tensor.shape, tensor.stride,
-                                 tensor.val, 0, indent);
+                                 tensor.elements, 0, indent);
         }
         return os;
     }

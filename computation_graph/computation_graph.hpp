@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../tensor/tensor.hpp" // for Tensor
-#include <array>             // for std::array
-#include <cstddef>           // for size_t
-#include <memory>            // for std::unique_ptr, std::make_unique
-#include <utility>           // for std::forward
-#include <vector>            // for std::vector
+#include <array>                // for std::array
+#include <cstddef>              // for size_t
+#include <memory>               // for std::unique_ptr, std::make_unique
+#include <utility>              // for std::forward
+#include <vector>               // for std::vector
 
 namespace kaad {
 template <typename T> struct INode;
@@ -91,7 +91,7 @@ template <typename T> struct Computation_graph {
     std::array<Tensor<T> *, sizeof...(ptrs)> getGradient(INode<T> *df_ptr,
                                                          ptrs... dx_ptrs) {
         INode<T> &f = *df_ptr;
-        std::fill(f.gradient.val.begin(), f.gradient.val.end(), 1.0);
+        std::fill(f.gradient.elements.begin(), f.gradient.elements.end(), 1.0);
 
         f.getGrad();
 

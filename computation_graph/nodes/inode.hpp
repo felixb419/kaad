@@ -36,7 +36,7 @@ template <typename T> struct INode {
     INode(Tensor<T> &&tensor)
         : value(std::move(tensor)), gradient(value), evaluated(true),
           hasInputs(false) {
-        std::fill(gradient.val.begin(), gradient.val.end(), 0);
+        std::fill(gradient.elements.begin(), gradient.elements.end(), 0);
     }
 
     /**
@@ -49,8 +49,8 @@ template <typename T> struct INode {
     INode(INode<T> *A_ptr, Args &&...args)
         : A(A_ptr), evaluated(false), value(std::forward<Args>(args)...),
           hasInputs(true), gradient(value) {
-        std::fill(value.val.begin(), value.val.end(), 0);
-        std::fill(gradient.val.begin(), gradient.val.end(), 0);
+        std::fill(value.elements.begin(), value.elements.end(), 0);
+        std::fill(gradient.elements.begin(), gradient.elements.end(), 0);
     }
 
     /// Virtual destructor for polymorphic deletion
@@ -64,10 +64,10 @@ template <typename T> struct INode {
      */
     inline void reset() {
         if (hasInputs) {
-            std::fill(value.val.begin(), value.val.end(), 0);
+            std::fill(value.elements.begin(), value.elements.end(), 0);
             evaluated = false;
         }
-        std::fill(gradient.val.begin(), gradient.val.end(), 0);
+        std::fill(gradient.elements.begin(), gradient.elements.end(), 0);
     }
 
     /**
