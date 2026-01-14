@@ -54,7 +54,7 @@ INode<T> *unOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
         kernels.op, kernels.grad, A_ptr, A.shape);
     auto raw = newNode.get();
     rec.nodes.push_back(std::move(newNode));
-    raw->end = raw->value.data() + raw->value.nElems();
+    raw->end = raw->value.data() + raw->value.size();
 
     return raw;
 }

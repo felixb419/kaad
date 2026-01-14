@@ -154,25 +154,71 @@ template <typename T> class Tensor {
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */
-    size_type nDims() const { return this->shape.size(); }
+    size_type nDims() const noexcept {
+        return static_cast<size_type>(this->shape.size());
+    }
+
+    /**
+     * @brief Get a const iterator to the begin of the value array.
+     * @return Const iterator to the first element.
+     */
+    const_iterator begin() const noexcept {
+        return static_cast<const_iterator>(this->elements.data());
+    }
+
+    /**
+     * @brief Get a const iterator to the end of the value array.
+     * @return Const iterator to one past the last element.
+     */
+    const_iterator end() const noexcept {
+        return static_cast<const_iterator>(this->elements.data() +
+                                           this->elements.size());
+    }
 
     /**
      * @brief Get number of elements in the tensor.
      * @return Length of the value array.
      */
-    size_type nElems() const { return this->elements.size(); }
+    size_type size() const noexcept {
+        return static_cast<size_type>(this->elements.size());
+    }
+
+    /**
+     * @brief Checks if tensor has no elements
+     * @return True if container is empty, false otherwise.
+     */
+    bool empty() const noexcept { return this->elements.empty(); }
+
+    /**
+     * @brief Gets an element based off 1d index.
+     * @param 1d index
+     * @return Element at @p i.
+     */
+    const_reference operator[](size_type i) const noexcept {
+        return static_cast<const_reference>(this->elements[i]);
+    }
+
+    /**
+     * @brief Returns a reference to the first element.
+     */
+    const_reference front() const noexcept {
+        return static_cast<const_reference>(this->elements.front());
+    }
+
+    /**
+     * @brief Returns a reference to the last element.
+     */
+    const_reference back() const noexcept {
+        return static_cast<const_reference>(this->elements.back());
+    }
 
     /**
      * @brief Get a const pointer to the value array.
      * @return Const pointer to the start of the value array.
      */
-    const T *data() const { return this->elements.data(); }
-
-    /**
-     * @brief Get a const pointer to the end of the value array.
-     * @return Const pointer to one past the last element.
-     */
-    const T *end() const { return &(*this->elements.end()); }
+    const_pointer data() const noexcept {
+        return static_cast<const_pointer>(this->elements.data());
+    }
 
     /**
      * @brief Creates a view of the tensor.
@@ -181,7 +227,7 @@ template <typename T> class Tensor {
      */
     struct Tensor_view<T> view() const {
         return Tensor_view<T>(this->shape.data(), this->stride.data(),
-                              this->nDims(), this->data(), this->nElems());
+                              this->nDims(), this->data(), this->size());
     }
 
     /**
@@ -191,7 +237,7 @@ template <typename T> class Tensor {
      */
     struct Tensor_view<T> view_mut() {
         return Tensor_view_mut<T>(this->shape.data(), this->stride.data(),
-                                  this->nDims(), this->data(), this->nElems());
+                                  this->nDims(), this->data(), this->size());
     }
 
     /**

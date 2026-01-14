@@ -82,8 +82,8 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
     auto newNode =
         std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims());
     auto raw_ptr = newNode.get();
-    newNode->A_end = A.data() + A.nElems();
-    newNode->C_end = raw_ptr->value.data() + raw_ptr->value.nElems();
+    newNode->A_end = A.data() + A.size();
+    newNode->C_end = raw_ptr->value.data() + raw_ptr->value.size();
     rec.nodes.push_back(std::move(newNode));
 
     return raw_ptr;

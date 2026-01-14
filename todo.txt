@@ -10,8 +10,7 @@ REFACTOR:
 
 FEAT:
     make default recorder variable
-    (?) Tensor::iterator type
-    make inptus to std::vector
+    make node inptus to std::vector
 
 PERF:
     make stride function transpose dimensions so biggest is highest
