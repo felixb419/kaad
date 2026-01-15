@@ -37,22 +37,22 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
 
     if (A.nDims() < 2) {
         throw shape_error(recLen, "transpose", "A.nDims() hast to be > 1",
-                          {{"A.shape", A.shape}});
+                          {{"A.shape", A.shape()}});
     }
 
     std::vector<int> shape_T(A.nDims());
     std::vector<int> stride_T(A.nDims());
     if (perm.size() == 0) {
-        std::copy(A.shape.begin(), A.shape.end(), shape_T.begin());
-        std::copy(A.stride.begin(), A.stride.end(), stride_T.begin());
+        std::copy(A.shape_begin(), A.shape_end(), shape_T.begin());
+        std::copy(A.stride_begin(), A.stride_end(), stride_T.begin());
 
-        transp(A.shape.data(), A.stride.data(), A.nDims(), shape_T.data(),
+        transp(A.shape_begin(), A.stride_begin(), A.nDims(), shape_T.data(),
                stride_T.data());
     } else {
         if (perm.size() != A.nDims()) {
             throw argument_error(recLen, "transpose",
                                  "perm.size() has to be same as A.nDims()",
-                                 {{"A.shape", A.shape}});
+                                 {{"A.shape", A.shape()}});
         }
 
         int *count = new int[A.nDims()];
@@ -64,8 +64,8 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
 
             count[idx]++;
 
-            *(sh++) = A.shape[idx];
-            *(st++) = A.stride[idx];
+            *(sh++) = A.shape()[idx];
+            *(st++) = A.stride()[idx];
         }
         for (int *p = count; p != count + A.nDims(); p++) {
             if (*p != 1) {
@@ -74,7 +74,7 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
                     recLen, "transpose",
                     "perm has to contain index of every dimension "
                     "exactly once",
-                    {{"A.shape", A.shape}});
+                    {{"A.shape", A.shape()}});
             }
         }
     }

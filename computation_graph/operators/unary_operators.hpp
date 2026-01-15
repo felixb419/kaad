@@ -51,7 +51,7 @@ INode<T> *unOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
     Tensor<T> &A = A_ptr->value;
 
     auto newNode = std::make_unique<Node_unary<T, Kernel>>(
-        kernels.op, kernels.grad, A_ptr, A.shape);
+        kernels.op, kernels.grad, A_ptr, A.shape());
     auto raw = newNode.get();
     rec.nodes.push_back(std::move(newNode));
     raw->end = raw->value.data() + raw->value.size();

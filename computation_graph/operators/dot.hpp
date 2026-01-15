@@ -44,8 +44,8 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
 
-    bool A_scalar = A.nDims() == 1 && A.shape[0] == 1;
-    bool B_scalar = B.nDims() == 1 && B.shape[0] == 1;
+    bool A_scalar = A.nDims() == 1 && A.shape()[0] == 1;
+    bool B_scalar = B.nDims() == 1 && B.shape()[0] == 1;
     if (B_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
@@ -59,7 +59,7 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         raw_ptr->end = B.data() + B.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == 1 && B.nDims() == 1 &&
-               std::equal(A.shape.begin(), A.shape.end(), B.shape.begin())) {
+               std::equal(A.shape_begin(), A.shape_end(), B.shape_begin())) {
         auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
             dot, dot_grad, A_ptr, B_ptr, ((T)0));
         auto raw_ptr = newNode.get();
@@ -69,7 +69,7 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     } else {
         throw shape_error(recLen, "dot",
                           "incompatible tensor shapes for dot product",
-                          {{"A.shape", A.shape}, {"B.shape", B.shape}});
+                          {{"A.shape", A.shape()}, {"B.shape", B.shape()}});
     }
 
     return rec.nodes.back().get();

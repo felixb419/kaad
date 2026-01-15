@@ -76,34 +76,36 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
     Tensor<T> &B = B_ptr->value;
-    bool A_scalar = A.nDims() == 1 && A.shape[0] == 1;
-    bool B_scalar = B.nDims() == 1 && B.shape[0] == 1;
+    bool A_scalar = A.nDims() == 1 && A.shape()[0] == 1;
+    bool B_scalar = B.nDims() == 1 && B.shape()[0] == 1;
 
     size_t newLen = std::max(A.nDims(), B.nDims());
     std::vector<int> newShape(newLen);
 
     if (B_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr, A.shape);
+            kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr,
+            A.shape());
         auto raw_ptr = newNode.get();
         raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr, B.shape);
+            kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
+            B.shape());
         auto raw_ptr = newNode.get();
         raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == B.nDims() &&
-               std::equal(A.shape.begin(), A.shape.end(), B.shape.data()) &&
-               std::equal(A.stride.begin(), A.stride.end(), B.stride.data())) {
+               std::equal(A.shape_begin(), A.shape_end(), B.shape_begin()) &&
+               std::equal(A.stride_begin(), A.stride_end(), B.stride_begin())) {
 
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape);
+            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape());
         auto raw_ptr = newNode.get();
         raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.size();
         rec.nodes.push_back(std::move(newNode));
-    } else if (combine_flexible(A.shape.data(), A.nDims(), B.shape.data(),
+    } else if (combine_flexible(A.shape_begin(), A.nDims(), B.shape_begin(),
                                 B.nDims(), newShape.data(), newLen)) {
         using Op = typename Kernel::Op;
         using Grad = typename Kernel::Grad;
@@ -123,7 +125,7 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
     } else {
         throw shape_error(recLen, opName,
                           "incompatible tensor shapes for binary operation",
-                          {{"A.shape", A.shape}, {"B.shape", B.shape}});
+                          {{"A.shape", A.shape()}, {"B.shape", B.shape()}});
     }
     return rec.nodes.back().get();
 }

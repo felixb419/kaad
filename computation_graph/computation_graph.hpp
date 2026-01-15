@@ -91,7 +91,8 @@ template <typename T> struct Computation_graph {
     std::array<Tensor<T> *, sizeof...(ptrs)> getGradient(INode<T> *df_ptr,
                                                          ptrs... dx_ptrs) {
         INode<T> &f = *df_ptr;
-        std::fill(f.gradient.elements.begin(), f.gradient.elements.end(), 1.0);
+        std::fill(f.gradient.elements_.begin(), f.gradient.elements_.end(),
+                  1.0);
 
         f.getGrad();
 

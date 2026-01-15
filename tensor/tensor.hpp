@@ -56,6 +56,14 @@ concept ValueRange = std::ranges::input_range<R> &&
  * @tparam T The type of the values stored in the tensor.
  */
 template <typename T> class Tensor {
+  private:
+    std::vector<int>
+        shape_; ///< Vector containing the size of the tensor in each dimension.
+    std::vector<int>
+        stride_; ///< Vector containing the stride of the tensor (steps needed
+                 ///< to move one element in each dimension).
+    std::vector<T> elements_; ///< Vector containing the elements of the Tensor.
+
   public:
     using value_type = T;
     using reference = T &;
@@ -68,13 +76,6 @@ template <typename T> class Tensor {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    std::vector<int>
-        shape; ///< Vector containing the size of the tensor in each dimension.
-    std::vector<int>
-        stride; ///< Vector containing the stride of the tensor (steps needed to
-                ///< move one element in each dimension).
-    std::vector<T> elements; ///< Vector containing the elements of the Tensor.
-
     /// @brief Default constructor.
     Tensor() {}
 
@@ -86,10 +87,10 @@ template <typename T> class Tensor {
     template <IntegralRange IR, typename VR>
         requires ValueRange<VR, T>
     explicit Tensor(IR shape, VR elements)
-        : shape(std::ranges::begin(shape), std::ranges::end(shape)),
-          elements(std::ranges::begin(elements), std::ranges::end(elements)) {
+        : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
+          elements_(std::ranges::begin(elements), std::ranges::end(elements)) {
         int len;
-        detail::compute_stride(this->stride, len, this->shape);
+        detail::compute_stride(this->stride_, len, this->shape_);
 
         if (len != elements.size()) {
             throw std::invalid_argument(
@@ -104,15 +105,15 @@ template <typename T> class Tensor {
      */
     template <IntegralRange IR>
     Tensor(IR shape, IR stride, T fill = 0)
-        : shape(std::ranges::begin(shape), std::ranges::end(shape)),
-          stride(std::ranges::begin(stride), std::ranges::end(stride)) {
+        : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
+          stride_(std::ranges::begin(stride), std::ranges::end(stride)) {
         int len = 1;
         for (int d : shape) {
             len *= d;
         }
 
-        this->elements.resize(len);
-        std::fill(this->elements.begin(), this->elements.end(), fill);
+        this->elements_.resize(len);
+        std::fill(this->elements_.begin(), this->elements_.end(), fill);
     }
 
     /**
@@ -122,12 +123,12 @@ template <typename T> class Tensor {
      */
     template <IntegralRange IR>
     Tensor(IR shape, T fill = 0)
-        : shape(std::ranges::begin(shape), std::ranges::end(shape)) {
+        : shape_(std::ranges::begin(shape), std::ranges::end(shape)) {
         int len;
-        detail::compute_stride(this->stride, len, this->shape);
+        detail::compute_stride(this->stride_, len, this->shape_);
 
-        this->elements.resize(len);
-        std::fill(this->elements.begin(), this->elements.end(), fill);
+        this->elements_.resize(len);
+        std::fill(this->elements_.begin(), this->elements_.end(), fill);
     }
 
     /**
@@ -136,18 +137,18 @@ template <typename T> class Tensor {
      * @param fill Value to fill the tensor with.
      */
     Tensor(std::initializer_list<int> shape, T fill = 0)
-        : shape(shape.begin(), shape.end()) {
+        : shape_(shape.begin(), shape.end()) {
         int len;
-        detail::compute_stride(this->stride, len, this->shape);
+        detail::compute_stride(this->stride_, len, this->shape_);
 
-        this->elements.resize(len);
-        std::fill(this->elements.begin(), this->end(), fill);
+        this->elements_.resize(len);
+        std::fill(this->elements_.begin(), this->end(), fill);
     }
 
-    Tensor(T scalar) : shape(1), stride(1), elements(1) {
-        this->shape[0] = 1;
-        this->stride[0] = 0;
-        this->elements[0] = scalar;
+    Tensor(T scalar) : shape_(1), stride_(1), elements_(1) {
+        this->shape_[0] = 1;
+        this->stride_[0] = 0;
+        this->elements_[0] = scalar;
     }
 
     /**
@@ -155,7 +156,47 @@ template <typename T> class Tensor {
      * @return Length of the shape array.
      */
     size_type nDims() const noexcept {
-        return static_cast<size_type>(this->shape.size());
+        return static_cast<size_type>(this->shape_.size());
+    }
+
+    /**
+     * @brief Get immutable reference to the shape array.
+     * @return Const reference to shape_.
+     */
+    const std::vector<int> &shape() const noexcept { return this->shape_; }
+
+    /**
+     * @brief Get immutable pointer to the begin of shape array.
+     * @return Const pointer to the first element of shape_.
+     */
+    const int *shape_begin() const noexcept { return this->shape_.data(); }
+
+    /**
+     * @brief Get immutable pointer to the end of shape array.
+     * @return Const pointer one past the shape array.
+     */
+    const int *shape_end() const noexcept {
+        return this->shape_.data() + this->shape_.size();
+    }
+
+    /**
+     * @brief Get immutable reference to the stride array.
+     * @return Const reference to stride_.
+     */
+    const std::vector<int> &stride() const noexcept { return this->stride_; }
+
+    /**
+     * @brief Get immutable pointer to the begin of stride array.
+     * @return Const pointer to the first element of stride_.
+     */
+    const int *stride_begin() const noexcept { return this->stride_.data(); }
+
+    /**
+     * @brief Get immutable pointer to the end of stride array.
+     * @return Const pointer one past the stride array.
+     */
+    const int *stride_end() const noexcept {
+        return this->stride_.data() + this->stride_.size();
     }
 
     /**
@@ -163,7 +204,7 @@ template <typename T> class Tensor {
      * @return Const iterator to the first element.
      */
     const_iterator begin() const noexcept {
-        return static_cast<const_iterator>(this->elements.data());
+        return static_cast<const_iterator>(this->elements_.data());
     }
 
     /**
@@ -171,8 +212,8 @@ template <typename T> class Tensor {
      * @return Const iterator to one past the last element.
      */
     const_iterator end() const noexcept {
-        return static_cast<const_iterator>(this->elements.data() +
-                                           this->elements.size());
+        return static_cast<const_iterator>(this->elements_.data() +
+                                           this->elements_.size());
     }
 
     /**
@@ -180,14 +221,14 @@ template <typename T> class Tensor {
      * @return Length of the value array.
      */
     size_type size() const noexcept {
-        return static_cast<size_type>(this->elements.size());
+        return static_cast<size_type>(this->elements_.size());
     }
 
     /**
      * @brief Checks if tensor has no elements
      * @return True if container is empty, false otherwise.
      */
-    bool empty() const noexcept { return this->elements.empty(); }
+    bool empty() const noexcept { return this->elements_.empty(); }
 
     /**
      * @brief Gets an element based off 1d index.
@@ -195,21 +236,21 @@ template <typename T> class Tensor {
      * @return Element at @p i.
      */
     const_reference operator[](size_type i) const noexcept {
-        return static_cast<const_reference>(this->elements[i]);
+        return static_cast<const_reference>(this->elements_[i]);
     }
 
     /**
      * @brief Returns a reference to the first element.
      */
     const_reference front() const noexcept {
-        return static_cast<const_reference>(this->elements.front());
+        return static_cast<const_reference>(this->elements_.front());
     }
 
     /**
      * @brief Returns a reference to the last element.
      */
     const_reference back() const noexcept {
-        return static_cast<const_reference>(this->elements.back());
+        return static_cast<const_reference>(this->elements_.back());
     }
 
     /**
@@ -217,7 +258,7 @@ template <typename T> class Tensor {
      * @return Const pointer to the start of the value array.
      */
     const_pointer data() const noexcept {
-        return static_cast<const_pointer>(this->elements.data());
+        return static_cast<const_pointer>(this->elements_.data());
     }
 
     /**
@@ -226,7 +267,7 @@ template <typename T> class Tensor {
      * view of the tensor.
      */
     struct Tensor_view<T> view() const {
-        return Tensor_view<T>(this->shape.data(), this->stride.data(),
+        return Tensor_view<T>(this->shape_.data(), this->stride_.data(),
                               this->nDims(), this->data(), this->size());
     }
 
@@ -236,7 +277,7 @@ template <typename T> class Tensor {
      * view of the tensor.
      */
     struct Tensor_view<T> view_mut() {
-        return Tensor_view_mut<T>(this->shape.data(), this->stride.data(),
+        return Tensor_view_mut<T>(this->shape_.data(), this->stride_.data(),
                                   this->nDims(), this->data(), this->size());
     }
 
@@ -256,10 +297,25 @@ template <typename T> class Tensor {
             std::vector<int> cords(tensor.nDims());
             int indent = 0;
 
-            detail::print_tensor(os, cords, tensor.shape, tensor.stride,
-                                 tensor.elements, 0, indent);
+            detail::print_tensor(os, cords, tensor.shape_, tensor.stride_,
+                                 tensor.elements_, 0, indent);
         }
         return os;
     }
+
+    template <typename U> friend struct Computation_graph;
+    template <typename U> friend struct INode;
+
+    template <typename U, class Kernel> friend struct Node_binary;
+    template <typename U, class Kernel> friend struct Node_binary_flex;
+    template <typename U> friend struct Node_matmul;
+    template <typename U> friend struct Node_batch_matmul;
+
+    template <typename U, class Kernel> friend struct Node_unary;
+    template <typename U> friend struct Node_slice;
+    template <typename U> friend struct Node_transp;
+    template <typename U> friend struct Node_sum_dim;
+    template <typename U> friend struct Node_mean;
+    template <typename U> friend struct Node_mean_dim;
 };
 } // namespace kaad

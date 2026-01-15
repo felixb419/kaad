@@ -43,12 +43,12 @@ INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     std::vector<int> newShape(newLen);
 
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!combine_matrix(A.shape.data(), A.nDims(), B.shape.data(), B.nDims(),
+    if (!combine_matrix(A.shape_begin(), A.nDims(), B.shape_begin(), B.nDims(),
                         newShape.data(), newLen)) {
         throw shape_error(
             recLen, opName,
             "incompatible tensor shapes for matrix multiplication",
-            {{"A.shape", A.shape}, {"B.shape", B.shape}});
+            {{"A.shape", A.shape()}, {"B.shape", B.shape()}});
     }
 
     if (newLen == 2) {

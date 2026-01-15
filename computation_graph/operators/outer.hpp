@@ -40,8 +40,8 @@ INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
 
     size_t newLen = A.nDims() + B.nDims();
     std::vector<int> newShape(newLen);
-    std::copy(A.shape.begin(), A.shape.end(), newShape.begin());
-    std::copy(B.shape.begin(), B.shape.end(), newShape.begin() + A.nDims());
+    std::copy(A.shape_begin(), A.shape_end(), newShape.begin());
+    std::copy(B.shape_begin(), B.shape_end(), newShape.begin() + A.nDims());
 
     using Kernel = typename Kernels::Mul<T>;
     using Op = typename Kernel::Op;

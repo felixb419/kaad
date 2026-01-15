@@ -46,7 +46,7 @@ template <typename T> struct Node_mean : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.elements.data(), A_end,
+            val_func(this->A->value.data(), this->value.elements_.data(), A_end,
                      divisor);
             this->evaluated = true;
         }
@@ -59,7 +59,7 @@ template <typename T> struct Node_mean : INode<T> {
      * `getGrad` on the input node if it has further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.elements.data(), this->gradient.data(),
+        grad_func(this->A->gradient.elements_.data(), this->gradient.data(),
                   dA_end, divisor);
 
         if (this->A->hasInputs) {

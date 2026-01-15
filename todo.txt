@@ -1,7 +1,6 @@
 [ TODO ]
 
 REFACTOR:
-    make members private
     remove auto keyword
     possibly remove stride functions and combine into get_Node
     (?) make transpose not be noop when nDims <= 1
@@ -20,4 +19,4 @@ DOC:
     add note on broadcasting in primal_ops.hpp
     rework gradient comments
     rework operator comments
-    rework node comments
+    rework node readability and comments

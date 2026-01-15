@@ -97,8 +97,9 @@ inline void print_arr(const T *begin, const T *end,
  * @param newLen Total number of dimensions in the result.
  * @return true if broadcasting is possible, false otherwise.
  */
-bool combine_flexible(int *shape1, const size_t nDims1, int *shape2,
-                      const size_t nDims2, int *newShape, size_t newLen) {
+static inline bool combine_flexible(const int *shape1, size_t nDims1,
+                                    const int *shape2, size_t nDims2,
+                                    int *newShape, size_t newLen) {
     int ind = newLen - 1;
     for (int i = 1; i <= newLen; i++, ind--) {
         int ind1 = nDims1 - i;

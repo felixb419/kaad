@@ -41,18 +41,18 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
         std::span<const int> size_span(size.begin(), size.size());
         throw argument_error(recLen, "slice",
                              "length of size is bigger than A.nDims()",
-                             {{"size", size_span}, {"A.shape", A.shape}});
+                             {{"size", size_span}, {"A.shape", A.shape()}});
     }
     if (offset.size() > A.nDims()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
         throw argument_error(recLen, "slice",
                              "length of offset is bigger than A.nDims()",
-                             {{"offset", offset_span}, {"A.shape", A.shape}});
+                             {{"offset", offset_span}, {"A.shape", A.shape()}});
     }
 
     int diff = A.nDims() - offset.size();
     std::vector<int> size_owned(A.nDims());
-    std::copy(A.shape.begin(), A.shape.begin() + diff, size_owned.begin());
+    std::copy(A.shape_begin(), A.shape_begin() + diff, size_owned.begin());
     std::copy(size.begin(), size.begin() + size.size(),
               size_owned.begin() + diff);
 
@@ -62,7 +62,7 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
               offset_owned.begin() + diff);
 
     for (int i = 0; i < A.nDims(); i++) {
-        if (offset_owned[i] + size_owned[i] > A.shape[i]) {
+        if (offset_owned[i] + size_owned[i] > A.shape()[i]) {
             std::span<const int> size_span(size.begin(), size.size());
             std::span<const int> offset_span(offset.begin(), offset.size());
             std::string idx_str = std::to_string(i);
@@ -71,7 +71,7 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
             throw argument_error(recLen, "slice", msg.c_str(),
                                  {{"size", size_span},
                                   {"offset", offset_span},
-                                  {"A.shape", A.shape}});
+                                  {"A.shape", A.shape()}});
         }
     }
 

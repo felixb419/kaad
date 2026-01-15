@@ -63,7 +63,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->B->eval();
 
             val_func(this->A->value.data(), this->B->value.data(),
-                     this->value.elements.data(), end, op);
+                     this->value.elements_.data(), end, op);
             this->evaluated = true;
         }
     }
@@ -75,8 +75,8 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      * `getGrad` on the input nodes if they have further dependencies.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.elements.data(),
-                  this->B->value.data(), this->B->gradient.elements.data(),
+        grad_func(this->A->value.data(), this->A->gradient.elements_.data(),
+                  this->B->value.data(), this->B->gradient.elements_.data(),
                   this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {

@@ -76,7 +76,7 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
     if (dim < 0 || dim >= A.nDims()) {
         throw argument_error(recLen, "sum",
                              "dim has to be a valid index of A.shape",
-                             {{"A.shape", A.shape}}, {{"dim", dim}});
+                             {{"A.shape", A.shape()}}, {{"dim", dim}});
     }
 
     if (A.nDims() == 1) {
@@ -86,13 +86,13 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
     size_t newLen = A.nDims();
     std::vector<int> newShape(newLen);
     if (keepNDims) {
-        std::copy(A.shape.begin(), A.shape.end(), newShape.begin());
+        std::copy(A.shape_begin(), A.shape_end(), newShape.begin());
         newShape[dim] = 1;
 
     } else {
         newLen--;
-        std::copy(A.shape.begin(), A.shape.begin() + dim, newShape.begin());
-        std::copy(A.shape.begin() + dim + 1, A.shape.end(),
+        std::copy(A.shape_begin(), A.shape_begin() + dim, newShape.begin());
+        std::copy(A.shape_begin() + dim + 1, A.shape_end(),
                   newShape.begin() + dim);
     }
 
