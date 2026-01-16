@@ -4,7 +4,6 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../../tensorfuncs/strides.hpp"     // for flexible_binary
 #include "dispatchers.hpp"                   // for Dispatchers
 #include "exceptions.hpp"                    // for shape_error
 #include <cstddef>                           // for size_t
@@ -87,14 +86,14 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr,
             A.shape());
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.size();
+        raw_ptr->C_end = raw_ptr->value.data() + raw_ptr->value.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A_scalar) {
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
             B.shape());
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.size();
+        raw_ptr->C_end = raw_ptr->value.data() + raw_ptr->value.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (A.nDims() == B.nDims() &&
                std::equal(A.shape_begin(), A.shape_end(), B.shape_begin()) &&
@@ -103,7 +102,7 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
         auto newNode = std::make_unique<Node_binary<T, Kernel>>(
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape());
         auto raw_ptr = newNode.get();
-        raw_ptr->end = raw_ptr->value.data() + raw_ptr->value.size();
+        raw_ptr->C_end = raw_ptr->value.data() + raw_ptr->value.size();
         rec.nodes.push_back(std::move(newNode));
     } else if (combine_flexible(A.shape_begin(), A.nDims(), B.shape_begin(),
                                 B.nDims(), newShape.data(), newLen)) {
@@ -118,10 +117,9 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
             gradient = detail::Dispatchers::get_flexGrad<T, Grad>()[newLen];
         }
 
-        auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-            A_ptr, B_ptr, newShape);
-        Strides::flexible_binary<T>(*newNode.get());
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(
+            std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
+                A_ptr, B_ptr, newShape)));
     } else {
         throw shape_error(recLen, opName,
                           "incompatible tensor shapes for binary operation",

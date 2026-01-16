@@ -43,12 +43,13 @@ template <typename T> struct INode {
      * @brief Constructs an unevaluated node with a dependency on an input node.
      *
      * @param A_ptr Pointer to the input node.
-     * @param args Arguments to construct the value tensor.
+     * @param tensor_args Arguments to construct the value tensor.
      */
-    template <typename... Args>
-    INode(INode<T> *A_ptr, Args &&...args)
-        : A(A_ptr), evaluated(false), value(std::forward<Args>(args)...),
-          hasInputs(true), gradient(value) {
+    template <typename... TensorArgs>
+    INode(INode<T> *A_ptr, TensorArgs &&...tensor_args)
+        : A(A_ptr), evaluated(false),
+          value(std::forward<TensorArgs>(tensor_args)...), hasInputs(true),
+          gradient(value) {
         std::fill(value.elements_.begin(), value.elements_.end(), 0);
         std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
     }

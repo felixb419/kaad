@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp"       // for Tensor
-#include "../../tensorfuncs/strides.hpp" // for slice
-#include "dispatchers.hpp"               // for get_slice
-#include "exceptions.hpp"                // for argument_error
-#include <memory>                        // for std::make_unique
-#include <span>                          // for  std::span
-#include <string>                        // for  std::string
+#include "../../tensor/tensor.hpp" // for Tensor
+#include "dispatchers.hpp"         // for get_slice
+#include "exceptions.hpp"          // for argument_error
+#include <memory>                  // for std::make_unique
+#include <span>                    // for  std::span
+#include <string>                  // for  std::string
 
 namespace kaad {
 
@@ -79,16 +78,15 @@ INode<T> *slice(Computation_graph<T> &rec, INode<T> *A_ptr,
     std::vector<int> newShape(newLen);
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 
-    auto newNode = std::make_unique<Node_slice<T>>(A_ptr, newShape, newLen);
+    auto newNode = std::make_unique<Node_slice<T>>(A_ptr, offset_owned.data(),
+                                                   newShape, newLen);
     auto raw_ptr = newNode.get();
 
     if (A.nDims() < KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = detail::Dispatchers::get_slice<T>()[A.nDims()];
-        raw_ptr->grad_func =
+        raw_ptr->forward_op = detail::Dispatchers::get_slice<T>()[A.nDims()];
+        raw_ptr->backward_op =
             detail::Dispatchers::get_slice_grad<T>()[A.nDims()];
     }
-
-    Strides::slice(*raw_ptr, offset_owned.data());
 
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();

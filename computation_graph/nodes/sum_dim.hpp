@@ -2,16 +2,15 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../tensorfuncs/strides.hpp"     // for Strides::sum_dim
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A sum_dim operation node in a computation graph.
- *
- * Applies a sum_dim operation during forward evaluation and its
- * corresponding gradient function during backpropagation.
- *
+ * @see tensorfuncs::primal::unary::sum_dim
+ * @see tensorfuncs::adjoint::unary::sum_dim
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_sum_dim : INode<T> {
@@ -25,21 +24,21 @@ template <typename T> struct Node_sum_dim : INode<T> {
     int *strideA = nullptr;     ///< stride Array for A.
     int *strideC = nullptr;     ///< stride Array for C.
     size_t *A_offset = nullptr; ///< Per-dim offset to the end of A buffer.
-    size_t D = 0;               ///< Number of dimensions of A
+    size_t C_nDims = 0;         ///< Number of dimensions of A
 
     /**
      * @brief Constructs a sum_dim node.
-     *
      * @param A_ptr    Pointer to the input node.
-     * @param args       Arguments to construct the output tensor.
+     * @param tensor_args       Arguments to construct the output tensor.
      */
-    template <typename... Args>
-    Node_sum_dim(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
+    template <typename... TensorArgs>
+    Node_sum_dim(INode<T> *A_ptr, int dim, TensorArgs &&...tensor_args)
+        : INode<T>(A_ptr, tensor_args...) {
+        Strides::sum_dim(*this, dim);
+    }
 
     /**
      * @brief Destructor for Node_sum_dim.
-     *
-     * Frees dynamically allocated memory for stride and offset arrays.
      */
     ~Node_sum_dim() {
         delete[] strideA;
@@ -48,30 +47,26 @@ template <typename T> struct Node_sum_dim : INode<T> {
     }
 
     /**
-     * @brief Evaluates the sum_dim operation if not already evaluated.
-     *
-     * Calls eval on the input node and applies `val_func` to compute this
-     * node's value.
+     * @brief Evaluates the sum_dim operation by applying forward_op, if not
+     * already evaluated.
      */
     inline void eval() override {
         if (!this->evaluated) {
             this->A->eval();
 
             val_func(this->A->value.data(), this->value.elements_.data(),
-                     strideA, strideC, A_offset, D);
+                     strideA, strideC, A_offset, C_nDims);
             this->evaluated = true;
         }
     }
 
     /**
-     * @brief Propagates gradients back through the sum_dim operation.
-     *
-     * Applies `grad_func` to compute input gradients and recursively calls/
-     * `getGrad` on the input node if it has further dependencies.
+     * @brief Propagates gradients back through the sum_dim operation, by
+     * applying backward_op.
      */
     inline void getGrad() override {
         grad_func(this->A->gradient.elements_.data(), this->gradient.data(),
-                  strideA, strideC, A_offset, D);
+                  strideA, strideC, A_offset, C_nDims);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

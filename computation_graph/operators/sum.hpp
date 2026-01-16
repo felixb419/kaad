@@ -3,17 +3,16 @@
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
-#include "../../tensorfuncs/strides.hpp"     // for sum_dim
 #include "dispatchers.hpp"                   // for get_sumDim
 #include "exceptions.hpp"                    // for argument_error
 #include <memory>                            // for std::make_unique
-#include <sstream>                           // for std::ostringstream
 
 namespace kaad {
 
 template <typename T> struct Computation_graph;
 template <typename T> struct INode;
 template <typename T, class Kernel> struct Node_unary;
+template <typename T> struct Node_sum_dim;
 
 /**
  * @brief Adds a unary sum node to the computation graph.
@@ -42,7 +41,7 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
         tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
     auto newNode =
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-    newNode->end = A.data() + A.size();
+    newNode->C_end = A.data() + A.size();
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }
@@ -96,7 +95,8 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
                   newShape.begin() + dim);
     }
 
-    auto newNode = std::make_unique<Node_sum_dim<T>>(A_ptr, newShape, newLen);
+    auto newNode =
+        std::make_unique<Node_sum_dim<T>>(A_ptr, dim, newShape, newLen);
     auto raw_ptr = newNode.get();
     if (A.nDims() <= KAAD_MAX_NDIMS) {
         raw_ptr->val_func = detail::Dispatchers::get_sumDim<T>()[A.nDims()];
@@ -104,7 +104,6 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
             detail::Dispatchers::get_sumDim_grad<T>()[A.nDims()];
     }
 
-    Strides::sum_dim<T>(*raw_ptr, dim);
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }

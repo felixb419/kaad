@@ -7,17 +7,12 @@ namespace kaad {
 
 /**
  * @brief A leaf node that holds a fixed tensor value with no computation.
- *
- * This node is considered already evaluated and has no effect during
- * backpropagation except for holding a gradient.
- *
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_valued : INode<T> {
 
     /**
      * @brief Constructs a leaf node holding a constant value.
-     *
      * @param tensor The tensor value to store.
      */
     Node_valued(Tensor<T> &&tensor) : INode<T>(std::move(tensor)) {}

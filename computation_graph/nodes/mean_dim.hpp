@@ -2,22 +2,21 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../tensorfuncs/strides.hpp"     // for Strides::mean_dim
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A mean_dim operation node in a computation graph.
- *
- * Applies a mean_dim operation during forward evaluation and its corresponding
- * gradient function during backpropagation.
- *
+ * @see tensorfuncs::primal::unary::mean_dim
+ * @see tensorfuncs::adjoint::unary::mean_dim
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_mean_dim : INode<T> {
-    tensorfuncs::primal::unary::mean_dim_fn<T> val_func =
+    tensorfuncs::primal::unary::mean_dim_fn<T> forward_op =
         tensorfuncs::primal::unary::mean_dim;
-    tensorfuncs::adjoint::unary::mean_dim_fn<T> grad_func =
+    tensorfuncs::adjoint::unary::mean_dim_fn<T> backward_op =
         tensorfuncs::adjoint::unary::mean_dim;
 
     int *strideA = nullptr; ///< stride Array for A.
@@ -27,24 +26,24 @@ template <typename T> struct Node_mean_dim : INode<T> {
     const T *C_end =
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
     const T *dA_end =
-        nullptr;  ///< Pointer to the end of the dA buffer (used for iteration).
-    size_t D = 0; ///< Number of the dimensions of the A tensor.
+        nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
+    size_t C_nDims = 0; ///< Number of the dimensions of the A tensor.
     T divisor = 0; ///< Divisor to compute the mean of the A tensor (length of A
-                   ///< buffer).
+                   ///< in relevant dimension).
 
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
-     *
-     * @param A_ptr    Pointer to the input node.
-     * @param args       Arguments to construct the output tensor.
+     * @param A_ptr Pointer to the input node.
+     * @param tensor_args Arguments to construct the output tensor.
      */
-    template <typename... Args>
-    Node_mean_dim(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
+    template <typename... TensorArgs>
+    Node_mean_dim(INode<T> *A_ptr, int dim, TensorArgs &&...tensor_args)
+        : INode<T>(A_ptr, tensor_args...) {
+        Strides::mean_dim(*this, dim);
+    }
 
     /**
      * @brief Destructor for Node_mean_dim.
-     *
-     * Frees dynamically allocated memory for stride and offset arrays.
      */
     ~Node_mean_dim() {
         delete[] strideA;
@@ -53,31 +52,27 @@ template <typename T> struct Node_mean_dim : INode<T> {
     }
 
     /**
-     * @brief Evaluates the mean_dim operation if not already evaluated.
-     *
-     * Calls eval on the input node and applies `val_func` to compute this
-     * node's value.
+     * @brief Evaluates the mean_dim operation by applying forward_op, if not
+     * already evaluated.
      */
     inline void eval() override {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.elements_.data(),
-                     strideA, strideC, A_offset, D, divisor, C_end);
+            forward_op(this->A->value.data(), this->value.elements_.data(),
+                       strideA, strideC, A_offset, C_nDims, divisor, C_end);
             this->evaluated = true;
         }
     }
 
     /**
-     * @brief Propagates gradients back through the mean_dim operation.
-     *
-     * Applies `grad_func` to compute input gradients and recursively calls/
-     * `getGrad` on the input node if it has further dependencies.
+     * @brief Propagates gradients back through the mean_dim operation by
+     * applying backward_op.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.elements_.data(),
-                  this->value.data(), this->gradient.data(), strideA, strideC,
-                  A_offset, D, divisor, dA_end);
+        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
+                    this->value.data(), this->gradient.data(), strideA, strideC,
+                    A_offset, C_nDims, divisor, dA_end);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

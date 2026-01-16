@@ -2,17 +2,15 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "inode.hpp"                         // for INode
+#include "../../tensorfuncs/strides.hpp"     // for Strides::flexible_binary
+#include "inode.hpp"                         // for INode, Node_ptr
 
 namespace kaad {
 
 /**
  * @brief A binary_flex operation node in a computation graph.
- *
- * Applies a binary_flex operation to two tensors with broadcastable shapes
- * during forward evaluation and its corresponding gradient function during
- * backpropagation.
- *
+ * @see tensorfuncs::primal::binary::flexible
+ * @see tensorfuncs::adjoint::binary::flexible
  * @tparam T The scalar type.
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
@@ -23,14 +21,14 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     using Op = class Kernel::Op; ///< Type alias for the operation kernel.
     Op op;
 
-    tensorfuncs::primal::binary::flexible_fn<T, Op> val_func =
+    tensorfuncs::primal::binary::flexible_fn<T, Op> forward_op =
         tensorfuncs::primal::binary::flexible<T, Op>; ///< Function pointer to
                                                       ///< the value operation.
 
     using Grad = class Kernel::Grad; ///< Type alias for the gradient kernel.
     Grad grad;
 
-    tensorfuncs::adjoint::binary::flexible_fn<T, Grad> grad_func =
+    tensorfuncs::adjoint::binary::flexible_fn<T, Grad> backward_op =
         tensorfuncs::adjoint::binary::flexible<T, Grad>; ///< Function pointer
                                                          ///< to the gradient
                                                          ///< operation.
@@ -39,24 +37,24 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     int *strideB = nullptr;     ///< stride Array for B.
     int *strideC = nullptr;     ///< stride Array for C.
     size_t *C_offset = nullptr; ///< Per-dim offset to the end of C buffer.
-    size_t D = 0;               ///< Number of the dimensions of the C tensor.
+    size_t C_nDims = 0;         ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
      * and gradient.
-     *
      * @param A_ptr Pointer to the first input node.
      * @param B_ptr Pointer to the second input node.
-     * @param args Arguments to construct the output tensor.
+     * @param tensor_args Arguments to construct the output tensor.
      */
-    template <typename... Args>
-    Node_binary_flex(INode<T> *A_ptr, INode<T> *B_ptr, Args &&...args)
-        : B(B_ptr), INode<T>(A_ptr, args...) {}
+    template <typename... TensorArgs>
+    Node_binary_flex(INode<T> *A_ptr, INode<T> *B_ptr,
+                     TensorArgs &&...tensor_args)
+        : B(B_ptr), INode<T>(A_ptr, tensor_args...) {
+        Strides::flexible_binary(*this);
+    }
 
     /**
      * @brief Destructor for Node_binary_flex.
-     *
-     * Frees dynamically allocated memory for stride and offset arrays.
      */
     ~Node_binary_flex() {
         delete[] strideA;
@@ -66,34 +64,30 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     }
 
     /**
-     * @brief Evaluates the binary_flex operation if not already evaluated.
-     *
-     * Calls eval on the input nodes and applies `val_func` to compute this
-     * node's value.
+     * @brief Evaluates the binary_flex operation by calling forward_op, if not
+     * already evaluated.
      */
     inline void eval() override {
         if (!this->evaluated) {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.data(), this->B->value.data(),
-                     this->value.elements_.data(), strideA, strideB, strideC,
-                     C_offset, D, op);
+            forward_op(this->A->value.data(), this->B->value.data(),
+                       this->value.elements_.data(), strideA, strideB, strideC,
+                       C_offset, C_nDims, op);
             this->evaluated = true;
         }
     }
 
     /**
-     * @brief Propagates gradients back through the binary_flex operation.
-     *
-     * Applies `grad_func` to compute input gradients and recursively calls
-     * `getGrad` on the input nodes if they have further dependencies.
+     * @brief Propagates gradients back through the binary_flex operation, by
+     * calling backward_op.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.elements_.data(),
-                  this->B->value.data(), this->B->gradient.elements_.data(),
-                  this->value.data(), this->gradient.data(), strideA, strideB,
-                  strideC, C_offset, D, grad);
+        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
+                    this->B->value.data(), this->B->gradient.elements_.data(),
+                    this->value.data(), this->gradient.data(), strideA, strideB,
+                    strideC, C_offset, C_nDims, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

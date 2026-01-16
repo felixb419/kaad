@@ -35,14 +35,14 @@ void flexible_binary(Node_binary_flex<T, Kernel> &node) {
     Tensor_view<T> B = node.B->value.view();
     Tensor_view<T> C = node.value.view();
 
-    node.D = C.nDims;
-    node.strideA = new int[node.D];
-    node.strideB = new int[node.D];
-    node.strideC = new int[node.D];
+    node.C_nDims = C.nDims;
+    node.strideA = new int[node.C_nDims];
+    node.strideB = new int[node.C_nDims];
+    node.strideC = new int[node.C_nDims];
 
     int idx, idxA, idxB, idxC;
-    for (int i = 1; i <= node.D; i++) {
-        idx = node.D - i;
+    for (int i = 1; i <= node.C_nDims; i++) {
+        idx = node.C_nDims - i;
         idxA = A.nDims - i;
         node.strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
         idxB = B.nDims - i;
@@ -56,8 +56,8 @@ void flexible_binary(Node_binary_flex<T, Kernel> &node) {
         }
     }
 
-    node.C_offset = new size_t[node.D];
-    for (int i = 0; i < node.D; i++) {
+    node.C_offset = new size_t[node.C_nDims];
+    for (int i = 0; i < node.C_nDims; i++) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 }
@@ -215,13 +215,13 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
 
     batch_matmul_impl(A, B, C, node.strideA[0], node.strideB[0],
                       node.strideC[0], node.c_shape[0], node.A_offset[0],
-                      node.B_offset[0], node.k[0], node.D);
+                      node.B_offset[0], node.k[0], node.C_nDims);
     batch_matmul_impl(C, b_T, A, node.strideC[1], node.strideB[1],
                       node.strideA[1], node.c_shape[1], node.A_offset[1],
-                      node.B_offset[1], node.k[1], node.D);
+                      node.B_offset[1], node.k[1], node.C_nDims);
     batch_matmul_impl(a_T, C, B, node.strideA[2], node.strideC[2],
                       node.strideB[2], node.c_shape[2], node.A_offset[2],
-                      node.B_offset[2], node.k[2], node.D);
+                      node.B_offset[2], node.k[2], node.C_nDims);
 }
 
 /**
@@ -239,18 +239,18 @@ void outer(Node_binary_flex<T, Kernel> &node) {
     Tensor_view<T> B = node.B->value.view();
     Tensor_view<T> C = node.value.view();
 
-    node.D = C.nDims;
+    node.C_nDims = C.nDims;
 
-    node.strideA = new int[node.D];
-    node.strideB = new int[node.D];
-    node.strideC = new int[node.D];
+    node.strideA = new int[node.C_nDims];
+    node.strideB = new int[node.C_nDims];
+    node.strideC = new int[node.C_nDims];
 
     std::copy(C.stride, C.stride + C.nDims, node.strideC);
     std::copy(A.stride, A.stride + A.nDims, node.strideA);
     std::copy(B.stride, B.stride + B.nDims, node.strideB + A.nDims);
 
-    node.C_offset = new size_t[node.D];
-    for (int i = 0; i < node.D; i++) {
+    node.C_offset = new size_t[node.C_nDims];
+    for (int i = 0; i < node.C_nDims; i++) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 }
@@ -308,7 +308,7 @@ template <typename T> void sum_dim(Node_sum_dim<T> &node, int dim) {
     Tensor_view<T> A = node.A->value.view();
     Tensor_view<T> C = node.value.view();
 
-    along_dim_impl(A, C, dim, node.D, node.A_offset, node.strideA,
+    along_dim_impl(A, C, dim, node.C_nDims, node.A_offset, node.strideA,
                    node.strideC);
 }
 
@@ -330,7 +330,7 @@ template <typename T> void mean_dim(Node_mean_dim<T> &node, int dim) {
     node.C_end = C.val + C.len;
     node.dA_end = dA.val + dA.len;
 
-    along_dim_impl(A, C, dim, node.D, node.A_offset, node.strideA,
+    along_dim_impl(A, C, dim, node.C_nDims, node.A_offset, node.strideA,
                    node.strideC);
 }
 
@@ -341,18 +341,18 @@ template <typename T> void mean_dim(Node_mean_dim<T> &node, int dim) {
  * @param offset     Array of offsets specifying where slicing begins in each
  * dimension.
  */
-template <typename T> void slice(Node_slice<T> &node, int *offset) {
+template <typename T> void slice(Node_slice<T> &node, const int *offset) {
     Tensor_view<T> A = node.A->value.view();
     Tensor_view<T> C = node.value.view();
 
-    node.D = C.nDims;
-    node.strideA = new int[node.D];
-    node.strideB = new int[node.D];
-    node.strideC = new int[node.D];
+    node.C_nDims = C.nDims;
+    node.strideA = new int[node.C_nDims];
+    node.strideB = new int[node.C_nDims];
+    node.strideC = new int[node.C_nDims];
 
     int idx, idxA, idxC;
-    for (int i = 1; i <= node.D; i++) {
-        idx = node.D - i;
+    for (int i = 1; i <= node.C_nDims; i++) {
+        idx = node.C_nDims - i;
         idxA = A.nDims - i;
         node.strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
         idxC = C.nDims - i;
@@ -364,8 +364,8 @@ template <typename T> void slice(Node_slice<T> &node, int *offset) {
         }
     }
 
-    node.C_offset = new size_t[node.D];
-    for (int i = 0; i < node.D; i++) {
+    node.C_offset = new size_t[node.C_nDims];
+    for (int i = 0; i < node.C_nDims; i++) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 

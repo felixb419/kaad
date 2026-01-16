@@ -1,11 +1,15 @@
 [ TODO ]
 
 REFACTOR:
+    move val_func (dispatching) into node constructor
+    move newShape constructing into node constructor
+    revise Node members
+    revise tensorfunc signatures (param names)
+    make Node members private (and const from outside)
     remove auto keyword
-    possibly remove stride functions and combine into get_Node
-    (?) make transpose not be noop when nDims <= 1
     rename val member to elements in Tensor
     rename val member to data in Tensor_view_view
+    find better solution for stride override in outer
 
 FEAT:
     make default recorder variable
@@ -18,5 +22,4 @@ DOC:
     add definitions (operation=operation on in/out tensors, operator=operation on nodes)
     add note on broadcasting in primal_ops.hpp
     rework gradient comments
-    rework operator comments
-    rework node readability and comments
+    rework operator readability and comments

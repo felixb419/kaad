@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp"       // for Tensor
-#include "../../tensorfuncs/strides.hpp" // for matmul, batch_matmul
-#include "dispatchers.hpp"               // for get_batch_matmul
-#include "exceptions.hpp"                // for shape_error
-#include <memory>                        // for std::make_unique
+#include "../../tensor/tensor.hpp" // for Tensor
+#include "dispatchers.hpp"         // for get_batch_matmul
+#include "exceptions.hpp"          // for shape_error
+#include <memory>                  // for std::make_unique
 
 namespace kaad {
 
@@ -52,21 +51,19 @@ INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     }
 
     if (newLen == 2) {
-        auto newNode = std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape);
-        Strides::matmul<T>(*newNode.get());
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(std::move(
+            std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape)));
     } else {
         auto newNode =
             std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
         auto raw_ptr = newNode.get();
         if (newLen <= KAAD_MAX_NDIMS) {
-            raw_ptr->val_func =
+            raw_ptr->forward_op =
                 detail::Dispatchers::get_batch_matmul<T>()[newLen];
-            raw_ptr->grad_func =
+            raw_ptr->backward_op =
                 detail::Dispatchers::get_batch_matmul_grad<T>()[newLen];
         }
 
-        Strides::batch_matmul<T>(*raw_ptr);
         rec.nodes.push_back(std::move(newNode));
     }
 

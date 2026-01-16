@@ -1,11 +1,9 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp"       // for Tensor
-#include "../../tensorfuncs/strides.hpp" // for mean_dim
-#include "dispatchers.hpp"               // for get_meanDim
-#include "exceptions.hpp"                // for param_error
-#include <memory>                        // for std::make_unique
-#include <sstream>                       // for std::ostringstream
+#include "../../tensor/tensor.hpp" // for Tensor
+#include "dispatchers.hpp"         // for get_meanDim
+#include "exceptions.hpp"          // for param_error
+#include <memory>                  // for std::make_unique
 
 namespace kaad {
 
@@ -90,15 +88,15 @@ INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
                   newShape.begin() + dim);
     }
 
-    auto newNode = std::make_unique<Node_mean_dim<T>>(A_ptr, newShape, newLen);
+    auto newNode =
+        std::make_unique<Node_mean_dim<T>>(A_ptr, dim, newShape, newLen);
     auto raw_ptr = newNode.get();
     if (A.nDims() <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = detail::Dispatchers::get_meanDim<T>()[A.nDims()];
-        raw_ptr->grad_func =
+        raw_ptr->forward_op = detail::Dispatchers::get_meanDim<T>()[A.nDims()];
+        raw_ptr->backward_op =
             detail::Dispatchers::get_meanDim_grad<T>()[A.nDims()];
     }
 
-    Strides::mean_dim<T>(*raw_ptr, dim);
     rec.nodes.push_back(std::move(newNode));
     return rec.nodes.back().get();
 }

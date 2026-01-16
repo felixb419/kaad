@@ -8,10 +8,8 @@ namespace kaad {
 
 /**
  * @brief A binary operation node in a computation graph.
- *
- * Applies a binary operation to two tensors with matching shapes during forward
- * evaluation and its corresponding gradient function during backpropagation.
- *
+ * @see tensorfuncs::primal::binary::pointwise
+ * @see tensorfuncs::adjoint::binary::pointwise
  * @tparam T The scalar type.
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
@@ -22,62 +20,59 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
     using Op = class Kernel::Op; ///< Type alias for the operation kernel.
     Op op;
 
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> val_func =
-        nullptr; ///< Function pointer to the value operation.
+    tensorfuncs::primal::binary::pointwise_fn<T, Op> forward_op =
+        tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
+                                                ///< value operation.
 
     using Grad = class Kernel::Grad; ///< Type alias for the gradient Kernel.
     Grad grad;
 
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> grad_func =
-        nullptr; ///< Function pointer to the gradient operation.
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> backward_op =
+        tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
+                                                ///< gradient operation.
 
-    const T *end = nullptr; ///< Pointer to the end of the value buffer (used
-                            ///< for iteration).
+    const T *C_end = nullptr; ///< Pointer to the end of the value buffer (used
+                              ///< for iteration).
 
     /**
      * @brief Constructs a binary operation node with the given operation and
      * gradient.
-     *
      * @param operation Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
      * @param A_ptr Pointer to the first input node.
      * @param B_ptr Pointer to the second input node.
-     * @param args Arguments to construct the output tensor.
+     * @param tensor_args Arguments to construct the output tensor.
      */
-    template <typename... Args>
+    template <typename... TensorArgs>
     Node_binary(tensorfuncs::primal::binary::pointwise_fn<T, Op> operation,
                 tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> derivative,
-                INode<T> *A_ptr, INode<T> *B_ptr, Args &&...args)
-        : B(B_ptr), val_func(operation), grad_func(derivative),
-          INode<T>(A_ptr, args...) {}
+                INode<T> *A_ptr, INode<T> *B_ptr, TensorArgs &&...tensor_args)
+        : B(B_ptr), forward_op(operation), backward_op(derivative),
+          INode<T>(A_ptr, tensor_args...) {}
 
     /**
-     * @brief Evaluates the binary operation if not already evaluated.
-     *
-     * Calls eval on the input nodes and applies `val_func` to compute this
-     * node's value.
+     * @brief Evaluates the binary operation by applying forward_op, if not
+     * already evaluated.
      */
     inline void eval() override {
         if (!this->evaluated) {
             this->A->eval();
             this->B->eval();
 
-            val_func(this->A->value.data(), this->B->value.data(),
-                     this->value.elements_.data(), end, op);
+            forward_op(this->A->value.data(), this->B->value.data(),
+                       this->value.elements_.data(), C_end, op);
             this->evaluated = true;
         }
     }
 
     /**
-     * @brief Propagates gradients back through the binary operation.
-     *
-     * Applies `grad_func` to compute input gradients and recursively calls
-     * `getGrad` on the input nodes if they have further dependencies.
+     * @brief Propagates gradients back through the binary operation by applying
+     * backward_op.
      */
     inline void getGrad() override {
-        grad_func(this->A->value.data(), this->A->gradient.elements_.data(),
-                  this->B->value.data(), this->B->gradient.elements_.data(),
-                  this->value.data(), this->gradient.data(), end, grad);
+        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
+                    this->B->value.data(), this->B->gradient.elements_.data(),
+                    this->value.data(), this->gradient.data(), C_end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

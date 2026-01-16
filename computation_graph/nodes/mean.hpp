@@ -8,16 +8,14 @@ namespace kaad {
 
 /**
  * @brief A mean operation node in a computation graph.
- *
- * Applies the mean operation during forward evaluation and computes its
- * corresponding gradient during backpropagation.
- *
+ * @see tensorfuncs::primal::unary::mean
+ * @see tensorfuncs::adjoint::unary::mean
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_mean : INode<T> {
-    tensorfuncs::primal::unary::mean_fn<T> val_func =
+    tensorfuncs::primal::unary::mean_fn<T> forward_op =
         tensorfuncs::primal::unary::mean;
-    tensorfuncs::adjoint::unary::mean_fn<T> grad_func =
+    tensorfuncs::adjoint::unary::mean_fn<T> backward_op =
         tensorfuncs::adjoint::unary::mean;
 
     const T *A_end =
@@ -29,38 +27,34 @@ template <typename T> struct Node_mean : INode<T> {
 
     /**
      * @brief Constructs a mean node.
-     *
      * @param A_ptr Pointer to the input node.
-     * @param args Arguments to construct the output tensor.
+     * @param tensor_args Arguments to construct the output tensor.
      */
-    template <typename... Args>
-    Node_mean(INode<T> *A_ptr, Args &&...args) : INode<T>(A_ptr, args...) {}
+    template <typename... TensorArgs>
+    Node_mean(INode<T> *A_ptr, TensorArgs &&...tensor_args)
+        : INode<T>(A_ptr, tensor_args...) {}
 
     /**
-     * @brief Evaluates the mean operation if not already evaluated.
-     *
-     * Calls eval on the input node and applies `val_func` to compute this
-     * node's value.
+     * @brief Evaluates the mean operation by applying forwrd_op, if not already
+     * evaluated.
      */
     inline void eval() override {
         if (!this->evaluated) {
             this->A->eval();
 
-            val_func(this->A->value.data(), this->value.elements_.data(), A_end,
-                     divisor);
+            forward_op(this->A->value.data(), this->value.elements_.data(),
+                       A_end, divisor);
             this->evaluated = true;
         }
     }
 
     /**
-     * @brief Propagates gradients back through the mean operation.
-     *
-     * Applies `grad_func` to compute input gradients and recursively calls/
-     * `getGrad` on the input node if it has further dependencies.
+     * @brief Propagates gradients back through the mean operation, by applying
+     * backward_op.
      */
     inline void getGrad() override {
-        grad_func(this->A->gradient.elements_.data(), this->gradient.data(),
-                  dA_end, divisor);
+        backward_op(this->A->gradient.elements_.data(), this->gradient.data(),
+                    dA_end, divisor);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
