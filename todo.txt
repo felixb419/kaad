@@ -1,15 +1,14 @@
 [ TODO ]
 
 REFACTOR:
-    move val_func (dispatching) into node constructor
     move newShape constructing into node constructor
     revise Node members
     revise tensorfunc signatures (param names)
-    make Node members private (and const from outside)
     remove auto keyword
     rename val member to elements in Tensor
     rename val member to data in Tensor_view_view
     find better solution for stride override in outer
+    add default function parameters to node constructors
 
 FEAT:
     make default recorder variable
@@ -23,3 +22,8 @@ DOC:
     add note on broadcasting in primal_ops.hpp
     rework gradient comments
     rework operator readability and comments
+    
+GOALS
+    make Node and pointer access impossible
+        make operators return const Pointers (maybe Node_ptr)
+        make Node members private (and const from outside)

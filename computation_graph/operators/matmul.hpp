@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../tensor/tensor.hpp" // for Tensor
-#include "dispatchers.hpp"         // for get_batch_matmul
 #include "exceptions.hpp"          // for shape_error
 #include <memory>                  // for std::make_unique
 
@@ -54,17 +53,8 @@ INode<T> *matmul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         rec.nodes.push_back(std::move(
             std::make_unique<Node_matmul<T>>(A_ptr, B_ptr, newShape)));
     } else {
-        auto newNode =
-            std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape);
-        auto raw_ptr = newNode.get();
-        if (newLen <= KAAD_MAX_NDIMS) {
-            raw_ptr->forward_op =
-                detail::Dispatchers::get_batch_matmul<T>()[newLen];
-            raw_ptr->backward_op =
-                detail::Dispatchers::get_batch_matmul_grad<T>()[newLen];
-        }
-
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(std::move(
+            std::make_unique<Node_batch_matmul<T>>(A_ptr, B_ptr, newShape)));
     }
 
     return rec.nodes.back().get();

@@ -4,7 +4,6 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "dispatchers.hpp"                   // for Dispatchers
 #include "exceptions.hpp"                    // for shape_error
 #include <cstddef>                           // for size_t
 #include <memory>                            // for std::make_unique
@@ -106,17 +105,6 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
         rec.nodes.push_back(std::move(newNode));
     } else if (combine_flexible(A.shape_begin(), A.nDims(), B.shape_begin(),
                                 B.nDims(), newShape.data(), newLen)) {
-        using Op = typename Kernel::Op;
-        using Grad = typename Kernel::Grad;
-        tensorfuncs::primal::binary::flexible_fn<T, Op> operation =
-            kernels.flexOp;
-        tensorfuncs::adjoint::binary::flexible_fn<T, Grad> gradient =
-            kernels.flexGrad;
-        if (newLen <= KAAD_MAX_NDIMS) {
-            operation = detail::Dispatchers::get_flexOp<T, Op>()[newLen];
-            gradient = detail::Dispatchers::get_flexGrad<T, Grad>()[newLen];
-        }
-
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
                 A_ptr, B_ptr, newShape)));

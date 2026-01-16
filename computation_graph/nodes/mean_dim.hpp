@@ -3,7 +3,8 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for Strides::mean_dim
-#include "inode.hpp"                         // for INode
+#include "dispatchers.hpp" // for get_meanDim, get_meanDim_grad
+#include "inode.hpp"       // for INode
 
 namespace kaad {
 
@@ -40,6 +41,12 @@ template <typename T> struct Node_mean_dim : INode<T> {
     Node_mean_dim(INode<T> *A_ptr, int dim, TensorArgs &&...tensor_args)
         : INode<T>(A_ptr, tensor_args...) {
         Strides::mean_dim(*this, dim);
+
+        size_t a_ndims = static_cast<INode<T> *>(this)->A->value.nDims();
+        if (a_ndims <= Dispatchers::MAX_NDIMS) {
+            forward_op = Dispatchers::get_meanDim<T>()[a_ndims];
+            backward_op = Dispatchers::get_meanDim_grad<T>()[a_ndims];
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for Strides::flexible_binary
+#include "dispatchers.hpp"                   // for get_flexOp, get_flexGrad
 #include "inode.hpp"                         // for INode, Node_ptr
 
 namespace kaad {
@@ -51,6 +52,11 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
                      TensorArgs &&...tensor_args)
         : B(B_ptr), INode<T>(A_ptr, tensor_args...) {
         Strides::flexible_binary(*this);
+
+        if (C_nDims <= Dispatchers::MAX_NDIMS) {
+            forward_op = Dispatchers::get_flexOp<T, Op>()[C_nDims];
+            backward_op = Dispatchers::get_flexGrad<T, Grad>()[C_nDims];
+        }
     }
 
     /**

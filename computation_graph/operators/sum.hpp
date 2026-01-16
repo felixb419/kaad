@@ -3,7 +3,6 @@
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
-#include "dispatchers.hpp"                   // for get_sumDim
 #include "exceptions.hpp"                    // for argument_error
 #include <memory>                            // for std::make_unique
 
@@ -95,16 +94,8 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr, int dim,
                   newShape.begin() + dim);
     }
 
-    auto newNode =
-        std::make_unique<Node_sum_dim<T>>(A_ptr, dim, newShape, newLen);
-    auto raw_ptr = newNode.get();
-    if (A.nDims() <= KAAD_MAX_NDIMS) {
-        raw_ptr->val_func = detail::Dispatchers::get_sumDim<T>()[A.nDims()];
-        raw_ptr->grad_func =
-            detail::Dispatchers::get_sumDim_grad<T>()[A.nDims()];
-    }
-
-    rec.nodes.push_back(std::move(newNode));
+    rec.nodes.push_back(std::move(
+        std::make_unique<Node_sum_dim<T>>(A_ptr, dim, newShape, newLen)));
     return rec.nodes.back().get();
 }
 

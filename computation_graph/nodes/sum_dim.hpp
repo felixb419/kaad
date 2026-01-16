@@ -3,6 +3,7 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for Strides::sum_dim
+#include "dispatchers.hpp"                   // for get_sumDim, get_sumDim_grad
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -35,6 +36,12 @@ template <typename T> struct Node_sum_dim : INode<T> {
     Node_sum_dim(INode<T> *A_ptr, int dim, TensorArgs &&...tensor_args)
         : INode<T>(A_ptr, tensor_args...) {
         Strides::sum_dim(*this, dim);
+
+        size_t a_ndims = static_cast<INode<T> *>(this)->A->value.nDims();
+        if (a_ndims <= Dispatchers::MAX_NDIMS) {
+            val_func = Dispatchers::get_sumDim<T>()[a_ndims];
+            grad_func = Dispatchers::get_sumDim_grad<T>()[a_ndims];
+        }
     }
 
     /**

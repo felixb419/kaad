@@ -3,7 +3,8 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for Strides::batch_matmul
-#include "inode.hpp"                         // for INode
+#include "dispatchers.hpp" // for get_batch_matmul, get_batch_matmul_grad
+#include "inode.hpp"       // for INode
 
 namespace kaad {
 
@@ -52,6 +53,11 @@ template <typename T> struct Node_batch_matmul : INode<T> {
                       TensorArgs &&...tensor_args)
         : B(B_ptr), INode<T>(A_ptr, tensor_args...) {
         Strides::batch_matmul<T>(*this);
+
+        if (C_nDims <= Dispatchers::MAX_NDIMS) {
+            forward_op = Dispatchers::get_batch_matmul<T>()[C_nDims];
+            backward_op = Dispatchers::get_batch_matmul_grad<T>()[C_nDims];
+        }
     }
 
     /**

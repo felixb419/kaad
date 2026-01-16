@@ -3,6 +3,7 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../../tensorfuncs/strides.hpp"     // for Strides::slice
+#include "dispatchers.hpp"                   // for get_slice, get_slice_grad
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -36,6 +37,12 @@ template <typename T> struct Node_slice : INode<T> {
                TensorArgs &&...tensor_args)
         : INode<T>(A_ptr, tensor_args...) {
         Strides::slice(*this, offset_arr);
+
+        size_t a_ndims = static_cast<INode<T> *>(this)->A->value.nDims();
+        if (a_ndims < Dispatchers::MAX_NDIMS) {
+            forward_op = Dispatchers::get_slice<T>()[a_ndims];
+            backward_op = Dispatchers::get_slice_grad<T>()[a_ndims];
+        }
     }
 
     /**
