@@ -48,10 +48,10 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     bool B_scalar = B.nDims() == 1 && B.shape()[0] == 1;
     if (B_scalar) {
 
-        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
-            scalar, scalar_grad, A_ptr, B_ptr, ((T)0));
-        newNode.get()->end = A.data() + A.size();
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(
+            std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
+                scalar, scalar_grad, A_ptr, B_ptr, ((T)0))));
+        rec.nodes.back().get()->end = A.data() + A.size();
 
     } else if (A_scalar) {
 

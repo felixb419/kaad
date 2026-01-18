@@ -38,10 +38,12 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
         tensorfuncs::primal::unary::scalarOut<T, Op>;
     tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> grad =
         tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
-    auto newNode =
-        std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0);
-    newNode->end = A.data() + A.size(); // override end from constructor
-    rec.nodes.push_back(std::move(newNode));
+
+    rec.nodes.push_back(std::move(
+        std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0)));
+    rec.nodes.back().get()->end =
+        A.data() + A.size(); // override end from constructor
+
     return rec.nodes.back().get();
 }
 

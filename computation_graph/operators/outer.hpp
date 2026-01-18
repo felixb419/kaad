@@ -44,16 +44,13 @@ INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     std::copy(B.shape_begin(), B.shape_end(), newShape.begin() + A.nDims());
 
     using Kernel = typename Kernels::Mul<T>;
-    using Op = typename Kernel::Op;
-    using Grad = typename Kernel::Grad;
 
-    auto newNode = std::make_unique<Node_binary_flex<T, Kernel>>(
-        A_ptr, B_ptr, newShape, newLen);
-    auto raw = newNode.get();
-    Strides::outer<T>(*raw); // override strides from constructor
-    rec.nodes.push_back(std::move(newNode));
+    rec.nodes.push_back(std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
+        A_ptr, B_ptr, newShape, newLen)));
+    Strides::outer<T>(
+        *rec.nodes.back().get()); // override strides from constructor
 
-    return raw;
+    return rec.nodes.back().get();
 }
 
 } // namespace kaad
