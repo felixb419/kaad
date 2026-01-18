@@ -31,8 +31,9 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
         tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
                                                 ///< gradient operation.
 
-    const T *C_end = nullptr; ///< Pointer to the end of the value buffer (used
-                              ///< for iteration).
+    const T *end =
+        nullptr; ///< Pointer to the end of longest buffer (used for iteration,
+                 ///< buffer may differ depending on operation).
 
     /**
      * @brief Constructs a binary operation node with the given operation and
@@ -48,7 +49,10 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
                 tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> derivative,
                 INode<T> *A_ptr, INode<T> *B_ptr, TensorArgs &&...tensor_args)
         : B(B_ptr), forward_op(operation), backward_op(derivative),
-          INode<T>(A_ptr, tensor_args...) {}
+          INode<T>(A_ptr, tensor_args...) {
+        INode<T> *base_ptr = static_cast<INode<T> *>(this);
+        this->end = base_ptr->value.data() + base_ptr->value.size();
+    }
 
     /**
      * @brief Evaluates the binary operation by applying forward_op, if not
@@ -60,7 +64,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->B->eval();
 
             forward_op(this->A->value.data(), this->B->value.data(),
-                       this->value.elements_.data(), C_end, op);
+                       this->value.elements_.data(), end, op);
             this->evaluated = true;
         }
     }
@@ -72,7 +76,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), C_end, grad);
+                    this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

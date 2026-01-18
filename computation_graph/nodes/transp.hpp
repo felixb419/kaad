@@ -33,12 +33,16 @@ template <typename T> struct Node_transp : INode<T> {
     /**
      * @brief Constructs a transpose node with the given operation and gradient.
      *
-     * @param A_ptr    Pointer to the input node.
-     * @param tensor_args       Arguments to construct the output tensor.
+     * @param A_ptr Pointer to the input node.
+     * @param tensor_args Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
     Node_transp(INode<T> *A_ptr, TensorArgs &&...tensor_args)
-        : INode<T>(A_ptr, tensor_args...) {}
+        : INode<T>(A_ptr, tensor_args...) {
+        INode<T> *base_ptr = static_cast<INode<T> *>(this);
+        this->A_end = base_ptr->A->value.data() + base_ptr->A->value.size();
+        this->C_end = base_ptr->value.data() + base_ptr->value.size();
+    }
 
     /**
      * @brief Evaluates the transpose operation by applying forward_op, if not

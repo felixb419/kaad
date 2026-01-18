@@ -29,11 +29,7 @@ INode<T> *mean(Computation_graph<T> &rec, INode<T> *A_ptr) {
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;
 
-    auto newNode = std::make_unique<Node_mean<T>>(A_ptr, (T)0);
-    newNode->A_end = A.data() + A.size();
-    newNode->dA_end = newNode->A->gradient.data() + newNode->A->gradient.size();
-    newNode->divisor = A.size();
-    rec.nodes.push_back(std::move(newNode));
+    rec.nodes.push_back(std::move(std::make_unique<Node_mean<T>>(A_ptr, (T)0)));
     return rec.nodes.back().get();
 }
 

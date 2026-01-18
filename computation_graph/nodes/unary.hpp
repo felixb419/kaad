@@ -29,8 +29,9 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
         tensorfuncs::adjoint::unary::pointwise; ///< Function pointer to the
                                                 ///< gradient operation.
 
-    const T *C_end = nullptr; ///< Pointer to the end of the value buffer (used
-                              ///< for iteration)
+    const T *end =
+        nullptr; ///< Pointer to the end of longest buffer (used for iteration,
+                 ///< buffer may differ depending on operation).
 
     /**
      * @brief Constructs a unary node with the given operation and gradient.
@@ -44,7 +45,10 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
                tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> derivative,
                INode<T> *A_ptr, TensorArgs &&...tensor_args)
         : forward_op(operation), backward_op(derivative),
-          INode<T>(A_ptr, tensor_args...) {}
+          INode<T>(A_ptr, tensor_args...) {
+        INode<T> *base_ptr = static_cast<INode<T> *>(this);
+        this->end = base_ptr->value.data() + base_ptr->value.size();
+    }
 
     /**
      * @brief Evaluates the unary operation by applying forward_op, if not
@@ -54,8 +58,8 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
         if (!this->evaluated) {
             this->A->eval();
 
-            forward_op(this->A->value.data(), this->value.elements_.data(),
-                       C_end, op);
+            forward_op(this->A->value.data(), this->value.elements_.data(), end,
+                       op);
             this->evaluated = true;
         }
     }
@@ -66,7 +70,7 @@ template <typename T, class Kernel> struct Node_unary : INode<T> {
      */
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), C_end, grad);
+                    this->value.data(), this->gradient.data(), end, grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

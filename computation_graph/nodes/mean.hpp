@@ -32,7 +32,11 @@ template <typename T> struct Node_mean : INode<T> {
      */
     template <typename... TensorArgs>
     Node_mean(INode<T> *A_ptr, TensorArgs &&...tensor_args)
-        : INode<T>(A_ptr, tensor_args...) {}
+        : INode<T>(A_ptr, tensor_args...) {
+        this->A_end = A_ptr->value.data() + A_ptr->value.size();
+        this->dA_end = A_ptr->gradient.data() + A_ptr->gradient.size();
+        this->divisor = A_ptr->value.size();
+    }
 
     /**
      * @brief Evaluates the mean operation by applying forwrd_op, if not already

@@ -81,28 +81,24 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
     std::vector<int> newShape(newLen);
 
     if (B_scalar) {
-        auto newNode = std::make_unique<Node_binary<T, Kernel>>(
+
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr,
-            A.shape());
-        auto raw_ptr = newNode.get();
-        raw_ptr->C_end = raw_ptr->value.data() + raw_ptr->value.size();
-        rec.nodes.push_back(std::move(newNode));
+            A.shape())));
+
     } else if (A_scalar) {
-        auto newNode = std::make_unique<Node_binary<T, Kernel>>(
+
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
-            B.shape());
-        auto raw_ptr = newNode.get();
-        raw_ptr->C_end = raw_ptr->value.data() + raw_ptr->value.size();
-        rec.nodes.push_back(std::move(newNode));
+            B.shape())));
+
     } else if (A.nDims() == B.nDims() &&
                std::equal(A.shape_begin(), A.shape_end(), B.shape_begin()) &&
                std::equal(A.stride_begin(), A.stride_end(), B.stride_begin())) {
 
-        auto newNode = std::make_unique<Node_binary<T, Kernel>>(
-            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape());
-        auto raw_ptr = newNode.get();
-        raw_ptr->C_end = raw_ptr->value.data() + raw_ptr->value.size();
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
+            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape())));
+
     } else if (combine_flexible(A.shape_begin(), A.nDims(), B.shape_begin(),
                                 B.nDims(), newShape.data(), newLen)) {
         rec.nodes.push_back(

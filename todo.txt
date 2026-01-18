@@ -2,13 +2,13 @@
 
 REFACTOR:
     move newShape constructing into node constructor
+    get rid of newNode use rec.nodes.back() and maybe raw_ptr
     revise Node members
     revise tensorfunc signatures (param names)
     remove auto keyword
     rename val member to elements in Tensor
     rename val member to data in Tensor_view_view
     find better solution for stride override in outer
-    add default function parameters to node constructors
 
 FEAT:
     make default recorder variable
