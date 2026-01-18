@@ -37,9 +37,9 @@ template <typename T> struct Node_batch_matmul : INode<T> {
     int *(strideB[3]);  ///< Stride array for tensor B.
     int *(strideC[3]);  ///< Stride array for tensor C.
     int *(c_shape[3]);  ///< shape of C (used for iteration).
-    int A_offset[3];    ///< Gap between columns of the A matrix.
-    int B_offset[3];    ///< Gap between rows of the B matrix.
-    int k[3];           ///< shared inner dimension of the tensors.
+    int A_colStride[3]; ///< Gap between columns of the A matrix.
+    int B_rowStride[3]; ///< Gap between rows of the B matrix.
+    int shared_dim[3];  ///< Shared inner dimension of the tensors.
     size_t C_nDims = 0; ///< Number of the dimensions of the value tensor.
 
     /**
@@ -83,8 +83,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
 
             forward_op(this->A->value.data(), this->B->value.data(),
                        this->value.elements_.data(), strideA[0], strideB[0],
-                       strideC[0], c_shape[0], A_offset[0], B_offset[0], k[0],
-                       C_nDims);
+                       strideC[0], c_shape[0], A_colStride[0], B_rowStride[0],
+                       shared_dim[0], C_nDims);
             this->evaluated = true;
         }
     }
@@ -97,8 +97,8 @@ template <typename T> struct Node_batch_matmul : INode<T> {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
                     this->value.data(), this->gradient.data(), strideA + 1,
-                    strideB + 1, strideC + 1, c_shape + 1, A_offset + 1,
-                    B_offset + 1, k + 1, C_nDims);
+                    strideB + 1, strideC + 1, c_shape + 1, A_colStride + 1,
+                    B_rowStride + 1, shared_dim + 1, C_nDims);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

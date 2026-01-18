@@ -51,7 +51,8 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
                 scalar, scalar_grad, A_ptr, B_ptr, ((T)0))));
-        rec.nodes.back().get()->end = A.data() + A.size();
+        static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
+            ->end = A.data() + A.size();
 
     } else if (A_scalar) {
 

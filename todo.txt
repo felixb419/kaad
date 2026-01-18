@@ -1,7 +1,6 @@
 [ TODO ]
 
 REFACTOR:
-    revise Node members
     revise tensorfunc signatures (param names)
     remove auto keyword
     rename val member to elements in Tensor

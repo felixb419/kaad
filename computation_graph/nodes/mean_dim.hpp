@@ -20,15 +20,14 @@ template <typename T> struct Node_mean_dim : INode<T> {
     tensorfuncs::adjoint::unary::mean_dim_fn<T> backward_op =
         tensorfuncs::adjoint::unary::mean_dim;
 
-    int *strideA = nullptr; ///< stride Array for A.
-    int *strideC = nullptr; ///< stride Array for C.
-    size_t *A_offset =
-        nullptr; ///< Total number of elements and per-dim offsets of A.
+    int *strideA = nullptr;     ///< stride Array for A.
+    int *strideC = nullptr;     ///< stride Array for C.
+    size_t *A_offset = nullptr; ///< Per-dim offset to the end of A buffer.
     const T *C_end =
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
     const T *dA_end =
         nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
-    size_t C_nDims = 0; ///< Number of the dimensions of the A tensor.
+    size_t A_nDims = 0; ///< Number of the dimensions of the A tensor.
     T divisor = 0; ///< Divisor to compute the mean of the A tensor (length of A
                    ///< in relevant dimension).
 
@@ -67,7 +66,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
             this->A->eval();
 
             forward_op(this->A->value.data(), this->value.elements_.data(),
-                       strideA, strideC, A_offset, C_nDims, divisor, C_end);
+                       strideA, strideC, A_offset, A_nDims, divisor, C_end);
             this->evaluated = true;
         }
     }
@@ -79,7 +78,7 @@ template <typename T> struct Node_mean_dim : INode<T> {
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->value.data(), this->gradient.data(), strideA, strideC,
-                    A_offset, C_nDims, divisor, dA_end);
+                    A_offset, A_nDims, divisor, dA_end);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

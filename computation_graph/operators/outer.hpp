@@ -47,8 +47,8 @@ INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
 
     rec.nodes.push_back(std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
         A_ptr, B_ptr, newShape, newLen)));
-    Strides::outer<T>(
-        *rec.nodes.back().get()); // override strides from constructor
+    Strides::outer<T>(*static_cast<Node_binary_flex<T, Kernel> *>(
+        rec.nodes.back().get())); // override strides from constructor
 
     return rec.nodes.back().get();
 }

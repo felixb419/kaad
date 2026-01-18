@@ -41,7 +41,7 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
 
     rec.nodes.push_back(std::move(
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0)));
-    rec.nodes.back().get()->end =
+    static_cast<Node_unary<T, Kernel> *>(rec.nodes.back().get())->end =
         A.data() + A.size(); // override end from constructor
 
     return rec.nodes.back().get();

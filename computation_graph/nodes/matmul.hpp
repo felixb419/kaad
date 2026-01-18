@@ -32,15 +32,16 @@ template <typename T> struct Node_matmul : INode<T> {
      * - [2..3] Gradient w.r.t. A (dA = dC * Bᵗ)
      * - [4..5] Gradient w.r.t. B (dB = Aᵗ * dC)
      */
-    int a_dim[3]; ///< Number of rows of tensor A for each computation stage.
-    int b_dim[3]; ///< Number of columns of tensor B for each computation stage.
-    int k[3];     ///< Shared inner dimension for each computation stage.
-    int strideA[6]; ///< Flattened stride pairs for tensor A (2 per stage × 3
-                    ///< stages).
-    int strideB[6]; ///< Flattened stride pairs for tensor B (2 per stage × 3
-                    ///< stages).
-    int strideC[6]; ///< Flattened stride pairs for tensor C (2 per stage × 3
-                    ///< stages).
+    int a_rows[3]; ///< Number of rows of tensor A for each computation stage.
+    int b_cols[3]; ///< Number of columns of tensor B for each computation
+                   ///< stage.
+    int shared_dim[3]; ///< Shared inner dimension for each computation stage.
+    int strideA[6];    ///< Flattened stride pairs for tensor A (2 per stage × 3
+                       ///< stages).
+    int strideB[6];    ///< Flattened stride pairs for tensor B (2 per stage × 3
+                       ///< stages).
+    int strideC[6];    ///< Flattened stride pairs for tensor C (2 per stage × 3
+                       ///< stages).
 
     /**
      * @brief Constructs a matmul node.
@@ -64,8 +65,8 @@ template <typename T> struct Node_matmul : INode<T> {
             this->B->eval();
 
             forward_op(this->A->value.data(), this->B->value.data(),
-                       this->value.elements_.data(), a_dim[0], b_dim[0], k[0],
-                       strideA, strideB, strideC);
+                       this->value.elements_.data(), a_rows[0], b_cols[0],
+                       shared_dim[0], strideA, strideB, strideC);
             this->evaluated = true;
         }
     }
@@ -77,8 +78,9 @@ template <typename T> struct Node_matmul : INode<T> {
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), a_dim + 1,
-                    b_dim + 1, k + 1, strideA + 2, strideB + 2, strideC + 2);
+                    this->value.data(), this->gradient.data(), a_rows + 1,
+                    b_cols + 1, shared_dim + 1, strideA + 2, strideB + 2,
+                    strideC + 2);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

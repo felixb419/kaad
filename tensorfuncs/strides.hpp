@@ -129,11 +129,11 @@ template <typename T> void matmul(Node_matmul<T> &node) {
     B_T.shape = B_T_shape;
     B_T.stride = B_T_stride;
 
-    matmul_impl(A, B, C, node.a_dim[0], node.b_dim[0], node.k[0], node.strideA,
-                node.strideB, node.strideC);
-    matmul_impl(C, B_T, A, node.a_dim[1], node.b_dim[1], node.k[1],
+    matmul_impl(A, B, C, node.a_rows[0], node.b_cols[0], node.shared_dim[0],
+                node.strideA, node.strideB, node.strideC);
+    matmul_impl(C, B_T, A, node.a_rows[1], node.b_cols[1], node.shared_dim[1],
                 node.strideC + 2, node.strideB + 2, node.strideA + 2);
-    matmul_impl(A_T, C, B, node.a_dim[2], node.b_dim[2], node.k[2],
+    matmul_impl(A_T, C, B, node.a_rows[2], node.b_cols[2], node.shared_dim[2],
                 node.strideA + 4, node.strideC + 4, node.strideB + 4);
 }
 
@@ -214,14 +214,14 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
     b_T.stride = b_T_stride.data();
 
     batch_matmul_impl(A, B, C, node.strideA[0], node.strideB[0],
-                      node.strideC[0], node.c_shape[0], node.A_offset[0],
-                      node.B_offset[0], node.k[0], node.C_nDims);
+                      node.strideC[0], node.c_shape[0], node.A_colStride[0],
+                      node.B_rowStride[0], node.shared_dim[0], node.C_nDims);
     batch_matmul_impl(C, b_T, A, node.strideC[1], node.strideB[1],
-                      node.strideA[1], node.c_shape[1], node.A_offset[1],
-                      node.B_offset[1], node.k[1], node.C_nDims);
+                      node.strideA[1], node.c_shape[1], node.A_colStride[1],
+                      node.B_rowStride[1], node.shared_dim[1], node.C_nDims);
     batch_matmul_impl(a_T, C, B, node.strideA[2], node.strideC[2],
-                      node.strideB[2], node.c_shape[2], node.A_offset[2],
-                      node.B_offset[2], node.k[2], node.C_nDims);
+                      node.strideB[2], node.c_shape[2], node.A_colStride[2],
+                      node.B_rowStride[2], node.shared_dim[2], node.C_nDims);
 }
 
 /**
@@ -330,7 +330,7 @@ template <typename T> void mean_dim(Node_mean_dim<T> &node, int dim) {
     node.C_end = C.val + C.len;
     node.dA_end = dA.val + dA.len;
 
-    along_dim_impl(A, C, dim, node.C_nDims, node.A_offset, node.strideA,
+    along_dim_impl(A, C, dim, node.A_nDims, node.A_offset, node.strideA,
                    node.strideC);
 }
 
