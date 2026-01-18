@@ -20,12 +20,11 @@ template <typename T> struct Node_slice : INode<T> {
     tensorfuncs::adjoint::unary::slice_fn<T> backward_op =
         tensorfuncs::adjoint::unary::slice;
 
-    int *strideA = nullptr;           ///< Stride array for tensor A.
-    int *strideB = nullptr;           ///< Stride array for tensor B.
-    int *strideC = nullptr;           ///< Stride array for tensor C.
-    size_t *start_offset_a = nullptr; ///< Offset for the start of A.
-    size_t *C_offset = nullptr; ///< Per-dim offset to the end of C buffer.
-    size_t C_nDims = 0;         ///< Number of the dimensions of the C tensor.
+    std::vector<int> strideA;           ///< Stride array for tensor A.
+    std::vector<int> strideC;           ///< Stride array for tensor C.
+    std::vector<size_t> start_offset_a; ///< Offset for the start of A.
+    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
+    size_t C_nDims = 0;           ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a slice node.
@@ -46,16 +45,6 @@ template <typename T> struct Node_slice : INode<T> {
     }
 
     /**
-     * @brief Destructor for Node_slice.
-     */
-    ~Node_slice() {
-        delete[] strideA;
-        delete[] strideB;
-        delete[] strideC;
-        delete[] C_offset;
-    }
-
-    /**
      * @brief Evaluates the slice operation by applying forward_op, if not
      * already evaluated.
      */
@@ -64,7 +53,8 @@ template <typename T> struct Node_slice : INode<T> {
             this->A->eval();
 
             forward_op(this->A->value.data(), this->value.elements_.data(),
-                       strideA, strideC, start_offset_a, C_offset, C_nDims);
+                       strideA.data(), strideC.data(), start_offset_a.data(),
+                       C_offset.data(), C_nDims);
             this->evaluated = true;
         }
     }
@@ -75,7 +65,8 @@ template <typename T> struct Node_slice : INode<T> {
      */
     inline void getGrad() override {
         backward_op(this->A->gradient.elements_.data(), this->gradient.data(),
-                    strideA, strideC, start_offset_a, C_offset, C_nDims);
+                    strideA.data(), strideC.data(), start_offset_a.data(),
+                    C_offset.data(), C_nDims);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

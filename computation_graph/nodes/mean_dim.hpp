@@ -20,9 +20,9 @@ template <typename T> struct Node_mean_dim : INode<T> {
     tensorfuncs::adjoint::unary::mean_dim_fn<T> backward_op =
         tensorfuncs::adjoint::unary::mean_dim;
 
-    int *strideA = nullptr;     ///< stride Array for A.
-    int *strideC = nullptr;     ///< stride Array for C.
-    size_t *A_offset = nullptr; ///< Per-dim offset to the end of A buffer.
+    std::vector<int> strideA;     ///< stride Array for A.
+    std::vector<int> strideC;     ///< stride Array for C.
+    std::vector<size_t> A_offset; ///< Per-dim offset to the end of A buffer.
     const T *C_end =
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
     const T *dA_end =
@@ -49,15 +49,6 @@ template <typename T> struct Node_mean_dim : INode<T> {
     }
 
     /**
-     * @brief Destructor for Node_mean_dim.
-     */
-    ~Node_mean_dim() {
-        delete[] strideA;
-        delete[] strideC;
-        delete[] A_offset;
-    }
-
-    /**
      * @brief Evaluates the mean_dim operation by applying forward_op, if not
      * already evaluated.
      */
@@ -66,7 +57,8 @@ template <typename T> struct Node_mean_dim : INode<T> {
             this->A->eval();
 
             forward_op(this->A->value.data(), this->value.elements_.data(),
-                       strideA, strideC, A_offset, A_nDims, divisor, C_end);
+                       strideA.data(), strideC.data(), A_offset.data(), A_nDims,
+                       divisor, C_end);
             this->evaluated = true;
         }
     }
@@ -77,8 +69,8 @@ template <typename T> struct Node_mean_dim : INode<T> {
      */
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), strideA, strideC,
-                    A_offset, A_nDims, divisor, dA_end);
+                    this->value.data(), this->gradient.data(), strideA.data(),
+                    strideC.data(), A_offset.data(), A_nDims, divisor, dA_end);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

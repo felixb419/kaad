@@ -5,6 +5,7 @@
 #include "../../tensorfuncs/strides.hpp"     // for Strides::flexible_binary
 #include "dispatchers.hpp"                   // for get_flexOp, get_flexGrad
 #include "inode.hpp"                         // for INode, Node_ptr
+#include <vector>                            // for std::vector
 
 namespace kaad {
 
@@ -34,11 +35,11 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
                                                          ///< to the gradient
                                                          ///< operation.
 
-    int *strideA = nullptr;     ///< stride Array for A.
-    int *strideB = nullptr;     ///< stride Array for B.
-    int *strideC = nullptr;     ///< stride Array for C.
-    size_t *C_offset = nullptr; ///< Per-dim offset to the end of C buffer.
-    size_t C_nDims = 0;         ///< Number of the dimensions of the C tensor.
+    std::vector<int> strideA;     ///< stride Array for A.
+    std::vector<int> strideB;     ///< stride Array for B.
+    std::vector<int> strideC;     ///< stride Array for C.
+    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
+    size_t C_nDims = 0;           ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
@@ -60,16 +61,6 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     }
 
     /**
-     * @brief Destructor for Node_binary_flex.
-     */
-    ~Node_binary_flex() {
-        delete[] strideA;
-        delete[] strideB;
-        delete[] strideC;
-        delete[] C_offset;
-    }
-
-    /**
      * @brief Evaluates the binary_flex operation by calling forward_op, if not
      * already evaluated.
      */
@@ -79,8 +70,9 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
             this->B->eval();
 
             forward_op(this->A->value.data(), this->B->value.data(),
-                       this->value.elements_.data(), strideA, strideB, strideC,
-                       C_offset, C_nDims, op);
+                       this->value.elements_.data(), strideA.data(),
+                       strideB.data(), strideC.data(), C_offset.data(), C_nDims,
+                       op);
             this->evaluated = true;
         }
     }
@@ -92,8 +84,9 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), strideA, strideB,
-                    strideC, C_offset, C_nDims, grad);
+                    this->value.data(), this->gradient.data(), strideA.data(),
+                    strideB.data(), strideC.data(), C_offset.data(), C_nDims,
+                    grad);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

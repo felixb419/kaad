@@ -36,9 +36,9 @@ void flexible_binary(Node_binary_flex<T, Kernel> &node) {
     Tensor_view<T> C = node.value.view();
 
     node.C_nDims = C.nDims;
-    node.strideA = new int[node.C_nDims];
-    node.strideB = new int[node.C_nDims];
-    node.strideC = new int[node.C_nDims];
+    node.strideA.resize(node.C_nDims);
+    node.strideB.resize(node.C_nDims);
+    node.strideC.resize(node.C_nDims);
 
     int idx, idxA, idxB, idxC;
     for (int i = 1; i <= node.C_nDims; i++) {
@@ -56,7 +56,7 @@ void flexible_binary(Node_binary_flex<T, Kernel> &node) {
         }
     }
 
-    node.C_offset = new size_t[node.C_nDims];
+    node.C_offset.resize(node.C_nDims);
     for (int i = 0; i < node.C_nDims; i++) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
@@ -241,15 +241,15 @@ void outer(Node_binary_flex<T, Kernel> &node) {
 
     node.C_nDims = C.nDims;
 
-    node.strideA = new int[node.C_nDims];
-    node.strideB = new int[node.C_nDims];
-    node.strideC = new int[node.C_nDims];
+    node.strideA.resize(node.C_nDims);
+    node.strideB.resize(node.C_nDims);
+    node.strideC.resize(node.C_nDims);
 
-    std::copy(C.stride, C.stride + C.nDims, node.strideC);
-    std::copy(A.stride, A.stride + A.nDims, node.strideA);
-    std::copy(B.stride, B.stride + B.nDims, node.strideB + A.nDims);
+    std::copy(C.stride, C.stride + C.nDims, node.strideC.data());
+    std::copy(A.stride, A.stride + A.nDims, node.strideA.data());
+    std::copy(B.stride, B.stride + B.nDims, node.strideB.data() + A.nDims);
 
-    node.C_offset = new size_t[node.C_nDims];
+    node.C_offset.resize(node.C_nDims);
     for (int i = 0; i < node.C_nDims; i++) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
@@ -270,13 +270,14 @@ void outer(Node_binary_flex<T, Kernel> &node) {
  */
 template <typename T>
 void along_dim_impl(Tensor_view<T> &A, Tensor_view<T> &C, int dim, size_t &D,
-                    size_t *&A_offset, int *&strideA, int *&strideC) {
+                    std::vector<size_t> &A_offset, std::vector<int> &strideA,
+                    std::vector<int> &strideC) {
     D = A.nDims;
-    strideA = new int[D];
-    strideC = new int[D];
+    strideA.resize(D);
+    strideC.resize(D);
 
-    std::copy(A.stride, A.stride + A.nDims, strideA);
-    std::copy(A.stride, A.stride + A.nDims, strideC);
+    std::copy(A.stride, A.stride + A.nDims, strideA.data());
+    std::copy(A.stride, A.stride + A.nDims, strideC.data());
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
     for (int i = 0; i < D; i++) {
@@ -290,7 +291,7 @@ void along_dim_impl(Tensor_view<T> &A, Tensor_view<T> &C, int dim, size_t &D,
         strideC[i] /= A.shape[dim];
     }
 
-    A_offset = new size_t[D];
+    A_offset.resize(D);
     for (int i = 0; i < D; i++) {
         A_offset[i] = A.shape[i] * strideA[i];
     }
@@ -346,9 +347,8 @@ template <typename T> void slice(Node_slice<T> &node, const int *offset) {
     Tensor_view<T> C = node.value.view();
 
     node.C_nDims = C.nDims;
-    node.strideA = new int[node.C_nDims];
-    node.strideB = new int[node.C_nDims];
-    node.strideC = new int[node.C_nDims];
+    node.strideA.resize(node.C_nDims);
+    node.strideC.resize(node.C_nDims);
 
     int idx, idxA, idxC;
     for (int i = 1; i <= node.C_nDims; i++) {
@@ -364,13 +364,13 @@ template <typename T> void slice(Node_slice<T> &node, const int *offset) {
         }
     }
 
-    node.C_offset = new size_t[node.C_nDims];
+    node.C_offset.resize(node.C_nDims);
     for (int i = 0; i < node.C_nDims; i++) {
         node.C_offset[i] = C.shape[i] * node.strideC[i];
     }
 
-    node.start_offset_a = new size_t[A.nDims];
-    std::copy(offset, offset + A.nDims, node.start_offset_a);
+    node.start_offset_a.resize(A.nDims);
+    std::copy(offset, offset + A.nDims, node.start_offset_a.data());
     for (int i = 0; i < A.nDims; i++) {
         node.start_offset_a[i] *= node.strideA[i];
     }

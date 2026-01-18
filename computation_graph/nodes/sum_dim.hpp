@@ -22,10 +22,10 @@ template <typename T> struct Node_sum_dim : INode<T> {
         tensorfuncs::adjoint::unary::sum_dim; ///< Function pointer to the
                                               ///< sum_dim gradient.
 
-    int *strideA = nullptr;     ///< stride Array for A.
-    int *strideC = nullptr;     ///< stride Array for C.
-    size_t *A_offset = nullptr; ///< Per-dim offset to the end of A buffer.
-    size_t C_nDims = 0;         ///< Number of dimensions of A
+    std::vector<int> strideA;     ///< stride Array for A.
+    std::vector<int> strideC;     ///< stride Array for C.
+    std::vector<size_t> A_offset; ///< Per-dim offset to the end of A buffer.
+    size_t C_nDims = 0;           ///< Number of dimensions of A
 
     /**
      * @brief Constructs a sum_dim node.
@@ -45,15 +45,6 @@ template <typename T> struct Node_sum_dim : INode<T> {
     }
 
     /**
-     * @brief Destructor for Node_sum_dim.
-     */
-    ~Node_sum_dim() {
-        delete[] strideA;
-        delete[] strideC;
-        delete[] A_offset;
-    }
-
-    /**
      * @brief Evaluates the sum_dim operation by applying forward_op, if not
      * already evaluated.
      */
@@ -62,7 +53,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
             this->A->eval();
 
             val_func(this->A->value.data(), this->value.elements_.data(),
-                     strideA, strideC, A_offset, C_nDims);
+                     strideA.data(), strideC.data(), A_offset.data(), C_nDims);
             this->evaluated = true;
         }
     }
@@ -73,7 +64,7 @@ template <typename T> struct Node_sum_dim : INode<T> {
      */
     inline void getGrad() override {
         grad_func(this->A->gradient.elements_.data(), this->gradient.data(),
-                  strideA, strideC, A_offset, C_nDims);
+                  strideA.data(), strideC.data(), A_offset.data(), C_nDims);
 
         if (this->A->hasInputs) {
             this->A->getGrad();
