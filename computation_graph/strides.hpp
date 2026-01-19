@@ -328,8 +328,8 @@ template <typename T> void mean_dim(Node_mean_dim<T> &node, int dim) {
     Tensor_view<T> dA = node.A->gradient.view();
 
     node.divisor = A.shape[dim];
-    node.C_end = C.val + C.len;
-    node.dA_end = dA.val + dA.len;
+    node.C_end = C.elements + C.len;
+    node.dA_end = dA.elements + dA.len;
 
     along_dim_impl(A, C, dim, node.A_nDims, node.A_offset, node.strideA,
                    node.strideC);

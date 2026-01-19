@@ -15,7 +15,7 @@ template <typename T> struct Tensor_view {
     const int *shape = nullptr;  ///< Pointer to the shape array.
     const int *stride = nullptr; ///< Pointer to the stride array.
     std::size_t nDims = 0;       ///< Length of the shape and stride arrays.
-    const T *val = nullptr;      ///< Pointer to the value array.
+    const T *elements = nullptr; ///< Pointer to the value array.
     std::size_t len = 0;         ///< Length of the value array.
 
     /**
@@ -28,12 +28,13 @@ template <typename T> struct Tensor_view {
      * @param shape Pointer to the shape array.
      * @param shape Pointer to the stride array.
      * @param nDims Length of the shape and stride arrays.
-     * @param val Pointer to the value array.
+     * @param elements Pointer to the value array.
      * @param len Length of the value array.
      */
     Tensor_view(const int *shape, const int *stride, std::size_t nDims,
-                const T *val, std::size_t len)
-        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
+                const T *elements, std::size_t len)
+        : shape(shape), stride(stride), nDims(nDims), elements(elements),
+          len(len) {}
 
     /**
      * @brief Overloads the stream output operator to print the tensor view.
@@ -51,7 +52,7 @@ template <typename T> struct Tensor_view {
             int indent = 0;
 
             detail::print_tensor(stream, cords, view.shape, view.stride,
-                                 view.val, 0, indent);
+                                 view.elements, 0, indent);
         }
         return stream;
     }
@@ -65,7 +66,7 @@ template <typename T> struct Tensor_view_mut {
     const int *shape = nullptr;  ///< Pointer to the shape array.
     const int *stride = nullptr; ///< Pointer to the stride array.
     std::size_t nDims = 0;       ///< Length of the shape and stride arrays.
-    T *val = nullptr;            ///< Pointer to the value array.
+    T *elements = nullptr;       ///< Pointer to the value array.
     std::size_t len = 0;         ///< Length of the value array.
 
     /**
@@ -78,20 +79,21 @@ template <typename T> struct Tensor_view_mut {
      * @param shape Pointer to the shape array.
      * @param shape Pointer to the stride array.
      * @param nDims Length of the shape and stride arrays.
-     * @param val Pointer to the value array.
+     * @param elements Pointer to the value array.
      * @param len Length of the value array.
      */
     Tensor_view_mut(const int *shape, const int *stride, std::size_t nDims,
-                    T *val, std::size_t len)
-        : shape(shape), stride(stride), nDims(nDims), val(val), len(len) {}
+                    T *elements, std::size_t len)
+        : shape(shape), stride(stride), nDims(nDims), elements(elements),
+          len(len) {}
 
     /**
      * @brief Get an immutable view of the Tensor.
      * @return Immutable view (Tensor_view).
      */
     Tensor_view<T> make_immutable() {
-        return Tensor_view<T>(this->shape, this->stride, this->nDims, this->val,
-                              this->len);
+        return Tensor_view<T>(this->shape, this->stride, this->nDims,
+                              this->elements, this->len);
     }
 
     /**
@@ -109,7 +111,7 @@ template <typename T> struct Tensor_view_mut {
             int indent = 0;
 
             detail::print_tensor(stream, cords, view.shape, view.stride,
-                                 view.val, 0, indent);
+                                 view.elements, 0, indent);
         }
         return stream;
     }

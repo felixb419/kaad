@@ -1,15 +1,11 @@
 [ TODO ]
 
 REFACTOR:
-    rename val member to elements in Tensor
-    rename val member to data in Tensor_view_view
-    find better solution for stride override in outer
-    move strides into computation_graph
     (?) split tensorfunc files
 
 FEAT:
     make default recorder variable
-    make node inptus to std::vector
+    revise node input variables
 
 PERF:
     make stride function transpose dimensions so biggest is highest
