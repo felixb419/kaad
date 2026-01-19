@@ -24,18 +24,21 @@ using pointwise_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
 template <typename T, class Grad>
 using flexible_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
                              const T *dC, int *strideA, int *strideB,
-                             int *strideC, size_t *c_offset, int N, Grad grad);
+                             int *strideC, size_t *c_offset, int c_nDims,
+                             Grad grad);
 
 template <typename T>
 using matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                           const T *dC, int *a_dim, int *b_dim, int *k,
-                           int *strideA, int *strideB, int *strideC);
+                           const T *dC, int *a_rows, int *b_cols,
+                           int *shared_dim, int *strideA, int *strideB,
+                           int *strideC);
 
 template <typename T>
 using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
                                  const T *C, const T *dC, int **strideA,
                                  int **strideB, int **strideC, int **c_shape,
-                                 int *a_off, int *b_off, int *k, int N);
+                                 int *a_dim_offset, int *b_dim_offset,
+                                 int *shared_dim, int c_nDims);
 
 /**
  * @brief Computes gradients for an elementwise operation with a scalar
@@ -131,11 +134,11 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * derivatives of a tensor operation where A, B, and C may have different shapes
  * and strides.
  *
- * For N = 1 (innermost dimension), computes:
+ * For c_nDims = 1 (innermost dimension), computes:
  *   grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
  * using the given strides.
  *
- * For N > 1, the function recursively traverses the outer dimensions.
+ * For c_nDims > 1, the function recursively traverses the outer dimensions.
  *
  * @tparam T Element type
  * @tparam Grad A callable object that computes the gradient.
@@ -150,15 +153,15 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param strideB Stride array for B.
  * @param strideC Stride array for C.
  * @param c_offset Total number of elements and per-dim offsets of C.
- * @param N Number of dimensions.
+ * @param c_nDims Number of dimensions.
  * @param grad A callable that computes the gradients.
  */
 template <typename T, class Grad>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, size_t *c_offset, int N,
-              Grad grad) {
+              int *strideA, int *strideB, int *strideC, size_t *c_offset,
+              int c_nDims, Grad grad) {
     const T *end = C + *c_offset;
-    if (N <= 1) {
+    if (c_nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
             grad(*A, *dA, *B, *dB, *C, *dC);
@@ -167,7 +170,7 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         for (; C < end; A += *strideA, B += *strideB, C += *strideC,
                         dA += *strideA, dB += *strideB, dC += *strideC) {
             flexible(A, dA, B, dB, C, dC, strideA + 1, strideB + 1, strideC + 1,
-                     c_offset + 1, N - 1, grad);
+                     c_offset + 1, c_nDims - 1, grad);
         }
     }
 }
@@ -175,14 +178,15 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 /**
  * @brief Compile-time recursive version of flexible().
  * @see flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
- * int *strideA, int *strideB, int *strideC, size_t *c_offset, int N, Grad grad)
+ * int *strideA, int *strideB, int *strideC, size_t *c_offset, int c_nDims, Grad
+ * grad)
  */
-template <typename T, class Grad, int N>
+template <typename T, class Grad, int c_nDims>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
               int *strideA, int *strideB, int *strideC, size_t *c_offset, int _,
               Grad grad) {
     const T *end = C + *c_offset;
-    if constexpr (N <= 1) {
+    if constexpr (c_nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
             grad(*A, *dA, *B, *dB, *C, *dC);
@@ -190,9 +194,9 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
     } else {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
-            flexible<T, Grad, N - 1>(A, dA, B, dB, C, dC, strideA + 1,
-                                     strideB + 1, strideC + 1, c_offset + 1, 0,
-                                     grad);
+            flexible<T, Grad, c_nDims - 1>(A, dA, B, dB, C, dC, strideA + 1,
+                                           strideB + 1, strideC + 1,
+                                           c_offset + 1, 0, grad);
         }
     }
 }
@@ -265,23 +269,25 @@ void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param dB Pointer to gradient matrix B.
  * @param C Pointer to result matrix C.
  * @param dC Pointer to gradient matrix C.
- * @param a_dim Rows of A.
- * @param b_dim Columns of B.
- * @param k Shared inner dimension (A.cols == B.rows).
+ * @param a_rows Rows of A.
+ * @param b_cols Columns of B.
+ * @param shared_dim Shared inner dimension (A.cols == B.rows).
  * @param strideA Strides for matrix A.
  * @param strideB Strides for matrix B.
  * @param strideC Strides for matrix C.
  */
 template <typename T>
 void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-            int *a_dim, int *b_dim, int *k, int *strideA, int *strideB,
-            int *strideC) {
+            int *a_rows, int *b_cols, int *shared_dim, int *strideA,
+            int *strideB, int *strideC) {
     // dA = dC * B^T
-    tensorfuncs::primal::binary::matmul(dC, B, dA, a_dim[0], b_dim[0], k[0],
-                                        strideC, strideB, strideA);
+    tensorfuncs::primal::binary::matmul(dC, B, dA, a_rows[0], b_cols[0],
+                                        shared_dim[0], strideC, strideB,
+                                        strideA);
     // dB = A^T * dC
-    tensorfuncs::primal::binary::matmul(A, dC, dB, a_dim[1], b_dim[1], k[1],
-                                        strideA + 2, strideC + 2, strideB + 2);
+    tensorfuncs::primal::binary::matmul(A, dC, dB, a_rows[1], b_cols[1],
+                                        shared_dim[1], strideA + 2, strideC + 2,
+                                        strideB + 2);
 }
 
 /**
@@ -302,44 +308,46 @@ void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param strideB Strides of B.
  * @param strideC Strides of C.
  * @param c_shape Shape of output tensor C.
- * @param a_off Offset between A matrix rows.
- * @param b_off Offset between B matrix columns.
- * @param k Shared matrix inner dimension.
- * @param N Number of dimensions.
+ * @param a_dim_offset Offset between A matrix rows.
+ * @param b_dim_offset Offset between B matrix columns.
+ * @param shared_dim Shared matrix inner dimension.
+ * @param c_nDims Number of dimensions.
  */
 template <typename T>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
-                  int *a_off, int *b_off, int *k, int N) {
+                  int *a_dim_offset, int *b_dim_offset, int *shared_dim,
+                  int c_nDims) {
     // dA = dC * B^T
     tensorfuncs::primal::binary::batch_matmul<T>(
-        dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0],
-        b_off[0], k[0], N);
+        dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0],
+        a_dim_offset[0], b_dim_offset[0], shared_dim[0], c_nDims);
     // dB = A^T * dC
     tensorfuncs::primal::binary::batch_matmul<T>(
-        A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1], a_off[1],
-        b_off[1], k[1], N);
+        A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1],
+        a_dim_offset[1], b_dim_offset[1], shared_dim[1], c_nDims);
 }
 
 /**
  * @brief Compile-time recursive version of batched matrix multiplication
  * gradient.
  * @see batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T
- * *dC, int **strideA, int **strideB, int **strideC, int **c_shape, int *a_off,
- * int *b_off, int *k, int N)
+ * *dC, int **strideA, int **strideB, int **strideC, int **c_shape, int
+ * *a_dim_offset, int *b_dim_offset, int *shared_dim, int c_nDims)
  */
-template <typename T, int N>
+template <typename T, int c_nDims>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
-                  int *a_off, int *b_off, int *k, int _) {
+                  int *a_dim_offset, int *b_dim_offset, int *shared_dim,
+                  int _) {
     // dA = dC * B^T
-    tensorfuncs::primal::binary::batch_matmul<T, N>(
-        dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0], a_off[0],
-        b_off[0], k[0], 0);
+    tensorfuncs::primal::binary::batch_matmul<T, c_nDims>(
+        dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0],
+        a_dim_offset[0], b_dim_offset[0], shared_dim[0], 0);
     // dB = A^T * dC
-    tensorfuncs::primal::binary::batch_matmul<T, N>(
-        A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1], a_off[1],
-        b_off[1], k[1], 0);
+    tensorfuncs::primal::binary::batch_matmul<T, c_nDims>(
+        A, dC, dB, strideA[1], strideC[1], strideB[1], c_shape[1],
+        a_dim_offset[1], b_dim_offset[1], shared_dim[1], 0);
 }
 
 } // namespace binary
@@ -355,19 +363,20 @@ using pointwise_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
 
 template <typename T>
 using sum_dim_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                            size_t *a_offset, int N);
+                            size_t *a_dim_offsetset, int a_nDims);
 
 template <typename T>
 using mean_fn = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
 
 template <typename T>
 using mean_dim_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
-                             int *strideA, int *strideC, size_t *a_offset,
-                             int N, T divisor, const T *c_end);
+                             int *strideA, int *strideC,
+                             size_t *a_dim_offsetset, int a_nDims, T divisor,
+                             const T *c_end);
 
 template <typename T>
 using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                          size_t *start_offset, size_t *c_offset, int N);
+                          size_t *start_offset, size_t *c_offset, int nDims);
 
 /**
  * @brief Computes gradients for an elementwise operation with a scalar
@@ -429,20 +438,21 @@ void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
  * @param dC Pointer to the start of gradient tensor dC.
  * @param strideA Stride for dA
  * @param strideC Stride for dC
- * @param a_offset Offset array per dimension
- * @param N Number of dimensions
+ * @param a_dim_offsetset Offset array per dimension
+ * @param a_nDims Number of dimensions
  */
 template <typename T>
-void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
-             int N) {
-    const T *end = dA + *a_offset;
-    if (N <= 1) {
+void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
+             size_t *a_dim_offsetset, int a_nDims) {
+    const T *end = dA + *a_dim_offsetset;
+    if (a_nDims <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
         }
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
-            sum_dim(dA, dC, strideA + 1, strideC + 1, a_offset + 1, N - 1);
+            sum_dim(dA, dC, strideA + 1, strideC + 1, a_dim_offsetset + 1,
+                    a_nDims - 1);
         }
     }
 }
@@ -451,20 +461,20 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
  * @brief Compile-time recursive version of gradient of sum of a tensor along a
  * given dimension gradient.
  * @see sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t
- * *a_offset, int N)
+ * *a_dim_offsetset, int a_nDims)
  */
-template <typename T, int N>
-void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t *a_offset,
-             int _) {
-    const T *end = dA + *a_offset;
-    if constexpr (N <= 1) {
+template <typename T, int a_nDims>
+void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
+             size_t *a_dim_offsetset, int _) {
+    const T *end = dA + *a_dim_offsetset;
+    if constexpr (a_nDims <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
         }
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
-            sum_dim<T, N - 1>(dA, dC, strideA + 1, strideC + 1, a_offset + 1,
-                              0);
+            sum_dim<T, a_nDims - 1>(dA, dC, strideA + 1, strideC + 1,
+                                    a_dim_offsetset + 1, 0);
         }
     }
 }
@@ -493,16 +503,16 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
  * @param dC Pointer to the start of gradient tensor dC.
  * @param strideA Stride for dA
  * @param strideC Stride for dC
- * @param a_offset Offset array per dimension
- * @param N Number of dimensions
+ * @param a_dim_offsetset Offset array per dimension
+ * @param a_nDims Number of dimensions
  * @param divisor divisor to compute mean of A (length of dimension summed over)
  * @param dA_end Pointer to the end of gradient tensor dA.
  */
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
-              int *strideC, size_t *a_offset, int N, T divisor,
+              int *strideC, size_t *a_dim_offsetset, int a_nDims, T divisor,
               const T *dA_end) {
-    sum_dim(dA, dC, strideA, strideC, a_offset, N);
+    sum_dim(dA, dC, strideA, strideC, a_dim_offsetset, a_nDims);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }
@@ -512,13 +522,13 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
  * @brief Compile-time recursive version of gradient of mean of a tensor along a
  * given dimension
  * @see mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int
- * *strideC, size_t *a_offset, int N, T divisor, T *dA_end)
+ * *strideC, size_t *a_dim_offsetset, int a_nDims, T divisor, T *dA_end)
  */
-template <typename T, int N>
+template <typename T, int a_nDims>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
-              int *strideC, size_t *a_offset, int _, T divisor,
+              int *strideC, size_t *a_dim_offsetset, int _, T divisor,
               const T *dA_end) {
-    sum_dim<T, N>(dA, dC, strideA, strideC, a_offset, 0);
+    sum_dim<T, a_nDims>(dA, dC, strideA, strideC, a_dim_offsetset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }
@@ -533,21 +543,21 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
  * @param strideC Stride for C
  * @param start_offset Offset to apply to A
  * @param c_offset Size of output slice
- * @param N Number of dimensions
+ * @param nDims Number of dimensions
  */
 template <typename T>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_offset, int N) {
+           size_t *c_offset, int nDims) {
     dA += *start_offset;
     const T *end = dC + *c_offset;
-    if (N <= 1) {
+    if (nDims <= 1) {
         for (; dC != end; dA += *strideA, dC += *strideC) {
             *dA = *dC;
         }
     } else {
         for (; dC < end; dA += *strideA, dC += *strideC) {
             slice(dA, dC, strideA + 1, strideC + 1, start_offset + 1,
-                  c_offset + 1, N - 1);
+                  c_offset + 1, nDims - 1);
         }
     }
 }
@@ -555,21 +565,21 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
 /**
  * @brief Compile-time recursive version of slice.
  * @see slice(const T *A, T *C, int *strideA, int *strideC, size_t
- * *start_offset, size_t *c_offset, int N)
+ * *start_offset, size_t *c_offset, int nDims)
  */
-template <typename T, int N>
+template <typename T, int nDims>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
            size_t *c_offset, int _) {
     dA += *start_offset;
     const T *end = dC + *c_offset;
-    if constexpr (N <= 1) {
+    if constexpr (nDims <= 1) {
         for (; dC != end; dA += *strideA, dC += *strideC) {
             *dA = *dC;
         }
     } else {
         for (; dC < end; dA += *strideA, dC += *strideC) {
-            slice<T, N - 1>(dA, dC, strideA + 1, strideC + 1, start_offset + 1,
-                            c_offset + 1, 0);
+            slice<T, nDims - 1>(dA, dC, strideA + 1, strideC + 1,
+                                start_offset + 1, c_offset + 1, 0);
         }
     }
 }
