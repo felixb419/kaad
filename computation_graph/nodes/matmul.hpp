@@ -2,7 +2,7 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../../tensorfuncs/strides.hpp"     // for Strides::matmul
+#include "../strides.hpp"                    // for Strides::matmul
 #include "inode.hpp"                         // for INode
 
 namespace kaad {

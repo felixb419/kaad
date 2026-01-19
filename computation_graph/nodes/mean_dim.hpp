@@ -2,7 +2,7 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../../tensorfuncs/strides.hpp"     // for Strides::mean_dim
+#include "../strides.hpp"     // for Strides::mean_dim
 #include "dispatchers.hpp" // for get_meanDim, get_meanDim_grad
 #include "inode.hpp"       // for INode
 

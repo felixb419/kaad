@@ -2,7 +2,7 @@
 
 #include "../../tensor/tensor.hpp"       // for Tensor
 #include "../../tensorfuncs/kernels.hpp" // for Kernels
-#include "../../tensorfuncs/strides.hpp" // for outer
+#include "../strides.hpp"                // for outer
 #include <memory>                        // for std::make_unique
 
 namespace kaad {
