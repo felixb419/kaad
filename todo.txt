@@ -1,7 +1,6 @@
 [ TODO ]
 
 REFACTOR:
-    remove auto keyword
     rename val member to elements in Tensor
     rename val member to data in Tensor_view_view
     find better solution for stride override in outer
@@ -25,3 +24,4 @@ GOALS
     make Node and pointer access impossible
         make operators return const Pointers (maybe Node_ptr)
         make Node members private (and const from outside)
+        make computation_graph members private (and const from outside)

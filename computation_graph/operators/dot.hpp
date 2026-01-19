@@ -56,18 +56,20 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
 
     } else if (A_scalar) {
 
-        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
-            scalar, scalar_grad, B_ptr, A_ptr, ((T)0));
-        newNode.get()->end = B.data() + B.size();
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(
+            std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
+                scalar, scalar_grad, B_ptr, A_ptr, ((T)0))));
+        static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
+            ->end = B.data() + B.size(); // override end from constructor
 
     } else if (A.nDims() == 1 && B.nDims() == 1 &&
                std::equal(A.shape_begin(), A.shape_end(), B.shape_begin())) {
 
-        auto newNode = std::make_unique<Node_binary<T, Kernels::Null>>(
-            dot, dot_grad, A_ptr, B_ptr, ((T)0));
-        newNode.get()->end = A.data() + A.size();
-        rec.nodes.push_back(std::move(newNode));
+        rec.nodes.push_back(
+            std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
+                dot, dot_grad, A_ptr, B_ptr, ((T)0))));
+        static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
+            ->end = A.data() + A.size();
 
     } else {
         throw shape_error(recLen, "dot",

@@ -39,10 +39,9 @@ template <typename T> struct Computation_graph {
      */
     template <typename... Args> INode<T> *append(Args &&...tensor_args) {
         Tensor<T> tensor(std::forward<Args>(tensor_args)...);
-        auto ptr = std::make_unique<Node_valued<T>>(std::move(tensor));
-        INode<T> *raw = ptr.get();
-        nodes.emplace_back(std::move(ptr));
-        return raw;
+        this->nodes.emplace_back(
+            std::move(std::make_unique<Node_valued<T>>(std::move(tensor))));
+        return this->nodes.back().get();
     }
 
     /**
