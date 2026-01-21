@@ -40,7 +40,7 @@ using batch_matmul_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
  * @brief Applies Op(A,B) to A(tensor) and B(scalar).
  * @pre @p A and @p C have the same shape and @p B is scalar.
  * @tparam T Element type
- * @tparam Kernel A struct containing a binary Operation ('Op').
+ * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to B(scalar).
  * @param[out] C Pointer to the start of C(tensor).
@@ -57,12 +57,11 @@ void scalarRhs(const T *A, const T *B, T *C, const T *C_end) {
  * @brief Applies Op(A,B) to A(scalar) and B(tensor).
  * @pre @p B and @p C have the same shape and @p A is scalar.
  * @tparam T Element type
- * @tparam Kernel A struct containing a binary Operation ('Op').
+ * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to A(scalar).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
- * @param op Instance of the callable class.
  */
 template <typename T, class Kernel>
 void scalarLhs(const T *A, const T *B, T *C, const T *C_end) {
@@ -75,12 +74,11 @@ void scalarLhs(const T *A, const T *B, T *C, const T *C_end) {
  * @brief Applies Op(A,B) to A(tensor) and B(tensor).
  * @pre @p A, @p B and @p C have the same shape.
  * @tparam T Element type
- * @tparam Kernel A struct containing a binary Operation ('Op').
+ * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
- * @param op Instance of the callable class.
  */
 template <typename T, class Kernel>
 void pointwise(const T *A, const T *B, T *C, const T *C_end) {
@@ -93,7 +91,7 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end) {
  * @brief Applies Op(A,B) to A(tensor) and B(tensor).
  * @pre @p C shape is the result of broadcasting @p A and @p B.
  * @tparam T Element type
- * @tparam Kernel A struct containing a binary Operation ('Op').
+ * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
@@ -102,7 +100,6 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end) {
  * @param strideC Stride array of C.
  * @param c_dim_offset Offset to the end of @p C per dimension.
  * @param c_nDims Number of dimensions of C.
- * @param op Instance of the callable class.
  */
 template <typename T, class Kernel>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
@@ -143,14 +140,13 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
 
 /**
  * @brief Computes the dot product of A and B into C.
- * @pre @p A is 1-dimensional and B and C is a scalar.
+ * @pre @p A is a vector and B and C are scalars.
  * @tparam T Element type
- * @tparam Op (Only needed for signature).
+ * @tparam Kernel (Only needed for signature).
  * @param[in] A Pointer to the start of A(vector).
  * @param[in] B Pointer to B(scalar)
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of @p A.
- * @param _ (Only needed for signature).
  */
 template <typename T, class Kernel = Kernels::Null>
 void scalarDot(const T *A, const T *B, T *C, const T *A_end) {
@@ -161,9 +157,9 @@ void scalarDot(const T *A, const T *B, T *C, const T *A_end) {
 
 /**
  * @brief Computes the dot product of A and B into C.
- * @pre @p A and @p B are 1-dimensional and C is a scalar.
+ * @pre @p A and @p B are vectors and C is a scalar.
  * @tparam T Element type
- * @tparam Op (Only needed for signature).
+ * @tparam Kernel (Only needed for signature).
  * @param[in] A Pointer to the start of A(vector).
  * @param[in] B Pointer to the start of B(vector)
  * @param[out] C Pointer to C(scalar).
@@ -177,7 +173,7 @@ void dot(const T *A, const T *B, T *C, const T *A_end) {
 }
 
 /**
- * @brief Computes Matrix product of A and B into C.
+ * @brief Computes matrix product of A and B into C.
  * @pre @p A, @p B and @p C have compatible shapes.
  * @tparam T Element type
  * @param[in] A Pointer to the start of A(matrix).
@@ -325,11 +321,10 @@ void noop(const T *A, T *C, const T *A_end) {
 /**
  * @brief Applies a unary operation to A(tensor).
  * @tparam T Element type
- * @tparam Op A Callable unary operation.
+ * @tparam Kernel A struct containing a static unary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of A.
- * @param op Instance of the callable class.
  */
 template <typename T, class Kernel>
 void scalarOut(const T *A, T *C, const T *A_end) {
@@ -341,7 +336,7 @@ void scalarOut(const T *A, T *C, const T *A_end) {
 /**
  * @brief Applies a unary operation to A(tensor).
  * @tparam T Element type
- * @tparam Op A Callable unary operation.
+ * @tparam Kernel A struct containing a static unary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] C Pointer to the start of C(tensor)
  * @param A_end Pointer to the end of C.

@@ -24,7 +24,7 @@ using pointwise_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
 template <typename T, class Kernel>
 using flexible_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
                              const T *dC, int *strideA, int *strideB,
-                             int *strideC, size_t *c_offset, int c_nDims);
+                             int *strideC, size_t *c_dim_offset, int c_nDims);
 
 template <typename T>
 using matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
@@ -40,25 +40,18 @@ using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
                                  int *shared_dim, int c_nDims);
 
 /**
- * @brief Computes gradients for an elementwise operation with a scalar
- * right-hand side.
- *
- * Applies the binary gradient function `grad` to compute the derivatives of a
- * scalar-tensor operation where the right-hand side is a scalar (B).
- *
- * Computation performed: grad(A[i], dA[i], B[0], dB[0], C[i], dC[i]);
- *
- * @tparam T Element type
- * @tparam Grad A callable object that computes the gradient.
- *
- * @param A Pointer to the start of input tensor A.
- * @param dA Pointer to the start of the gradient tensor dA.
- * @param B Pointer to the scalar input B (shape = 1).
- * @param dB Pointer to the gradient of the scalar B (shape = 1).
- * @param C Pointer to the start of the output tensor C.
- * @param dC Pointer to the start of the gradient tensor dC.
- * @param C_end Pointer to the end of the output tensor C.
- * @param grad A callable that computes the gradients.
+ * @brief Accumulates the gradient of Op(A,B), A(tensor), B(scalar).
+ * @pre @p A and @p C have the same shape and @p B is scalar.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel A struct containing a static binary funcion ('Grad').
+ * @param[in] A Pointer to the start of A(tensor).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(scalar).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(tensor).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param C_end Pointer to the end of @p C.
  */
 template <typename T, class Kernel>
 void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
@@ -69,25 +62,18 @@ void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Computes gradients for an elementwise operation with a scalar
- * left-hand side.
- *
- * Applies the binary gradient function `grad` to compute the derivatives of a
- * scalar-tensor operation where the left-hand side is a scalar (A).
- *
- * Computation performed: grad(A[0], dA[0], B[i], dB[i], C[i], dC[i]);
- *
- * @tparam T    Element type
- * @tparam Grad A callable object that computes the gradient.
- *
- * @param A Pointer to the scalar input A (shape = 1).
- * @param dA Pointer to the gradient of the scalar A (shape = 1).
- * @param B Pointer to the start of input tensor B.
- * @param dB Pointer to the start of the gradient tensor dB.
- * @param C Pointer to the start of the output tensor C.
- * @param dC Pointer to the start of the gradient tensor dC.
- * @param C_end Pointer to the end of the output tensor C.
- * @param grad A callable that computes the gradients.
+ * @brief Accumulates the gradient of Op(A,B), A(scalar), B(tensor).
+ * @pre @p B and @p C have the same shape and @p A is scalar.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel A struct containing a static binary funcion ('Grad').
+ * @param[in] A Pointer to the start of A(scalar).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(tensor).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(tensor).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param C_end Pointer to the end of @p C.
  */
 template <typename T, class Kernel>
 void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
@@ -98,24 +84,18 @@ void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Computes gradients for an elementwise operation with two tensors
- *
- * Applies the binary gradient function `grad` to compute the derivatives of a
- * tensor operation where both tensors have the same shape and strides
- *
- * Computation performed: grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
- *
- * @tparam T The Element type
- * @tparam Grad A callable object that computes the gradient.
- *
- * @param A Pointer to the start of input tensor A.
- * @param dA Pointer to the start of the gradient tensor dA.
- * @param B Pointer to the start of input tensor B.
- * @param dB Pointer to the start of the gradient tensor dB.
- * @param C Pointer to the start of the output tensor C.
- * @param dC Pointer to the start of the gradient tensor dC.
- * @param C_end Pointer to the end of the output tensor C.
- * @param grad A callable that computes the gradients.
+ * @brief Accumulates the gradient of Op(A,B), A(tensor), B(tensor).
+ * @pre @p A, @p B and @p C have the same shape.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel A struct containing a static binary funcion ('Grad').
+ * @param[in] A Pointer to the start of A(tensor).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(tensor).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(tensor).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param C_end Pointer to the end of @p C.
  */
 template <typename T, class Kernel>
 void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
@@ -126,40 +106,28 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Computes gradients for a broadcastable elementwise operation with
- * arbitrary strides.
- *
- * Recursively applies the binary gradient function `grad` to compute the
- * derivatives of a tensor operation where A, B, and C may have different shapes
- * and strides.
- *
- * For c_nDims = 1 (innermost dimension), computes:
- *   grad(A[i], dA[i], B[i], dB[i], C[i], dC[i]);
- * using the given strides.
- *
- * For c_nDims > 1, the function recursively traverses the outer dimensions.
- *
- * @tparam T Element type
- * @tparam Grad A callable object that computes the gradient.
- *
- * @param A Pointer to the start of input tensor A.
- * @param dA Pointer to the start of the gradient tensor dA.
- * @param B Pointer to the start of input tensor B.
- * @param dB Pointer to the start of the gradient tensor dB.
- * @param C Pointer to the start of output tensor C.
- * @param dC Pointer to the start of the gradient tensor dC.
- * @param strideA Stride array for A.
- * @param strideB Stride array for B.
- * @param strideC Stride array for C.
- * @param c_offset Total number of elements and per-dim offsets of C.
- * @param c_nDims Number of dimensions.
- * @param grad A callable that computes the gradients.
+ * @brief Accumulates the gradient of Op(A,B), A(tensor), B(tensor).
+ * @pre @p C shape is the result of broadcasting @p A and @p B.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel A struct containing a static binary funcion ('Grad').
+ * @param[in] A Pointer to the start of A(tensor).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(tensor).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(tensor).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param strideA Stride array of A.
+ * @param strideB Stride array of B.
+ * @param strideC Stride array of C.
+ * @param c_dim_offset Offset to the end of @p C per dimension.
+ * @param c_nDims Number of dimensions of C.
  */
 template <typename T, class Kernel>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, size_t *c_offset,
+              int *strideA, int *strideB, int *strideC, size_t *c_dim_offset,
               int c_nDims) {
-    const T *end = C + *c_offset;
+    const T *end = C + *c_dim_offset;
     if (c_nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -169,22 +137,22 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
         for (; C < end; A += *strideA, B += *strideB, C += *strideC,
                         dA += *strideA, dB += *strideB, dC += *strideC) {
             flexible<T, Kernel>(A, dA, B, dB, C, dC, strideA + 1, strideB + 1,
-                                strideC + 1, c_offset + 1, c_nDims - 1);
+                                strideC + 1, c_dim_offset + 1, c_nDims - 1);
         }
     }
 }
 
 /**
  * @brief Compile-time recursive version of flexible().
- * @see flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
- * int *strideA, int *strideB, int *strideC, size_t *c_offset, int c_nDims, Grad
- * grad)
+ * @see void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T
+ * *dC, int *strideA, int *strideB, int *strideC, size_t *c_dim_offset, int
+ * c_nDims) {
  */
 template <typename T, class Kernel, int c_nDims>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, size_t *c_offset,
+              int *strideA, int *strideB, int *strideC, size_t *c_dim_offset,
               int _) {
-    const T *end = C + *c_offset;
+    const T *end = C + *c_dim_offset;
     if constexpr (c_nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -195,30 +163,27 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
             flexible<T, Kernel, c_nDims - 1>(A, dA, B, dB, C, dC, strideA + 1,
                                              strideB + 1, strideC + 1,
-                                             c_offset + 1, 0);
+                                             c_dim_offset + 1, 0);
         }
     }
 }
 
 /**
- * @brief Computes gradients for the dot product of a vector and a scalar.
- *
- * Computation performed: dA[i] += dC[0] * B[0]
- *                        dB[0] += dC[0] * A[i]
- *
- * @tparam T    Element type
- * @tparam Grad Dummy type for consistency.
- *
- * @param A Pointer to the beginning of vector A.
- * @param dA Pointer to the beginning of gradient vector A.
- * @param B Pointer to input scalar B.
- * @param dB Pointer to gradient scalar B.
- * @param C Pointer to scalar result C.
- * @param dC Pointer to scalar gradient result C.
- * @param A_end Pointer to the end of the input vector A.
- * @param _ Ignored gradient type.
+ * @brief Accumulates the gradient of the dot-product of A(vector) and
+ * B(scalar).
+ * @pre @p A is a vector and B and C are scalars.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel (Only neede for signature)
+ * @param[in] A Pointer to the start of A(vector).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(scalar).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(scalar).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel>
+template <typename T, class Kernel = Kernels::Null>
 void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *A_end) {
     for (; A != A_end; A++, dA++) {
@@ -228,24 +193,21 @@ void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Computes gradients for the dot product of two vectors.
- *
- * Computation performed: dA[i] += dC[0] * B[i]
- *                        dB[i] += dC[0] * A[i]
- *
- * @tparam T    Element type
- * @tparam Grad Dummy type for consistency.
- *
- * @param A Pointer to the beginning of vector A.
- * @param dA Pointer to the beginning of gradient vector A.
- * @param B Pointer to the beginning of vector B.
- * @param dB Pointer to the beginning of gradient vector B.
- * @param C Pointer to scalar result C.
- * @param dC Pointer to scalar gradient result C.
- * @param A_end Pointer to the end of the input vector A.
- * @param _ Ignored gradient type.
+ * @brief Accumulates the gradient of the dot-product of A(vector) and
+ * B(vector).
+ * @pre @p A and B are vectors and C is a scalar.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel (Only neede for signature)
+ * @param[in] A Pointer to the start of A(vector).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(vector).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(scalar).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel>
+template <typename T, class Kernel = Kernels::Null>
 void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
          const T *A_end) {
     for (; A != A_end; A++, dA++, B++, dB++) {
@@ -255,25 +217,22 @@ void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Computest the Gradient of a matrix multiplication.
- *
- * Computation performed: dA += dC × Bᵀ
- *                        dB += dC × Aᵀ
- *
- * @tparam T Value type.
- *
- * @param A Pointer to input matrix A.
- * @param dA Pointer to gradient matrix A.
- * @param B Pointer to input matrix B.
- * @param dB Pointer to gradient matrix B.
- * @param C Pointer to result matrix C.
- * @param dC Pointer to gradient matrix C.
- * @param a_rows Rows of A.
- * @param b_cols Columns of B.
- * @param shared_dim Shared inner dimension (A.cols == B.rows).
- * @param strideA Strides for matrix A.
- * @param strideB Strides for matrix B.
- * @param strideC Strides for matrix C.
+ * @brief Accumulates the gradient of Op(A,B), A(matrix), B(matrix).
+ * @pre @p A, @p B and @p C have compatible shapes.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @param[in] A Pointer to the start of A(matrix).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(matrix).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(matrix).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param a_rows Number of rows in @p A.
+ * @param b_cols Number of columns in @p B.
+ * @param shared_dim Length of the shared dimension of @p A and @p B.
+ * @param strideA Stride array of A.
+ * @param strideB Stride array of B.
+ * @param strideC Stride array of C.
  */
 template <typename T>
 void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
@@ -290,27 +249,24 @@ void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Computest the Gradient of a batched matrix multiplication.
- *
- * Computation performed: dA += dC × Bᵀ
- *                        dB += dC × Aᵀ
- *
- * @tparam T Value type.
- *
- * @param A Pointer to the start of input tensor A.
- * @param dA Pointer to the start of gradient tensor dA.
- * @param B Pointer to the start of input tensor B.
- * @param dB Pointer to the start of gradient tensor dB.
- * @param C Pointer to the start of output tensor C.
- * @param dC Pointer to the start of gradient tensor dC.
- * @param strideA Strides of A.
- * @param strideB Strides of B.
- * @param strideC Strides of C.
- * @param c_shape Shape of output tensor C.
- * @param a_dim_offset Offset between A matrix rows.
- * @param b_dim_offset Offset between B matrix columns.
- * @param shared_dim Shared matrix inner dimension.
- * @param c_nDims Number of dimensions.
+ * @brief Accumulates the gradient of Op(A,B), A(tensor), B(tensor).
+ * @pre @p A, @p B and @p C have compatible shapes.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @param[in] A Pointer to the start of A(tensor).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] B Pointer to the start of B(tensor).
+ * @param[out] dB Pointer to the start of the gradient w.r.t. @p B.
+ * @param[in] C Pointer to the start of C(tensor).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param strideA Pointer to stride arrays ({C.stride, A.stride^T}).
+ * @param strideB Pointer to stride arrays ({B.stride^T, C.stride}).
+ * @param strideC Pointer to stride arrays ({A.stride, B.stride}).
+ * @param c_shape Pointer to shape arrays ({A.shape, B.shape}).
+ * @param a_dim_offset Pointer to array of step sizes ({C, A^T}).
+ * @param b_dim_offset Pointer to array of step sizes ({B^T, C}).
+ * @param shared_dim Pointer to array of length of shared dimensions.
+ * @param c_nDims Number of dimensions of @p C.
  */
 template <typename T>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
@@ -330,8 +286,8 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 /**
  * @brief Compile-time recursive version of batched matrix multiplication
  * gradient.
- * @see batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T
- * *dC, int **strideA, int **strideB, int **strideC, int **c_shape, int
+ * @see void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C,
+ * const T *dC, int **strideA, int **strideB, int **strideC, int **c_shape, int
  * *a_dim_offset, int *b_dim_offset, int *shared_dim, int c_nDims)
  */
 template <typename T, int c_nDims>
@@ -375,26 +331,20 @@ using mean_dim_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
 
 template <typename T>
 using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                          size_t *start_offset, size_t *c_offset, int nDims);
+                          size_t *start_offset, size_t *c_dim_offset,
+                          int nDims);
 
 /**
- * @brief Computes gradients for an elementwise operation with a scalar
- * output.
- *
- * Applies the unary gradient function `grad` to compute the derivatives of a
- * scalar-tensor operation where the output is a scalar (C).
- *
- * Computation performed: grad(A[i], dA[i], C[0], dC[0]);
- *
- * @tparam T    Element type
- * @tparam Grad A callable object that computes the gradient.
- *
- * @param A     Pointer to the start of input tensor A.
- * @param dA    Pointer to the start of the gradient tensor dA.
- * @param C     Pointer to the start of the output tensor C.
- * @param dC    Pointer to the start of the gradient tensor dC.
- * @param A_end Pointer to the end of input tensor A.
- * @param grad  A callable that computes the gradients.
+ * @brief Accumulates the gradient of Op(A), A(tensor).
+ * @pre @p C is a scalar.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel A struct containing a static binary funcion ('Grad').
+ * @param[in] A Pointer to the start of A(tensor).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] C Pointer to the start of C(scalar).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param A_end Pointer to the end of @p A.
  */
 template <typename T, class Kernel>
 void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end) {
@@ -404,22 +354,16 @@ void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end) {
 }
 
 /**
- * @brief Computes gradients for an elementwise operation with a tensor.
- *
- * Applies the binary gradient function `grad` to compute the derivatives of a
- * tensor operation.
- *
- * Computation performed: grad(A[i], dA[i], C[i], dC[i]);
- *
- * @tparam T    Element type
- * @tparam Grad A callable object that computes the gradient.
- *
- * @param A     Pointer to the start of input tensor A.
- * @param dA    Pointer to the start of the gradient tensor dA.
- * @param C     Pointer to the start of the output tensor C.
- * @param dC    Pointer to the start of the gradient tensor dC.
- * @param C_end Pointer to the end of the output tensor C.
- * @param grad  A callable that computes the gradients.
+ * @brief Accumulates the gradient of Op(A), A(tensor).
+ * @pre @p A and @p C have the same shape.
+ * @pre Every operand must have the same shape as their gradient.
+ * @tparam T Element type.
+ * @tparam Kernel A struct containing a static binary funcion ('Grad').
+ * @param[in] A Pointer to the start of A(tensor).
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] C Pointer to the start of C(tensor).
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param C_end Pointer to the end of @p C.
  */
 template <typename T, class Kernel>
 void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end) {
@@ -429,36 +373,35 @@ void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end) {
 }
 
 /**
- * @brief Computes gradient of summing a tensor A along a given dimension.
+ * @brief Accumulates the gradient of sum_dim(A), A(tensor).
  * @tparam T Element type
- * @param dA Pointer to the start of gradient tensor dA.
- * @param dC Pointer to the start of gradient tensor dC.
- * @param strideA Stride for dA
- * @param strideC Stride for dC
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param strideA Stride array for @p dA.
+ * @param strideC Stride array for @p dC.
  * @param a_dim_offsetset Offset array per dimension
  * @param a_nDims Number of dimensions
  */
 template <typename T>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
-             size_t *a_dim_offsetset, int a_nDims) {
-    const T *end = dA + *a_dim_offsetset;
+             size_t *a_dim_offset, int a_nDims) {
+    const T *end = dA + *a_dim_offset;
     if (a_nDims <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
             *dA += *dC;
         }
     } else {
         for (; dA != end; dA += *strideA, dC += *strideC) {
-            sum_dim(dA, dC, strideA + 1, strideC + 1, a_dim_offsetset + 1,
+            sum_dim(dA, dC, strideA + 1, strideC + 1, a_dim_offset + 1,
                     a_nDims - 1);
         }
     }
 }
 
 /**
- * @brief Compile-time recursive version of gradient of sum of a tensor along a
- * given dimension gradient.
- * @see sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t
- * *a_dim_offsetset, int a_nDims)
+ * @brief Compile-time recursive version of gradient of sum_dim.
+ * @see void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t
+ * *a_dim_offset, int a_nDims)
  */
 template <typename T, int a_nDims>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
@@ -477,12 +420,12 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
 }
 
 /**
- * @brief Computes gradient of taking the mean of all Elements of A into C
+ * @brief Accumulates the gradient of mean_dim(A), A(tensor).
  * @tparam T Element type
- * @param dA Pointer to the start of gradient tensor dA.
- * @param dC Pointer to the gradient scalar dC.
- * @param dA_end Pointer to the end of gradient tensor dA.
- * @param divisor Divisor for distributing dC over dA.
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param dA_end Pointer to the end of @p dA.
+ * @param divisor Length of dA.
  */
 template <typename T>
 void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
@@ -505,11 +448,23 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
  * @param divisor divisor to compute mean of A (length of dimension summed over)
  * @param dA_end Pointer to the end of gradient tensor dA.
  */
+/**
+ * @brief Accumulates the gradient of mean_dim(A), A(tensor).
+ * @tparam T Element type
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param strideA Stride array for @p dA.
+ * @param strideC Stride array for @p dC.
+ * @param a_dim_offsetset Offset array per dimension
+ * @param a_nDims Number of dimensions
+ * @param divisor Length of relevant dimension.
+ * @param dA_end Pointer to the end of @p dA.
+ */
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
-              int *strideC, size_t *a_dim_offsetset, int a_nDims, T divisor,
+              int *strideC, size_t *a_dim_offset, int a_nDims, T divisor,
               const T *dA_end) {
-    sum_dim(dA, dC, strideA, strideC, a_dim_offsetset, a_nDims);
+    sum_dim(dA, dC, strideA, strideC, a_dim_offset, a_nDims);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
     }
@@ -532,21 +487,21 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
 }
 
 /**
- * @brief Computes the gradient of copyine a sliced view of A into C.
+ * @brief Accumulates the gradient of slice(A), A(tensor).
  * @tparam T Element type
- * @param dA Pointer to the start of gradient tensor dA.
- * @param dC Pointer to the start of gradient tensor dC.
- * @param strideA Stride for A
- * @param strideC Stride for C
- * @param start_offset Offset to apply to A
- * @param c_offset Size of output slice
- * @param nDims Number of dimensions
+ * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
+ * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
+ * @param strideA Stride array for @p A.
+ * @param strideC Stride array for @p C.
+ * @param start_offset Offset for the start of C in A.
+ * @param c_dim_offset Offset to the end of @p C per dimension.
+ * @param nDims Number of dimensions in A and C.
  */
 template <typename T>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_offset, int nDims) {
+           size_t *c_dim_offset, int nDims) {
     dA += *start_offset;
-    const T *end = dC + *c_offset;
+    const T *end = dC + *c_dim_offset;
     if (nDims <= 1) {
         for (; dC != end; dA += *strideA, dC += *strideC) {
             *dA = *dC;
@@ -554,21 +509,21 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
     } else {
         for (; dC < end; dA += *strideA, dC += *strideC) {
             slice(dA, dC, strideA + 1, strideC + 1, start_offset + 1,
-                  c_offset + 1, nDims - 1);
+                  c_dim_offset + 1, nDims - 1);
         }
     }
 }
 
 /**
  * @brief Compile-time recursive version of slice.
- * @see slice(const T *A, T *C, int *strideA, int *strideC, size_t
- * *start_offset, size_t *c_offset, int nDims)
+ * @see void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t
+ * *start_offset, size_t *c_dim_offset, int nDims)
  */
 template <typename T, int nDims>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_offset, int _) {
+           size_t *c_dim_offset, int _) {
     dA += *start_offset;
-    const T *end = dC + *c_offset;
+    const T *end = dC + *c_dim_offset;
     if constexpr (nDims <= 1) {
         for (; dC != end; dA += *strideA, dC += *strideC) {
             *dA = *dC;
@@ -576,7 +531,7 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
     } else {
         for (; dC < end; dA += *strideA, dC += *strideC) {
             slice<T, nDims - 1>(dA, dC, strideA + 1, strideC + 1,
-                                start_offset + 1, c_offset + 1, 0);
+                                start_offset + 1, c_dim_offset + 1, 0);
         }
     }
 }

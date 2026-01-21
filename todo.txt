@@ -13,7 +13,6 @@ PERF:
 DOC:
     add definitions (operation=operation on in/out tensors, operator=operation on nodes)
     add note on broadcasting in primal_ops.hpp
-    rework gradient comments
     rework operator readability and comments
     
 GOALS
