@@ -2,7 +2,7 @@
 
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Sum, Null, Null::Op
+#include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include <algorithm>                         // for std::copy, std::fill
 #include <memory>                            // for std::make_unique
@@ -21,12 +21,10 @@ template <typename T> struct INode;
  * @tparam Kernel Kernel the functions should be using.
  */
 template <typename T, class Kernel> struct UnaryKernels {
-    using Op = class Kernel::Op;
-    using Grad = class Kernel::Grad;
-    tensorfuncs::primal::unary::pointwise_fn<T, Op> op =
-        tensorfuncs::primal::unary::pointwise<T, Op>;
-    tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> grad =
-        tensorfuncs::adjoint::unary::pointwise<T, Grad>;
+    tensorfuncs::primal::unary::pointwise_fn<T, Kernel> op =
+        tensorfuncs::primal::unary::pointwise<T, Kernel>;
+    tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> grad =
+        tensorfuncs::adjoint::unary::pointwise<T, Kernel>;
 };
 
 /**

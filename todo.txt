@@ -21,3 +21,4 @@ GOALS
         make operators return const Pointers (maybe Node_ptr)
         make Node members private (and const from outside)
         make computation_graph members private (and const from outside)
+    fix all include lists

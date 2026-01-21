@@ -17,17 +17,11 @@ namespace kaad {
 template <typename T, class Kernel> struct Node_binary : INode<T> {
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
-    using Op = class Kernel::Op; ///< Type alias for the operation kernel.
-    Op op;
-
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> forward_op =
+    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> forward_op =
         tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
                                                 ///< value operation.
 
-    using Grad = class Kernel::Grad; ///< Type alias for the gradient Kernel.
-    Grad grad;
-
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> backward_op =
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> backward_op =
         tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
                                                 ///< gradient operation.
 
@@ -45,9 +39,10 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
      * @param tensor_args Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_binary(tensorfuncs::primal::binary::pointwise_fn<T, Op> operation,
-                tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> derivative,
-                INode<T> *A_ptr, INode<T> *B_ptr, TensorArgs &&...tensor_args)
+    Node_binary(
+        tensorfuncs::primal::binary::pointwise_fn<T, Kernel> operation,
+        tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> derivative,
+        INode<T> *A_ptr, INode<T> *B_ptr, TensorArgs &&...tensor_args)
         : B(B_ptr), forward_op(operation), backward_op(derivative),
           INode<T>(A_ptr, tensor_args...) {
         INode<T> *base_ptr = static_cast<INode<T> *>(this);
@@ -64,7 +59,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
             this->B->eval();
 
             forward_op(this->A->value.data(), this->B->value.data(),
-                       this->value.elements_.data(), end, op);
+                       this->value.elements_.data(), end);
             this->evaluated = true;
         }
     }
@@ -76,7 +71,7 @@ template <typename T, class Kernel> struct Node_binary : INode<T> {
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), end, grad);
+                    this->value.data(), this->gradient.data(), end);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

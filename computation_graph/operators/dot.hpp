@@ -29,16 +29,15 @@ template <typename T, class Kernel> struct Node_binary;
  */
 template <typename T>
 INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
-    using Op = class Kernels::Null::Op;
-    using Grad = class Kernels::Null::Grad;
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> scalar =
-        tensorfuncs::primal::binary::scalarDot<T, Op>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> scalar_grad =
-        tensorfuncs::adjoint::binary::scalarDot<T, Grad>;
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> dot =
-        tensorfuncs::primal::binary::dot<T, Op>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> dot_grad =
-        tensorfuncs::adjoint::binary::dot<T, Grad>;
+    tensorfuncs::primal::binary::pointwise_fn<T, Kernels::Null> scalar =
+        tensorfuncs::primal::binary::scalarDot<T>;
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernels::Null> scalar_grad =
+        tensorfuncs::adjoint::binary::scalarDot<T, Kernels::Null>;
+
+    tensorfuncs::primal::binary::pointwise_fn<T, Kernels::Null> dot =
+        tensorfuncs::primal::binary::dot<T, Kernels::Null>;
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernels::Null> dot_grad =
+        tensorfuncs::adjoint::binary::dot<T, Kernels::Null>;
 
     int recLen = rec.nodes.size();
     Tensor<T> &A = A_ptr->value;

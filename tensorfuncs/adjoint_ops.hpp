@@ -17,15 +17,14 @@ namespace tensorfuncs::adjoint {
  */
 namespace binary {
 
-template <typename T, class Grad>
+template <typename T, class Kernel>
 using pointwise_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                              const T *dC, const T *end, Grad grad);
+                              const T *dC, const T *end);
 
-template <typename T, class Grad>
+template <typename T, class Kernel>
 using flexible_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
                              const T *dC, int *strideA, int *strideB,
-                             int *strideC, size_t *c_offset, int c_nDims,
-                             Grad grad);
+                             int *strideC, size_t *c_offset, int c_nDims);
 
 template <typename T>
 using matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
@@ -61,11 +60,11 @@ using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
  * @param C_end Pointer to the end of the output tensor C.
  * @param grad A callable that computes the gradients.
  */
-template <typename T, class Grad>
+template <typename T, class Kernel>
 void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *C_end, Grad grad) {
+               const T *C_end) {
     for (; C != C_end; A++, dA++, C++, dC++) {
-        grad(*A, *dA, *B, *dB, *C, *dC);
+        Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
 
@@ -90,11 +89,11 @@ void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param C_end Pointer to the end of the output tensor C.
  * @param grad A callable that computes the gradients.
  */
-template <typename T, class Grad>
+template <typename T, class Kernel>
 void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *C_end, Grad grad) {
+               const T *C_end) {
     for (; C != C_end; B++, dB++, C++, dC++) {
-        grad(*A, *dA, *B, *dB, *C, *dC);
+        Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
 
@@ -118,11 +117,11 @@ void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param C_end Pointer to the end of the output tensor C.
  * @param grad A callable that computes the gradients.
  */
-template <typename T, class Grad>
+template <typename T, class Kernel>
 void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *C_end, Grad grad) {
+               const T *C_end) {
     for (; C != C_end; A++, dA++, B++, dB++, C++, dC++) {
-        grad(*A, *dA, *B, *dB, *C, *dC);
+        Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
 }
 
@@ -156,21 +155,21 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param c_nDims Number of dimensions.
  * @param grad A callable that computes the gradients.
  */
-template <typename T, class Grad>
+template <typename T, class Kernel>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
               int *strideA, int *strideB, int *strideC, size_t *c_offset,
-              int c_nDims, Grad grad) {
+              int c_nDims) {
     const T *end = C + *c_offset;
     if (c_nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
-            grad(*A, *dA, *B, *dB, *C, *dC);
+            Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
         }
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC,
                         dA += *strideA, dB += *strideB, dC += *strideC) {
-            flexible(A, dA, B, dB, C, dC, strideA + 1, strideB + 1, strideC + 1,
-                     c_offset + 1, c_nDims - 1, grad);
+            flexible<T, Kernel>(A, dA, B, dB, C, dC, strideA + 1, strideB + 1,
+                                strideC + 1, c_offset + 1, c_nDims - 1);
         }
     }
 }
@@ -181,22 +180,22 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * int *strideA, int *strideB, int *strideC, size_t *c_offset, int c_nDims, Grad
  * grad)
  */
-template <typename T, class Grad, int c_nDims>
+template <typename T, class Kernel, int c_nDims>
 void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, size_t *c_offset, int _,
-              Grad grad) {
+              int *strideA, int *strideB, int *strideC, size_t *c_offset,
+              int _) {
     const T *end = C + *c_offset;
     if constexpr (c_nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
-            grad(*A, *dA, *B, *dB, *C, *dC);
+            Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
         }
     } else {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
-            flexible<T, Grad, c_nDims - 1>(A, dA, B, dB, C, dC, strideA + 1,
-                                           strideB + 1, strideC + 1,
-                                           c_offset + 1, 0, grad);
+            flexible<T, Kernel, c_nDims - 1>(A, dA, B, dB, C, dC, strideA + 1,
+                                             strideB + 1, strideC + 1,
+                                             c_offset + 1, 0);
         }
     }
 }
@@ -219,9 +218,9 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param A_end Pointer to the end of the input vector A.
  * @param _ Ignored gradient type.
  */
-template <typename T, class Grad>
+template <typename T, class Kernel>
 void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *A_end, Grad _) {
+               const T *A_end) {
     for (; A != A_end; A++, dA++) {
         *dA += *dC * (*B);
         *dB += *dC * (*A);
@@ -246,9 +245,9 @@ void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param A_end Pointer to the end of the input vector A.
  * @param _ Ignored gradient type.
  */
-template <typename T, class Grad>
+template <typename T, class Kernel>
 void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-         const T *A_end, Grad _) {
+         const T *A_end) {
     for (; A != A_end; A++, dA++, B++, dB++) {
         *dA += *dC * (*B);
         *dB += *dC * (*A);
@@ -357,9 +356,9 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  */
 namespace unary {
 
-template <typename T, class Grad>
+template <typename T, class Kernel>
 using pointwise_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
-                              const T *end, Grad grad);
+                              const T *end);
 
 template <typename T>
 using sum_dim_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
@@ -397,11 +396,10 @@ using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
  * @param A_end Pointer to the end of input tensor A.
  * @param grad  A callable that computes the gradients.
  */
-template <typename T, class Grad>
-void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
-               Grad grad) {
+template <typename T, class Kernel>
+void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end) {
     for (; A != A_end; A++, dA++) {
-        grad(*A, *dA, *C, *dC);
+        Kernel::Grad(*A, *dA, *C, *dC);
     }
 }
 
@@ -423,11 +421,10 @@ void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end,
  * @param C_end Pointer to the end of the output tensor C.
  * @param grad  A callable that computes the gradients.
  */
-template <typename T, class Grad>
-void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end,
-               Grad grad) {
+template <typename T, class Kernel>
+void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end) {
     for (; C != C_end; A++, dA++, C++, dC++) {
-        grad(*A, *dA, *C, *dC);
+        Kernel::Grad(*A, *dA, *C, *dC);
     }
 }
 

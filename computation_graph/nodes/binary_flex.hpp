@@ -20,20 +20,12 @@ namespace kaad {
 template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
-    using Op = class Kernel::Op; ///< Type alias for the operation kernel.
-    Op op;
-
-    tensorfuncs::primal::binary::flexible_fn<T, Op> forward_op =
-        tensorfuncs::primal::binary::flexible<T, Op>; ///< Function pointer to
-                                                      ///< the value operation.
-
-    using Grad = class Kernel::Grad; ///< Type alias for the gradient kernel.
-    Grad grad;
-
-    tensorfuncs::adjoint::binary::flexible_fn<T, Grad> backward_op =
-        tensorfuncs::adjoint::binary::flexible<T, Grad>; ///< Function pointer
-                                                         ///< to the gradient
-                                                         ///< operation.
+    tensorfuncs::primal::binary::flexible_fn<T, Kernel> forward_op =
+        tensorfuncs::primal::binary::flexible<
+            T, Kernel>; ///< Function pointer to the value operation.
+    tensorfuncs::adjoint::binary::flexible_fn<T, Kernel> backward_op =
+        tensorfuncs::adjoint::binary::flexible<
+            T, Kernel>; ///< Function pointer to the gradient operation.
 
     std::vector<int> strideA;     ///< stride Array for A.
     std::vector<int> strideB;     ///< stride Array for B.
@@ -55,8 +47,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
         Strides::flexible_binary(*this);
 
         if (C_nDims <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_flexOp<T, Op>()[C_nDims];
-            backward_op = Dispatchers::get_flexGrad<T, Grad>()[C_nDims];
+            forward_op = Dispatchers::get_flexOp<T, Kernel>()[C_nDims];
+            backward_op = Dispatchers::get_flexGrad<T, Kernel>()[C_nDims];
         }
     }
 
@@ -71,8 +63,8 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
 
             forward_op(this->A->value.data(), this->B->value.data(),
                        this->value.elements_.data(), strideA.data(),
-                       strideB.data(), strideC.data(), C_offset.data(), C_nDims,
-                       op);
+                       strideB.data(), strideC.data(), C_offset.data(),
+                       C_nDims);
             this->evaluated = true;
         }
     }
@@ -85,8 +77,7 @@ template <typename T, class Kernel> struct Node_binary_flex : INode<T> {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
                     this->value.data(), this->gradient.data(), strideA.data(),
-                    strideB.data(), strideC.data(), C_offset.data(), C_nDims,
-                    grad);
+                    strideB.data(), strideC.data(), C_offset.data(), C_nDims);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

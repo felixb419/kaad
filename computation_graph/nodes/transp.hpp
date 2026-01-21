@@ -14,18 +14,14 @@ namespace kaad {
  * @tparam T The scalar type.
  */
 template <typename T> struct Node_transp : INode<T> {
-    using Op = typename Kernels::Null::Op;
-    Op op;
-    tensorfuncs::primal::unary::pointwise_fn<T, Op> forward_op =
-        tensorfuncs::primal::unary::noop; ///< Function pointer to the
-                                          ///< value operation.
+    tensorfuncs::primal::unary::pointwise_fn<T, Kernels::Null> forward_op =
+        tensorfuncs::primal::unary::noop<
+            T, Kernels::Null>; ///< Function pointer to the value operation.
 
-    using Grad = typename Kernels::Sum<T>::Grad;
-    Grad grad;
-    tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> backward_op =
-        tensorfuncs::adjoint::unary::pointwise; ///< Function pointer
-                                                ///< to the gradient
-                                                ///< operation.
+    tensorfuncs::adjoint::unary::pointwise_fn<T, Kernels::Sum<T>> backward_op =
+        tensorfuncs::adjoint::unary::pointwise<
+            T,
+            Kernels::Sum<T>>; ///< Function pointer to the gradient operation.
 
     const T *A_end = nullptr; ///< Pointer to the end of the A buffer.
     const T *C_end = nullptr; ///< Pointer to the end of the C buffer.
@@ -53,7 +49,7 @@ template <typename T> struct Node_transp : INode<T> {
             this->A->eval();
 
             forward_op(this->A->value.data(), this->value.elements_.data(),
-                       A_end, op);
+                       A_end);
             this->evaluated = true;
         }
     }
@@ -64,7 +60,7 @@ template <typename T> struct Node_transp : INode<T> {
      */
     inline void getGrad() override {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), C_end, grad);
+                    this->value.data(), this->gradient.data(), C_end);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

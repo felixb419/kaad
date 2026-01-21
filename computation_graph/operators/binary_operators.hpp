@@ -26,26 +26,23 @@ namespace detail {
  * @tparam Kernel Kernel the functions should be using.
  */
 template <typename T, class Kernel> struct BinaryKernels {
-    using Op = class Kernel::Op;
-    using Grad = class Kernel::Grad;
+    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> scalarOpRhs =
+        tensorfuncs::primal::binary::scalarRhs<T, Kernel>;
+    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> scalarOpLhs =
+        tensorfuncs::primal::binary::scalarLhs<T, Kernel>;
+    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> pointOp =
+        tensorfuncs::primal::binary::pointwise<T, Kernel>;
+    tensorfuncs::primal::binary::flexible_fn<T, Kernel> flexOp =
+        tensorfuncs::primal::binary::flexible<T, Kernel>;
 
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> scalarOpRhs =
-        tensorfuncs::primal::binary::scalarRhs<T, Op>;
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> scalarOpLhs =
-        tensorfuncs::primal::binary::scalarLhs<T, Op>;
-    tensorfuncs::primal::binary::pointwise_fn<T, Op> pointOp =
-        tensorfuncs::primal::binary::pointwise<T, Op>;
-    tensorfuncs::primal::binary::flexible_fn<T, Op> flexOp =
-        tensorfuncs::primal::binary::flexible<T, Op>;
-
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> scalarGradRhs =
-        tensorfuncs::adjoint::binary::scalarRhs<T, Grad>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> scalarGradLhs =
-        tensorfuncs::adjoint::binary::scalarLhs<T, Grad>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Grad> pointGrad =
-        tensorfuncs::adjoint::binary::pointwise<T, Grad>;
-    tensorfuncs::adjoint::binary::flexible_fn<T, Grad> flexGrad =
-        tensorfuncs::adjoint::binary::flexible<T, Grad>;
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> scalarGradRhs =
+        tensorfuncs::adjoint::binary::scalarRhs<T, Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> scalarGradLhs =
+        tensorfuncs::adjoint::binary::scalarLhs<T, Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> pointGrad =
+        tensorfuncs::adjoint::binary::pointwise<T, Kernel>;
+    tensorfuncs::adjoint::binary::flexible_fn<T, Kernel> flexGrad =
+        tensorfuncs::adjoint::binary::flexible<T, Kernel>;
 };
 
 /**

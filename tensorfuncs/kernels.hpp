@@ -11,58 +11,27 @@ namespace kaad {
  * @namespace kaad::Kernels
  * @brief Contains elementary operation kernels and their corresponding
  * gradients.
- *
- * The `kaad::Kernels` namespace provides reusable, stateless structs that
- * implement basic elementwise operations (e.g., addition, subtraction) and
- * their derivatives. Each operation is represented by a pair of nested structs:
- * - `Op`: Implements the forward computation.
- * - `Grad`: Implements the backward gradient computation for automatic
- * differentiation.
- *
- * Example usage:
- * @code
- * kaad::Kernels::Add<float>::Op add;
- * float a = 1.0f, b = 2.0f, c;
- * add(a, b, c); // c == 3.0f
- * @endcode
  */
 namespace Kernels {
 
-struct Null {
-    struct Op {};
-    struct Grad {};
-};
+struct Null {};
 
 /**
  * @brief Binary kernel for addition.
  * @tparam T The scalar type.
  */
 template <typename T> struct Add {
-    struct Op {
-        /**
-         * @brief Performs the addition.
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of A + B.
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept { C = A + B; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B (unused).
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            dA += dC;
-            dB += dC;
-        }
-    };
+    /**
+     * @brief C = A + B
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A + B; }
+    /**
+     * @brief Computes the gradient of an addition.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        dA += dC;
+        dB += dC;
+    }
 };
 
 /**
@@ -70,31 +39,17 @@ template <typename T> struct Add {
  * @tparam T The scalar type.
  */
 template <typename T> struct Sub {
-    struct Op {
-        /**
-         * @brief Performs the subtraction.
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of A - B.
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept { C = A - B; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B (unused).
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            dA += dC;
-            dB -= dC;
-        }
-    };
+    /**
+     * @brief C = A - B
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A - B; }
+    /**
+     * @brief Computes the gradient of a subtraction.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        dA += dC;
+        dB -= dC;
+    }
 };
 
 /**
@@ -102,31 +57,17 @@ template <typename T> struct Sub {
  * @tparam T The scalar type.
  */
 template <typename T> struct Mul {
-    struct Op {
-        /**
-         * @brief Performs the multiplication.
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of A * B.
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept { C = A * B; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B.
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            dA += dC * B;
-            dB += dC * A;
-        }
-    };
+    /**
+     * @brief C = A * B
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A * B; }
+    /**
+     * @brief Computes the gradient a multiplication.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        dA += dC * B;
+        dB += dC * A;
+    }
 };
 
 /**
@@ -134,31 +75,17 @@ template <typename T> struct Mul {
  * @tparam T The scalar type.
  */
 template <typename T> struct Div {
-    struct Op {
-        /**
-         * @brief Performs the division.
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of A / B.
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept { C = A / B; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B.
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            dA += dC * (1 / B);
-            dB -= dC * (A / (B * B));
-        }
-    };
+    /**
+     * @brief C = A / B
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A / B; }
+    /**
+     * @brief Computes the gradient of a division.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        dA += dC * (1 / B);
+        dB -= dC * (A / (B * B));
+    }
 };
 
 /**
@@ -166,33 +93,17 @@ template <typename T> struct Div {
  * @tparam T The scalar type.
  */
 template <typename T> struct Pow {
-    struct Op {
-        /**
-         * @brief Computes the power.
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of A ^ B.
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept {
-            C = pow(A, B);
-        }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B.
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C.
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            dA += dC * B * pow(A, B - 1);
-            dB += dC * C * log(A);
-        }
-    };
+    /**
+     * @brief C = A ^ B
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = pow(A, B); }
+    /**
+     * @brief Computes the gradient of an exponentiation.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        dA += dC * B * pow(A, B - 1);
+        dB += dC * C * log(A);
+    }
 };
 
 /**
@@ -200,31 +111,17 @@ template <typename T> struct Pow {
  * @tparam T The scalar type.
  */
 template <typename T> struct Dot {
-    struct Op {
-        /**
-         * @brief Computes the dot product.
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of Aᵀ × B.
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept { C += A * B; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B.
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            dA += dC * B;
-            dB += dC * A;
-        }
-    };
+    /**
+     * @brief C += A * B
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C += A * B; }
+    /**
+     * @brief Computes the gradient of a dot-product.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        dA += dC * B;
+        dB += dC * A;
+    }
 };
 
 /**
@@ -232,34 +129,18 @@ template <typename T> struct Dot {
  * @tparam T The scalar type.
  */
 template <typename T> struct Min {
-    struct Op {
-        /**
-         * @brief Selects minimum value
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of min(A, B)
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept {
-            C = A < B ? A : B;
-        }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B.
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            int smaller = A <= B;
-            dA += smaller ? dC : 0;
-            dB += smaller ? 0 : dC;
-        }
-    };
+    /**
+     * @brief C = min(A,B)
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A < B ? A : B; }
+    /**
+     * @brief Computes the gradient of the min function.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        int smaller = A <= B;
+        dA += smaller ? dC : 0;
+        dB += smaller ? 0 : dC;
+    }
 };
 
 /**
@@ -267,34 +148,18 @@ template <typename T> struct Min {
  * @tparam T The scalar type.
  */
 template <typename T> struct Max {
-    struct Op {
-        /**
-         * @brief Selects maximum value
-         * @param A First operand.
-         * @param B Second operand.
-         * @param C Result of max(A, B)
-         */
-        constexpr void operator()(T A, T B, T &C) const noexcept {
-            C = A > B ? A : B;
-        }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param B   Input B.
-         * @param dB  Gradient accumulator for B.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T B, T &dB, T C,
-                                  T dC) const noexcept {
-            int bigger = A >= B;
-            dA += bigger ? dC : 0;
-            dB += bigger ? 0 : dC;
-        }
-    };
+    /**
+     * @brief C = max(A,B)
+     */
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A > B ? A : B; }
+    /**
+     * @brief Computes the gradient of the max function.
+     */
+    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+        int bigger = A >= B;
+        dA += bigger ? dC : 0;
+        dB += bigger ? 0 : dC;
+    }
 };
 
 /**
@@ -302,26 +167,14 @@ template <typename T> struct Max {
  * @tparam T The scalar type.
  */
 template <typename T> struct Sum {
-    struct Op {
-        /**
-         * @brief Performs the summation.
-         * @param A First operand.
-         * @param C Result.
-         */
-        constexpr void operator()(T A, T &C) const noexcept { C += A; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC;
-        }
-    };
+    /**
+     * @brief C += A
+     */
+    constexpr static void Op(T A, T &C) noexcept { C += A; }
+    /**
+     * @brief Computes the gradient of the summation.
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC; }
 };
 
 /**
@@ -329,26 +182,14 @@ template <typename T> struct Sum {
  * @tparam T The scalar type.
  */
 template <typename T> struct Neg {
-    struct Op {
-        /**
-         * @brief Performs the negation.
-         * @param A First operand.
-         * @param C Result of -A.
-         */
-        constexpr void operator()(T A, T &C) const noexcept { C = -A; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA -= dC;
-        }
-    };
+    /**
+     * @brief C = -A
+     */
+    constexpr static void Op(T A, T &C) noexcept { C = -A; }
+    /**
+     * @brief Computes the gradient of the negation.
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA -= dC; }
 };
 
 /**
@@ -356,26 +197,16 @@ template <typename T> struct Neg {
  * @tparam T The scalar type.
  */
 template <typename T> struct Square {
-    struct Op {
-        /**
-         * @brief Computes the square.
-         * @param A First operand.
-         * @param C Result of A ^ 2.
-         */
-        constexpr void operator()(T A, T &C) const noexcept { C = A * A; }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC * 2 * A;
-        }
-    };
+    /**
+     * @brief C = A ^ 2
+     */
+    constexpr static void Op(T A, T &C) noexcept { C = A * A; }
+    /**
+     * @brief Computes the gradient of the square.
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
+        dA += dC * 2 * A;
+    }
 };
 
 /**
@@ -385,38 +216,30 @@ template <typename T> struct Square {
 template <typename T> struct Sqrt {
     inline static T epsilon =
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
-    struct Op {
+    /**
+     * @brief C = sqrt(A)
+     * @note if NO_STABLE_SQRT is not defined a numerically safe version is
+     * used instead.
+     */
+    constexpr static void Op(T A, T &C) noexcept {
+#ifdef NO_STABLE_SQRT
+        C = std::sqrt(A);
+#else
+        C = std::sqrt(std::max(A, 0));
+#endif
+    }
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
         /**
-         * @brief Computes the squareroot, if NO_STABLE_SQRT is not defined a
-         * numerically safe version is used instead.
-         * @param A First operand.
-         * @param C Result of √A.
+         * @brief Computes the gradient of the squareroot
+         * @note if NO_STABLE_SQRT is not defined a numerically safe version
+         * is used instead.
          */
-        constexpr void operator()(T A, T &C) const noexcept {
 #ifdef NO_STABLE_SQRT
-            C = std::sqrt(A);
+        dA += dC / (2 * C);
 #else
-            C = std::sqrt(std::max(A, 0));
+        dA += C < epsilon ? 0 : dC / (2 * C);
 #endif
-        }
-    };
-    struct Grad {
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            /**
-             * @brief Computes the gradient, if NO_STABLE_SQRT is not defined a
-             * numerically safe version is used instead.
-             * @param A   Input A (unused).
-             * @param dA  Gradient accumulator for A.
-             * @param C   Output C.
-             * @param dC  Gradient from the output.
-             */
-#ifdef NO_STABLE_SQRT
-            dA += dC / (2 * C);
-#else
-            dA += C < epsilon ? 0 : dC / (2 * C);
-#endif
-        }
-    };
+    }
 };
 
 /**
@@ -426,38 +249,30 @@ template <typename T> struct Sqrt {
 template <typename T> struct Log {
     inline static T epsilon =
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
-    struct Op {
-        /**
-         * @brief Computes the logarithm base e of A, if NO_STABLE_LOG is not
-         * defined a numerically save version is used instead.
-         * @param A First operand.
-         * @param C Result of ln(A).
-         */
-        constexpr void operator()(T A, T &C) const noexcept {
+    /**
+     * @brief C = log(A)
+     * @note if NO_STABLE_LOG is not defined a numerically save version is
+     * used instead.
+     */
+    constexpr static void Op(T A, T &C) noexcept {
 #ifdef NO_STABLE_LOG
-            C = std::log(A);
+        C = std::log(A);
 #else
-            C = std::log(std::max(A, epsilon));
+        C = std::log(std::max(A, epsilon));
 #endif
-        }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient, if NO_STABLE_LOG is not defined a
-         * numerically safe version is used instead.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
+    }
+    /**
+     * @brief Computes the gradient of the logarithm
+     * @note if NO_STABLE_LOG is not defined a numerically safe version is
+     * used instead.
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
 #ifdef NO_STABLE_LOG
-            dA += dC / A;
+        dA += dC / A;
 #else
-            dA += dC / std::max(A, epsilon);
+        dA += dC / std::max(A, epsilon);
 #endif
-        }
-    };
+    }
 };
 
 /**
@@ -467,33 +282,22 @@ template <typename T> struct Log {
 template <typename T> struct Exp {
     inline static T max_exp = std::log(std::numeric_limits<T>::max());
     inline static T min_exp = std::log(std::numeric_limits<T>::min());
-    struct Op {
-        constexpr void operator()(T A, T &C) const noexcept {
-            /**
-             * @brief Computes e to the power of A, if NO_STABLE_EXP is not
-             * defined a numerically safe version is used instead.
-             * @param A First operand.
-             * @param C Result of e ^ A.
-             */
-#ifdef NO_STABLE_EXP
-            C = std::exp(A);
-#else
-            C = std::exp(std::max(min_exp, std::min(max_exp, A)));
-#endif
-        }
-    };
-    struct Grad {
+    constexpr static void Op(T A, T &C) noexcept {
         /**
-         * @brief Computes the gradient.
-         * @param A   Input A (unused).
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C.
-         * @param dC  Gradient from the output.
+         * @brief C = e^A
+         * @if NO_STABLE_EXP is not defined a numerically safe version is
+         * used instead.
          */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC * C;
-        }
-    };
+#ifdef NO_STABLE_EXP
+        C = std::exp(A);
+#else
+        C = std::exp(std::max(min_exp, std::min(max_exp, A)));
+#endif
+    }
+    /**
+     * @brief Computes the gradient of the exp function.
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC * C; }
 };
 
 /**
@@ -501,26 +305,16 @@ template <typename T> struct Exp {
  * @tparam T The scalar type.
  */
 template <typename T> struct Abs {
-    struct Op {
-        /**
-         * @brief Computes the absolute value.
-         * @param A First operand.
-         * @param C Result of |A|.
-         */
-        constexpr void operator()(T A, T &C) const noexcept { C = std::abs(A); }
-    };
-    struct Grad {
-        /**
-         * @brief Computes the gradient.
-         * @param A   Input A.
-         * @param dA  Gradient accumulator for A.
-         * @param C   Output C (unused).
-         * @param dC  Gradient from the output.
-         */
-        constexpr void operator()(T A, T &dA, T C, T dC) const noexcept {
-            dA += dC * (A > 0 ? 1 : -1);
-        }
-    };
+    /**
+     * @brief C = abs(A)
+     */
+    constexpr static void Op(T A, T &C) noexcept { C = std::abs(A); }
+    /**
+     * @brief Computes the gradient of the abs function.
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
+        dA += dC * (A > 0 ? 1 : -1);
+    }
 };
 
 } // namespace Kernels

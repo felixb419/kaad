@@ -32,12 +32,10 @@ INode<T> *sum(Computation_graph<T> &rec, INode<T> *A_ptr) {
     Tensor<T> &A = A_ptr->value;
 
     using Kernel = class Kernels::Sum<T>;
-    using Op = typename Kernel::Op;
-    using Grad = typename Kernel::Grad;
-    tensorfuncs::primal::unary::pointwise_fn<T, Op> op =
-        tensorfuncs::primal::unary::scalarOut<T, Op>;
-    tensorfuncs::adjoint::unary::pointwise_fn<T, Grad> grad =
-        tensorfuncs::adjoint::unary::scalarOut<T, Grad>;
+    tensorfuncs::primal::unary::pointwise_fn<T, Kernel> op =
+        tensorfuncs::primal::unary::scalarOut<T, Kernel>;
+    tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> grad =
+        tensorfuncs::adjoint::unary::scalarOut<T, Kernel>;
 
     rec.nodes.push_back(std::move(
         std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0)));

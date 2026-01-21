@@ -1,7 +1,8 @@
 #pragma once
 
-#include <algorithm> // for std::copy
-#include <cstddef>   // for size_t
+#include "kernels.hpp" // for Kernels::Null
+#include <algorithm>   // for std::copy
+#include <cstddef>     // for size_t
 
 namespace kaad {
 
@@ -16,14 +17,13 @@ namespace tensorfuncs::primal {
  */
 namespace binary {
 
-template <typename T, class Op>
-using pointwise_fn = void (*)(const T *A, const T *B, T *C, const T *C_end,
-                              Op op);
+template <typename T, class Kernel>
+using pointwise_fn = void (*)(const T *A, const T *B, T *C, const T *C_end);
 
-template <typename T, class Op>
+template <typename T, class Kernel>
 using flexible_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
                              int *strideB, int *strideC, size_t *c_dim_offset,
-                             int c_nDims, Op op);
+                             int c_nDims);
 
 template <typename T>
 using matmul_fn = void (*)(const T *A, const T *B, T *C, int a_rows, int b_cols,
@@ -40,17 +40,16 @@ using batch_matmul_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
  * @brief Applies Op(A,B) to A(tensor) and B(scalar).
  * @pre @p A and @p C have the same shape and @p B is scalar.
  * @tparam T Element type
- * @tparam Op A Callable binary operation.
+ * @tparam Kernel A struct containing a binary Operation ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to B(scalar).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
- * @param op Instance of the callable class.
  */
-template <typename T, class Op>
-void scalarRhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
+template <typename T, class Kernel>
+void scalarRhs(const T *A, const T *B, T *C, const T *C_end) {
     for (; C != C_end; A++, C++) {
-        op(*A, *B, *C);
+        Kernel::Op(*A, *B, *C);
     }
 }
 
@@ -58,17 +57,17 @@ void scalarRhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
  * @brief Applies Op(A,B) to A(scalar) and B(tensor).
  * @pre @p B and @p C have the same shape and @p A is scalar.
  * @tparam T Element type
- * @tparam Op A Callable binary operation.
+ * @tparam Kernel A struct containing a binary Operation ('Op').
  * @param[in] A Pointer to A(scalar).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  * @param op Instance of the callable class.
  */
-template <typename T, class Op>
-void scalarLhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
+template <typename T, class Kernel>
+void scalarLhs(const T *A, const T *B, T *C, const T *C_end) {
     for (; C != C_end; B++, C++) {
-        op(*A, *B, *C);
+        Kernel::Op(*A, *B, *C);
     }
 }
 
@@ -76,17 +75,17 @@ void scalarLhs(const T *A, const T *B, T *C, const T *C_end, Op op) {
  * @brief Applies Op(A,B) to A(tensor) and B(tensor).
  * @pre @p A, @p B and @p C have the same shape.
  * @tparam T Element type
- * @tparam Op A Callable binary operation.
+ * @tparam Kernel A struct containing a binary Operation ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  * @param op Instance of the callable class.
  */
-template <typename T, class Op>
-void pointwise(const T *A, const T *B, T *C, const T *C_end, Op op) {
+template <typename T, class Kernel>
+void pointwise(const T *A, const T *B, T *C, const T *C_end) {
     for (; C != C_end; A++, B++, C++) {
-        op(*A, *B, *C);
+        Kernel::Op(*A, *B, *C);
     }
 }
 
@@ -94,7 +93,7 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end, Op op) {
  * @brief Applies Op(A,B) to A(tensor) and B(tensor).
  * @pre @p C shape is the result of broadcasting @p A and @p B.
  * @tparam T Element type
- * @tparam Op A Callable binary operation.
+ * @tparam Kernel A struct containing a binary Operation ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
@@ -105,18 +104,18 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end, Op op) {
  * @param c_nDims Number of dimensions of C.
  * @param op Instance of the callable class.
  */
-template <typename T, class Op>
+template <typename T, class Kernel>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
-              int *strideC, size_t *c_dim_offset, int nDims, Op op) {
+              int *strideC, size_t *c_dim_offset, int nDims) {
     const T *end = C + *c_dim_offset;
     if (nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
-            op(*A, *B, *C);
+            Kernel::Op(*A, *B, *C);
         }
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
-            flexible(A, B, C, strideA + 1, strideB + 1, strideC + 1,
-                     c_dim_offset + 1, nDims - 1, op);
+            flexible<T, Kernel>(A, B, C, strideA + 1, strideB + 1, strideC + 1,
+                                c_dim_offset + 1, nDims - 1);
         }
     }
 }
@@ -124,20 +123,20 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
 /**
  * @brief Compile-time recursive version of flexible.
  * @see void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
- * int *strideC, size_t *c_dim_offset, int nDims, Op op)
+ * int *strideC, size_t *c_dim_offset, int nDims)
  */
-template <typename T, class Op, int nDims>
+template <typename T, class Kernel, int nDims>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
-              int *strideC, size_t *c_dim_offset, int _, Op op) {
+              int *strideC, size_t *c_dim_offset, int _) {
     const T *end = C + *c_dim_offset;
     if constexpr (nDims <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
-            op(*A, *B, *C);
+            Kernel::Op(*A, *B, *C);
         }
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
-            flexible<T, Op, nDims - 1>(A, B, C, strideA + 1, strideB + 1,
-                                       strideC + 1, c_dim_offset + 1, 0, op);
+            flexible<T, Kernel, nDims - 1>(A, B, C, strideA + 1, strideB + 1,
+                                           strideC + 1, c_dim_offset + 1, 0);
         }
     }
 }
@@ -153,8 +152,8 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
  * @param A_end Pointer to the end of @p A.
  * @param _ (Only needed for signature).
  */
-template <typename T, class Op>
-void scalarDot(const T *A, const T *B, T *C, const T *A_end, Op _) {
+template <typename T, class Kernel = Kernels::Null>
+void scalarDot(const T *A, const T *B, T *C, const T *A_end) {
     for (; A != A_end; A++) {
         *C += *A * (*B);
     }
@@ -169,10 +168,9 @@ void scalarDot(const T *A, const T *B, T *C, const T *A_end, Op _) {
  * @param[in] B Pointer to the start of B(vector)
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of @p A.
- * @param _ (Only needed for signature).
  */
-template <typename T, class Op>
-void dot(const T *A, const T *B, T *C, const T *A_end, Op _) {
+template <typename T, class Kernel = Kernels::Null>
+void dot(const T *A, const T *B, T *C, const T *A_end) {
     for (; A != A_end; A++, B++) {
         *C += *A * (*B);
     }
@@ -290,8 +288,8 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
  */
 namespace unary {
 
-template <typename T, class Op>
-using pointwise_fn = void (*)(const T *A, T *C, const T *C_end, Op op);
+template <typename T, class Kernel>
+using pointwise_fn = void (*)(const T *A, T *C, const T *C_end);
 
 template <typename T>
 using sum_dim_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
@@ -319,8 +317,8 @@ using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
  * @param A_end Pointer to the end of A.
  * @param op Instance of the callable class (ignored here).
  */
-template <typename T, class Op>
-void noop(const T *A, T *C, const T *A_end, Op op) {
+template <typename T, class Kernel = Kernels::Null>
+void noop(const T *A, T *C, const T *A_end) {
     std::copy(A, A_end, C);
 }
 
@@ -333,10 +331,10 @@ void noop(const T *A, T *C, const T *A_end, Op op) {
  * @param A_end Pointer to the end of A.
  * @param op Instance of the callable class.
  */
-template <typename T, class Op>
-void scalarOut(const T *A, T *C, const T *A_end, Op op) {
+template <typename T, class Kernel>
+void scalarOut(const T *A, T *C, const T *A_end) {
     for (; A != A_end; A++) {
-        op(*A, *C);
+        Kernel::Op(*A, *C);
     }
 }
 
@@ -349,10 +347,10 @@ void scalarOut(const T *A, T *C, const T *A_end, Op op) {
  * @param A_end Pointer to the end of C.
  * @param op Instance of the callable class.
  */
-template <typename T, class Op>
-void pointwise(const T *A, T *C, const T *C_end, Op op) {
+template <typename T, class Kernel>
+void pointwise(const T *A, T *C, const T *C_end) {
     for (; C != C_end; A++, C++) {
-        op(*A, *C);
+        Kernel::Op(*A, *C);
     }
 }
 
