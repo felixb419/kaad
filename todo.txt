@@ -1,23 +1,18 @@
 [ TODO ]
 
 REFACTOR:
-    (?) split tensorfunc files
+    get rid of utils.hpp
 
 FEAT:
-    make default recorder variable
-    revise node input variables
+    make Node and pointer access impossible
+        make operators return const Pointers (maybe Node_ptr)
+        make Node members private (and const from outside)
+        make computation_graph members private (and const from outside)
+
+    make sure what goes into detail
 
 PERF:
     make stride function transpose dimensions so biggest is highest
 
 DOC:
-    add definitions (operation=operation on in/out tensors, operator=operation on nodes)
-    add note on broadcasting in primal_ops.hpp
-    rework operator readability and comments
-    
-GOALS
-    make Node and pointer access impossible
-        make operators return const Pointers (maybe Node_ptr)
-        make Node members private (and const from outside)
-        make computation_graph members private (and const from outside)
     fix all include lists

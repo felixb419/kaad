@@ -7,6 +7,26 @@
 namespace kaad {
 
 /**
+ * @file tensorfuncs.hpp
+ * @brief Tensor operations with NumPy-style broadcasting.
+ *
+ * Broadcasting rules:
+ * - When performing elementwise operations, input tensors are aligned from the
+ * trailing dimensions.
+ * - For each dimension:
+ *   1. If the sizes match, that dimension is compatible.
+ *   2. If one tensor has size 1, it is broadcast to match the other.
+ *   3. If sizes differ and neither is 1, the shapes are incompatible.
+ * - The resulting tensor shape is the elementwise maximum along each dimension.
+ *
+ * Examples:
+ *   (3, 1, 5) and (1, 4, 5) → broadcast to (3, 4, 5)
+ *   (2, 3) and (3,) → broadcast to (2, 3)
+ *
+ * @note These rules are identical to NumPy’s broadcasting semantics.
+ */
+
+/**
  * @namespace tensorfuncs::primal
  * @brief Contains primal (e.g. used for forward computation) tensor operations.
  */
