@@ -29,17 +29,6 @@ template <typename T> class INode {
     bool hasInputs = false; ///< Whether this node depends on any input nodes.
 
     /**
-     * @brief Constructs a leaf node with a pre-evaluated tensor value.
-     *
-     * @param tensor The tensor value to assign to this node.
-     */
-    INode(Tensor<T> &&tensor)
-        : value(std::move(tensor)), gradient(value), evaluated(true),
-          hasInputs(false) {
-        std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
-    }
-
-    /**
      * @brief Constructs an unevaluated node with a dependency on an input node.
      *
      * @param A_ptr Pointer to the input node.
@@ -48,9 +37,11 @@ template <typename T> class INode {
     template <typename... TensorArgs>
     INode(INode<T> *A_ptr, TensorArgs &&...tensor_args)
         : A(A_ptr), evaluated(false),
-          value(std::forward<TensorArgs>(tensor_args)...), hasInputs(true),
-          gradient(value) {
-        std::fill(value.elements_.begin(), value.elements_.end(), 0);
+          value(std::forward<TensorArgs>(tensor_args)...),
+          hasInputs(this->A != nullptr), gradient(value) {
+        if (this->hasInputs) {
+            std::fill(value.elements_.begin(), value.elements_.end(), 0);
+        }
         std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
     }
 
