@@ -2,7 +2,7 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../strides.hpp"     // for Strides::mean_dim
+#include "../strides.hpp"                    // for Strides::mean_dim
 #include "dispatchers.hpp" // for get_meanDim, get_meanDim_grad
 #include "inode.hpp"       // for INode
 
@@ -14,7 +14,8 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::mean_dim
  * @tparam T The scalar type.
  */
-template <typename T> struct Node_mean_dim : INode<T> {
+template <typename T> class Node_mean_dim : public INode<T> {
+  public:
     tensorfuncs::primal::unary::mean_dim_fn<T> forward_op =
         tensorfuncs::primal::unary::mean_dim;
     tensorfuncs::adjoint::unary::mean_dim_fn<T> backward_op =

@@ -303,19 +303,19 @@ template <typename T> class Tensor {
         return os;
     }
 
-    template <typename U> friend struct Computation_graph;
-    template <typename U> friend struct INode;
+    template <typename U> friend class Computation_graph;
+    template <typename U> friend class INode;
 
-    template <typename U, class Kernel> friend struct Node_binary;
-    template <typename U, class Kernel> friend struct Node_binary_flex;
-    template <typename U> friend struct Node_matmul;
-    template <typename U> friend struct Node_batch_matmul;
+    template <typename U, class Kernel> friend class Node_binary;
+    template <typename U, class Kernel> friend class Node_binary_flex;
+    template <typename U> friend class Node_matmul;
+    template <typename U> friend class Node_batch_matmul;
 
-    template <typename U, class Kernel> friend struct Node_unary;
-    template <typename U> friend struct Node_slice;
-    template <typename U> friend struct Node_transp;
-    template <typename U> friend struct Node_sum_dim;
-    template <typename U> friend struct Node_mean;
-    template <typename U> friend struct Node_mean_dim;
+    template <typename U, class Kernel> friend class Node_unary;
+    template <typename U> friend class Node_slice;
+    template <typename U> friend class Node_transp;
+    template <typename U> friend class Node_sum_dim;
+    template <typename U> friend class Node_mean;
+    template <typename U> friend class Node_mean_dim;
 };
 } // namespace kaad

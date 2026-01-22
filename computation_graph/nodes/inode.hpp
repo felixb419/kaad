@@ -17,8 +17,8 @@ namespace kaad {
  *
  * @tparam T The scalar type (e.g., float or double).
  */
-template <typename T> struct INode {
-
+template <typename T> class INode {
+  public:
     INode<T> *A =
         nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
 

@@ -9,9 +9,9 @@
 
 namespace kaad {
 
-template <typename T, class Kernel> struct Node_unary;
-template <typename T> struct Computation_graph;
-template <typename T> struct INode;
+template <typename T, class Kernel> class Node_unary;
+template <typename T> class Computation_graph;
+template <typename T> class INode;
 
 /**
  * @brief Contains a collection of unary functions for pointwise version of the

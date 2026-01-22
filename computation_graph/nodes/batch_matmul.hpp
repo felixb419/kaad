@@ -16,7 +16,8 @@ namespace kaad {
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <typename T> struct Node_batch_matmul : INode<T> {
+template <typename T> class Node_batch_matmul : public INode<T> {
+  public:
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::batch_matmul_fn<T> forward_op =

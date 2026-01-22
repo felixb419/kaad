@@ -6,12 +6,12 @@
 
 namespace kaad {
 
-template <typename T, class Kernel> struct Node_binary_flex;
-template <typename T> struct Node_batch_matmul;
-template <typename T> struct Node_matmul;
-template <typename T> struct Node_mean_dim;
-template <typename T> struct Node_sum_dim;
-template <typename T> struct Node_slice;
+template <typename T, class Kernel> class Node_binary_flex;
+template <typename T> class Node_batch_matmul;
+template <typename T> class Node_matmul;
+template <typename T> class Node_mean_dim;
+template <typename T> class Node_sum_dim;
+template <typename T> class Node_slice;
 
 /**
  * @namespace kaad::Strides

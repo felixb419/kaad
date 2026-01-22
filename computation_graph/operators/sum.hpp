@@ -8,10 +8,10 @@
 
 namespace kaad {
 
-template <typename T> struct Computation_graph;
-template <typename T> struct INode;
-template <typename T, class Kernel> struct Node_unary;
-template <typename T> struct Node_sum_dim;
+template <typename T> class Computation_graph;
+template <typename T> class INode;
+template <typename T, class Kernel> class Node_unary;
+template <typename T> class Node_sum_dim;
 
 /**
  * @brief Adds a unary sum node to the computation graph.

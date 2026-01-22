@@ -8,8 +8,8 @@
 #include <vector>               // for std::vector
 
 namespace kaad {
-template <typename T> struct INode;
-template <typename T> struct Node_valued;
+template <typename T> class INode;
+template <typename T> class Node_valued;
 
 /**
  * @brief Represents a computation graph for automatic differentiation.
@@ -19,7 +19,8 @@ template <typename T> struct Node_valued;
  *
  * @tparam T The data type of the tensor values.
  */
-template <typename T> struct Computation_graph {
+template <typename T> class Computation_graph {
+  public:
     std::vector<std::unique_ptr<INode<T>>>
         nodes; ///< Holds unique pointers pointing to computation nodes
 

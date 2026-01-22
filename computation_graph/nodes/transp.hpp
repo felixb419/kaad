@@ -13,7 +13,8 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::pointwise
  * @tparam T The scalar type.
  */
-template <typename T> struct Node_transp : INode<T> {
+template <typename T> class Node_transp : public INode<T> {
+  public:
     tensorfuncs::primal::unary::pointwise_fn<T, Kernels::Null> forward_op =
         tensorfuncs::primal::unary::noop<
             T, Kernels::Null>; ///< Function pointer to the value operation.

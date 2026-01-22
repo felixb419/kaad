@@ -9,8 +9,8 @@ namespace kaad {
  * @brief A leaf node that holds a fixed tensor value with no computation.
  * @tparam T The scalar type.
  */
-template <typename T> struct Node_valued : INode<T> {
-
+template <typename T> class Node_valued : public INode<T> {
+  public:
     /**
      * @brief Constructs a leaf node holding a constant value.
      * @param tensor The tensor value to store.

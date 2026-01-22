@@ -2,7 +2,7 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../strides.hpp"     // for Strides::sum_dim
+#include "../strides.hpp"                    // for Strides::sum_dim
 #include "dispatchers.hpp"                   // for get_sumDim, get_sumDim_grad
 #include "inode.hpp"                         // for INode
 
@@ -14,7 +14,8 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::sum_dim
  * @tparam T The scalar type.
  */
-template <typename T> struct Node_sum_dim : INode<T> {
+template <typename T> class Node_sum_dim : public INode<T> {
+  public:
     tensorfuncs::primal::unary::sum_dim_fn<T> val_func =
         tensorfuncs::primal::unary::sum_dim; ///< Function pointer to the
                                              ///< sum_dim operation.

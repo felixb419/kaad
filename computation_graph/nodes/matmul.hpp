@@ -13,7 +13,8 @@ namespace kaad {
  * @see tensorfuncs::adjoint::binary::matmul
  * @tparam T The scalar type.
  */
-template <typename T> struct Node_matmul : INode<T> {
+template <typename T> class Node_matmul : public INode<T> {
+  public:
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::matmul_fn<T> forward_op =

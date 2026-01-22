@@ -6,10 +6,10 @@
 
 namespace kaad {
 
-template <typename T> struct Computation_graph;
-template <typename T> struct INode;
-template <typename T> struct Node_mean;
-template <typename T> struct Node_mean_dim;
+template <typename T> class Computation_graph;
+template <typename T> class INode;
+template <typename T> class Node_mean;
+template <typename T> class Node_mean_dim;
 
 /**
  * @brief Adds a unary mean node to the computation graph.

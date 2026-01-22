@@ -12,7 +12,8 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::mean
  * @tparam T The scalar type.
  */
-template <typename T> struct Node_mean : INode<T> {
+template <typename T> class Node_mean : public INode<T> {
+  public:
     tensorfuncs::primal::unary::mean_fn<T> forward_op =
         tensorfuncs::primal::unary::mean;
     tensorfuncs::adjoint::unary::mean_fn<T> backward_op =

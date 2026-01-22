@@ -8,9 +8,9 @@
 
 namespace kaad {
 
-template <typename T> struct Computation_graph;
-template <typename T> struct INode;
-template <typename T> struct Node_transp;
+template <typename T> class Computation_graph;
+template <typename T> class INode;
+template <typename T> class Node_transp;
 
 /**
  * @brief Adds a unary transpose node to the computation graph.

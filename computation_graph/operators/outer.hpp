@@ -7,9 +7,9 @@
 
 namespace kaad {
 
-template <typename T> struct Computation_graph;
-template <typename T> struct INode;
-template <typename T, class Kernel> struct Node_binary_flex;
+template <typename T> class Computation_graph;
+template <typename T> class INode;
+template <typename T, class Kernel> class Node_binary_flex;
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.

@@ -6,10 +6,10 @@
 
 namespace kaad {
 
-template <typename T> struct Computation_graph;
-template <typename T> struct INode;
-template <typename T> struct Node_matmul;
-template <typename T> struct Node_batch_matmul;
+template <typename T> class Computation_graph;
+template <typename T> class INode;
+template <typename T> class Node_matmul;
+template <typename T> class Node_batch_matmul;
 
 /**
  * @brief Adds a matrix multiplication node (A × B) to the computation graph.

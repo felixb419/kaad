@@ -14,7 +14,8 @@ namespace kaad {
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <typename T, class Kernel> struct Node_binary : INode<T> {
+template <typename T, class Kernel> class Node_binary : public INode<T> {
+  public:
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::pointwise_fn<T, Kernel> forward_op =
