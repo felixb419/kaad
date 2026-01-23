@@ -10,53 +10,56 @@ namespace kaad {
 
 template <typename T> class Computation_graph;
 template <typename T> class INode;
+template <typename T> class Node_handle;
 template <typename T> class Node_transp;
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
  *
- * Transposes the input tensor node `A_ptr` according to the permutation `perm`.
+ * Transposes the input tensor node `A` according to the permutation `perm`.
  * If `perm` is empty, the tensor is fully transposed by reversing its
  * dimensions.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
+ * @param A Handle of the input tensor node A.
  * @param perm An optional initializer list specifying the permutation of axes.
  *             If not provided or empty, a full transpose (reverse of all axes)
  * is performed.
- * @return A pointer to the new node representing the transposed tensor,
+ * @return A handle of the new node representing the transposed tensor,
  *         with shape adjusted according to `perm` or full transpose.
  */
 template <typename T>
-INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
-                    std::initializer_list<int> perm = {}) {
+Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
+                         std::initializer_list<int> perm = {}) {
     int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
 
-    if (A.nDims() < 2) {
+    INode<T> *A_ptr = rec.get_node(A);
+    Tensor<T> &A_val = A_ptr->value;
+
+    if (A_val.nDims() < 2) {
         throw shape_error(recLen, "transpose", "A.nDims() hast to be > 1",
-                          {{"A.shape", A.shape()}});
+                          {{"A.shape", A_val.shape()}});
     }
 
-    std::vector<int> shape_T(A.nDims());
-    std::vector<int> stride_T(A.nDims());
+    std::vector<int> shape_T(A_val.nDims());
+    std::vector<int> stride_T(A_val.nDims());
     if (perm.size() == 0) {
-        std::copy(A.shape_begin(), A.shape_end(), shape_T.begin());
-        std::copy(A.stride_begin(), A.stride_end(), stride_T.begin());
+        std::copy(A_val.shape_begin(), A_val.shape_end(), shape_T.begin());
+        std::copy(A_val.stride_begin(), A_val.stride_end(), stride_T.begin());
 
-        transp(A.shape_begin(), A.stride_begin(), A.nDims(), shape_T.data(),
-               stride_T.data());
+        transp(A_val.shape_begin(), A_val.stride_begin(), A_val.nDims(),
+               shape_T.data(), stride_T.data());
     } else {
-        if (perm.size() != A.nDims()) {
+        if (perm.size() != A_val.nDims()) {
             throw argument_error(recLen, "transpose",
                                  "perm.size() has to be same as A.nDims()",
-                                 {{"A.shape", A.shape()}});
+                                 {{"A.shape", A_val.shape()}});
         }
 
-        int *count = new int[A.nDims()];
-        std::fill(count, count + A.nDims(), 0);
+        int *count = new int[A_val.nDims()];
+        std::fill(count, count + A_val.nDims(), 0);
 
         int *sh = shape_T.data();
         int *st = stride_T.data();
@@ -64,25 +67,25 @@ INode<T> *transpose(Computation_graph<T> &rec, INode<T> *A_ptr,
 
             count[idx]++;
 
-            *(sh++) = A.shape()[idx];
-            *(st++) = A.stride()[idx];
+            *(sh++) = A_val.shape()[idx];
+            *(st++) = A_val.stride()[idx];
         }
-        for (int *p = count; p != count + A.nDims(); p++) {
+        for (int *p = count; p != count + A_val.nDims(); p++) {
             if (*p != 1) {
-                // change to print perm instead of A.shape
+                // change to print perm instead of A_val.shape
                 throw argument_error(
                     recLen, "transpose",
                     "perm has to contain index of every dimension "
                     "exactly once",
-                    {{"A.shape", A.shape()}});
+                    {{"A.shape", A_val.shape()}});
             }
         }
     }
 
-    rec.nodes.push_back(std::move(
-        std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T, A.nDims())));
+    rec.nodes.push_back(std::move(std::make_unique<Node_transp<T>>(
+        A_ptr, shape_T, stride_T, A_val.nDims())));
 
-    return rec.nodes.back().get();
+    return rec.back_handle();
 }
 
 } // namespace kaad

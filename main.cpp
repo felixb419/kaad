@@ -3,9 +3,8 @@
 
 using T = double;
 
-void call_all_operators(kaad::Computation_graph<T> &rec, kaad::INode<T> *a,
-                        kaad::INode<T> *b) {
-    slice(rec, a, {1, 1}, {3, 33});
+void call_all_operators(kaad::Computation_graph<T> &rec, kaad::Node_handle<T> a,
+                        kaad::Node_handle<T> b) {
     add(rec, a, b);
     dot(rec, a, b);
     matmul(rec, a, b);
@@ -31,14 +30,14 @@ int main() {
 
     auto c = add(rec, a, b);
 
-    std::cout << "A:\n" << a->value << std::endl;
-    std::cout << "B:\n" << b->value << std::endl;
+    std::cout << "A:\n" << a.value() << std::endl;
+    std::cout << "B:\n" << b.value() << std::endl;
 
     rec.reset();
 
     auto e = rec.evaluate(c);
 
-    std::cout << "C:\n" << c->value << std::endl;
+    std::cout << "C:\n" << c.value() << std::endl;
 
     auto g = rec.getGradient(c, a, b);
 

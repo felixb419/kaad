@@ -11,24 +11,26 @@ namespace kaad {
 
 template <typename T> class Computation_graph;
 template <typename T> class INode;
+template <typename T> class Node_handle;
 template <typename T, class Kernel> class Node_binary;
 
 /**
  * @brief Adds a binary dot product node (A ⋅ B) to the computation graph.
  *
- * Computes the element-wise dot product of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise dot product of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise dot product
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise dot product
  * of A and B.
  */
 template <typename T>
-INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     tensorfuncs::primal::binary::pointwise_fn<T, Kernels::Null> scalar =
         tensorfuncs::primal::binary::scalarDot<T>;
     tensorfuncs::adjoint::binary::pointwise_fn<T, Kernels::Null> scalar_grad =
@@ -40,18 +42,21 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
         tensorfuncs::adjoint::binary::dot<T, Kernels::Null>;
 
     int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
-    Tensor<T> &B = B_ptr->value;
 
-    bool A_scalar = A.nDims() == 1 && A.shape()[0] == 1;
-    bool B_scalar = B.nDims() == 1 && B.shape()[0] == 1;
+    INode<T> *A_ptr = rec.get_node(A);
+    INode<T> *B_ptr = rec.get_node(B);
+    Tensor<T> &A_val = A_ptr->value;
+    Tensor<T> &B_val = B_ptr->value;
+
+    bool A_scalar = A_val.nDims() == 1 && A_val.shape()[0] == 1;
+    bool B_scalar = B_val.nDims() == 1 && B_val.shape()[0] == 1;
     if (B_scalar) {
 
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
                 scalar, scalar_grad, A_ptr, B_ptr, ((T)0))));
         static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
-            ->end = A.data() + A.size();
+            ->end = A_val.data() + A_val.size();
 
     } else if (A_scalar) {
 
@@ -59,24 +64,26 @@ INode<T> *dot(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
             std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
                 scalar, scalar_grad, B_ptr, A_ptr, ((T)0))));
         static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
-            ->end = B.data() + B.size(); // override end from constructor
+            ->end =
+            B_val.data() + B_val.size(); // override end from constructor
 
-    } else if (A.nDims() == 1 && B.nDims() == 1 &&
-               std::equal(A.shape_begin(), A.shape_end(), B.shape_begin())) {
+    } else if (A_val.nDims() == 1 && B_val.nDims() == 1 &&
+               std::equal(A_val.shape_begin(), A_val.shape_end(),
+                          B_val.shape_begin())) {
 
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
                 dot, dot_grad, A_ptr, B_ptr, ((T)0))));
         static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
-            ->end = A.data() + A.size();
+            ->end = A_val.data() + A_val.size();
 
     } else {
-        throw shape_error(recLen, "dot",
-                          "incompatible tensor shapes for dot product",
-                          {{"A.shape", A.shape()}, {"B.shape", B.shape()}});
+        throw shape_error(
+            recLen, "dot", "incompatible tensor shapes for dot product",
+            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}});
     }
 
-    return rec.nodes.back().get();
+    return rec.back_handle();
 }
 
 } // namespace kaad

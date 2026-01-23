@@ -9,12 +9,13 @@ namespace kaad {
 
 template <typename T> class Computation_graph;
 template <typename T> class INode;
+template <typename T> class Node_handle;
 template <typename T, class Kernel> class Node_binary_flex;
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
  *
- * Computes the outer product of two input tensor nodes `A_ptr` and `B_ptr`.
+ * Computes the outer product of two input tensor nodes `A` and `B`.
  * The result is a tensor whose shape is the concatenation of the shapes of A
  * and B. For example:
  * - If A has shape (m,) and B has shape (n,), the result has shape (m, n).
@@ -27,21 +28,26 @@ template <typename T, class Kernel> class Node_binary_flex;
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the generalized outer product
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A Handle of the new node representing the generalized outer product
  * of A and B.
  */
 template <typename T>
-INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> outer(Computation_graph<T> &rec, Node_handle<T> A,
+                     Node_handle<T> B) {
     int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
-    Tensor<T> &B = B_ptr->value;
 
-    size_t newLen = A.nDims() + B.nDims();
+    INode<T> *A_ptr = rec.get_node(A);
+    INode<T> *B_ptr = rec.get_node(B);
+    Tensor<T> &A_val = A_ptr->value;
+    Tensor<T> &B_val = B_ptr->value;
+
+    size_t newLen = A_val.nDims() + B_val.nDims();
     std::vector<int> newShape(newLen);
-    std::copy(A.shape_begin(), A.shape_end(), newShape.begin());
-    std::copy(B.shape_begin(), B.shape_end(), newShape.begin() + A.nDims());
+    std::copy(A_val.shape_begin(), A_val.shape_end(), newShape.begin());
+    std::copy(B_val.shape_begin(), B_val.shape_end(),
+              newShape.begin() + A_val.nDims());
 
     using Kernel = typename Kernels::Mul<T>;
 
@@ -50,7 +56,7 @@ INode<T> *outer(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
     Strides::outer<T>(*static_cast<Node_binary_flex<T, Kernel> *>(
         rec.nodes.back().get())); // override strides from constructor
 
-    return rec.nodes.back().get();
+    return rec.back_handle();
 }
 
 } // namespace kaad

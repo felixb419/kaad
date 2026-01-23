@@ -12,6 +12,7 @@ namespace kaad {
 
 template <typename T> class Computation_graph;
 template <typename T> class INode;
+template <typename T> class Node_handle;
 template <typename T, class Kernel> class Node_binary;
 template <typename T, class Kernel> class Node_binary_flex;
 
@@ -51,62 +52,69 @@ template <typename T, class Kernel> struct BinaryKernels {
  *
  * Adds a generalized binary operation node to the computation graph `rec`.
  * Applies the binary operation specified by `kernels` to the input tensor nodes
- * `A_ptr` and `B_ptr`.
+ * `A` and `B`.
  *
  * @tparam T The data type of tensor elements.
  * @tparam Kernel The kernel providing forward operation and gradient.
  *
  * @param rec Reference to the computation graph.
- * @param A_ptr Pointer to the first input node.
- * @param B_ptr Pointer to the second input node.
+ * @param A Handle of the first input node.
+ * @param B Handle of the second input node.
  * @param kernels Binary operation and gradient kernels.
  * @param opName A string identifier for the operation (used for debugging or
  * logging).
- * @return Pointer to the newly created binary operation node.
+ * @return Handle of the newly created binary operation node.
  */
 template <typename T, class Kernel>
-INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
-                      INode<T> *B_ptr, const BinaryKernels<T, Kernel> kernels,
-                      const char *opName) {
+Node_handle<T>
+binOperator(Computation_graph<T> &rec, Node_handle<T> A, Node_handle<T> B,
+            const BinaryKernels<T, Kernel> kernels, const char *opName) {
     int recLen = rec.nodes.size();
-    Tensor<T> &A = A_ptr->value;
-    Tensor<T> &B = B_ptr->value;
-    bool A_scalar = A.nDims() == 1 && A.shape()[0] == 1;
-    bool B_scalar = B.nDims() == 1 && B.shape()[0] == 1;
 
-    size_t newLen = std::max(A.nDims(), B.nDims());
+    INode<T> *A_ptr = rec.get_node(A);
+    INode<T> *B_ptr = rec.get_node(B);
+    Tensor<T> &A_val = A_ptr->value;
+    Tensor<T> &B_val = B_ptr->value;
+
+    bool A_scalar = A_val.nDims() == 1 && A_val.shape()[0] == 1;
+    bool B_scalar = B_val.nDims() == 1 && B_val.shape()[0] == 1;
+
+    size_t newLen = std::max(A_val.nDims(), B_val.nDims());
     std::vector<int> newShape(newLen);
 
     if (B_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr,
-            A.shape())));
+            A_val.shape())));
 
     } else if (A_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
-            B.shape())));
+            B_val.shape())));
 
-    } else if (A.nDims() == B.nDims() &&
-               std::equal(A.shape_begin(), A.shape_end(), B.shape_begin()) &&
-               std::equal(A.stride_begin(), A.stride_end(), B.stride_begin())) {
+    } else if (A_val.nDims() == B_val.nDims() &&
+               std::equal(A_val.shape_begin(), A_val.shape_end(),
+                          B_val.shape_begin()) &&
+               std::equal(A_val.stride_begin(), A_val.stride_end(),
+                          B_val.stride_begin())) {
 
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
-            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A.shape())));
+            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A_val.shape())));
 
-    } else if (combine_flexible(A.shape_begin(), A.nDims(), B.shape_begin(),
-                                B.nDims(), newShape.data(), newLen)) {
+    } else if (combine_flexible(A_val.shape_begin(), A_val.nDims(),
+                                B_val.shape_begin(), B_val.nDims(),
+                                newShape.data(), newLen)) {
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
                 A_ptr, B_ptr, newShape)));
     } else {
-        throw shape_error(recLen, opName,
-                          "incompatible tensor shapes for binary operation",
-                          {{"A.shape", A.shape()}, {"B.shape", B.shape()}});
+        throw shape_error(
+            recLen, opName, "incompatible tensor shapes for binary operation",
+            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}});
     }
-    return rec.nodes.back().get();
+    return rec.back_handle();
 }
 
 } // namespace detail
@@ -114,142 +122,149 @@ INode<T> *binOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
 /**
  * @brief Adds a binary addition node (A + B) to the computation graph.
  *
- * Computes the element-wise sum of two input tensor nodes `A_ptr` and `B_ptr`.
+ * Computes the element-wise sum of two input tensor nodes `A` and `B`.
  * Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise sum of A and
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise sum of A and
  * B.
  */
 template <typename T>
-INode<T> *add(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> add(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Add<T>> addK;
-    return binOperator(rec, A_ptr, B_ptr, addK, "add");
+    return binOperator(rec, A, B, addK, "add");
 }
 
 /**
  * @brief Adds a binary subtratction node (A - B) to the computation graph.
  *
- * Computes the element-wise difference of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise difference of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise difference of
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise difference of
  * A and B.
  */
 template <typename T>
-INode<T> *sub(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> sub(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Sub<T>> subK;
-    return binOperator(rec, A_ptr, B_ptr, subK, "sub");
+    return binOperator(rec, A, B, subK, "sub");
 }
 
 /**
  * @brief Adds a binary multiplication node (A * B) to the computation
  * graph.
  *
- * Computes the element-wise product of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise product of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise product of A
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise product of A
  * and B.
  */
 template <typename T>
-INode<T> *mul(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> mul(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Mul<T>> mulK;
-    return binOperator(rec, A_ptr, B_ptr, mulK, "mul");
+    return binOperator(rec, A, B, mulK, "mul");
 }
 
 /**
  * @brief Adds a binary division node (A / B) to the computation graph.
  *
- * Computes the element-wise quotient of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise quotient of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise quotient of A
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise quotient of A
  * and B.
  */
 template <typename T>
-INode<T> *div(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> div(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Div<T>> divK;
-    return binOperator(rec, A_ptr, B_ptr, divK, "div");
+    return binOperator(rec, A, B, divK, "div");
 }
 
 /**
  * @brief Adds a binary power node (A ^ B) to the computation graph.
  *
- * Computes the element-wise power of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise power of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise power of A
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise power of A
  * and B.
  */
 template <typename T>
-INode<T> *pow(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> pow(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Pow<T>> powK;
-    return binOperator(rec, A_ptr, B_ptr, powK, "pow");
+    return binOperator(rec, A, B, powK, "pow");
 }
 
 /**
  * @brief Adds a binary minimum node (A __SYMBOL__ B) to the computation graph.
  *
- * Computes the element-wise minimum of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise minimum of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise minimum of A
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise minimum of A
  * and B.
  */
 template <typename T>
-INode<T> *min(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> min(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Min<T>> minK;
-    return binOperator(rec, A_ptr, B_ptr, minK, "minimum");
+    return binOperator(rec, A, B, minK, "minimum");
 }
 
 /**
  * @brief Adds a binary maximum node (A __SYMBOL__ B) to the computation graph.
  *
- * Computes the element-wise maximum of two input tensor nodes `A_ptr` and
- * `B_ptr`. Both tensors must have the same shape or be broadcast-compatible.
+ * Computes the element-wise maximum of two input tensor nodes `A` and
+ * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the first input tensor node A.
- * @param B_ptr Pointer to the second input tensor node B.
- * @return A pointer to the new node representing the element-wise maximum of A
+ * @param A Handle of the first input tensor node A.
+ * @param B Handle of the second input tensor node B.
+ * @return A handle of the new node representing the element-wise maximum of A
  * and B.
  */
 template <typename T>
-INode<T> *max(Computation_graph<T> &rec, INode<T> *A_ptr, INode<T> *B_ptr) {
+Node_handle<T> max(Computation_graph<T> &rec, Node_handle<T> A,
+                   Node_handle<T> B) {
     static const detail::BinaryKernels<T, class Kernels::Max<T>> maxK;
-    return binOperator(rec, A_ptr, B_ptr, maxK, "minimum");
+    return binOperator(rec, A, B, maxK, "minimum");
 }
 
 } // namespace kaad

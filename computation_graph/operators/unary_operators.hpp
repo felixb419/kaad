@@ -9,9 +9,10 @@
 
 namespace kaad {
 
-template <typename T, class Kernel> class Node_unary;
 template <typename T> class Computation_graph;
 template <typename T> class INode;
+template <typename T> class Node_handle;
+template <typename T, class Kernel> class Node_unary;
 
 /**
  * @brief Contains a collection of unary functions for pointwise version of the
@@ -33,25 +34,26 @@ template <typename T, class Kernel> struct UnaryKernels {
  *
  * Adds a generalized unary operation node to the computation graph `rec`.
  * Applies the unary operation specified by `kernels` to the input tensor node
- * `A_ptr`.
+ * `A`.
  *
  * @tparam T The data type of tensor elements.
  * @tparam Kernel The kernel providing forward operation and gradient.
  *
  * @param rec Reference to the computation graph.
- * @param A_ptr Pointer to the input node.
+ * @param A Handle of the input node.
  * @param kernels Unary operation and gradient kernels.
- * @return Pointer to the newly created unary operation node.
+ * @return Handle of the newly created unary operation node.
  */
 template <typename T, class Kernel>
-INode<T> *unOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
-                     const UnaryKernels<T, Kernel> kernels) {
-    Tensor<T> &A = A_ptr->value;
+Node_handle<T> unOperator(Computation_graph<T> &rec, Node_handle<T> A,
+                          const UnaryKernels<T, Kernel> kernels) {
+    INode<T> *A_ptr = rec.get_node(A);
+    Tensor<T> &A_val = A_ptr->value;
 
     rec.nodes.push_back(std::move(std::make_unique<Node_unary<T, Kernel>>(
-        kernels.op, kernels.grad, A_ptr, A.shape())));
+        kernels.op, kernels.grad, A_ptr, A_val.shape())));
 
-    return rec.nodes.back().get();
+    return rec.back_handle();
 }
 
 /**
@@ -60,14 +62,14 @@ INode<T> *unOperator(Computation_graph<T> &rec, INode<T> *A_ptr,
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
- * @return A pointer to the new node representing the negated tensor,
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the negated tensor,
  *         with the same shape as A.
  */
 template <typename T>
-INode<T> *negative(Computation_graph<T> &rec, INode<T> *A_ptr) {
+Node_handle<T> negative(Computation_graph<T> &rec, Node_handle<T> A) {
     static const UnaryKernels<T, class Kernels::Neg<T>> negK;
-    return unOperator(rec, A_ptr, negK);
+    return unOperator(rec, A, negK);
 }
 
 /**
@@ -76,14 +78,14 @@ INode<T> *negative(Computation_graph<T> &rec, INode<T> *A_ptr) {
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
- * @return A pointer to the new node representing the element-wise square of A,
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the element-wise square of A,
  *         with the same shape as the input tensor.
  */
 template <typename T>
-INode<T> *square(Computation_graph<T> &rec, INode<T> *A_ptr) {
+Node_handle<T> square(Computation_graph<T> &rec, Node_handle<T> A) {
     static const UnaryKernels<T, class Kernels::Square<T>> squareK;
-    return unOperator(rec, A_ptr, squareK);
+    return unOperator(rec, A, squareK);
 }
 
 /**
@@ -92,14 +94,14 @@ INode<T> *square(Computation_graph<T> &rec, INode<T> *A_ptr) {
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
- * @return A pointer to the new node representing the element-wise square root
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the element-wise square root
  * of A, with the same shape as the input tensor.
  */
 template <typename T>
-INode<T> *sqrt(Computation_graph<T> &rec, INode<T> *A_ptr) {
+Node_handle<T> sqrt(Computation_graph<T> &rec, Node_handle<T> A) {
     static const UnaryKernels<T, class Kernels::Sqrt<T>> sqrtK;
-    return unOperator(rec, A_ptr, sqrtK);
+    return unOperator(rec, A, sqrtK);
 }
 
 /**
@@ -108,14 +110,14 @@ INode<T> *sqrt(Computation_graph<T> &rec, INode<T> *A_ptr) {
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
- * @return A pointer to the new node representing the element-wise logarithm
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the element-wise logarithm
  * of A, with the same shape as the input tensor.
  */
 template <typename T>
-INode<T> *log(Computation_graph<T> &rec, INode<T> *A_ptr) {
+Node_handle<T> log(Computation_graph<T> &rec, Node_handle<T> A) {
     static const UnaryKernels<T, class Kernels::Log<T>> logK;
-    return unOperator(rec, A_ptr, logK);
+    return unOperator(rec, A, logK);
 }
 
 /**
@@ -124,14 +126,14 @@ INode<T> *log(Computation_graph<T> &rec, INode<T> *A_ptr) {
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
- * @return A pointer to the new node representing the element-wise exponent
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the element-wise exponent
  * of A, with the same shape as the input tensor.
  */
 template <typename T>
-INode<T> *exp(Computation_graph<T> &rec, INode<T> *A_ptr) {
+Node_handle<T> exp(Computation_graph<T> &rec, Node_handle<T> A) {
     static const UnaryKernels<T, class Kernels::Exp<T>> expK;
-    return unOperator(rec, A_ptr, expK);
+    return unOperator(rec, A, expK);
 }
 
 /**
@@ -140,14 +142,14 @@ INode<T> *exp(Computation_graph<T> &rec, INode<T> *A_ptr) {
  * @tparam T The data type of the tensor values.
  *
  * @param rec The computation graph to which the node will be added.
- * @param A_ptr Pointer to the input tensor node A.
- * @return A pointer to the new node representing the element-wise absolute
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the element-wise absolute
  * value of A, with the same shape as the input tensor.
  */
 template <typename T>
-INode<T> *abs(Computation_graph<T> &rec, INode<T> *A_ptr) {
+Node_handle<T> abs(Computation_graph<T> &rec, Node_handle<T> A) {
     static const UnaryKernels<T, class Kernels::Abs<T>> absK;
-    return unOperator(rec, A_ptr, absK);
+    return unOperator(rec, A, absK);
 }
 
 } // namespace kaad

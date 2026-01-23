@@ -5,8 +5,8 @@ using namespace kaad;
 using namespace std;
 using T = double;
 
-void call_all_operators(kaad::Computation_graph<T> &rec, kaad::INode<T> *a,
-                        kaad::INode<T> *b) {
+void call_all_operators(kaad::Computation_graph<T> &rec, kaad::Node_handle<T> a,
+                        kaad::Node_handle<T> b) {
     add(rec, a, b);
     dot(rec, a, b);
     matmul(rec, a, b);
