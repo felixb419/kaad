@@ -30,19 +30,15 @@ int main() {
 
     auto c = add(rec, a, b);
 
-    std::cout << "A:\n" << a.value() << std::endl;
-    std::cout << "B:\n" << b.value() << std::endl;
-
     rec.reset();
 
     auto e = rec.evaluate(c);
 
-    std::cout << "C:\n" << c.value() << std::endl;
-
     auto g = rec.getGradient(c, a, b);
 
-    std::cout << "dA\n" << *g[0] << std::endl;
-    std::cout << "dB\n" << *g[1] << std::endl;
+    std::cout << "A:\n" << a << std::endl;
+    std::cout << "B:\n" << b << std::endl;
+    std::cout << "C:\n" << c << std::endl;
 
     return 0;
 }

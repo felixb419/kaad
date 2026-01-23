@@ -21,21 +21,16 @@ int main() {
     auto ab = matmul(rec, a, b);
     auto c = matmul(rec, ab, d);
 
-    cout << "A:\n" << a.value() << endl;
-    cout << "B:\n" << b.value() << endl;
-    cout << "D:\n" << d.value() << endl;
-
     rec.reset();
 
     auto e = rec.evaluate(c);
 
-    cout << "C:\n" << c.value() << endl;
-
     auto g = rec.getGradient(c, a, b, d);
 
-    cout << "dA\n" << *g[0] << endl;
-    cout << "dB\n" << *g[1] << endl;
-    cout << "dD\n" << *g[2] << endl;
+    cout << "A:\n" << a << endl;
+    cout << "B:\n" << b << endl;
+    cout << "D:\n" << d << endl;
+    cout << "C:\n" << c << endl;
 
     return 0;
 }

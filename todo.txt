@@ -13,7 +13,6 @@ REFACTOR:
 
 
 FEAT:
-    make Node_handle operator<< 
     make Node and pointer access impossible
         make operators return const Pointers (maybe Node_ptr)
         make Node members private (and const from outside)

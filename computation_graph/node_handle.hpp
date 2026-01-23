@@ -1,6 +1,7 @@
 #pragma once
 
-#include <cstdint> // for uint32_t
+#include <cstdint>  // for uint32_t
+#include <iostream> // for std::ostream
 
 namespace kaad {
 template <typename T> class Tensor;
@@ -69,5 +70,15 @@ template <typename T> class Node_handle {
 
     friend constexpr auto operator<=>(Node_handle, Node_handle) = default;
 };
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, Node_handle<T> node) {
+    os << node.node_type() << " at idx " << node.idx()
+       << " of Computation_graph at " << node.origin() << "\n"
+       << "value:\n"
+       << node.get()->value << "\ngradient:\n"
+       << node.get()->gradient;
+    return os;
+}
 
 } // namespace kaad
