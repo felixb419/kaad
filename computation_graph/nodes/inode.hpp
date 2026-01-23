@@ -19,6 +19,8 @@ namespace kaad {
  */
 template <typename T> class INode {
   public:
+    virtual const char *node_type() const noexcept = 0;
+
     INode<T> *A =
         nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
 

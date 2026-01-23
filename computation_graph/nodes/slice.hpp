@@ -2,8 +2,8 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../dispatchers.hpp"                // for get_slice, get_slice_grad
 #include "../strides.hpp"                    // for Strides::slice
-#include "../dispatchers.hpp"                   // for get_slice, get_slice_grad
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -16,6 +16,8 @@ namespace kaad {
  */
 template <typename T> class Node_slice : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_slice"; }
+
     tensorfuncs::primal::unary::slice_fn<T> forward_op =
         tensorfuncs::primal::unary::slice;
     tensorfuncs::adjoint::unary::slice_fn<T> backward_op =

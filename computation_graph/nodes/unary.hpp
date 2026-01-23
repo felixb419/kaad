@@ -16,6 +16,8 @@ namespace kaad {
  */
 template <typename T, class Kernel> class Node_unary : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_unary"; }
+
     tensorfuncs::primal::unary::pointwise_fn<T, Kernel> forward_op =
         tensorfuncs::primal::unary::pointwise; ///< Function pointer to the
                                                ///< value operation.

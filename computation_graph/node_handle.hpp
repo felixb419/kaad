@@ -27,6 +27,10 @@ template <typename T> class Node_handle {
     friend class Computation_graph<T>;
 
   public:
+    constexpr const char *node_type() {
+        return this->origin_->get_node(*this)->node_type();
+    }
+
     /**
      * @brief Get the index.
      * @return Copy of the idx_ member.

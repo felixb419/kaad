@@ -2,8 +2,8 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../dispatchers.hpp"                // for get_flexOp, get_flexGrad
 #include "../strides.hpp"                    // for Strides::flexible_binary
-#include "../dispatchers.hpp"                   // for get_flexOp, get_flexGrad
 #include "inode.hpp"                         // for INode, Node_ptr
 #include <vector>                            // for std::vector
 
@@ -19,6 +19,8 @@ namespace kaad {
  */
 template <typename T, class Kernel> class Node_binary_flex : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_binary_flex"; }
+
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::flexible_fn<T, Kernel> forward_op =

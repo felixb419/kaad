@@ -2,9 +2,9 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../strides.hpp"                    // for Strides::mean_dim
 #include "../dispatchers.hpp" // for get_meanDim, get_meanDim_grad
-#include "inode.hpp"       // for INode
+#include "../strides.hpp"     // for Strides::mean_dim
+#include "inode.hpp"          // for INode
 
 namespace kaad {
 
@@ -16,6 +16,8 @@ namespace kaad {
  */
 template <typename T> class Node_mean_dim : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_mean_dim"; }
+
     tensorfuncs::primal::unary::mean_dim_fn<T> forward_op =
         tensorfuncs::primal::unary::mean_dim;
     tensorfuncs::adjoint::unary::mean_dim_fn<T> backward_op =

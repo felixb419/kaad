@@ -2,9 +2,9 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../strides.hpp"                    // for Strides::batch_matmul
 #include "../dispatchers.hpp" // for get_batch_matmul, get_batch_matmul_grad
-#include "inode.hpp"       // for INode
+#include "../strides.hpp"     // for Strides::batch_matmul
+#include "inode.hpp"          // for INode
 
 namespace kaad {
 
@@ -18,6 +18,8 @@ namespace kaad {
  */
 template <typename T> class Node_batch_matmul : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_batch_matmul"; }
+
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::batch_matmul_fn<T> forward_op =

@@ -16,6 +16,8 @@ namespace kaad {
  */
 template <typename T, class Kernel> class Node_binary : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_binary"; }
+
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::pointwise_fn<T, Kernel> forward_op =

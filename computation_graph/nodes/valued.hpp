@@ -11,6 +11,8 @@ namespace kaad {
  */
 template <typename T> class Node_valued : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_valued"; }
+
     /**
      * @brief Constructs a leaf node holding a constant value.
      * @param tensor The tensor value to store.

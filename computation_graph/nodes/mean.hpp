@@ -14,6 +14,8 @@ namespace kaad {
  */
 template <typename T> class Node_mean : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_mean"; }
+
     tensorfuncs::primal::unary::mean_fn<T> forward_op =
         tensorfuncs::primal::unary::mean;
     tensorfuncs::adjoint::unary::mean_fn<T> backward_op =

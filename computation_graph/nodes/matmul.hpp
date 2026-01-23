@@ -15,6 +15,8 @@ namespace kaad {
  */
 template <typename T> class Node_matmul : public INode<T> {
   public:
+    const char *node_type() const noexcept override { return "Node_matmul"; }
+
     INode<T> *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::matmul_fn<T> forward_op =
