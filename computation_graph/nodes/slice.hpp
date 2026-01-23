@@ -3,7 +3,7 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../strides.hpp"                    // for Strides::slice
-#include "dispatchers.hpp"                   // for get_slice, get_slice_grad
+#include "../dispatchers.hpp"                   // for get_slice, get_slice_grad
 #include "inode.hpp"                         // for INode
 
 namespace kaad {

@@ -3,7 +3,7 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../strides.hpp"                    // for Strides::batch_matmul
-#include "dispatchers.hpp" // for get_batch_matmul, get_batch_matmul_grad
+#include "../dispatchers.hpp" // for get_batch_matmul, get_batch_matmul_grad
 #include "inode.hpp"       // for INode
 
 namespace kaad {

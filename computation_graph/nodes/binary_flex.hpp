@@ -3,7 +3,7 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../strides.hpp"                    // for Strides::flexible_binary
-#include "dispatchers.hpp"                   // for get_flexOp, get_flexGrad
+#include "../dispatchers.hpp"                   // for get_flexOp, get_flexGrad
 #include "inode.hpp"                         // for INode, Node_ptr
 #include <vector>                            // for std::vector
 
