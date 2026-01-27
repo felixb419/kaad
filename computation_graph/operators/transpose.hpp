@@ -73,12 +73,11 @@ Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
         }
         for (int *p = count; p != count + A_val.nDims(); p++) {
             if (*p != 1) {
-                // change to print perm instead of A_val.shape
                 throw argument_error(
                     recLen, "transpose",
                     "perm has to contain index of every dimension "
                     "exactly once",
-                    {{"A.shape", A_val.shape()}});
+                    {{"perm", perm}});
             }
         }
     }
