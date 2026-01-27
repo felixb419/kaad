@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../tensor/tensor.hpp" // for Tensor, Tensor_view
-#include "../utils.hpp"         // for transp2D, combine_matrix
+#include "../utils.hpp"         // for combine_matrix
+#include <algorithm>            // for std::reverse_copy, std::swap
 #include <cstddef>              // for size_t
 
 namespace kaad {
@@ -117,14 +118,18 @@ template <typename T> void matmul(Node_matmul<T> &node) {
 
     int A_T_shape[2];
     int A_T_stride[2];
-    transp2D(A.shape, A.stride, A.nDims, A_T_shape, A_T_stride);
+    std::reverse_copy(A.shape, A.shape + A.nDims, A_T_shape);
+    std::reverse_copy(A.stride, A.stride + A.nDims, A_T_stride);
+
     Tensor_view<T> A_T = A;
     A_T.shape = A_T_shape;
     A_T.stride = A_T_stride;
 
     int B_T_shape[2];
     int B_T_stride[2];
-    transp2D(B.shape, B.stride, B.nDims, B_T_shape, B_T_stride);
+    std::reverse_copy(B.shape, B.shape + B.nDims, B_T_shape);
+    std::reverse_copy(B.stride, B.stride + B.nDims, B_T_stride);
+
     Tensor_view<T> B_T = B;
     B_T.shape = B_T_shape;
     B_T.stride = B_T_stride;
@@ -201,14 +206,24 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
 
     std::vector<int> a_T_shape(A.nDims);
     std::vector<int> a_T_stride(A.nDims);
-    transp2D(A.shape, A.stride, A.nDims, a_T_shape.data(), a_T_stride.data());
+
+    std::copy(A.shape, A.shape + A.nDims, a_T_shape.data());
+    std::swap(a_T_shape[A.nDims - 1], a_T_shape[A.nDims - 2]);
+    std::copy(A.stride, A.stride + A.nDims, a_T_stride.data());
+    std::swap(a_T_stride[A.nDims - 1], a_T_stride[A.nDims - 2]);
+
     Tensor_view<T> a_T = A;
     a_T.shape = a_T_shape.data();
     a_T.stride = a_T_stride.data();
 
     std::vector<int> b_T_shape(B.nDims);
     std::vector<int> b_T_stride(B.nDims);
-    transp2D(B.shape, B.stride, B.nDims, b_T_shape.data(), b_T_stride.data());
+
+    std::copy(B.shape, B.shape + B.nDims, b_T_shape.data());
+    std::swap(b_T_shape[B.nDims - 1], b_T_shape[B.nDims - 2]);
+    std::copy(B.stride, B.stride + B.nDims, b_T_stride.data());
+    std::swap(b_T_stride[B.nDims - 1], b_T_stride[B.nDims - 2]);
+
     Tensor_view<T> b_T = B;
     b_T.shape = b_T_shape.data();
     b_T.stride = b_T_stride.data();

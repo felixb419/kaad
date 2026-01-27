@@ -159,42 +159,4 @@ bool combine_matrix(const int *shape1, size_t nDims1, const int *shape2,
     return true;
 }
 
-/**
- * @brief In-place transpose of a 2D tensor (last two dimensions are swapped).
- *
- * @param shape Tensor shape array.
- * @param stride Tensor stride array.
- * @param len Total number of dimensions.
- */
-void transp2D(int *shape, int *stride, size_t len) {
-    int temp;
-    temp = shape[len - 2];
-    shape[len - 2] = shape[len - 1];
-    shape[len - 1] = temp;
-
-    temp = stride[len - 2];
-    stride[len - 2] = stride[len - 1];
-    stride[len - 1] = temp;
-}
-
-/**
- * @brief Transposes the last two dimensions of a 2D tensor into separate
- * arrays.
- *
- * @param shape Original shape.
- * @param stride Original stride.
- * @param len Number of dimensions.
- * @param shape_T Output transposed shape.
- * @param stride_T Output transposed stride.
- */
-void transp2D(const int *shape, const int *stride, size_t len, int *shape_T,
-              int *stride_T) {
-    std::copy(shape, shape + len - 2, shape_T);
-    shape_T[len - 2] = shape[len - 1];
-    shape_T[len - 1] = shape[len - 2];
-
-    std::copy(stride, stride + len - 2, stride_T);
-    stride_T[len - 2] = stride[len - 1];
-    stride_T[len - 1] = stride[len - 2];
-}
 } // namespace kaad
