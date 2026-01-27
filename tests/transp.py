@@ -13,6 +13,7 @@ with tf.GradientTape() as tape:
 
     c = tf.transpose(a)
 
-g = tape.gradient(c, a)
+g = tape.gradient(c, [a, c])
 
-print_grad("A", a, g)
+print_grad("A", a, g[0])
+print_grad("C", c, g[1])

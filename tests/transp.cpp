@@ -2,21 +2,15 @@
 #include <algorithm>
 #include <numeric>
 
-using namespace kaad;
-using namespace std;
-using T = double;
-
 int main() {
-    system("clear");
-    Computation_graph<T> rec;
+    kaad::Computation_graph<float> rec;
 
-    std::vector<int> a_shape = {3, 5, 2};
-    std::vector<int> a_elements(30);
+    std::vector<float> a_elements(30);
     std::iota(a_elements.begin(), a_elements.end(), 0);
 
-    auto a = rec.append(a_shape, a_elements);
+    kaad::Node_handle a = rec.append(std::vector<int>{3, 5, 2}, a_elements);
 
-    auto c = transpose(rec, a);
+    kaad::Node_handle c = transpose(rec, a);
 
     rec.reset();
 
@@ -24,8 +18,8 @@ int main() {
 
     auto g = rec.getGradient(c, a);
 
-    cout << "A:\n" << a << endl;
-    cout << "C:\n" << c << endl;
+    std::cout << "A:\n" << a << std::endl;
+    std::cout << "C:\n" << c << std::endl;
 
     return 0;
 }

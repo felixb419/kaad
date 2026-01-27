@@ -1,12 +1,9 @@
 #include "../kaad.hpp"
 #include <iostream>
 
-using namespace kaad;
-using namespace std;
-using T = double;
-
-void call_all_operators(kaad::Computation_graph<T> &rec, kaad::Node_handle<T> a,
-                        kaad::Node_handle<T> b) {
+void call_all_operators(kaad::Computation_graph<float> &rec,
+                        kaad::Node_handle<float> a,
+                        kaad::Node_handle<float> b) {
     add(rec, a, b);
     dot(rec, a, b);
     matmul(rec, a, b);
@@ -22,17 +19,11 @@ void call_all_operators(kaad::Computation_graph<T> &rec, kaad::Node_handle<T> a,
 }
 
 int main() {
-    system("clear");
-    Computation_graph<T> rec;
+    kaad::Computation_graph<float> rec;
 
-    std::vector<int> a_shape = {8, 8};
-    auto a = rec.append(a_shape, 10);
-
-    std::vector<int> b_shape = {4, 5};
-    auto b = rec.append(b_shape, 50);
-
-    std::vector<int> d_shape = {4, 5};
-    auto d = rec.append(d_shape, 20);
+    kaad::Node_handle a = rec.append(std::vector<int>{8, 8}, 10);
+    kaad::Node_handle b = rec.append(std::vector<int>{4, 5}, 50);
+    kaad::Node_handle d = rec.append(std::vector<int>{4, 5}, 20);
 
     call_all_operators(rec, a, b);
 
