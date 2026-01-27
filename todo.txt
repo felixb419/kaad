@@ -1,7 +1,7 @@
 [ TODO ]
 
 FIX:
-    error in constructor with elements
+    error transpose operator
 
 REFACTOR:
     check tensor shape before construction
