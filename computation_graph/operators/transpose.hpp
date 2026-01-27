@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../tensor/tensor.hpp" // for Tensor
-#include "../../utils.hpp"         // for print_arr
 #include "exceptions.hpp"          // for shape_error, argument_error
+#include <algorithm>               // for std::reverse_copy
 #include <initializer_list>        // for std::initializer_list
 #include <memory>                  // for std::make_unique
 
@@ -46,11 +46,12 @@ Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
     std::vector<int> shape_T(A_val.nDims());
     std::vector<int> stride_T(A_val.nDims());
     if (perm.size() == 0) {
-        std::copy(A_val.shape_begin(), A_val.shape_end(), shape_T.begin());
-        std::copy(A_val.stride_begin(), A_val.stride_end(), stride_T.begin());
 
-        transp(A_val.shape_begin(), A_val.stride_begin(), A_val.nDims(),
-               shape_T.data(), stride_T.data());
+        std::reverse_copy(A_val.shape_begin(), A_val.shape_end(),
+                          shape_T.data());
+        std::reverse_copy(A_val.stride_begin(), A_val.stride_end(),
+                          stride_T.data());
+
     } else {
         if (perm.size() != A_val.nDims()) {
             throw argument_error(recLen, "transpose",
