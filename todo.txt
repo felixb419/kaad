@@ -1,7 +1,6 @@
 [ TODO ]
 
 FIX:
-    test flexible add
     error in constructor with elements
 
 REFACTOR:
@@ -15,6 +14,7 @@ REFACTOR:
     remove tensor_view from strides
     get rid of c_shape member in Node_batch_matmul
     make sure perm assumes correct dimensions if not given (and add comment)
+    maybe remove scalar constructor for clarity
 
 
 FEAT:
