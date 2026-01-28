@@ -1,16 +1,14 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp"       // for Tensor
-#include "../../tensorfuncs/kernels.hpp" // for Kernels
-#include "../strides.hpp"                // for outer
-#include <memory>                        // for std::make_unique
+#include "../../tensor/tensor.hpp" // for Tensor
+#include "../nodes/outer.hpp"      // for Node_outer
+#include <memory>                  // for std::make_unique
 
 namespace kaad {
 
 template <typename T> class Computation_graph;
 template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T, class Kernel> class Node_binary_flex;
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
@@ -49,12 +47,9 @@ Node_handle<T> outer(Computation_graph<T> &rec, Node_handle<T> A,
     std::copy(B_val.shape_begin(), B_val.shape_end(),
               newShape.begin() + A_val.nDims());
 
-    using Kernel = typename Kernels::Mul<T>;
-
-    rec.nodes.push_back(std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
-        A_ptr, B_ptr, newShape, newLen)));
-    Strides::outer<T>(*static_cast<Node_binary_flex<T, Kernel> *>(
-        rec.nodes.back().get())); // override strides from constructor
+    Node_outer<T> n(A_ptr, B_ptr, 100);
+    // rec.nodes.push_back(std::move(
+    //     std::make_unique<Node_outer<T>>(A_ptr, B_ptr, newShape, newLen)));
 
     return rec.back_handle();
 }

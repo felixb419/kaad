@@ -10,6 +10,7 @@ namespace kaad {
 template <typename T, class Kernel> class Node_binary_flex;
 template <typename T> class Node_batch_matmul;
 template <typename T> class Node_matmul;
+template <typename T> class Node_outer;
 template <typename T> class Node_mean_dim;
 template <typename T> class Node_sum_dim;
 template <typename T> class Node_slice;
@@ -250,8 +251,7 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
  * @param node     Binary flex node storing output tensor C and shape/stride
  * metadata.
  */
-template <typename T, class Kernel>
-void outer(Node_binary_flex<T, Kernel> &node) {
+template <typename T> void outer(Node_outer<T> &node) {
     Tensor_view A = node.A->value.view();
     Tensor_view B = node.B->value.view();
     Tensor_view C = node.value.view();

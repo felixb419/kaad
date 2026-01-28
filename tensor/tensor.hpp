@@ -289,6 +289,7 @@ class Tensor {
     template <typename U, class Kernel> friend class Node_binary_flex;
     template <typename U> friend class Node_matmul;
     template <typename U> friend class Node_batch_matmul;
+    template <typename U> friend class Node_outer;
 
     template <typename U, class Kernel> friend class Node_unary;
     template <typename U> friend class Node_slice;
