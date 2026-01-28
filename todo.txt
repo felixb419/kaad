@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    get rid of utils.hpp
     make sure what goes into detail
     figure out what should be constexpr
     improve naming in getGradient
