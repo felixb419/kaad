@@ -3,8 +3,6 @@
 FIX:
 
 REFACTOR:
-    check tensor shape before construction
-    make sure tensor shape 0 can be printed
     get rid of utils.hpp
     make sure what goes into detail
     figure out what should be constexpr
@@ -13,7 +11,7 @@ REFACTOR:
     remove tensor_view from strides
     get rid of c_shape member in Node_batch_matmul
     make sure perm assumes correct dimensions if not given (and add comment)
-    maybe remove scalar constructor for clarity
+    (?) change Tensor constructors to factory functions
 
 
 FEAT:

@@ -142,7 +142,7 @@ template <typename T> class Tensor {
         detail::compute_stride(this->stride_, len, this->shape_);
 
         this->elements_.resize(len);
-        std::fill(this->elements_.begin(), this->end(), fill);
+        std::fill(this->elements_.begin(), this->elements_.end(), fill);
     }
 
     Tensor(T scalar) : shape_(1), stride_(1), elements_(1) {
@@ -283,15 +283,12 @@ template <typename T> class Tensor {
 
     /**
      * @brief Stream output operator.
-     *
-     * Prints the tensor in a readable format.
-     *
      * @param stream Output stream.
      * @param tensor The tensor to print.
      * @return Reference to the output stream.
      */
     friend std::ostream &operator<<(std::ostream &os, const Tensor<T> &tensor) {
-        if (tensor.nDims() == 0) {
+        if (tensor.nDims() == 0 || tensor.size() == 0) {
             os << "[]";
         } else {
             std::vector<int> cords(tensor.nDims());
