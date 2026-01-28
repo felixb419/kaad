@@ -47,9 +47,8 @@ Node_handle<T> outer(Computation_graph<T> &rec, Node_handle<T> A,
     std::copy(B_val.shape_begin(), B_val.shape_end(),
               newShape.begin() + A_val.nDims());
 
-    Node_outer<T> n(A_ptr, B_ptr, 100);
-    // rec.nodes.push_back(std::move(
-    //     std::make_unique<Node_outer<T>>(A_ptr, B_ptr, newShape, newLen)));
+    rec.nodes.push_back(
+        std::move(std::make_unique<Node_outer<T>>(A_ptr, B_ptr, newShape)));
 
     return rec.back_handle();
 }

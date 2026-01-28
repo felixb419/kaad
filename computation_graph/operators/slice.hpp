@@ -81,8 +81,8 @@ Node_handle<T> slice(Computation_graph<T> &rec, Node_handle<T> A,
     std::vector<int> newShape(newLen);
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 
-    rec.nodes.push_back(std::move(std::make_unique<Node_slice<T>>(
-        A_ptr, offset_owned.data(), newShape, newLen)));
+    rec.nodes.push_back(std::move(
+        std::make_unique<Node_slice<T>>(A_ptr, offset_owned.data(), newShape)));
     return rec.back_handle();
 }
 

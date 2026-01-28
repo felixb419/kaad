@@ -13,7 +13,6 @@ REFACTOR:
     (?) change Tensor constructors to factory functions
     disallow iteration semantics and maybe make begin and end private
     (?) remove shape_end and shape_begin
-    make sure Tensor constructor with fill isnt used accidentally
     comment node_type funciton
 
 
