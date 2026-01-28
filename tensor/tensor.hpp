@@ -56,26 +56,28 @@ concept ValueRange = std::ranges::input_range<R> &&
  * @tparam T The type of the values stored in the tensor.
  */
 template <typename T> class Tensor {
+  public:
+    using value_type = T;
+    using reference = value_type &;
+    using const_reference = const value_type &;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+
+    using iterator = value_type *;
+    using const_iterator = const value_type *;
+    using difference_type = std::ptrdiff_t;
+    using size_type = std::size_t;
+
   private:
     std::vector<int>
         shape_; ///< Vector containing the size of the tensor in each dimension.
     std::vector<int>
         stride_; ///< Vector containing the stride of the tensor (steps needed
                  ///< to move one element in each dimension).
-    std::vector<T> elements_; ///< Vector containing the elements of the Tensor.
+    std::vector<value_type>
+        elements_; ///< Vector containing the elements of the Tensor.
 
   public:
-    using value_type = T;
-    using reference = T &;
-    using const_reference = const T &;
-    using pointer = T *;
-    using const_pointer = const T *;
-
-    using iterator = T *;
-    using const_iterator = const T *;
-    using difference_type = std::ptrdiff_t;
-    using size_type = std::size_t;
-
     /// @brief Default constructor.
     Tensor() {}
 
@@ -85,7 +87,7 @@ template <typename T> class Tensor {
      * @param shape Array with the values of the tensor.
      */
     template <IntegralRange IR, typename VR>
-        requires ValueRange<VR, T>
+        requires ValueRange<VR, value_type>
     explicit Tensor(IR shape, VR elements)
         : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
           elements_(std::ranges::begin(elements), std::ranges::end(elements)) {
@@ -104,7 +106,7 @@ template <typename T> class Tensor {
      * @param fill Value to fill the tensor with.
      */
     template <IntegralRange IR>
-    Tensor(IR shape, IR stride, T fill = 0)
+    Tensor(IR shape, IR stride, value_type fill = 0)
         : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
           stride_(std::ranges::begin(stride), std::ranges::end(stride)) {
         int len = 1;
@@ -122,7 +124,7 @@ template <typename T> class Tensor {
      * @param fill Value to fill the tensor with.
      */
     template <IntegralRange IR>
-    Tensor(IR shape, T fill = 0)
+    Tensor(IR shape, value_type fill = 0)
         : shape_(std::ranges::begin(shape), std::ranges::end(shape)) {
         int len;
         detail::compute_stride(this->stride_, len, this->shape_);
@@ -136,7 +138,7 @@ template <typename T> class Tensor {
      * @param shape Initializer list with the shape of the tensor.
      * @param fill Value to fill the tensor with.
      */
-    Tensor(std::initializer_list<int> shape, T fill = 0)
+    Tensor(std::initializer_list<int> shape, value_type fill = 0)
         : shape_(shape.begin(), shape.end()) {
         int len;
         detail::compute_stride(this->stride_, len, this->shape_);
@@ -145,7 +147,7 @@ template <typename T> class Tensor {
         std::fill(this->elements_.begin(), this->elements_.end(), fill);
     }
 
-    Tensor(T scalar) : shape_(1), stride_(1), elements_(1) {
+    Tensor(value_type scalar) : shape_(1), stride_(1), elements_(1) {
         this->shape_[0] = 1;
         this->stride_[0] = 0;
         this->elements_[0] = scalar;
@@ -266,9 +268,9 @@ template <typename T> class Tensor {
      * @return A Tensor_view<T> structure representing a non-owning immutable
      * view of the tensor.
      */
-    struct Tensor_view<T> view() const {
-        return Tensor_view<T>(this->shape_.data(), this->stride_.data(),
-                              this->nDims(), this->data(), this->size());
+    struct Tensor_view<value_type> view() const {
+        return Tensor_view(this->shape_.data(), this->stride_.data(),
+                           this->nDims(), this->data(), this->size());
     }
 
     /**
@@ -276,9 +278,9 @@ template <typename T> class Tensor {
      * @return A Tensor_view<T> structure representing a non-owning mutable
      * view of the tensor.
      */
-    struct Tensor_view<T> view_mut() {
-        return Tensor_view_mut<T>(this->shape_.data(), this->stride_.data(),
-                                  this->nDims(), this->data(), this->size());
+    struct Tensor_view view_mut() {
+        return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
+                               this->nDims(), this->data(), this->size());
     }
 
     /**
@@ -287,7 +289,7 @@ template <typename T> class Tensor {
      * @param tensor The tensor to print.
      * @return Reference to the output stream.
      */
-    friend std::ostream &operator<<(std::ostream &os, const Tensor<T> &tensor) {
+    friend std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
         if (tensor.nDims() == 0 || tensor.size() == 0) {
             os << "[]";
         } else {

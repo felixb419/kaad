@@ -12,11 +12,22 @@ namespace kaad {
  * @tparam T The data type stored in the tensor.
  */
 template <typename T> struct Tensor_view {
+    using value_type = T;
+    using reference = value_type &;
+    using const_reference = const value_type &;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+
+    using iterator = value_type *;
+    using const_iterator = const value_type *;
+    using difference_type = std::ptrdiff_t;
+    using size_type = std::size_t;
+
     const int *shape = nullptr;  ///< Pointer to the shape array.
     const int *stride = nullptr; ///< Pointer to the stride array.
-    std::size_t nDims = 0;       ///< Length of the shape and stride arrays.
-    const T *elements = nullptr; ///< Pointer to the value array.
-    std::size_t len = 0;         ///< Length of the value array.
+    size_type nDims = 0;         ///< Length of the shape and stride arrays.
+    const value_type *elements = nullptr; ///< Pointer to the value array.
+    size_type len = 0;                    ///< Length of the value array.
 
     /**
      * @brief Default constructor.
@@ -31,8 +42,8 @@ template <typename T> struct Tensor_view {
      * @param elements Pointer to the value array.
      * @param len Length of the value array.
      */
-    Tensor_view(const int *shape, const int *stride, std::size_t nDims,
-                const T *elements, std::size_t len)
+    Tensor_view(const int *shape, const int *stride, size_type nDims,
+                const value_type *elements, size_type len)
         : shape(shape), stride(stride), nDims(nDims), elements(elements),
           len(len) {}
 
@@ -44,7 +55,7 @@ template <typename T> struct Tensor_view {
      * @return std::ostream& The updated output stream.
      */
     friend std::ostream &operator<<(std::ostream &stream,
-                                    const Tensor_view<T> &view) {
+                                    const Tensor_view<value_type> &view) {
         if (view.nDims == 0) {
             std::cout << "[]";
         } else {
@@ -63,11 +74,22 @@ template <typename T> struct Tensor_view {
  * @tparam T The data type stored in the tensor.
  */
 template <typename T> struct Tensor_view_mut {
-    const int *shape = nullptr;  ///< Pointer to the shape array.
-    const int *stride = nullptr; ///< Pointer to the stride array.
-    std::size_t nDims = 0;       ///< Length of the shape and stride arrays.
-    T *elements = nullptr;       ///< Pointer to the value array.
-    std::size_t len = 0;         ///< Length of the value array.
+    using value_type = T;
+    using reference = value_type &;
+    using const_reference = const value_type &;
+    using pointer = value_type *;
+    using const_pointer = const value_type *;
+
+    using iterator = value_type *;
+    using const_iterator = const value_type *;
+    using difference_type = std::ptrdiff_t;
+    using size_type = std::size_t;
+
+    const int *shape = nullptr;     ///< Pointer to the shape array.
+    const int *stride = nullptr;    ///< Pointer to the stride array.
+    size_type nDims = 0;            ///< Length of the shape and stride arrays.
+    value_type *elements = nullptr; ///< Pointer to the value array.
+    size_type len = 0;              ///< Length of the value array.
 
     /**
      * @brief Default constructor.
@@ -82,8 +104,8 @@ template <typename T> struct Tensor_view_mut {
      * @param elements Pointer to the value array.
      * @param len Length of the value array.
      */
-    Tensor_view_mut(const int *shape, const int *stride, std::size_t nDims,
-                    T *elements, std::size_t len)
+    Tensor_view_mut(const int *shape, const int *stride, size_type nDims,
+                    value_type *elements, size_type len)
         : shape(shape), stride(stride), nDims(nDims), elements(elements),
           len(len) {}
 
@@ -91,9 +113,9 @@ template <typename T> struct Tensor_view_mut {
      * @brief Get an immutable view of the Tensor.
      * @return Immutable view (Tensor_view).
      */
-    Tensor_view<T> make_immutable() {
-        return Tensor_view<T>(this->shape, this->stride, this->nDims,
-                              this->elements, this->len);
+    Tensor_view<value_type> make_immutable() {
+        return Tensor_view<value_type>(this->shape, this->stride, this->nDims,
+                                       this->elements, this->len);
     }
 
     /**
@@ -103,7 +125,7 @@ template <typename T> struct Tensor_view_mut {
      * @return std::ostream& The updated output stream.
      */
     friend std::ostream &operator<<(std::ostream &stream,
-                                    const Tensor_view_mut<T> &view) {
+                                    const Tensor_view_mut<value_type> &view) {
         if (view.nDims == 0) {
             std::cout << "[]";
         } else {
