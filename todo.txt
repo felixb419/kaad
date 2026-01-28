@@ -1,7 +1,6 @@
 [ TODO ]
 
 FIX:
-    error transpose operator
 
 REFACTOR:
     check tensor shape before construction

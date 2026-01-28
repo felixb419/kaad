@@ -75,15 +75,14 @@ Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
             if (*p != 1) {
                 throw argument_error(
                     recLen, "transpose",
-                    "perm has to contain index of every dimension "
-                    "exactly once",
+                    "perm has to contain index of every dimension exactly once",
                     {{"perm", perm}});
             }
         }
     }
 
-    rec.nodes.push_back(std::move(std::make_unique<Node_transp<T>>(
-        A_ptr, shape_T, stride_T, A_val.nDims())));
+    rec.nodes.push_back(
+        std::move(std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T)));
 
     return rec.back_handle();
 }
