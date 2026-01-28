@@ -58,14 +58,14 @@ template <typename T> class Computation_graph {
      * @brief Constructs a Node valued with the given tensor arguments and
      * appends it to the node list.
      *
-     * Creates a Tensor<T> using the forwarded constructor arguments, wraps it
+     * Creates a Tensor using the forwarded constructor arguments, wraps it
      * in a Node_valued<T>, and stores the node as a std::unique_ptr in the
      * `nodes` container.
      *
      * @tparam Args Variadic template parameter pack for tensor constructor
      * arguments.
      *
-     * @param tensor_args Arguments forwarded to the Tensor<T> constructor.
+     * @param tensor_args Arguments forwarded to the Tensor constructor.
      * @return A handle of the newly created Node_valued<T>.
      */
     template <typename... Args> Node_handle<T> append(Args &&...tensor_args) {
@@ -80,22 +80,22 @@ template <typename T> class Computation_graph {
      *
      * Accepts a variadic list of node handles, evaluates each one by calling
      * its `eval()` method, and returns a std::array of pointers to their
-     * resulting Tensor<T> values in the same order.
+     * resulting Tensor values in the same order.
      *
      * @tparam Node_handles Variadic template parameter pack of Node_handle
      * types.
      *
      * @param nodes A list of handles of nodes to be evaluated.
-     * @return An array of Tensor<T>* pointers, each corresponding to the value
+     * @return An array of Tensor* pointers, each corresponding to the value
      * of the evaluated node.
      */
     template <typename... Node_handles>
         requires(std::same_as<Node_handles, Node_handle<T>> && ...)
-    std::array<Tensor<T> *, sizeof...(Node_handles)>
+    std::array<Tensor *, sizeof...(Node_handles)>
     evaluate(Node_handles... nodes) {
 
         Node_handle<T> node_arr[] = {nodes...};
-        std::array<Tensor<T> *, sizeof...(nodes)> values;
+        std::array<Tensor *, sizeof...(nodes)> values;
 
         for (int i = 0; i < sizeof...(nodes); i++) {
             INode<T> *node_ptr = this->get_node(node_arr[i]);
@@ -120,13 +120,13 @@ template <typename T> class Computation_graph {
      * to which gradients are computed.
      * @param dx A list of input node handles for which the gradients are
      * requested.
-     * @return An array of Tensor<T>* pointers representing the gradients ∂f/∂xᵢ
+     * @return An array of Tensor* pointers representing the gradients ∂f/∂xᵢ
      * for each input node.
      */
     template <typename... Handles>
         requires(std::same_as<Handles, Node_handle<T>> && ...)
-    std::array<Tensor<T> *, sizeof...(Handles)> getGradient(Node_handle<T> df,
-                                                            Handles... dx) {
+    std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle<T> df,
+                                                         Handles... dx) {
         INode<T> *f = this->get_node(df);
         std::fill(f->gradient.elements_.begin(), f->gradient.elements_.end(),
                   1.0);
@@ -134,7 +134,7 @@ template <typename T> class Computation_graph {
         f->getGrad();
 
         std::array<Node_handle<T>, sizeof...(dx)> nodes = {dx...};
-        std::array<Tensor<T> *, sizeof...(dx)> partials = {};
+        std::array<Tensor *, sizeof...(dx)> partials = {};
         for (size_t i = 0; i < sizeof...(dx); i++) {
             partials[i] = &this->get_node(nodes[i])->gradient;
         }

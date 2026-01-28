@@ -40,8 +40,8 @@ Node_handle<T> matmul(Computation_graph<T> &rec, Node_handle<T> A,
 
     INode<T> *A_ptr = rec.get_node(A);
     INode<T> *B_ptr = rec.get_node(B);
-    Tensor<T> &A_val = A_ptr->value;
-    Tensor<T> &B_val = B_ptr->value;
+    Tensor &A_val = A_ptr->value;
+    Tensor &B_val = B_ptr->value;
 
     size_t newLen = std::max(A_val.nDims(), B_val.nDims());
     std::vector<int> newShape(newLen);

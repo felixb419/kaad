@@ -11,6 +11,8 @@ REFACTOR:
     get rid of c_shape member in Node_batch_matmul
     make sure perm assumes correct dimensions if not given (and add comment)
     (?) change Tensor constructors to factory functions
+    disallow iteration semantics and maybe make begin and end private
+    (?) remove shape_end and shape_begin
 
 
 FEAT:

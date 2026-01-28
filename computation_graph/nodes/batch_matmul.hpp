@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../scalar.hpp"                  // for Scalar
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../dispatchers.hpp" // for get_batch_matmul, get_batch_matmul_grad

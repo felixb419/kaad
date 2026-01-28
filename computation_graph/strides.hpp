@@ -32,9 +32,9 @@ namespace Strides {
  */
 template <typename T, class Kernel>
 void flexible_binary(Node_binary_flex<T, Kernel> &node) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> B = node.B->value.view();
-    Tensor_view<T> C = node.value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view B = node.B->value.view();
+    Tensor_view C = node.value.view();
 
     node.C_nDims = C.nDims;
     node.strideA.resize(node.C_nDims);
@@ -77,9 +77,9 @@ void flexible_binary(Node_binary_flex<T, Kernel> &node) {
  * @param strideC   Output stride array for C, modified for efficient traversal.
  */
 template <typename T>
-void matmul_impl(const Tensor_view<T> A, const Tensor_view<T> B,
-                 const Tensor_view<T> C, int &a_dim, int &b_dim, int &k,
-                 int *strideA, int *strideB, int *strideC) {
+void matmul_impl(const Tensor_view A, const Tensor_view B, const Tensor_view C,
+                 int &a_dim, int &b_dim, int &k, int *strideA, int *strideB,
+                 int *strideC) {
     a_dim = A.shape[0];
     b_dim = B.shape[1];
     k = A.shape[1];
@@ -112,16 +112,16 @@ void matmul_impl(const Tensor_view<T> A, const Tensor_view<T> B,
  * stored.
  */
 template <typename T> void matmul(Node_matmul<T> &node) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> B = node.B->value.view();
-    Tensor_view<T> C = node.value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view B = node.B->value.view();
+    Tensor_view C = node.value.view();
 
     int A_T_shape[2];
     int A_T_stride[2];
     std::reverse_copy(A.shape, A.shape + A.nDims, A_T_shape);
     std::reverse_copy(A.stride, A.stride + A.nDims, A_T_stride);
 
-    Tensor_view<T> A_T = A;
+    Tensor_view A_T = A;
     A_T.shape = A_T_shape;
     A_T.stride = A_T_stride;
 
@@ -130,16 +130,18 @@ template <typename T> void matmul(Node_matmul<T> &node) {
     std::reverse_copy(B.shape, B.shape + B.nDims, B_T_shape);
     std::reverse_copy(B.stride, B.stride + B.nDims, B_T_stride);
 
-    Tensor_view<T> B_T = B;
+    Tensor_view B_T = B;
     B_T.shape = B_T_shape;
     B_T.stride = B_T_stride;
 
-    matmul_impl(A, B, C, node.a_rows[0], node.b_cols[0], node.shared_dim[0],
-                node.strideA, node.strideB, node.strideC);
-    matmul_impl(C, B_T, A, node.a_rows[1], node.b_cols[1], node.shared_dim[1],
-                node.strideC + 2, node.strideB + 2, node.strideA + 2);
-    matmul_impl(A_T, C, B, node.a_rows[2], node.b_cols[2], node.shared_dim[2],
-                node.strideA + 4, node.strideC + 4, node.strideB + 4);
+    matmul_impl<T>(A, B, C, node.a_rows[0], node.b_cols[0], node.shared_dim[0],
+                   node.strideA, node.strideB, node.strideC);
+    matmul_impl<T>(C, B_T, A, node.a_rows[1], node.b_cols[1],
+                   node.shared_dim[1], node.strideC + 2, node.strideB + 2,
+                   node.strideA + 2);
+    matmul_impl<T>(A_T, C, B, node.a_rows[2], node.b_cols[2],
+                   node.shared_dim[2], node.strideA + 4, node.strideC + 4,
+                   node.strideB + 4);
 }
 
 /**
@@ -159,7 +161,7 @@ template <typename T> void matmul(Node_matmul<T> &node) {
  * @param D        Output number of dimensions in broadcasted result.
  */
 template <typename T>
-void batch_matmul_impl(Tensor_view<T> &A, Tensor_view<T> &B, Tensor_view<T> &C,
+void batch_matmul_impl(Tensor_view &A, Tensor_view &B, Tensor_view &C,
                        int *&strideA, int *&strideB, int *&strideC,
                        int *&c_shape, int &a_off, int &b_off, int &k,
                        size_t &D) {
@@ -200,9 +202,9 @@ void batch_matmul_impl(Tensor_view<T> &A, Tensor_view<T> &B, Tensor_view<T> &C,
  * @param node   Batched matrix multiplication node with traversal metadata.
  */
 template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> B = node.B->value.view();
-    Tensor_view<T> C = node.value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view B = node.B->value.view();
+    Tensor_view C = node.value.view();
 
     std::vector<int> a_T_shape(A.nDims);
     std::vector<int> a_T_stride(A.nDims);
@@ -212,7 +214,7 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
     std::copy(A.stride, A.stride + A.nDims, a_T_stride.data());
     std::swap(a_T_stride[A.nDims - 1], a_T_stride[A.nDims - 2]);
 
-    Tensor_view<T> a_T = A;
+    Tensor_view a_T = A;
     a_T.shape = a_T_shape.data();
     a_T.stride = a_T_stride.data();
 
@@ -224,19 +226,19 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
     std::copy(B.stride, B.stride + B.nDims, b_T_stride.data());
     std::swap(b_T_stride[B.nDims - 1], b_T_stride[B.nDims - 2]);
 
-    Tensor_view<T> b_T = B;
+    Tensor_view b_T = B;
     b_T.shape = b_T_shape.data();
     b_T.stride = b_T_stride.data();
 
-    batch_matmul_impl(A, B, C, node.strideA[0], node.strideB[0],
-                      node.strideC[0], node.c_shape[0], node.A_colStride[0],
-                      node.B_rowStride[0], node.shared_dim[0], node.C_nDims);
-    batch_matmul_impl(C, b_T, A, node.strideC[1], node.strideB[1],
-                      node.strideA[1], node.c_shape[1], node.A_colStride[1],
-                      node.B_rowStride[1], node.shared_dim[1], node.C_nDims);
-    batch_matmul_impl(a_T, C, B, node.strideA[2], node.strideC[2],
-                      node.strideB[2], node.c_shape[2], node.A_colStride[2],
-                      node.B_rowStride[2], node.shared_dim[2], node.C_nDims);
+    batch_matmul_impl<T>(A, B, C, node.strideA[0], node.strideB[0],
+                         node.strideC[0], node.c_shape[0], node.A_colStride[0],
+                         node.B_rowStride[0], node.shared_dim[0], node.C_nDims);
+    batch_matmul_impl<T>(C, b_T, A, node.strideC[1], node.strideB[1],
+                         node.strideA[1], node.c_shape[1], node.A_colStride[1],
+                         node.B_rowStride[1], node.shared_dim[1], node.C_nDims);
+    batch_matmul_impl<T>(a_T, C, B, node.strideA[2], node.strideC[2],
+                         node.strideB[2], node.c_shape[2], node.A_colStride[2],
+                         node.B_rowStride[2], node.shared_dim[2], node.C_nDims);
 }
 
 /**
@@ -250,9 +252,9 @@ template <typename T> void batch_matmul(Node_batch_matmul<T> &node) {
  */
 template <typename T, class Kernel>
 void outer(Node_binary_flex<T, Kernel> &node) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> B = node.B->value.view();
-    Tensor_view<T> C = node.value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view B = node.B->value.view();
+    Tensor_view C = node.value.view();
 
     node.C_nDims = C.nDims;
 
@@ -284,7 +286,7 @@ void outer(Node_binary_flex<T, Kernel> &node) {
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
 template <typename T>
-void along_dim_impl(Tensor_view<T> &A, Tensor_view<T> &C, int dim, size_t &D,
+void along_dim_impl(Tensor_view &A, Tensor_view &C, int dim, size_t &D,
                     std::vector<size_t> &A_offset, std::vector<int> &strideA,
                     std::vector<int> &strideC) {
     D = A.nDims;
@@ -321,11 +323,11 @@ void along_dim_impl(Tensor_view<T> &A, Tensor_view<T> &C, int dim, size_t &D,
  * @param dim    The dimension along which to compute the sum.
  */
 template <typename T> void sum_dim(Node_sum_dim<T> &node, int dim) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> C = node.value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view C = node.value.view();
 
-    along_dim_impl(A, C, dim, node.C_nDims, node.A_offset, node.strideA,
-                   node.strideC);
+    along_dim_impl<T>(A, C, dim, node.C_nDims, node.A_offset, node.strideA,
+                      node.strideC);
 }
 
 /**
@@ -338,16 +340,16 @@ template <typename T> void sum_dim(Node_sum_dim<T> &node, int dim) {
  * @param dim    The dimension along which to compute the mean.
  */
 template <typename T> void mean_dim(Node_mean_dim<T> &node, int dim) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> C = node.value.view();
-    Tensor_view<T> dA = node.A->gradient.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view C = node.value.view();
+    Tensor_view dA = node.A->gradient.view();
 
     node.divisor = A.shape[dim];
     node.C_end = C.elements + C.len;
     node.dA_end = dA.elements + dA.len;
 
-    along_dim_impl(A, C, dim, node.A_nDims, node.A_offset, node.strideA,
-                   node.strideC);
+    along_dim_impl<T>(A, C, dim, node.A_nDims, node.A_offset, node.strideA,
+                      node.strideC);
 }
 
 /**
@@ -358,8 +360,8 @@ template <typename T> void mean_dim(Node_mean_dim<T> &node, int dim) {
  * dimension.
  */
 template <typename T> void slice(Node_slice<T> &node, const int *offset) {
-    Tensor_view<T> A = node.A->value.view();
-    Tensor_view<T> C = node.value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view C = node.value.view();
 
     node.C_nDims = C.nDims;
     node.strideA.resize(node.C_nDims);

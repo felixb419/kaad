@@ -61,7 +61,7 @@ Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A, int dim,
     int recLen = rec.nodes.size();
 
     INode<T> *A_ptr = rec.get_node(A);
-    Tensor<T> &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value;
 
     if (dim < 0 || dim >= A_val.nDims()) {
         throw argument_error(recLen, "mean",

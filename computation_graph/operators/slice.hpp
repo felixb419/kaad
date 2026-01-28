@@ -36,7 +36,7 @@ Node_handle<T> slice(Computation_graph<T> &rec, Node_handle<T> A,
     int recLen = rec.nodes.size();
 
     INode<T> *A_ptr = rec.get_node(A);
-    Tensor<T> &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value;
 
     if (size.size() > A_val.nDims()) {
         std::span<const int> size_span(size.begin(), size.size());

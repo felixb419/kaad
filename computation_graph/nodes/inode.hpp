@@ -24,8 +24,8 @@ template <typename T> class INode {
     INode<T> *A =
         nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
 
-    Tensor<T> value;    ///< Value computed by this node.
-    Tensor<T> gradient; ///< Gradient associated with this node.
+    Tensor value;    ///< Value computed by this node.
+    Tensor gradient; ///< Gradient associated with this node.
 
     bool evaluated = false; ///< Whether this node is currently evaluated.
     bool hasInputs = false; ///< Whether this node depends on any input nodes.

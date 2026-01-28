@@ -48,7 +48,7 @@ template <typename T, class Kernel>
 Node_handle<T> unOperator(Computation_graph<T> &rec, Node_handle<T> A,
                           const UnaryKernels<T, Kernel> kernels) {
     INode<T> *A_ptr = rec.get_node(A);
-    Tensor<T> &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value;
 
     rec.nodes.push_back(std::move(std::make_unique<Node_unary<T, Kernel>>(
         kernels.op, kernels.grad, A_ptr, A_val.shape())));

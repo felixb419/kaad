@@ -36,7 +36,7 @@ Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
     int recLen = rec.nodes.size();
 
     INode<T> *A_ptr = rec.get_node(A);
-    Tensor<T> &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value;
 
     if (A_val.nDims() < 2) {
         throw shape_error(recLen, "transpose", "A.nDims() hast to be > 1",

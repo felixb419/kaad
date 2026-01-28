@@ -9,6 +9,7 @@
 #include <stdexcept>        // for std::invalid_argument
 #include <vector>           // for std::vector
 
+#include "../scalar.hpp"   // for Scalar
 #include "common.hpp"      // for kaad::detail::print_tensor
 #include "tensor_view.hpp" // for kaad::Tensor_view
 
@@ -43,21 +44,16 @@ template <typename R>
 concept IntegralRange =
     std::ranges::input_range<R> && std::integral<std::ranges::range_value_t<R>>;
 
-template <typename R, typename T>
+template <typename R>
 concept ValueRange = std::ranges::input_range<R> &&
-                     std::same_as<std::ranges::range_value_t<R>, T>;
+                     std::same_as<std::ranges::range_value_t<R>, Scalar>;
 
 /**
  * @brief A class representing a multi-dimensional tensor.
- *
- * This class supports creation, copying, moving, and indexing of tensors,
- * and provides utilities for memory management and shape/stride calculation.
- *
- * @tparam T The type of the values stored in the tensor.
  */
-template <typename T> class Tensor {
+class Tensor {
   public:
-    using value_type = T;
+    using value_type = Scalar;
     using reference = value_type &;
     using const_reference = const value_type &;
     using pointer = value_type *;
@@ -78,7 +74,9 @@ template <typename T> class Tensor {
         elements_; ///< Vector containing the elements of the Tensor.
 
   public:
-    /// @brief Default constructor.
+    /**
+     * @brief Default constructor.
+     */
     Tensor() {}
 
     /**
@@ -87,7 +85,7 @@ template <typename T> class Tensor {
      * @param shape Array with the values of the tensor.
      */
     template <IntegralRange IR, typename VR>
-        requires ValueRange<VR, value_type>
+        requires ValueRange<VR>
     explicit Tensor(IR shape, VR elements)
         : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
           elements_(std::ranges::begin(elements), std::ranges::end(elements)) {
@@ -268,7 +266,7 @@ template <typename T> class Tensor {
      * @return A Tensor_view<T> structure representing a non-owning immutable
      * view of the tensor.
      */
-    struct Tensor_view<value_type> view() const {
+    struct Tensor_view view() const {
         return Tensor_view(this->shape_.data(), this->stride_.data(),
                            this->nDims(), this->data(), this->size());
     }
@@ -278,28 +276,10 @@ template <typename T> class Tensor {
      * @return A Tensor_view<T> structure representing a non-owning mutable
      * view of the tensor.
      */
-    struct Tensor_view<value_type> view_mut() {
+    struct Tensor_view_mut view_mut() {
         return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
-                               this->nDims(), this->data(), this->size());
-    }
-
-    /**
-     * @brief Stream output operator.
-     * @param stream Output stream.
-     * @param tensor The tensor to print.
-     * @return Reference to the output stream.
-     */
-    friend std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
-        if (tensor.nDims() == 0 || tensor.size() == 0) {
-            os << "[]";
-        } else {
-            std::vector<int> cords(tensor.nDims());
-            int indent = 0;
-
-            detail::print_tensor(os, cords, tensor.shape_, tensor.stride_,
-                                 tensor.elements_, 0, indent);
-        }
-        return os;
+                               this->nDims(), this->elements_.data(),
+                               this->size());
     }
 
     template <typename U> friend class Computation_graph;
@@ -317,4 +297,24 @@ template <typename T> class Tensor {
     template <typename U> friend class Node_mean;
     template <typename U> friend class Node_mean_dim;
 };
+
+/**
+ * @brief Stream output operator.
+ * @param stream Output stream.
+ * @param tensor The tensor to print.
+ * @return Reference to the output stream.
+ */
+static inline std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
+    if (tensor.nDims() == 0 || tensor.size() == 0) {
+        os << "[]";
+    } else {
+        std::vector<int> cords(tensor.nDims());
+        int indent = 0;
+
+        detail::print_tensor(os, cords, tensor.shape_begin(),
+                             tensor.stride_begin(), tensor.nDims(),
+                             tensor.begin(), tensor.size(), 0, indent);
+    }
+    return os;
+}
 } // namespace kaad

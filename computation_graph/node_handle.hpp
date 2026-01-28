@@ -4,7 +4,7 @@
 #include <iostream> // for std::ostream
 
 namespace kaad {
-template <typename T> class Tensor;
+class Tensor;
 template <typename T> class INode;
 template <typename T> class Computation_graph;
 
@@ -56,7 +56,7 @@ template <typename T> class Node_handle {
      * @brief Get the value tensor of the node.
      * @return Immutable reference to the value tensor.
      */
-    constexpr const Tensor<T> &value() {
+    constexpr const Tensor &value() {
         return this->origin_->nodes[this->idx_].get()->value;
     }
 
@@ -64,7 +64,7 @@ template <typename T> class Node_handle {
      * @brief Get the gradient tensor of the node.
      * @return Immutable reference to the gradient tensor.
      */
-    constexpr const Tensor<T> &gradient() {
+    constexpr const Tensor &gradient() {
         return this->origin_->nodes[this->idx_].get()->value;
     }
 

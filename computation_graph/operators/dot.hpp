@@ -45,8 +45,8 @@ Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
 
     INode<T> *A_ptr = rec.get_node(A);
     INode<T> *B_ptr = rec.get_node(B);
-    Tensor<T> &A_val = A_ptr->value;
-    Tensor<T> &B_val = B_ptr->value;
+    Tensor &A_val = A_ptr->value;
+    Tensor &B_val = B_ptr->value;
 
     bool A_scalar = A_val.nDims() == 1 && A_val.shape()[0] == 1;
     bool B_scalar = B_val.nDims() == 1 && B_val.shape()[0] == 1;
