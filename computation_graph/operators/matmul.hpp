@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../tensor/tensor.hpp" // for Tensor
+#include "../common.hpp"           // for combine_matrix
 #include "exceptions.hpp"          // for shape_error
 #include <memory>                  // for std::make_unique
 
@@ -46,8 +47,9 @@ Node_handle<T> matmul(Computation_graph<T> &rec, Node_handle<T> A,
     std::vector<int> newShape(newLen);
 
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!combine_matrix(A_val.shape_begin(), A_val.nDims(), B_val.shape_begin(),
-                        B_val.nDims(), newShape.data(), newLen)) {
+    if (!detail::combine_matrix(A_val.shape_begin(), A_val.nDims(),
+                                B_val.shape_begin(), B_val.nDims(),
+                                newShape.data(), newLen)) {
         throw shape_error(
             recLen, opName,
             "incompatible tensor shapes for matrix multiplication",

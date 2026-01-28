@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../tensor/tensor.hpp" // for Tensor, Tensor_view
-#include "../utils.hpp"         // for combine_matrix
+#include "common.hpp"           // for combine_matrix
 #include <algorithm>            // for std::reverse_copy, std::swap
 #include <cstddef>              // for size_t
 
@@ -170,7 +170,7 @@ void batch_matmul_impl(Tensor_view<T> &A, Tensor_view<T> &B, Tensor_view<T> &C,
     D = std::max(A.nDims, B.nDims);
     c_shape = new int[D];
 
-    combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
+    detail::combine_matrix(A.shape, A.nDims, B.shape, B.nDims, c_shape, D);
 
     strideA = new int[D];
     strideB = new int[D];
