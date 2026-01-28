@@ -278,7 +278,7 @@ template <typename T> class Tensor {
      * @return A Tensor_view<T> structure representing a non-owning mutable
      * view of the tensor.
      */
-    struct Tensor_view view_mut() {
+    struct Tensor_view<value_type> view_mut() {
         return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
                                this->nDims(), this->data(), this->size());
     }
