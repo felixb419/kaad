@@ -10,23 +10,22 @@ namespace kaad {
  * @brief A mean operation node in a computation graph.
  * @see tensorfuncs::primal::unary::mean
  * @see tensorfuncs::adjoint::unary::mean
- * @tparam T The scalar type.
  */
-template <typename T> class Node_mean : public INode<T> {
+class Node_mean : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_mean"; }
 
-    tensorfuncs::primal::unary::mean_fn<T> forward_op =
+    tensorfuncs::primal::unary::mean_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean;
-    tensorfuncs::adjoint::unary::mean_fn<T> backward_op =
+    tensorfuncs::adjoint::unary::mean_fn<Scalar> backward_op =
         tensorfuncs::adjoint::unary::mean;
 
-    const T *A_end =
+    const Scalar *A_end =
         nullptr; ///< Pointer to the end of the A buffer (used for iteration).
-    const T *dA_end =
+    const Scalar *dA_end =
         nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
-    T divisor = 0; ///< Divisor to compute the mean of the A tensor (length of A
-                   ///< buffer).
+    Scalar divisor = 0; ///< Divisor to compute the mean of the A tensor (length
+                        ///< of A buffer).
 
     /**
      * @brief Constructs a mean node.
@@ -34,8 +33,8 @@ template <typename T> class Node_mean : public INode<T> {
      * @param tensor_args Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_mean(INode<T> *A_ptr, TensorArgs &&...tensor_args)
-        : INode<T>(A_ptr, tensor_args...) {
+    Node_mean(INode *A_ptr, TensorArgs &&...tensor_args)
+        : INode(A_ptr, tensor_args...) {
         this->A_end = A_ptr->value.data() + A_ptr->value.size();
         this->dA_end = A_ptr->gradient.data() + A_ptr->gradient.size();
         this->divisor = A_ptr->value.size();

@@ -4,6 +4,9 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../nodes/binary.hpp"               // for Node_binary
+#include "../nodes/binary_flex.hpp"          // for Node_binary_flex
+#include "../nodes/inode.hpp"                // for INode
 #include "exceptions.hpp"                    // for shape_error
 #include <cstddef>                           // for size_t
 #include <memory>                            // for std::make_unique
@@ -11,10 +14,7 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T, class Kernel> class Node_binary;
-template <typename T, class Kernel> class Node_binary_flex;
 
 namespace detail {
 
@@ -104,8 +104,8 @@ binOperator(Computation_graph<T> &rec, Node_handle<T> A, Node_handle<T> B,
             const BinaryKernels<T, Kernel> kernels, const char *opName) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
-    INode<T> *B_ptr = rec.get_node(B);
+    INode *A_ptr = rec.get_node(A);
+    INode *B_ptr = rec.get_node(B);
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
@@ -117,13 +117,13 @@ binOperator(Computation_graph<T> &rec, Node_handle<T> A, Node_handle<T> B,
 
     if (B_scalar) {
 
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
             kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr,
             A_val.shape())));
 
     } else if (A_scalar) {
 
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
             B_val.shape())));
 
@@ -133,15 +133,15 @@ binOperator(Computation_graph<T> &rec, Node_handle<T> A, Node_handle<T> B,
                std::equal(A_val.stride_begin(), A_val.stride_end(),
                           B_val.stride_begin())) {
 
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<T, Kernel>>(
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A_val.shape())));
 
     } else if (combine_flexible(A_val.shape_begin(), A_val.nDims(),
                                 B_val.shape_begin(), B_val.nDims(),
                                 newShape.data(), newLen)) {
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary_flex<T, Kernel>>(
-                A_ptr, B_ptr, newShape)));
+            std::move(std::make_unique<Node_binary_flex<Kernel>>(A_ptr, B_ptr,
+                                                                 newShape)));
     } else {
         throw shape_error(
             recLen, opName, "incompatible tensor shapes for binary operation",

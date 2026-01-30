@@ -10,9 +10,7 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T, class Kernel> class Node_unary;
 
 /**
  * @brief Contains a collection of unary functions for pointwise version of the
@@ -47,10 +45,10 @@ template <typename T, class Kernel> struct UnaryKernels {
 template <typename T, class Kernel>
 Node_handle<T> unOperator(Computation_graph<T> &rec, Node_handle<T> A,
                           const UnaryKernels<T, Kernel> kernels) {
-    INode<T> *A_ptr = rec.get_node(A);
+    INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
-    rec.nodes.push_back(std::move(std::make_unique<Node_unary<T, Kernel>>(
+    rec.nodes.push_back(std::move(std::make_unique<Node_unary< Kernel>>(
         kernels.op, kernels.grad, A_ptr, A_val.shape())));
 
     return rec.back_handle();

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <algorithm> // for fill, max
-#include <stddef.h>  // for size_t
+#include "../tensor/tensor_view.hpp" // for Tensor_view
+#include <algorithm>                 // for fill, max
+#include <stddef.h>                  // for size_t
 
 namespace kaad::detail {
 
@@ -44,6 +45,49 @@ static inline bool combine_matrix(const int *shape1, size_t nDims1,
         }
     }
     return true;
+}
+
+/**
+ * @brief Computes stride and offset metadata for operations along a specific
+ * tensor dimension.
+ * @tparam T         The scalar type (e.g., float, double).
+ * @param A          Input tensor.
+ * @param C          Output tensor (e.g., reduced along `dim`).
+ * @param dim        The dimension along which the operation is applied.
+ * @param D          (out) Number of dimensions.
+ * @param A_offset   (out) Array storing the maximum valid offset per dimension
+ * for A.
+ * @param strideA    (out) Stride array for A.
+ * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
+ */
+template <typename T>
+void along_dim_metadata_impl(Tensor_view &A, Tensor_view &C, int dim, size_t &D,
+                             std::vector<size_t> &A_offset,
+                             std::vector<int> &strideA,
+                             std::vector<int> &strideC) {
+    D = A.nDims;
+    strideA.resize(D);
+    strideC.resize(D);
+
+    std::copy(A.stride, A.stride + A.nDims, strideA.data());
+    std::copy(A.stride, A.stride + A.nDims, strideC.data());
+    // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
+    // traversing in flexible function
+    for (int i = 0; i < D; i++) {
+        if (strideA[i] == 0 && A.shape[i] == 1) {
+            strideA[i] = 1;
+        }
+    }
+
+    strideC[dim] = 0;
+    for (int i = 0; i < dim; i++) {
+        strideC[i] /= A.shape[dim];
+    }
+
+    A_offset.resize(D);
+    for (int i = 0; i < D; i++) {
+        A_offset[i] = A.shape[i] * strideA[i];
+    }
 }
 
 } // namespace kaad::detail

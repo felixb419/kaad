@@ -3,16 +3,16 @@
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
+#include "../nodes/inode.hpp"                // for INode
+#include "../nodes/sum_dim.hpp"              // for Node_sum_dim
+#include "../nodes/unary.hpp"                // for Node_unary
 #include "exceptions.hpp"                    // for argument_error
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T, class Kernel> class Node_unary;
-template <typename T> class Node_sum_dim;
 
 /**
  * @brief Adds a unary sum node to the computation graph.
@@ -31,7 +31,7 @@ template <typename T>
 Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
+    INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
     using Kernel = class Kernels::Sum<T>;
@@ -40,9 +40,9 @@ Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A) {
     tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> grad =
         tensorfuncs::adjoint::unary::scalarOut<T, Kernel>;
 
-    rec.nodes.push_back(std::move(
-        std::make_unique<Node_unary<T, Kernel>>(op, grad, A_ptr, (T)0)));
-    static_cast<Node_unary<T, Kernel> *>(rec.nodes.back().get())->end =
+    rec.nodes.push_back(
+        std::move(std::make_unique<Node_unary<Kernel>>(op, grad, A_ptr, (T)0)));
+    static_cast<Node_unary<Kernel> *>(rec.nodes.back().get())->end =
         A_val.data() + A_val.size(); // override end from constructor
 
     return rec.back_handle();
@@ -73,7 +73,7 @@ Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A, int dim,
                    bool keepNDims = false) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
+    INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
     if (dim < 0 || dim >= A_val.nDims()) {
@@ -101,7 +101,7 @@ Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A, int dim,
     }
 
     rec.nodes.push_back(std::move(
-        std::make_unique<Node_sum_dim<T>>(A_ptr, dim, newShape, newLen)));
+        std::make_unique<Node_sum_dim>(A_ptr, dim, newShape, newLen)));
     return rec.back_handle();
 }
 

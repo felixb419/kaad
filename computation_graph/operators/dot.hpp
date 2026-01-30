@@ -10,9 +10,7 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T, class Kernel> class Node_binary;
 
 /**
  * @brief Adds a binary dot product node (A ⋅ B) to the computation graph.
@@ -43,8 +41,8 @@ Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
 
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
-    INode<T> *B_ptr = rec.get_node(B);
+    INode *A_ptr = rec.get_node(A);
+    INode *B_ptr = rec.get_node(B);
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
@@ -53,17 +51,17 @@ Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
     if (B_scalar) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
+            std::move(std::make_unique<Node_binary< Kernels::Null>>(
                 scalar, scalar_grad, A_ptr, B_ptr, ((T)0))));
-        static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
+        static_cast<Node_binary< Kernels::Null> *>(rec.nodes.back().get())
             ->end = A_val.data() + A_val.size();
 
     } else if (A_scalar) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
+            std::move(std::make_unique<Node_binary< Kernels::Null>>(
                 scalar, scalar_grad, B_ptr, A_ptr, ((T)0))));
-        static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
+        static_cast<Node_binary< Kernels::Null> *>(rec.nodes.back().get())
             ->end =
             B_val.data() + B_val.size(); // override end from constructor
 
@@ -72,9 +70,9 @@ Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
                           B_val.shape_begin())) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary<T, Kernels::Null>>(
+            std::move(std::make_unique<Node_binary< Kernels::Null>>(
                 dot, dot_grad, A_ptr, B_ptr, ((T)0))));
-        static_cast<Node_binary<T, Kernels::Null> *>(rec.nodes.back().get())
+        static_cast<Node_binary< Kernels::Null> *>(rec.nodes.back().get())
             ->end = A_val.data() + A_val.size();
 
     } else {

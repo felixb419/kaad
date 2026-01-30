@@ -10,23 +10,24 @@ namespace kaad {
  * @brief A unary operation node in a computation graph.
  * @see tensorfuncs::primal::unary::pointwise
  * @see tensorfuncs::adjoint::unary::pointwise
- * @tparam T The scalar type.
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <typename T, class Kernel> class Node_unary : public INode<T> {
+template <class Kernel> class Node_unary : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_unary"; }
 
-    tensorfuncs::primal::unary::pointwise_fn<T, Kernel> forward_op =
-        tensorfuncs::primal::unary::pointwise; ///< Function pointer to the
-                                               ///< value operation.
+    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernel> forward_op =
+        tensorfuncs::primal::unary::pointwise<Scalar,
+                                              Kernel>; ///< Function pointer to
+                                                       ///< the value operation.
 
-    tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> backward_op =
-        tensorfuncs::adjoint::unary::pointwise; ///< Function pointer to the
-                                                ///< gradient operation.
+    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernel> backward_op =
+        tensorfuncs::adjoint::unary::pointwise<
+            Scalar, Kernel>; ///< Function pointer to the
+                             ///< gradient operation.
 
-    const T *end =
+    const Scalar *end =
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
                  ///< buffer may differ depending on operation).
 
@@ -38,12 +39,13 @@ template <typename T, class Kernel> class Node_unary : public INode<T> {
      * @param tensor_args       Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_unary(tensorfuncs::primal::unary::pointwise_fn<T, Kernel> operation,
-               tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> derivative,
-               INode<T> *A_ptr, TensorArgs &&...tensor_args)
+    Node_unary(
+        tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernel> operation,
+        tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernel> derivative,
+        INode *A_ptr, TensorArgs &&...tensor_args)
         : forward_op(operation), backward_op(derivative),
-          INode<T>(A_ptr, tensor_args...) {
-        INode<T> *base_ptr = static_cast<INode<T> *>(this);
+          INode(A_ptr, tensor_args...) {
+        INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value.data() + base_ptr->value.size();
     }
 

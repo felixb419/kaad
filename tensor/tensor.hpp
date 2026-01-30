@@ -283,20 +283,20 @@ class Tensor {
     }
 
     template <typename U> friend class Computation_graph;
-    template <typename U> friend class INode;
+    friend class INode;
 
-    template <typename U, class Kernel> friend class Node_binary;
-    template <typename U, class Kernel> friend class Node_binary_flex;
-    template <typename U> friend class Node_matmul;
-    template <typename U> friend class Node_batch_matmul;
-    template <typename U> friend class Node_outer;
+    template <class Kernel> friend class Node_binary;
+    template <class Kernel> friend class Node_binary_flex;
+    friend class Node_matmul;
+    friend class Node_batch_matmul;
+    friend class Node_outer;
 
-    template <typename U, class Kernel> friend class Node_unary;
-    template <typename U> friend class Node_slice;
-    template <typename U> friend class Node_transp;
-    template <typename U> friend class Node_sum_dim;
-    template <typename U> friend class Node_mean;
-    template <typename U> friend class Node_mean_dim;
+    template <class Kernel> friend class Node_unary;
+    friend class Node_slice;
+    friend class Node_transp;
+    friend class Node_sum_dim;
+    friend class Node_mean;
+    friend class Node_mean_dim;
 };
 
 /**

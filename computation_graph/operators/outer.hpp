@@ -7,7 +7,6 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
 
 /**
@@ -36,8 +35,8 @@ Node_handle<T> outer(Computation_graph<T> &rec, Node_handle<T> A,
                      Node_handle<T> B) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
-    INode<T> *B_ptr = rec.get_node(B);
+    INode *A_ptr = rec.get_node(A);
+    INode *B_ptr = rec.get_node(B);
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
@@ -48,7 +47,7 @@ Node_handle<T> outer(Computation_graph<T> &rec, Node_handle<T> A,
               newShape.begin() + A_val.nDims());
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_outer<T>>(A_ptr, B_ptr, newShape)));
+        std::move(std::make_unique<Node_outer>(A_ptr, B_ptr, newShape)));
 
     return rec.back_handle();
 }

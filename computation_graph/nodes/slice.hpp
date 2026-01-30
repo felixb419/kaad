@@ -3,7 +3,6 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../dispatchers.hpp"                // for get_slice, get_slice_grad
-#include "../strides.hpp"                    // for Strides::slice
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -12,15 +11,14 @@ namespace kaad {
  * @brief A slice operation node in a computation graph.
  * @see tensorfuncs::primal::unary::slice
  * @see tensorfuncs::adjoint::unary::slice
- * @tparam T The scalar type.
  */
-template <typename T> class Node_slice : public INode<T> {
+class Node_slice : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_slice"; }
 
-    tensorfuncs::primal::unary::slice_fn<T> forward_op =
+    tensorfuncs::primal::unary::slice_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::slice;
-    tensorfuncs::adjoint::unary::slice_fn<T> backward_op =
+    tensorfuncs::adjoint::unary::slice_fn<Scalar> backward_op =
         tensorfuncs::adjoint::unary::slice;
 
     std::vector<int> strideA;           ///< Stride array for tensor A.
@@ -35,15 +33,47 @@ template <typename T> class Node_slice : public INode<T> {
      * @param tensor_args       Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_slice(INode<T> *A_ptr, const int *offset_arr,
-               TensorArgs &&...tensor_args)
-        : INode<T>(A_ptr, tensor_args...) {
-        Strides::slice(*this, offset_arr);
+    Node_slice(INode *A_ptr, const int *offset_arr, TensorArgs &&...tensor_args)
+        : INode(A_ptr, tensor_args...) {
+        // compute metadata
+        Tensor_view A = this->A->value.view();
+        Tensor_view C = this->value.view();
 
-        size_t a_ndims = static_cast<INode<T> *>(this)->A->value.nDims();
+        this->C_nDims = C.nDims;
+        this->strideA.resize(this->C_nDims);
+        this->strideC.resize(this->C_nDims);
+
+        int idx, idxA, idxC;
+        for (int i = 1; i <= this->C_nDims; i++) {
+            idx = this->C_nDims - i;
+            idxA = A.nDims - i;
+            this->strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
+            idxC = C.nDims - i;
+            this->strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+            // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
+            // traversing in flexible function
+            if (this->strideC[idx] == 0 && C.shape[idxC] == 1) {
+                this->strideC[idx] = 1;
+            }
+        }
+
+        this->C_offset.resize(this->C_nDims);
+        for (int i = 0; i < this->C_nDims; i++) {
+            this->C_offset[i] = C.shape[i] * this->strideC[i];
+        }
+
+        this->start_offset_a.resize(A.nDims);
+        std::copy(offset_arr, offset_arr + A.nDims,
+                  this->start_offset_a.data());
+        for (int i = 0; i < A.nDims; i++) {
+            this->start_offset_a[i] *= this->strideA[i];
+        }
+
+        // assign compile-time recursive function
+        size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();
         if (a_ndims < Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_slice<T>()[a_ndims];
-            backward_op = Dispatchers::get_slice_grad<T>()[a_ndims];
+            forward_op = Dispatchers::get_slice<Scalar>()[a_ndims];
+            backward_op = Dispatchers::get_slice_grad<Scalar>()[a_ndims];
         }
     }
 

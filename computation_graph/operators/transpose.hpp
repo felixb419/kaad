@@ -9,9 +9,7 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T> class Node_transp;
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
@@ -35,7 +33,7 @@ Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
                          std::initializer_list<int> perm = {}) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
+    INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
     if (A_val.nDims() < 2) {
@@ -82,7 +80,7 @@ Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
     }
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_transp<T>>(A_ptr, shape_T, stride_T)));
+        std::move(std::make_unique<Node_transp>(A_ptr, shape_T, stride_T)));
 
     return rec.back_handle();
 }

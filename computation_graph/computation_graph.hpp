@@ -2,6 +2,8 @@
 
 #include "../tensor/tensor.hpp" // for Tensor
 #include "node_handle.hpp"      // for Node_handle
+#include "nodes/inode.hpp"      // for INode
+#include "nodes/valued.hpp"     // for Node_valued
 #include <array>                // for std::array
 #include <cstddef>              // for size_t
 #include <memory>               // for std::unique_ptr, std::make_unique
@@ -9,20 +11,18 @@
 #include <vector>               // for std::vector
 
 namespace kaad {
-template <typename T> class INode;
-template <typename T> class Node_valued;
 
 /**
  * @brief Represents a computation graph for automatic differentiation.
  *
- * This graph stores nodes derived from the INode<T> interface. It supports
+ * This graph stores nodes derived from the INode interface. It supports
  * evaluating node values and computing gradients through backpropagation.
  *
  * @tparam T The data type of the tensor values.
  */
 template <typename T> class Computation_graph {
   public:
-    std::vector<std::unique_ptr<INode<T>>>
+    std::vector<std::unique_ptr<INode>>
         nodes; ///< Holds unique pointers pointing to computation nodes
 
     /**
@@ -32,7 +32,7 @@ template <typename T> class Computation_graph {
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.
      */
-    INode<T> *get_node(Node_handle<T> node) {
+    INode *get_node(Node_handle<T> node) {
         if (node.origin_ != this) {
             throw std::invalid_argument(
                 "node does not belong to this instance of Computation_graph");
@@ -59,17 +59,17 @@ template <typename T> class Computation_graph {
      * appends it to the node list.
      *
      * Creates a Tensor using the forwarded constructor arguments, wraps it
-     * in a Node_valued<T>, and stores the node as a std::unique_ptr in the
+     * in a Node_valued, and stores the node as a std::unique_ptr in the
      * `nodes` container.
      *
      * @tparam Args Variadic template parameter pack for tensor constructor
      * arguments.
      *
      * @param tensor_args Arguments forwarded to the Tensor constructor.
-     * @return A handle of the newly created Node_valued<T>.
+     * @return A handle of the newly created Node_valued.
      */
     template <typename... Args> Node_handle<T> append(Args &&...tensor_args) {
-        this->nodes.push_back(std::make_unique<Node_valued<T>>(
+        this->nodes.push_back(std::make_unique<Node_valued>(
             std::forward<Args>(tensor_args)...));
 
         return Node_handle<T>(this->nodes.size() - 1, this);
@@ -98,7 +98,7 @@ template <typename T> class Computation_graph {
         std::array<Tensor *, sizeof...(nodes)> values;
 
         for (int i = 0; i < sizeof...(nodes); i++) {
-            INode<T> *node_ptr = this->get_node(node_arr[i]);
+            INode *node_ptr = this->get_node(node_arr[i]);
             node_ptr->eval();
             values[i] = &node_ptr->value;
         }
@@ -127,7 +127,7 @@ template <typename T> class Computation_graph {
         requires(std::same_as<Handles, Node_handle<T>> && ...)
     std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle<T> df,
                                                          Handles... dx) {
-        INode<T> *f = this->get_node(df);
+        INode *f = this->get_node(df);
         std::fill(f->gradient.elements_.begin(), f->gradient.elements_.end(),
                   1.0);
 

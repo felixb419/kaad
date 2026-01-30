@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../tensor/tensor.hpp"           // for Tensor::value_type
 #include "../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include <array>                          // for std::array

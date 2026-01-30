@@ -7,10 +7,7 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T> class Node_mean;
-template <typename T> class Node_mean_dim;
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -30,7 +27,7 @@ Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A) {
     int recLen = rec.nodes.size();
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_mean<T>>(rec.get_node(A), (T)0)));
+        std::move(std::make_unique<Node_mean>(rec.get_node(A), (T)0)));
     return rec.back_handle();
 }
 
@@ -60,7 +57,7 @@ Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A, int dim,
                     bool keepNDims = 0) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
+    INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
     if (dim < 0 || dim >= A_val.nDims()) {
@@ -88,7 +85,7 @@ Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A, int dim,
     }
 
     rec.nodes.push_back(std::move(
-        std::make_unique<Node_mean_dim<T>>(A_ptr, dim, newShape, newLen)));
+        std::make_unique<Node_mean_dim>(A_ptr, dim, newShape, newLen)));
     return rec.back_handle();
 }
 

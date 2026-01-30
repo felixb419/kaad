@@ -2,8 +2,8 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../common.hpp"                     // for along_dim_metadata_impl
 #include "../dispatchers.hpp" // for get_meanDim, get_meanDim_grad
-#include "../strides.hpp"     // for Strides::mean_dim
 #include "inode.hpp"          // for INode
 
 namespace kaad {
@@ -12,27 +12,26 @@ namespace kaad {
  * @brief A mean_dim operation node in a computation graph.
  * @see tensorfuncs::primal::unary::mean_dim
  * @see tensorfuncs::adjoint::unary::mean_dim
- * @tparam T The scalar type.
  */
-template <typename T> class Node_mean_dim : public INode<T> {
+class Node_mean_dim : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_mean_dim"; }
 
-    tensorfuncs::primal::unary::mean_dim_fn<T> forward_op =
+    tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean_dim;
-    tensorfuncs::adjoint::unary::mean_dim_fn<T> backward_op =
+    tensorfuncs::adjoint::unary::mean_dim_fn<Scalar> backward_op =
         tensorfuncs::adjoint::unary::mean_dim;
 
     std::vector<int> strideA;     ///< stride Array for A.
     std::vector<int> strideC;     ///< stride Array for C.
     std::vector<size_t> A_offset; ///< Per-dim offset to the end of A buffer.
-    const T *C_end =
+    const Scalar *C_end =
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
-    const T *dA_end =
+    const Scalar *dA_end =
         nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
     size_t A_nDims = 0; ///< Number of the dimensions of the A tensor.
-    T divisor = 0; ///< Divisor to compute the mean of the A tensor (length of A
-                   ///< in relevant dimension).
+    Scalar divisor = 0; ///< Divisor to compute the mean of the A tensor (length
+                        ///< of A in relevant dimension).
 
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
@@ -40,14 +39,26 @@ template <typename T> class Node_mean_dim : public INode<T> {
      * @param tensor_args Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_mean_dim(INode<T> *A_ptr, int dim, TensorArgs &&...tensor_args)
-        : INode<T>(A_ptr, tensor_args...) {
-        Strides::mean_dim(*this, dim);
+    Node_mean_dim(INode *A_ptr, int dim, TensorArgs &&...tensor_args)
+        : INode(A_ptr, tensor_args...) {
+        // compute metadata
+        Tensor_view A = this->A->value.view();
+        Tensor_view C = this->value.view();
+        Tensor_view dA = this->A->gradient.view();
 
-        size_t a_ndims = static_cast<INode<T> *>(this)->A->value.nDims();
+        this->divisor = A.shape[dim];
+        this->C_end = C.elements + C.len;
+        this->dA_end = dA.elements + dA.len;
+
+        detail::along_dim_metadata_impl<Scalar>(A, C, dim, this->A_nDims,
+                                                this->A_offset, this->strideA,
+                                                this->strideC);
+
+        // assign compile-time recursive function
+        size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();
         if (a_ndims <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_meanDim<T>()[a_ndims];
-            backward_op = Dispatchers::get_meanDim_grad<T>()[a_ndims];
+            forward_op = Dispatchers::get_meanDim<Scalar>()[a_ndims];
+            backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_ndims];
         }
     }
 

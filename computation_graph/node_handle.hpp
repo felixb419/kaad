@@ -1,15 +1,14 @@
 #pragma once
 
-#include <cstdint>  // for uint32_t
-#include <iostream> // for std::ostream
+#include "nodes/inode.hpp" // for INode
+#include <cstdint>         // for uint32_t
+#include <iostream>        // for std::ostream
 
 namespace kaad {
-class Tensor;
-template <typename T> class INode;
 template <typename T> class Computation_graph;
 
 /**
- * @brief Immutable handle class for a INode<T>.
+ * @brief Immutable handle class for a INode.
  * @tparam T The scalar type (e.g., float or double).
  */
 template <typename T> class Node_handle {
@@ -46,9 +45,9 @@ template <typename T> class Node_handle {
 
     /**
      * @brief Get the node.
-     * @return Const INode<T> Pointer to the node in the graph.
+     * @return Const INode Pointer to the node in the graph.
      */
-    constexpr const INode<T> *get() const noexcept {
+    constexpr const INode *get() const noexcept {
         return origin_->get_node(*this);
     }
 

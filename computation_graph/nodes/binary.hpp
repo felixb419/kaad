@@ -10,25 +10,26 @@ namespace kaad {
  * @brief A binary operation node in a computation graph.
  * @see tensorfuncs::primal::binary::pointwise
  * @see tensorfuncs::adjoint::binary::pointwise
- * @tparam T The scalar type.
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <typename T, class Kernel> class Node_binary : public INode<T> {
+template <class Kernel> class Node_binary : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_binary"; }
 
-    INode<T> *B = nullptr; ///< Pointer to the second input Node.
+    INode *B = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> forward_op =
-        tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
-                                                ///< value operation.
+    tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernel> forward_op =
+        tensorfuncs::primal::binary::pointwise<
+            Scalar, Kernel>; ///< Function pointer to the
+                             ///< value operation.
 
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> backward_op =
-        tensorfuncs::primal::binary::pointwise; ///< Function pointer to the
-                                                ///< gradient operation.
+    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> backward_op =
+        tensorfuncs::primal::binary::pointwise<
+            Scalar, Kernel>; ///< Function pointer to the
+                             ///< gradient operation.
 
-    const T *end =
+    const Scalar *end =
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
                  ///< buffer may differ depending on operation).
 
@@ -43,12 +44,12 @@ template <typename T, class Kernel> class Node_binary : public INode<T> {
      */
     template <typename... TensorArgs>
     Node_binary(
-        tensorfuncs::primal::binary::pointwise_fn<T, Kernel> operation,
-        tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> derivative,
-        INode<T> *A_ptr, INode<T> *B_ptr, TensorArgs &&...tensor_args)
+        tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernel> operation,
+        tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> derivative,
+        INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
         : B(B_ptr), forward_op(operation), backward_op(derivative),
-          INode<T>(A_ptr, tensor_args...) {
-        INode<T> *base_ptr = static_cast<INode<T> *>(this);
+          INode(A_ptr, tensor_args...) {
+        INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value.data() + base_ptr->value.size();
     }
 

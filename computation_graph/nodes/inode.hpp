@@ -14,14 +14,12 @@ namespace kaad {
  * `getGrad` methods. Traversal-related members (e.g., strides, offsets) are not
  * initialized in the node constructors but are instead set externally by the
  * corresponding helper functions in the Strides namespace.
- *
- * @tparam T The scalar type (e.g., float or double).
  */
-template <typename T> class INode {
+class INode {
   public:
     virtual const char *node_type() const noexcept = 0;
 
-    INode<T> *A =
+    INode *A =
         nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
 
     Tensor value;    ///< Value computed by this node.
@@ -37,7 +35,7 @@ template <typename T> class INode {
      * @param tensor_args Arguments to construct the value tensor.
      */
     template <typename... TensorArgs>
-    INode(INode<T> *A_ptr, TensorArgs &&...tensor_args)
+    INode(INode *A_ptr, TensorArgs &&...tensor_args)
         : A(A_ptr), evaluated(false),
           value(std::forward<TensorArgs>(tensor_args)...),
           hasInputs(this->A != nullptr), gradient(value) {

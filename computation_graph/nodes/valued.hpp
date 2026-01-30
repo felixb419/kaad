@@ -7,9 +7,8 @@ namespace kaad {
 
 /**
  * @brief A leaf node that holds a fixed tensor value with no computation.
- * @tparam T The scalar type.
  */
-template <typename T> class Node_valued : public INode<T> {
+class Node_valued : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_valued"; }
 
@@ -18,8 +17,7 @@ template <typename T> class Node_valued : public INode<T> {
      * @param tensor The tensor value to store.
      */
     template <typename... TensorArgs>
-    Node_valued(TensorArgs &&...tensor_args)
-        : INode<T>(nullptr, tensor_args...) {}
+    Node_valued(TensorArgs &&...tensor_args) : INode(nullptr, tensor_args...) {}
 
     /// No evaluation needed for fixed value nodes.
     void eval() override {}

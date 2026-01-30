@@ -3,7 +3,6 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../dispatchers.hpp"                // for get_flexOp, get_flexGrad
-#include "../strides.hpp"                    // for Strides::flexible_binary
 #include "inode.hpp"                         // for INode, Node_ptr
 #include <vector>                            // for std::vector
 
@@ -13,22 +12,24 @@ namespace kaad {
  * @brief A binary_flex operation node in a computation graph.
  * @see tensorfuncs::primal::binary::flexible
  * @see tensorfuncs::adjoint::binary::flexible
- * @tparam T The scalar type.
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <typename T, class Kernel> class Node_binary_flex : public INode<T> {
+template <class Kernel> class Node_binary_flex : public INode {
   public:
-    const char *node_type() const noexcept override { return "Node_binary_flex"; }
+    const char *node_type() const noexcept override {
+        return "Node_binary_flex";
+    }
 
-    INode<T> *B = nullptr; ///< Pointer to the second input Node.
+    INode *B = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::flexible_fn<T, Kernel> forward_op =
-        tensorfuncs::primal::binary::flexible<
-            T, Kernel>; ///< Function pointer to the value operation.
-    tensorfuncs::adjoint::binary::flexible_fn<T, Kernel> backward_op =
+    tensorfuncs::primal::binary::flexible_fn<Scalar, Kernel> forward_op =
+        tensorfuncs::primal::binary::flexible<Scalar,
+                                              Kernel>; ///< Function pointer to
+                                                       ///< the value operation.
+    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> backward_op =
         tensorfuncs::adjoint::binary::flexible<
-            T, Kernel>; ///< Function pointer to the gradient operation.
+            Scalar, Kernel>; ///< Function pointer to the gradient operation.
 
     std::vector<int> strideA;     ///< stride Array for A.
     std::vector<int> strideB;     ///< stride Array for B.
@@ -44,14 +45,43 @@ template <typename T, class Kernel> class Node_binary_flex : public INode<T> {
      * @param tensor_args Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_binary_flex(INode<T> *A_ptr, INode<T> *B_ptr,
-                     TensorArgs &&...tensor_args)
-        : B(B_ptr), INode<T>(A_ptr, tensor_args...) {
-        Strides::flexible_binary(*this);
+    Node_binary_flex(INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
+        : B(B_ptr), INode(A_ptr, tensor_args...) {
+        // compute metadata
+        Tensor_view A = this->A->value.view();
+        Tensor_view B = this->B->value.view();
+        Tensor_view C = this->value.view();
 
+        this->C_nDims = C.nDims;
+        this->strideA.resize(this->C_nDims);
+        this->strideB.resize(this->C_nDims);
+        this->strideC.resize(this->C_nDims);
+
+        int idx, idxA, idxB, idxC;
+        for (int i = 1; i <= this->C_nDims; i++) {
+            idx = this->C_nDims - i;
+            idxA = A.nDims - i;
+            this->strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
+            idxB = B.nDims - i;
+            this->strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
+            idxC = C.nDims - i;
+            this->strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+            // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
+            // traversing in flexible function
+            if (this->strideC[idx] == 0 && C.shape[idxC] == 1) {
+                this->strideC[idx] = 1;
+            }
+        }
+
+        this->C_offset.resize(this->C_nDims);
+        for (int i = 0; i < this->C_nDims; i++) {
+            this->C_offset[i] = C.shape[i] * this->strideC[i];
+        }
+
+        // assign compile-time recursive function
         if (C_nDims <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_flexOp<T, Kernel>()[C_nDims];
-            backward_op = Dispatchers::get_flexGrad<T, Kernel>()[C_nDims];
+            forward_op = Dispatchers::get_flexOp<Scalar, Kernel>()[C_nDims];
+            backward_op = Dispatchers::get_flexGrad<Scalar, Kernel>()[C_nDims];
         }
     }
 

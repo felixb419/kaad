@@ -9,9 +9,7 @@
 namespace kaad {
 
 template <typename T> class Computation_graph;
-template <typename T> class INode;
 template <typename T> class Node_handle;
-template <typename T> class Node_slice;
 
 /**
  * @brief Adds a slice node to the computation graph.
@@ -35,7 +33,7 @@ Node_handle<T> slice(Computation_graph<T> &rec, Node_handle<T> A,
                      std::initializer_list<int> offset) {
     int recLen = rec.nodes.size();
 
-    INode<T> *A_ptr = rec.get_node(A);
+    INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
     if (size.size() > A_val.nDims()) {
@@ -82,7 +80,7 @@ Node_handle<T> slice(Computation_graph<T> &rec, Node_handle<T> A,
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 
     rec.nodes.push_back(std::move(
-        std::make_unique<Node_slice<T>>(A_ptr, offset_owned.data(), newShape)));
+        std::make_unique<Node_slice>(A_ptr, offset_owned.data(), newShape)));
     return rec.back_handle();
 }
 
