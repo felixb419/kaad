@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../scalar.hpp"                  // for Scalar
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
@@ -18,25 +19,23 @@ namespace kaad {
  * Computes the element-wise dot product of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise dot product
  * of A and B.
  */
-template <typename T>
 Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
-    tensorfuncs::primal::binary::pointwise_fn<T, Kernels::Null> scalar =
-        tensorfuncs::primal::binary::scalarDot<T>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernels::Null> scalar_grad =
-        tensorfuncs::adjoint::binary::scalarDot<T, Kernels::Null>;
+    tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernels::Null> scalar =
+        tensorfuncs::primal::binary::scalarDot<Scalar>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernels::Null>
+        scalar_grad =
+            tensorfuncs::adjoint::binary::scalarDot<Scalar, Kernels::Null>;
 
-    tensorfuncs::primal::binary::pointwise_fn<T, Kernels::Null> dot =
-        tensorfuncs::primal::binary::dot<T, Kernels::Null>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernels::Null> dot_grad =
-        tensorfuncs::adjoint::binary::dot<T, Kernels::Null>;
+    tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernels::Null> dot =
+        tensorfuncs::primal::binary::dot<Scalar, Kernels::Null>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernels::Null> dot_grad =
+        tensorfuncs::adjoint::binary::dot<Scalar, Kernels::Null>;
 
     int recLen = rec.nodes.size();
 
@@ -51,7 +50,7 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
 
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<Kernels::Null>>(
-                scalar, scalar_grad, A_ptr, B_ptr, ((T)0))));
+                scalar, scalar_grad, A_ptr, B_ptr, ((Scalar)0))));
         static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
             A_val.data() + A_val.size();
 
@@ -59,7 +58,7 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
 
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<Kernels::Null>>(
-                scalar, scalar_grad, B_ptr, A_ptr, ((T)0))));
+                scalar, scalar_grad, B_ptr, A_ptr, ((Scalar)0))));
         static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
             B_val.data() + B_val.size(); // override end from constructor
 
@@ -69,7 +68,7 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
 
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<Kernels::Null>>(
-                dot, dot_grad, A_ptr, B_ptr, ((T)0))));
+                dot, dot_grad, A_ptr, B_ptr, ((Scalar)0))));
         static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
             A_val.data() + A_val.size();
 

@@ -21,15 +21,12 @@ namespace kaad {
  * Each element of the output is computed as the product of an element from A
  * and an element from B, preserving the full structure of both input tensors.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A Handle of the new node representing the generalized outer product
  * of A and B.
  */
-template <typename T>
 Node_handle outer(Computation_graph &rec, Node_handle A, Node_handle B) {
     int recLen = rec.nodes.size();
 

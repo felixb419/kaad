@@ -16,18 +16,16 @@ namespace kaad {
  * Computes the mean (average) of all elements in the input tensor node `A`,
  * producing a scalar tensor node containing the total average.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the scalar mean of all
  * elements of A.
  */
-template <typename T> Node_handle mean(Computation_graph &rec, Node_handle A) {
+Node_handle mean(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_mean>(rec.get_node(A), (T)0)));
+        std::move(std::make_unique<Node_mean>(rec.get_node(A), (Scalar)0)));
     return rec.back_handle();
 }
 
@@ -42,8 +40,6 @@ template <typename T> Node_handle mean(Computation_graph &rec, Node_handle A) {
  * output shape.
  * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @param dim The dimension along which to compute the mean.
@@ -52,7 +48,6 @@ template <typename T> Node_handle mean(Computation_graph &rec, Node_handle A) {
  * @return A handle of the new node representing the tensor after mean
  * reduction along the specified dimension.
  */
-template <typename T>
 Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
                  bool keepNDims = 0) {
     int recLen = rec.nodes.size();
@@ -67,7 +62,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     }
 
     if (A_val.nDims() == 1) {
-        return mean<T>(rec, A);
+        return mean(rec, A);
     }
 
     size_t newLen = A_val.nDims();

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <algorithm> // for std::max, std::min
-#include <cmath>     // for std::log, std::pow, std::exp, std::sqrt
-#include <cstdlib>   // for std::abs
-#include <limits>    // for std::numeric_limits
+#include "../scalar.hpp" // for Scalar
+#include <algorithm>     // for std::max, std::min
+#include <cmath>         // for std::log, std::pow, std::exp, std::sqrt
+#include <cstdlib>       // for std::abs
+#include <limits>        // for std::numeric_limits
 
 namespace kaad {
 
@@ -225,7 +226,7 @@ template <typename T> struct Sqrt {
 #ifdef NO_STABLE_SQRT
         C = std::sqrt(A);
 #else
-        C = std::sqrt(std::max(A, 0));
+        C = std::sqrt(std::max(A, T(0)));
 #endif
     }
     constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {

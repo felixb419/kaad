@@ -23,15 +23,12 @@ namespace kaad {
  * of shape (batch, M, K) × (batch, K, N) yields a result of shape (batch, M,
  * N).
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the left-hand-side input tensor node A.
  * @param B Handle of the right-hand-side input tensor node B.
  * @return A handle of the new node representing the matrix (or batched)
  * product of A and B.
  */
-template <typename T>
 Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B) {
     int recLen = rec.nodes.size();
 

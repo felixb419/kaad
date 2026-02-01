@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../../scalar.hpp"                  // for Scalar
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
@@ -68,14 +69,14 @@ template <typename T, class Kernel> struct BinaryKernels {
     tensorfuncs::primal::binary::flexible_fn<T, Kernel> flexOp =
         tensorfuncs::primal::binary::flexible<T, Kernel>;
 
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> scalarGradRhs =
-        tensorfuncs::adjoint::binary::scalarRhs<T, Kernel>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> scalarGradLhs =
-        tensorfuncs::adjoint::binary::scalarLhs<T, Kernel>;
-    tensorfuncs::adjoint::binary::pointwise_fn<T, Kernel> pointGrad =
-        tensorfuncs::adjoint::binary::pointwise<T, Kernel>;
-    tensorfuncs::adjoint::binary::flexible_fn<T, Kernel> flexGrad =
-        tensorfuncs::adjoint::binary::flexible<T, Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> scalarGradRhs =
+        tensorfuncs::adjoint::binary::scalarRhs<Scalar, Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> scalarGradLhs =
+        tensorfuncs::adjoint::binary::scalarLhs<Scalar, Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> pointGrad =
+        tensorfuncs::adjoint::binary::pointwise<Scalar, Kernel>;
+    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> flexGrad =
+        tensorfuncs::adjoint::binary::flexible<Scalar, Kernel>;
 };
 
 /**
@@ -86,7 +87,6 @@ template <typename T, class Kernel> struct BinaryKernels {
  * Applies the binary operation specified by `kernels` to the input tensor nodes
  * `A` and `B`.
  *
- * @tparam T The data type of tensor elements.
  * @tparam Kernel The kernel providing forward operation and gradient.
  *
  * @param rec Reference to the computation graph.
@@ -97,9 +97,9 @@ template <typename T, class Kernel> struct BinaryKernels {
  * logging).
  * @return Handle of the newly created binary operation node.
  */
-template <typename T, class Kernel>
+template <class Kernel>
 Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
-                        const BinaryKernels<T, Kernel> kernels,
+                        const BinaryKernels<Scalar, Kernel> kernels,
                         const char *opName) {
     int recLen = rec.nodes.size();
 
@@ -157,17 +157,14 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
  * Computes the element-wise sum of two input tensor nodes `A` and `B`.
  * Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise sum of A and
  * B.
  */
-template <typename T>
 Node_handle add(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Add<T>> addK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Add<Scalar>> addK;
     return binOperator(rec, A, B, addK, "add");
 }
 
@@ -177,17 +174,14 @@ Node_handle add(Computation_graph &rec, Node_handle A, Node_handle B) {
  * Computes the element-wise difference of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise difference of
  * A and B.
  */
-template <typename T>
 Node_handle sub(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Sub<T>> subK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Sub<Scalar>> subK;
     return binOperator(rec, A, B, subK, "sub");
 }
 
@@ -198,17 +192,14 @@ Node_handle sub(Computation_graph &rec, Node_handle A, Node_handle B) {
  * Computes the element-wise product of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise product of A
  * and B.
  */
-template <typename T>
 Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Mul<T>> mulK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Mul<Scalar>> mulK;
     return binOperator(rec, A, B, mulK, "mul");
 }
 
@@ -218,17 +209,14 @@ Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B) {
  * Computes the element-wise quotient of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise quotient of A
  * and B.
  */
-template <typename T>
 Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Div<T>> divK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Div<Scalar>> divK;
     return binOperator(rec, A, B, divK, "div");
 }
 
@@ -238,17 +226,14 @@ Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B) {
  * Computes the element-wise power of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise power of A
  * and B.
  */
-template <typename T>
 Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Pow<T>> powK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Pow<Scalar>> powK;
     return binOperator(rec, A, B, powK, "pow");
 }
 
@@ -258,17 +243,14 @@ Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B) {
  * Computes the element-wise minimum of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise minimum of A
  * and B.
  */
-template <typename T>
 Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Min<T>> minK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Min<Scalar>> minK;
     return binOperator(rec, A, B, minK, "minimum");
 }
 
@@ -278,17 +260,14 @@ Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B) {
  * Computes the element-wise maximum of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the first input tensor node A.
  * @param B Handle of the second input tensor node B.
  * @return A handle of the new node representing the element-wise maximum of A
  * and B.
  */
-template <typename T>
 Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const detail::BinaryKernels<T, class Kernels::Max<T>> maxK;
+    static const detail::BinaryKernels<Scalar, class Kernels::Max<Scalar>> maxK;
     return binOperator(rec, A, B, maxK, "minimum");
 }
 

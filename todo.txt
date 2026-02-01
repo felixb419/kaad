@@ -3,6 +3,7 @@
 FIX:
 
 REFACTOR:
+    split into header and source files
     make sure what goes into detail
     figure out what should be constexpr
     improve naming in getGradient

@@ -19,27 +19,25 @@ namespace kaad {
  * Computes the sum of all elements in the input tensor node `A`,
  * producing a scalar tensor node containing the total sum.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the scalar sum of all elements
  * of A.
  */
-template <typename T> Node_handle sum(Computation_graph &rec, Node_handle A) {
+Node_handle sum(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
-    using Kernel = class Kernels::Sum<T>;
-    tensorfuncs::primal::unary::pointwise_fn<T, Kernel> op =
-        tensorfuncs::primal::unary::scalarOut<T, Kernel>;
-    tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> grad =
-        tensorfuncs::adjoint::unary::scalarOut<T, Kernel>;
+    using Kernel = class Kernels::Sum<Scalar>;
+    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernel> op =
+        tensorfuncs::primal::unary::scalarOut<Scalar, Kernel>;
+    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernel> grad =
+        tensorfuncs::adjoint::unary::scalarOut<Scalar, Kernel>;
 
-    rec.nodes.push_back(
-        std::move(std::make_unique<Node_unary<Kernel>>(op, grad, A_ptr, (T)0)));
+    rec.nodes.push_back(std::move(
+        std::make_unique<Node_unary<Kernel>>(op, grad, A_ptr, (Scalar)0)));
     static_cast<Node_unary<Kernel> *>(rec.nodes.back().get())->end =
         A_val.data() + A_val.size(); // override end from constructor
 
@@ -56,8 +54,6 @@ template <typename T> Node_handle sum(Computation_graph &rec, Node_handle A) {
  * output shape.
  * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @param dim The dimension along which to sum.
@@ -66,7 +62,6 @@ template <typename T> Node_handle sum(Computation_graph &rec, Node_handle A) {
  * @return A handle of the new node representing the tensor after summation
  * along the specified dimension.
  */
-template <typename T>
 Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
                 bool keepNDims = false) {
     int recLen = rec.nodes.size();
@@ -81,7 +76,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
     }
 
     if (A_val.nDims() == 1) {
-        return sum<Scalar>(rec, A);
+        return sum(rec, A);
     }
 
     size_t newLen = A_val.nDims();

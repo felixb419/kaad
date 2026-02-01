@@ -34,17 +34,15 @@ template <typename T, class Kernel> struct UnaryKernels {
  * Applies the unary operation specified by `kernels` to the input tensor node
  * `A`.
  *
- * @tparam T The data type of tensor elements.
  * @tparam Kernel The kernel providing forward operation and gradient.
- *
  * @param rec Reference to the computation graph.
  * @param A Handle of the input node.
  * @param kernels Unary operation and gradient kernels.
  * @return Handle of the newly created unary operation node.
  */
-template <typename T, class Kernel>
+template <class Kernel>
 Node_handle unOperator(Computation_graph &rec, Node_handle A,
-                       const UnaryKernels<T, Kernel> kernels) {
+                       const UnaryKernels<Scalar, Kernel> kernels) {
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
@@ -57,92 +55,78 @@ Node_handle unOperator(Computation_graph &rec, Node_handle A,
 /**
  * @brief Adds a unary negation node (-A) to the computation graph.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the negated tensor,
  *         with the same shape as A.
  */
-template <typename T>
 Node_handle negative(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<T, class Kernels::Neg<T>> negK;
+    static const UnaryKernels<Scalar, class Kernels::Neg<Scalar>> negK;
     return unOperator(rec, A, negK);
 }
 
 /**
  * @brief Adds a unary square node (A²) to the computation graph.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the element-wise square of A,
  *         with the same shape as the input tensor.
  */
-template <typename T>
 Node_handle square(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<T, class Kernels::Square<T>> squareK;
+    static const UnaryKernels<Scalar, class Kernels::Square<Scalar>> squareK;
     return unOperator(rec, A, squareK);
 }
 
 /**
  * @brief Adds a unary square root node (√A) to the computation graph.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the element-wise square root
  * of A, with the same shape as the input tensor.
  */
-template <typename T> Node_handle sqrt(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<T, class Kernels::Sqrt<T>> sqrtK;
+Node_handle sqrt(Computation_graph &rec, Node_handle A) {
+    static const UnaryKernels<Scalar, class Kernels::Sqrt<Scalar>> sqrtK;
     return unOperator(rec, A, sqrtK);
 }
 
 /**
  * @brief Adds a unary logarithm node (log(A)) to the computation graph.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the element-wise logarithm
  * of A, with the same shape as the input tensor.
  */
-template <typename T> Node_handle log(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<T, class Kernels::Log<T>> logK;
+Node_handle log(Computation_graph &rec, Node_handle A) {
+    static const UnaryKernels<Scalar, class Kernels::Log<Scalar>> logK;
     return unOperator(rec, A, logK);
 }
 
 /**
  * @brief Adds a unary exponent node (e^A) to the computation graph.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the element-wise exponent
  * of A, with the same shape as the input tensor.
  */
-template <typename T> Node_handle exp(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<T, class Kernels::Exp<T>> expK;
+Node_handle exp(Computation_graph &rec, Node_handle A) {
+    static const UnaryKernels<Scalar, class Kernels::Exp<Scalar>> expK;
     return unOperator(rec, A, expK);
 }
 
 /**
  * @brief Adds a unary absolute value node (|A|) to the computation graph.
  *
- * @tparam T The data type of the tensor values.
- *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @return A handle of the new node representing the element-wise absolute
  * value of A, with the same shape as the input tensor.
  */
-template <typename T> Node_handle abs(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<T, class Kernels::Abs<T>> absK;
+Node_handle abs(Computation_graph &rec, Node_handle A) {
+    static const UnaryKernels<Scalar, class Kernels::Abs<Scalar>> absK;
     return unOperator(rec, A, absK);
 }
 
