@@ -4,13 +4,13 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../computation_graph.hpp"          // for Computation_graph
+#include "../node_handle.hpp"                // for Node_handle
+#include "../nodes/unary.hpp"                // for Node_unarysewfease
 #include <algorithm>                         // for std::copy, std::fill
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Contains a collection of unary functions for pointwise version of the
@@ -43,12 +43,12 @@ template <typename T, class Kernel> struct UnaryKernels {
  * @return Handle of the newly created unary operation node.
  */
 template <typename T, class Kernel>
-Node_handle<T> unOperator(Computation_graph<T> &rec, Node_handle<T> A,
-                          const UnaryKernels<T, Kernel> kernels) {
+Node_handle unOperator(Computation_graph &rec, Node_handle A,
+                       const UnaryKernels<T, Kernel> kernels) {
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
-    rec.nodes.push_back(std::move(std::make_unique<Node_unary< Kernel>>(
+    rec.nodes.push_back(std::move(std::make_unique<Node_unary<Kernel>>(
         kernels.op, kernels.grad, A_ptr, A_val.shape())));
 
     return rec.back_handle();
@@ -65,7 +65,7 @@ Node_handle<T> unOperator(Computation_graph<T> &rec, Node_handle<T> A,
  *         with the same shape as A.
  */
 template <typename T>
-Node_handle<T> negative(Computation_graph<T> &rec, Node_handle<T> A) {
+Node_handle negative(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<T, class Kernels::Neg<T>> negK;
     return unOperator(rec, A, negK);
 }
@@ -81,7 +81,7 @@ Node_handle<T> negative(Computation_graph<T> &rec, Node_handle<T> A) {
  *         with the same shape as the input tensor.
  */
 template <typename T>
-Node_handle<T> square(Computation_graph<T> &rec, Node_handle<T> A) {
+Node_handle square(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<T, class Kernels::Square<T>> squareK;
     return unOperator(rec, A, squareK);
 }
@@ -96,8 +96,7 @@ Node_handle<T> square(Computation_graph<T> &rec, Node_handle<T> A) {
  * @return A handle of the new node representing the element-wise square root
  * of A, with the same shape as the input tensor.
  */
-template <typename T>
-Node_handle<T> sqrt(Computation_graph<T> &rec, Node_handle<T> A) {
+template <typename T> Node_handle sqrt(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<T, class Kernels::Sqrt<T>> sqrtK;
     return unOperator(rec, A, sqrtK);
 }
@@ -112,8 +111,7 @@ Node_handle<T> sqrt(Computation_graph<T> &rec, Node_handle<T> A) {
  * @return A handle of the new node representing the element-wise logarithm
  * of A, with the same shape as the input tensor.
  */
-template <typename T>
-Node_handle<T> log(Computation_graph<T> &rec, Node_handle<T> A) {
+template <typename T> Node_handle log(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<T, class Kernels::Log<T>> logK;
     return unOperator(rec, A, logK);
 }
@@ -128,8 +126,7 @@ Node_handle<T> log(Computation_graph<T> &rec, Node_handle<T> A) {
  * @return A handle of the new node representing the element-wise exponent
  * of A, with the same shape as the input tensor.
  */
-template <typename T>
-Node_handle<T> exp(Computation_graph<T> &rec, Node_handle<T> A) {
+template <typename T> Node_handle exp(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<T, class Kernels::Exp<T>> expK;
     return unOperator(rec, A, expK);
 }
@@ -144,8 +141,7 @@ Node_handle<T> exp(Computation_graph<T> &rec, Node_handle<T> A) {
  * @return A handle of the new node representing the element-wise absolute
  * value of A, with the same shape as the input tensor.
  */
-template <typename T>
-Node_handle<T> abs(Computation_graph<T> &rec, Node_handle<T> A) {
+template <typename T> Node_handle abs(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<T, class Kernels::Abs<T>> absK;
     return unOperator(rec, A, absK);
 }

@@ -17,10 +17,8 @@ namespace kaad {
  *
  * This graph stores nodes derived from the INode interface. It supports
  * evaluating node values and computing gradients through backpropagation.
- *
- * @tparam T The data type of the tensor values.
  */
-template <typename T> class Computation_graph {
+class Computation_graph {
   public:
     std::vector<std::unique_ptr<INode>>
         nodes; ///< Holds unique pointers pointing to computation nodes
@@ -32,7 +30,7 @@ template <typename T> class Computation_graph {
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.
      */
-    INode *get_node(Node_handle<T> node) {
+    INode *get_node(Node_handle node) {
         if (node.origin_ != this) {
             throw std::invalid_argument(
                 "node does not belong to this instance of Computation_graph");
@@ -50,8 +48,8 @@ template <typename T> class Computation_graph {
      * @brief Get the last node in the graph.
      * @return Handle of the node at the back of the node vector.
      */
-    Node_handle<T> back_handle() {
-        return Node_handle<T>(this->nodes.size() - 1, this);
+    Node_handle back_handle() {
+        return Node_handle(this->nodes.size() - 1, this);
     }
 
     /**
@@ -68,11 +66,11 @@ template <typename T> class Computation_graph {
      * @param tensor_args Arguments forwarded to the Tensor constructor.
      * @return A handle of the newly created Node_valued.
      */
-    template <typename... Args> Node_handle<T> append(Args &&...tensor_args) {
-        this->nodes.push_back(std::make_unique<Node_valued>(
-            std::forward<Args>(tensor_args)...));
+    template <typename... Args> Node_handle append(Args &&...tensor_args) {
+        this->nodes.push_back(
+            std::make_unique<Node_valued>(std::forward<Args>(tensor_args)...));
 
-        return Node_handle<T>(this->nodes.size() - 1, this);
+        return Node_handle(this->nodes.size() - 1, this);
     }
 
     /**
@@ -90,11 +88,11 @@ template <typename T> class Computation_graph {
      * of the evaluated node.
      */
     template <typename... Node_handles>
-        requires(std::same_as<Node_handles, Node_handle<T>> && ...)
+        requires(std::same_as<Node_handles, Node_handle> && ...)
     std::array<Tensor *, sizeof...(Node_handles)>
     evaluate(Node_handles... nodes) {
 
-        Node_handle<T> node_arr[] = {nodes...};
+        Node_handle node_arr[] = {nodes...};
         std::array<Tensor *, sizeof...(nodes)> values;
 
         for (int i = 0; i < sizeof...(nodes); i++) {
@@ -114,7 +112,7 @@ template <typename T> class Computation_graph {
      * backpropagation through the graph. Returns a list of pointers to the
      * gradient tensors corresponding to each input node in `dx`.
      *
-     * @tparam ptrs Variadic template parameter pack of Node_handle<T> types.
+     * @tparam ptrs Variadic template parameter pack of Node_handle types.
      *
      * @param df Handle of the output node (target function) with respect
      * to which gradients are computed.
@@ -124,8 +122,8 @@ template <typename T> class Computation_graph {
      * for each input node.
      */
     template <typename... Handles>
-        requires(std::same_as<Handles, Node_handle<T>> && ...)
-    std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle<T> df,
+        requires(std::same_as<Handles, Node_handle> && ...)
+    std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle df,
                                                          Handles... dx) {
         INode *f = this->get_node(df);
         std::fill(f->gradient.elements_.begin(), f->gradient.elements_.end(),
@@ -133,7 +131,7 @@ template <typename T> class Computation_graph {
 
         f->getGrad();
 
-        std::array<Node_handle<T>, sizeof...(dx)> nodes = {dx...};
+        std::array<Node_handle, sizeof...(dx)> nodes = {dx...};
         std::array<Tensor *, sizeof...(dx)> partials = {};
         for (size_t i = 0; i < sizeof...(dx); i++) {
             partials[i] = &this->get_node(nodes[i])->gradient;
@@ -156,4 +154,15 @@ template <typename T> class Computation_graph {
         }
     }
 };
+
+std::ostream &operator<<(std::ostream &os, Node_handle node) {
+    INode *node_ptr = node.origin_->get_node(node);
+    os << node_ptr->node_type() << " at idx " << node.idx()
+       << " of Computation_graph at " << node.origin() << "\n"
+       << "value:\n"
+       << node_ptr->value << "\ngradient:\n"
+       << node_ptr->gradient;
+    return os;
+}
+
 } // namespace kaad

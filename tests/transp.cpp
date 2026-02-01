@@ -1,16 +1,17 @@
 #include "../kaad.hpp"
+#include "../scalar.hpp"
 #include <algorithm>
 #include <numeric>
 
 int main() {
-    kaad::Computation_graph<float> rec;
+    kaad::Computation_graph rec;
 
     std::vector<float> a_elements(30);
     std::iota(a_elements.begin(), a_elements.end(), 0);
 
     kaad::Node_handle a = rec.append(std::vector<int>{3, 5, 2}, a_elements);
 
-    kaad::Node_handle c = transpose(rec, a);
+    kaad::Node_handle c = transpose<kaad::Scalar>(rec, a);
 
     rec.reset();
 

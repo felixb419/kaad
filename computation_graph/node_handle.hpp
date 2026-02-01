@@ -5,32 +5,26 @@
 #include <iostream>        // for std::ostream
 
 namespace kaad {
-template <typename T> class Computation_graph;
+class Computation_graph;
 
 /**
  * @brief Immutable handle class for a INode.
- * @tparam T The scalar type (e.g., float or double).
  */
-template <typename T> class Node_handle {
-    uint32_t idx_; ///< Index of the node in the Computation_graph<T>.
-    Computation_graph<T>
-        *origin_; ///< Pointer to the correct Computation_graph<T>.
+class Node_handle {
+    uint32_t idx_;              ///< Index of the node in the Computation_graph.
+    Computation_graph *origin_; ///< Pointer to the correct Computation_graph.
 
     /**
      * @brief private constructor
-     * @param idx Index of the node in the Computation_graph<T>.
-     * @param origin Pointer to the Computation_graph<T>.
+     * @param idx Index of the node in the Computation_graph.
+     * @param origin Pointer to the Computation_graph.
      */
-    constexpr explicit Node_handle(uint32_t idx, Computation_graph<T> *origin)
+    constexpr explicit Node_handle(uint32_t idx, Computation_graph *origin)
         : idx_(idx), origin_(origin) {}
 
-    friend class Computation_graph<T>;
+    friend class Computation_graph;
 
   public:
-    constexpr const char *node_type() {
-        return this->origin_->get_node(*this)->node_type();
-    }
-
     /**
      * @brief Get the index.
      * @return Copy of the idx_ member.
@@ -39,45 +33,12 @@ template <typename T> class Node_handle {
 
     /**
      * @brief Get the origin of the Node.
-     * @return Pointer to the Computation_graph<T> which contains the node.
+     * @return Pointer to the Computation_graph which contains the node.
      */
-    constexpr const Computation_graph<T> *origin() { return this->origin_; }
-
-    /**
-     * @brief Get the node.
-     * @return Const INode Pointer to the node in the graph.
-     */
-    constexpr const INode *get() const noexcept {
-        return origin_->get_node(*this);
-    }
-
-    /**
-     * @brief Get the value tensor of the node.
-     * @return Immutable reference to the value tensor.
-     */
-    constexpr const Tensor &value() {
-        return this->origin_->nodes[this->idx_].get()->value;
-    }
-
-    /**
-     * @brief Get the gradient tensor of the node.
-     * @return Immutable reference to the gradient tensor.
-     */
-    constexpr const Tensor &gradient() {
-        return this->origin_->nodes[this->idx_].get()->value;
-    }
+    constexpr const Computation_graph *origin() { return this->origin_; }
 
     friend constexpr auto operator<=>(Node_handle, Node_handle) = default;
+    friend std::ostream &operator<<(std::ostream &os, Node_handle node);
 };
-
-template <typename T>
-std::ostream &operator<<(std::ostream &os, Node_handle<T> node) {
-    os << node.node_type() << " at idx " << node.idx()
-       << " of Computation_graph at " << node.origin() << "\n"
-       << "value:\n"
-       << node.get()->value << "\ngradient:\n"
-       << node.get()->gradient;
-    return os;
-}
 
 } // namespace kaad

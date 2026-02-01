@@ -3,6 +3,7 @@
 #include "computation_graph/computation_graph.hpp"
 #include "computation_graph/nodes/nodes.hpp"
 #include "computation_graph/operators/operators.hpp"
+#include "scalar.hpp"
 #include "tensor/tensor.hpp"
 
 /**

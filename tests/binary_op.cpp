@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-    kaad::Computation_graph<float> rec;
+    kaad::Computation_graph rec;
 
     auto a = rec.append(std::vector<int>{3, 2}, 10);
     auto b = rec.append(std::vector<int>{3, 2}, 30);

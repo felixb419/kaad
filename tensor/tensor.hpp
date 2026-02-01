@@ -282,7 +282,7 @@ class Tensor {
                                this->size());
     }
 
-    template <typename U> friend class Computation_graph;
+    friend class Computation_graph;
     friend class INode;
 
     template <class Kernel> friend class Node_binary;

@@ -1,14 +1,15 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for Tensor
-#include "../common.hpp"           // for combine_matrix
-#include "exceptions.hpp"          // for shape_error
-#include <memory>                  // for std::make_unique
+#include "../../tensor/tensor.hpp"   // for Tensor
+#include "../common.hpp"             // for combine_matrix
+#include "../computation_graph.hpp"  // for Computation_graph
+#include "../node_handle.hpp"        // for Node_handle
+#include "../nodes/batch_matmul.hpp" // for Node_batch_matmul
+#include "../nodes/matmul.hpp"       // for Node_matmul
+#include "exceptions.hpp"            // for shape_error
+#include <memory>                    // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a matrix multiplication node (A × B) to the computation graph.
@@ -31,8 +32,7 @@ template <typename T> class Node_handle;
  * product of A and B.
  */
 template <typename T>
-Node_handle<T> matmul(Computation_graph<T> &rec, Node_handle<T> A,
-                      Node_handle<T> B) {
+Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
@@ -54,8 +54,8 @@ Node_handle<T> matmul(Computation_graph<T> &rec, Node_handle<T> A,
     }
 
     if (newLen == 2) {
-        rec.nodes.push_back(std::move(
-            std::make_unique<Node_matmul>(A_ptr, B_ptr, newShape)));
+        rec.nodes.push_back(
+            std::move(std::make_unique<Node_matmul>(A_ptr, B_ptr, newShape)));
     } else {
         rec.nodes.push_back(std::move(
             std::make_unique<Node_batch_matmul>(A_ptr, B_ptr, newShape)));

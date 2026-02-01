@@ -50,9 +50,9 @@ class Node_mean_dim : public INode {
         this->C_end = C.elements + C.len;
         this->dA_end = dA.elements + dA.len;
 
-        detail::along_dim_metadata_impl<Scalar>(A, C, dim, this->A_nDims,
-                                                this->A_offset, this->strideA,
-                                                this->strideC);
+        detail::along_dim_metadata_impl(A, C, dim, this->A_nDims,
+                                        this->A_offset, this->strideA,
+                                        this->strideC);
 
         // assign compile-time recursive function
         size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();

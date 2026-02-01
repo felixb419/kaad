@@ -50,7 +50,6 @@ static inline bool combine_matrix(const int *shape1, size_t nDims1,
 /**
  * @brief Computes stride and offset metadata for operations along a specific
  * tensor dimension.
- * @tparam T         The scalar type (e.g., float, double).
  * @param A          Input tensor.
  * @param C          Output tensor (e.g., reduced along `dim`).
  * @param dim        The dimension along which the operation is applied.
@@ -60,7 +59,6 @@ static inline bool combine_matrix(const int *shape1, size_t nDims1,
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
-template <typename T>
 void along_dim_metadata_impl(Tensor_view &A, Tensor_view &C, int dim, size_t &D,
                              std::vector<size_t> &A_offset,
                              std::vector<int> &strideA,

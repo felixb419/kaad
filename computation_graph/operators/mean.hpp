@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for Tensor
-#include "exceptions.hpp"          // for param_error
-#include <memory>                  // for std::make_unique
+#include "../../tensor/tensor.hpp"  // for Tensor
+#include "../computation_graph.hpp" // for Computation_graph
+#include "../node_handle.hpp"       // for Node_handle
+#include "../nodes/mean.hpp"        // for Node_mean
+#include "../nodes/mean_dim.hpp"    // for Node_mean_dim
+#include "exceptions.hpp"           // for param_error
+#include <memory>                   // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -22,8 +23,7 @@ template <typename T> class Node_handle;
  * @return A handle of the new node representing the scalar mean of all
  * elements of A.
  */
-template <typename T>
-Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A) {
+template <typename T> Node_handle mean(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
     rec.nodes.push_back(
@@ -53,8 +53,8 @@ Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A) {
  * reduction along the specified dimension.
  */
 template <typename T>
-Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A, int dim,
-                    bool keepNDims = 0) {
+Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
+                 bool keepNDims = 0) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
@@ -67,7 +67,7 @@ Node_handle<T> mean(Computation_graph<T> &rec, Node_handle<T> A, int dim,
     }
 
     if (A_val.nDims() == 1) {
-        return mean(rec, A);
+        return mean<T>(rec, A);
     }
 
     size_t newLen = A_val.nDims();

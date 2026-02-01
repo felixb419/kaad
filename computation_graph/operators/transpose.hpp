@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for Tensor
-#include "exceptions.hpp"          // for shape_error, argument_error
-#include <algorithm>               // for std::reverse_copy
-#include <initializer_list>        // for std::initializer_list
-#include <memory>                  // for std::make_unique
+#include "../../tensor/tensor.hpp"  // for Tensor
+#include "../computation_graph.hpp" // for Computation_graph
+#include "../node_handle.hpp"       // for Node_handle
+#include "../nodes/inode.hpp"       // for INode
+#include "exceptions.hpp"           // for shape_error, argument_error
+#include <algorithm>                // for std::reverse_copy
+#include <initializer_list>         // for std::initializer_list
+#include <memory>                   // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
@@ -29,8 +29,8 @@ template <typename T> class Node_handle;
  *         with shape adjusted according to `perm` or full transpose.
  */
 template <typename T>
-Node_handle<T> transpose(Computation_graph<T> &rec, Node_handle<T> A,
-                         std::initializer_list<int> perm = {}) {
+Node_handle transpose(Computation_graph &rec, Node_handle A,
+                      std::initializer_list<int> perm = {}) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

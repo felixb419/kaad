@@ -4,13 +4,13 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../computation_graph.hpp"          // for Computation_graph
+#include "../node_handle.hpp"                // for Node_handle
+#include "../nodes/binary.hpp"               // for Node_binary
 #include "exceptions.hpp"                    // for shape_error
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a binary dot product node (A ⋅ B) to the computation graph.
@@ -27,8 +27,7 @@ template <typename T> class Node_handle;
  * of A and B.
  */
 template <typename T>
-Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
     tensorfuncs::primal::binary::pointwise_fn<T, Kernels::Null> scalar =
         tensorfuncs::primal::binary::scalarDot<T>;
     tensorfuncs::adjoint::binary::pointwise_fn<T, Kernels::Null> scalar_grad =
@@ -51,18 +50,17 @@ Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
     if (B_scalar) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary< Kernels::Null>>(
+            std::move(std::make_unique<Node_binary<Kernels::Null>>(
                 scalar, scalar_grad, A_ptr, B_ptr, ((T)0))));
-        static_cast<Node_binary< Kernels::Null> *>(rec.nodes.back().get())
-            ->end = A_val.data() + A_val.size();
+        static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
+            A_val.data() + A_val.size();
 
     } else if (A_scalar) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary< Kernels::Null>>(
+            std::move(std::make_unique<Node_binary<Kernels::Null>>(
                 scalar, scalar_grad, B_ptr, A_ptr, ((T)0))));
-        static_cast<Node_binary< Kernels::Null> *>(rec.nodes.back().get())
-            ->end =
+        static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
             B_val.data() + B_val.size(); // override end from constructor
 
     } else if (A_val.nDims() == 1 && B_val.nDims() == 1 &&
@@ -70,10 +68,10 @@ Node_handle<T> dot(Computation_graph<T> &rec, Node_handle<T> A,
                           B_val.shape_begin())) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary< Kernels::Null>>(
+            std::move(std::make_unique<Node_binary<Kernels::Null>>(
                 dot, dot_grad, A_ptr, B_ptr, ((T)0))));
-        static_cast<Node_binary< Kernels::Null> *>(rec.nodes.back().get())
-            ->end = A_val.data() + A_val.size();
+        static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
+            A_val.data() + A_val.size();
 
     } else {
         throw shape_error(

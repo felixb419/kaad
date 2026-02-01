@@ -4,6 +4,8 @@
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../computation_graph.hpp"          // for Computation_graph
+#include "../node_handle.hpp"                // for Node_handle
 #include "../nodes/binary.hpp"               // for Node_binary
 #include "../nodes/binary_flex.hpp"          // for Node_binary_flex
 #include "../nodes/inode.hpp"                // for INode
@@ -12,9 +14,6 @@
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 namespace detail {
 
@@ -99,9 +98,9 @@ template <typename T, class Kernel> struct BinaryKernels {
  * @return Handle of the newly created binary operation node.
  */
 template <typename T, class Kernel>
-Node_handle<T>
-binOperator(Computation_graph<T> &rec, Node_handle<T> A, Node_handle<T> B,
-            const BinaryKernels<T, Kernel> kernels, const char *opName) {
+Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
+                        const BinaryKernels<T, Kernel> kernels,
+                        const char *opName) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
@@ -167,8 +166,7 @@ binOperator(Computation_graph<T> &rec, Node_handle<T> A, Node_handle<T> B,
  * B.
  */
 template <typename T>
-Node_handle<T> add(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle add(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Add<T>> addK;
     return binOperator(rec, A, B, addK, "add");
 }
@@ -188,8 +186,7 @@ Node_handle<T> add(Computation_graph<T> &rec, Node_handle<T> A,
  * A and B.
  */
 template <typename T>
-Node_handle<T> sub(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle sub(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Sub<T>> subK;
     return binOperator(rec, A, B, subK, "sub");
 }
@@ -210,8 +207,7 @@ Node_handle<T> sub(Computation_graph<T> &rec, Node_handle<T> A,
  * and B.
  */
 template <typename T>
-Node_handle<T> mul(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Mul<T>> mulK;
     return binOperator(rec, A, B, mulK, "mul");
 }
@@ -231,8 +227,7 @@ Node_handle<T> mul(Computation_graph<T> &rec, Node_handle<T> A,
  * and B.
  */
 template <typename T>
-Node_handle<T> div(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Div<T>> divK;
     return binOperator(rec, A, B, divK, "div");
 }
@@ -252,8 +247,7 @@ Node_handle<T> div(Computation_graph<T> &rec, Node_handle<T> A,
  * and B.
  */
 template <typename T>
-Node_handle<T> pow(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Pow<T>> powK;
     return binOperator(rec, A, B, powK, "pow");
 }
@@ -273,8 +267,7 @@ Node_handle<T> pow(Computation_graph<T> &rec, Node_handle<T> A,
  * and B.
  */
 template <typename T>
-Node_handle<T> min(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Min<T>> minK;
     return binOperator(rec, A, B, minK, "minimum");
 }
@@ -294,8 +287,7 @@ Node_handle<T> min(Computation_graph<T> &rec, Node_handle<T> A,
  * and B.
  */
 template <typename T>
-Node_handle<T> max(Computation_graph<T> &rec, Node_handle<T> A,
-                   Node_handle<T> B) {
+Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B) {
     static const detail::BinaryKernels<T, class Kernels::Max<T>> maxK;
     return binOperator(rec, A, B, maxK, "minimum");
 }

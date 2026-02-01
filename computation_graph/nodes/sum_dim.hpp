@@ -41,9 +41,9 @@ class Node_sum_dim : public INode {
         Tensor_view A = this->A->value.view();
         Tensor_view C = this->value.view();
 
-        detail::along_dim_metadata_impl<Scalar>(A, C, dim, this->C_nDims,
-                                                this->A_offset, this->strideA,
-                                                this->strideC);
+        detail::along_dim_metadata_impl(A, C, dim, this->C_nDims,
+                                        this->A_offset, this->strideA,
+                                        this->strideC);
 
         // assign compile-time recursive function
         size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();

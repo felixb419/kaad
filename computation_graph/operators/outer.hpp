@@ -1,13 +1,12 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for Tensor
-#include "../nodes/outer.hpp"      // for Node_outer
-#include <memory>                  // for std::make_unique
+#include "../../tensor/tensor.hpp"  // for Tensor
+#include "../computation_graph.hpp" // for Computation_graph
+#include "../node_handle.hpp"       // for Node_handle
+#include "../nodes/outer.hpp"       // for Node_outer
+#include <memory>                   // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
@@ -31,8 +30,7 @@ template <typename T> class Node_handle;
  * of A and B.
  */
 template <typename T>
-Node_handle<T> outer(Computation_graph<T> &rec, Node_handle<T> A,
-                     Node_handle<T> B) {
+Node_handle outer(Computation_graph &rec, Node_handle A, Node_handle B) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

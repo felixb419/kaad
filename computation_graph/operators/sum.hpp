@@ -3,6 +3,8 @@
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
+#include "../computation_graph.hpp"          // for Computation_graph
+#include "../node_handle.hpp"                // for Node_handle
 #include "../nodes/inode.hpp"                // for INode
 #include "../nodes/sum_dim.hpp"              // for Node_sum_dim
 #include "../nodes/unary.hpp"                // for Node_unary
@@ -10,9 +12,6 @@
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a unary sum node to the computation graph.
@@ -27,8 +26,7 @@ template <typename T> class Node_handle;
  * @return A handle of the new node representing the scalar sum of all elements
  * of A.
  */
-template <typename T>
-Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A) {
+template <typename T> Node_handle sum(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
@@ -69,8 +67,8 @@ Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A) {
  * along the specified dimension.
  */
 template <typename T>
-Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A, int dim,
-                   bool keepNDims = false) {
+Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
+                bool keepNDims = false) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
@@ -83,7 +81,7 @@ Node_handle<T> sum(Computation_graph<T> &rec, Node_handle<T> A, int dim,
     }
 
     if (A_val.nDims() == 1) {
-        return sum(rec, A);
+        return sum<Scalar>(rec, A);
     }
 
     size_t newLen = A_val.nDims();

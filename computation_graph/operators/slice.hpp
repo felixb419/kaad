@@ -1,15 +1,14 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for Tensor
-#include "exceptions.hpp"          // for argument_error
-#include <memory>                  // for std::make_unique
-#include <span>                    // for  std::span
-#include <string>                  // for  std::string
+#include "../../tensor/tensor.hpp"  // for Tensor
+#include "../computation_graph.hpp" // for Computation_graph
+#include "../node_handle.hpp"       // for Node_handle
+#include "exceptions.hpp"           // for argument_error
+#include <memory>                   // for std::make_unique
+#include <span>                     // for  std::span
+#include <string>                   // for  std::string
 
 namespace kaad {
-
-template <typename T> class Computation_graph;
-template <typename T> class Node_handle;
 
 /**
  * @brief Adds a slice node to the computation graph.
@@ -28,9 +27,9 @@ template <typename T> class Node_handle;
  * @return A handle of the new node representing the sliced tensor.
  */
 template <typename T>
-Node_handle<T> slice(Computation_graph<T> &rec, Node_handle<T> A,
-                     std::initializer_list<int> size,
-                     std::initializer_list<int> offset) {
+Node_handle slice(Computation_graph &rec, Node_handle A,
+                  std::initializer_list<int> size,
+                  std::initializer_list<int> offset) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
