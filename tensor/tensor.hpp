@@ -1,17 +1,13 @@
 #pragma once
 
-#include <algorithm>        // for std::copy, std::max, std::fill
+#include "../scalar.hpp"    // for Scalar
+#include "tensor_view.hpp"  // for kaad::Tensor_view
 #include <concepts>         // for concept
 #include <cstddef>          // for size_t
 #include <initializer_list> // for std::initializer_list
 #include <iostream>         // for std::ostream
 #include <ranges>           // for std::ranges
-#include <stdexcept>        // for std::invalid_argument
 #include <vector>           // for std::vector
-
-#include "../scalar.hpp"   // for Scalar
-#include "common.hpp"      // for kaad::detail::print_tensor
-#include "tensor_view.hpp" // for kaad::Tensor_view
 
 namespace kaad {
 
@@ -77,7 +73,7 @@ class Tensor {
     /**
      * @brief Default constructor.
      */
-    Tensor() {}
+    Tensor();
 
     /**
      * @brief Constructs a tensor.
@@ -86,7 +82,7 @@ class Tensor {
      */
     template <IntegralRange IR, typename VR>
         requires ValueRange<VR>
-    explicit Tensor(IR shape, VR elements)
+    Tensor(IR shape, VR elements)
         : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
           elements_(std::ranges::begin(elements), std::ranges::end(elements)) {
         int len;
@@ -136,151 +132,111 @@ class Tensor {
      * @param shape Initializer list with the shape of the tensor.
      * @param fill Value to fill the tensor with.
      */
-    Tensor(std::initializer_list<int> shape, value_type fill = 0)
-        : shape_(shape.begin(), shape.end()) {
-        int len;
-        detail::compute_stride(this->stride_, len, this->shape_);
+    Tensor(std::initializer_list<int> shape, value_type fill = 0);
 
-        this->elements_.resize(len);
-        std::fill(this->elements_.begin(), this->elements_.end(), fill);
-    }
-
-    Tensor(value_type scalar) : shape_(1), stride_(1), elements_(1) {
-        this->shape_[0] = 1;
-        this->stride_[0] = 0;
-        this->elements_[0] = scalar;
-    }
-
+    Tensor(value_type scalar);
     /**
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */
-    size_type nDims() const noexcept {
-        return static_cast<size_type>(this->shape_.size());
-    }
+    size_type nDims() const noexcept;
 
     /**
      * @brief Get immutable reference to the shape array.
      * @return Const reference to shape_.
      */
-    const std::vector<int> &shape() const noexcept { return this->shape_; }
+    const std::vector<int> &shape() const noexcept;
 
     /**
      * @brief Get immutable pointer to the begin of shape array.
      * @return Const pointer to the first element of shape_.
      */
-    const int *shape_begin() const noexcept { return this->shape_.data(); }
+    const int *shape_begin() const noexcept;
 
     /**
      * @brief Get immutable pointer to the end of shape array.
      * @return Const pointer one past the shape array.
      */
-    const int *shape_end() const noexcept {
-        return this->shape_.data() + this->shape_.size();
-    }
+    const int *shape_end() const noexcept;
 
     /**
      * @brief Get immutable reference to the stride array.
      * @return Const reference to stride_.
      */
-    const std::vector<int> &stride() const noexcept { return this->stride_; }
+    const std::vector<int> &stride() const noexcept;
 
     /**
      * @brief Get immutable pointer to the begin of stride array.
      * @return Const pointer to the first element of stride_.
      */
-    const int *stride_begin() const noexcept { return this->stride_.data(); }
+    const int *stride_begin() const noexcept;
 
     /**
      * @brief Get immutable pointer to the end of stride array.
      * @return Const pointer one past the stride array.
      */
-    const int *stride_end() const noexcept {
-        return this->stride_.data() + this->stride_.size();
-    }
+    const int *stride_end() const noexcept;
 
     /**
      * @brief Get a const iterator to the begin of the value array.
      * @return Const iterator to the first element.
      */
-    const_iterator begin() const noexcept {
-        return static_cast<const_iterator>(this->elements_.data());
-    }
+    const_iterator begin() const noexcept;
 
     /**
      * @brief Get a const iterator to the end of the value array.
      * @return Const iterator to one past the last element.
      */
-    const_iterator end() const noexcept {
-        return static_cast<const_iterator>(this->elements_.data() +
-                                           this->elements_.size());
-    }
+    const_iterator end() const noexcept;
 
     /**
      * @brief Get number of elements in the tensor.
      * @return Length of the value array.
      */
-    size_type size() const noexcept {
-        return static_cast<size_type>(this->elements_.size());
-    }
+    size_type size() const noexcept;
 
     /**
      * @brief Checks if tensor has no elements
      * @return True if container is empty, false otherwise.
      */
-    bool empty() const noexcept { return this->elements_.empty(); }
+    bool empty() const noexcept;
 
     /**
      * @brief Gets an element based off 1d index.
      * @param 1d index
      * @return Element at @p i.
      */
-    const_reference operator[](size_type i) const noexcept {
-        return static_cast<const_reference>(this->elements_[i]);
-    }
+    const_reference operator[](size_type i) const noexcept;
 
     /**
      * @brief Returns a reference to the first element.
      */
-    const_reference front() const noexcept {
-        return static_cast<const_reference>(this->elements_.front());
-    }
+    const_reference front() const noexcept;
 
     /**
      * @brief Returns a reference to the last element.
      */
-    const_reference back() const noexcept {
-        return static_cast<const_reference>(this->elements_.back());
-    }
+    const_reference back() const noexcept;
 
     /**
      * @brief Get a const pointer to the value array.
      * @return Const pointer to the start of the value array.
      */
-    const_pointer data() const noexcept {
-        return static_cast<const_pointer>(this->elements_.data());
-    }
+    const_pointer data() const noexcept;
 
     /**
      * @brief Creates a view of the tensor.
      * @return A Tensor_view<T> structure representing a non-owning immutable
      * view of the tensor.
      */
-    struct Tensor_view view() const {
-        return Tensor_view(this->shape_.data(), this->stride_.data(),
-                           this->nDims(), this->data(), this->size());
-    }
+    struct Tensor_view view() const;
 
     /**
      * @brief Creates a view of the tensor.
      * @return A Tensor_view<T> structure representing a non-owning mutable
      * view of the tensor.
      */
-    struct Tensor_view_mut view_mut() {
-        return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
-                               this->nDims(), this->elements_.data(),
-                               this->size());
-    }
+    struct Tensor_view_mut view_mut();
 
     friend class Computation_graph;
     friend class INode;
@@ -305,17 +261,6 @@ class Tensor {
  * @param tensor The tensor to print.
  * @return Reference to the output stream.
  */
-static inline std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
-    if (tensor.nDims() == 0 || tensor.size() == 0) {
-        os << "[]";
-    } else {
-        std::vector<int> cords(tensor.nDims());
-        int indent = 0;
+std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
 
-        detail::print_tensor(os, cords, tensor.shape_begin(),
-                             tensor.stride_begin(), tensor.nDims(),
-                             tensor.begin(), tensor.size(), 0, indent);
-    }
-    return os;
-}
 } // namespace kaad

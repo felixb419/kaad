@@ -15,6 +15,7 @@ REFACTOR:
     disallow iteration semantics and maybe make begin and end private
     (?) remove shape_end and shape_begin
     comment node_type funciton
+    remove shape_begin function
 
 
 FEAT:
@@ -33,3 +34,62 @@ PERF:
 DOC:
     fix all include lists
     get rid of non-ascii chars
+
+
+Repo Layout:
+kaad/
+├─ CMakeLists.txt
+├─ include/
+│  └─ kaad/
+│     ├─ tensor/
+│     │  ├─ tensor.hpp              # public API
+│     │  └─ ...                     # other public headers
+│     ├─ computation_graph/
+│     │  ├─ graph.hpp               # public API
+│     │  └─ node_handle.hpp
+│     └─ tensorfuncs/
+│        ├─ adjoint_ops.hpp         # template-heavy, stays in headers
+│        └─ ...                     # more .hpp/.inl templates
+├─ src/
+│  ├─ tensor/
+│  │  ├─ tensor.cpp                 # non-template definitions moved here
+│  │  └─ ...
+│  └─ computation_graph/
+│     ├─ graph.cpp
+│     └─ ...
+├─ examples/
+│  └─ outer_product.cpp
+├─ tests/
+│  └─ ...
+└─ cmake/
+   └─ kaadConfig.cmake.in           # optional, for install/package
+
+
+Repo Layout:
+kaad/
+├─ CMakeLists.txt
+├─ include/
+│  └─ kaad/
+│     ├─ tensor/
+│     │  ├─ tensor.hpp              # public API
+│     │  └─ ...                     # other public headers
+│     ├─ computation_graph/
+│     │  ├─ graph.hpp               # public API
+│     │  └─ node_handle.hpp
+│     └─ tensorfuncs/
+│        ├─ adjoint_ops.hpp         # template-heavy, stays in headers
+│        └─ ...                     # more .hpp/.inl templates
+├─ src/
+│  ├─ tensor/
+│  │  ├─ tensor.cpp                 # non-template definitions moved here
+│  │  └─ ...
+│  └─ computation_graph/
+│     ├─ graph.cpp
+│     └─ ...
+├─ examples/
+│  └─ outer_product.cpp
+├─ tests/
+│  └─ ...
+└─ cmake/
+   └─ kaadConfig.cmake.in           # optional, for install/package
+
