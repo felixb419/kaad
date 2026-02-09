@@ -2,7 +2,8 @@
 
 #include "../tensor/tensor_view.hpp" // for Tensor_view
 #include <algorithm>                 // for fill, max
-#include <stddef.h>                  // for size_t
+#include <cstddef>                   // for size_t
+#include <vector>                    // for vector
 
 namespace kaad::detail {
 
@@ -19,9 +20,8 @@ namespace kaad::detail {
  * @param newLen Total number of dimensions in the result.
  * @return true if matmul broadcasting is possible, false otherwise.
  */
-static inline bool combine_matrix(const int *shape1, size_t nDims1,
-                                  const int *shape2, size_t nDims2,
-                                  int *newShape, size_t newLen) {
+inline bool combine_matrix(const int *shape1, size_t nDims1, const int *shape2,
+                           size_t nDims2, int *newShape, size_t newLen) {
     if (shape1[nDims1 - 1] != shape2[nDims2 - 2]) {
         return false;
     }
@@ -59,10 +59,10 @@ static inline bool combine_matrix(const int *shape1, size_t nDims1,
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
-void along_dim_metadata_impl(Tensor_view &A, Tensor_view &C, int dim, size_t &D,
-                             std::vector<size_t> &A_offset,
-                             std::vector<int> &strideA,
-                             std::vector<int> &strideC) {
+static void along_dim_metadata_impl(Tensor_view &A, Tensor_view &C, int dim,
+                                    size_t &D, std::vector<size_t> &A_offset,
+                                    std::vector<int> &strideA,
+                                    std::vector<int> &strideC) {
     D = A.nDims;
     strideA.resize(D);
     strideC.resize(D);

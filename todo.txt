@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    split into header and source files
     make sure what goes into detail
     figure out what should be constexpr
     improve naming in getGradient
@@ -34,6 +33,7 @@ PERF:
 DOC:
     fix all include lists
     get rid of non-ascii chars
+    add doxygen groups
 
 
 Repo Layout:
@@ -63,33 +63,3 @@ kaad/
 │  └─ ...
 └─ cmake/
    └─ kaadConfig.cmake.in           # optional, for install/package
-
-
-Repo Layout:
-kaad/
-├─ CMakeLists.txt
-├─ include/
-│  └─ kaad/
-│     ├─ tensor/
-│     │  ├─ tensor.hpp              # public API
-│     │  └─ ...                     # other public headers
-│     ├─ computation_graph/
-│     │  ├─ graph.hpp               # public API
-│     │  └─ node_handle.hpp
-│     └─ tensorfuncs/
-│        ├─ adjoint_ops.hpp         # template-heavy, stays in headers
-│        └─ ...                     # more .hpp/.inl templates
-├─ src/
-│  ├─ tensor/
-│  │  ├─ tensor.cpp                 # non-template definitions moved here
-│  │  └─ ...
-│  └─ computation_graph/
-│     ├─ graph.cpp
-│     └─ ...
-├─ examples/
-│  └─ outer_product.cpp
-├─ tests/
-│  └─ ...
-└─ cmake/
-   └─ kaadConfig.cmake.in           # optional, for install/package
-

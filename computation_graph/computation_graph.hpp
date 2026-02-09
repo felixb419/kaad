@@ -7,7 +7,6 @@
 #include <array>                // for std::array
 #include <cstddef>              // for size_t
 #include <memory>               // for std::unique_ptr, std::make_unique
-#include <utility>              // for std::forward
 #include <vector>               // for std::vector
 
 namespace kaad {
@@ -30,27 +29,13 @@ class Computation_graph {
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.
      */
-    INode *get_node(Node_handle node) {
-        if (node.origin_ != this) {
-            throw std::invalid_argument(
-                "node does not belong to this instance of Computation_graph");
-        }
-        if (node.idx_ < 0 && node.idx_ >= this->nodes.size()) {
-            throw std::invalid_argument(
-                std::to_string(node.idx_) +
-                "is not a valid index for this Computation_graph");
-        }
-
-        return this->nodes[node.idx_].get();
-    }
+    INode *get_node(Node_handle node);
 
     /**
      * @brief Get the last node in the graph.
      * @return Handle of the node at the back of the node vector.
      */
-    Node_handle back_handle() {
-        return Node_handle(this->nodes.size() - 1, this);
-    }
+    Node_handle back_handle();
 
     /**
      * @brief Constructs a Node valued with the given tensor arguments and
@@ -148,21 +133,9 @@ class Computation_graph {
      * associated value and gradient tensors. This is typically used before a
      * new forward pass.
      */
-    void reset() {
-        for (int i = 0; i < nodes.size(); i++) {
-            nodes[i]->reset();
-        }
-    }
+    void reset();
 };
 
-std::ostream &operator<<(std::ostream &os, Node_handle node) {
-    INode *node_ptr = node.origin_->get_node(node);
-    os << node_ptr->node_type() << " at idx " << node.idx()
-       << " of Computation_graph at " << node.origin() << "\n"
-       << "value:\n"
-       << node_ptr->value << "\ngradient:\n"
-       << node_ptr->gradient;
-    return os;
-}
+std::ostream &operator<<(std::ostream &os, Node_handle node);
 
 } // namespace kaad

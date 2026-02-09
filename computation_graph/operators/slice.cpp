@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"  // for Tensor
 #include "../computation_graph.hpp" // for Computation_graph
@@ -11,20 +11,6 @@
 
 namespace kaad {
 
-/**
- * @brief Adds a slice node to the computation graph.
- *
- * Extracts a slice from the input tensor node `A`, starting at the
- * specified `offset` and extending for the given `size` along each dimension.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @param size An initializer list specifying the size (length) of the slice
- * along each dimension.
- * @param offset An initializer list specifying the starting indices (offset)
- * for the slice along each dimension.
- * @return A handle of the new node representing the sliced tensor.
- */
 Node_handle slice(Computation_graph &rec, Node_handle A,
                   std::initializer_list<int> size,
                   std::initializer_list<int> offset) {

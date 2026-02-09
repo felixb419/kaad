@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"   // for Tensor
 #include "../common.hpp"             // for combine_matrix
@@ -11,24 +11,6 @@
 
 namespace kaad {
 
-/**
- * @brief Adds a matrix multiplication node (A × B) to the computation graph.
- *
- * Performs matrix multiplication between two input tensor nodes `A` and
- * `B`. Supports both standard 2D matrix multiplication and batched matrix
- * multiplication:
- * - If both tensors are 2D, performs standard matrix multiplication.
- * - If tensors have more than 2 dimensions, performs batched matrix
- * multiplication over the leading dimensions. For example, multiplying tensors
- * of shape (batch, M, K) × (batch, K, N) yields a result of shape (batch, M,
- * N).
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the left-hand-side input tensor node A.
- * @param B Handle of the right-hand-side input tensor node B.
- * @return A handle of the new node representing the matrix (or batched)
- * product of A and B.
- */
 Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B) {
     int recLen = rec.nodes.size();
 

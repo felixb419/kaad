@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
@@ -13,17 +13,6 @@
 
 namespace kaad {
 
-/**
- * @brief Adds a unary sum node to the computation graph.
- *
- * Computes the sum of all elements in the input tensor node `A`,
- * producing a scalar tensor node containing the total sum.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the scalar sum of all elements
- * of A.
- */
 Node_handle sum(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
@@ -44,26 +33,8 @@ Node_handle sum(Computation_graph &rec, Node_handle A) {
     return rec.back_handle();
 }
 
-/**
- * @brief Adds a sum node to the computation graph that sums elements along a
- * specified dimension.
- *
- * Computes the sum of elements in the input tensor node `A` along the given
- * dimension `dim`. The resulting tensor shape depends on the `keepNDims` flag:
- * - If `keepNDims` is false (default), the dimension `dim` is removed from the
- * output shape.
- * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @param dim The dimension along which to sum.
- * @param keepNDims If true, retains the summed dimension with size 1; if false,
- * removes it.
- * @return A handle of the new node representing the tensor after summation
- * along the specified dimension.
- */
 Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
-                bool keepNDims = false) {
+                bool keepNDims) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

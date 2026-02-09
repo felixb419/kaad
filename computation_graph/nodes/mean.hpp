@@ -13,7 +13,7 @@ namespace kaad {
  */
 class Node_mean : public INode {
   public:
-    const char *node_type() const noexcept override { return "Node_mean"; }
+    const char *node_type() const noexcept override;
 
     tensorfuncs::primal::unary::mean_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean;
@@ -44,28 +44,13 @@ class Node_mean : public INode {
      * @brief Evaluates the mean operation by applying forwrd_op, if not already
      * evaluated.
      */
-    inline void eval() override {
-        if (!this->evaluated) {
-            this->A->eval();
-
-            forward_op(this->A->value.data(), this->value.elements_.data(),
-                       A_end, divisor);
-            this->evaluated = true;
-        }
-    }
+    void eval() override;
 
     /**
      * @brief Propagates gradients back through the mean operation, by applying
      * backward_op.
      */
-    inline void getGrad() override {
-        backward_op(this->A->gradient.elements_.data(), this->gradient.data(),
-                    dA_end, divisor);
-
-        if (this->A->hasInputs) {
-            this->A->getGrad();
-        }
-    }
+    void getGrad() override;
 };
 
 } // namespace kaad

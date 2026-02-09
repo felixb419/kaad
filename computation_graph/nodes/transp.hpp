@@ -14,7 +14,7 @@ namespace kaad {
  */
 class Node_transp : public INode {
   public:
-    const char *node_type() const noexcept override { return "Node_transp"; }
+    const char *node_type() const noexcept override;
 
     tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernels::Null> forward_op =
         tensorfuncs::primal::unary::noop<
@@ -48,28 +48,13 @@ class Node_transp : public INode {
      * @brief Evaluates the transpose operation by applying forward_op, if not
      * already evaluated.
      */
-    inline void eval() override {
-        if (!this->evaluated) {
-            this->A->eval();
-
-            forward_op(this->A->value.data(), this->value.elements_.data(),
-                       A_end);
-            this->evaluated = true;
-        }
-    }
+    void eval() override;
 
     /**
      * @brief Propagates gradients back through the transpose operation, by
      * applying backward_op.
      */
-    inline void getGrad() override {
-        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), C_end);
-
-        if (this->A->hasInputs) {
-            this->A->getGrad();
-        }
-    }
+    void getGrad() override;
 };
 
 } // namespace kaad

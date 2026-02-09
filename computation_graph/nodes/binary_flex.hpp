@@ -16,37 +16,8 @@ namespace kaad {
  * operation.
  */
 template <class Kernel> class Node_binary_flex : public INode {
-  public:
-    const char *node_type() const noexcept override {
-        return "Node_binary_flex";
-    }
-
-    INode *B = nullptr; ///< Pointer to the second input Node.
-
-    tensorfuncs::primal::binary::flexible_fn<Scalar, Kernel> forward_op =
-        tensorfuncs::primal::binary::flexible<Scalar,
-                                              Kernel>; ///< Function pointer to
-                                                       ///< the value operation.
-    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> backward_op =
-        tensorfuncs::adjoint::binary::flexible<
-            Scalar, Kernel>; ///< Function pointer to the gradient operation.
-
-    std::vector<int> strideA;     ///< stride Array for A.
-    std::vector<int> strideB;     ///< stride Array for B.
-    std::vector<int> strideC;     ///< stride Array for C.
-    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_nDims = 0;           ///< Number of the dimensions of the C tensor.
-
-    /**
-     * @brief Constructs a binary_flex operation node with binary_flex operation
-     * and gradient.
-     * @param A_ptr Pointer to the first input node.
-     * @param B_ptr Pointer to the second input node.
-     * @param tensor_args Arguments to construct the output tensor.
-     */
-    template <typename... TensorArgs>
-    Node_binary_flex(INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
-        : B(B_ptr), INode(A_ptr, tensor_args...) {
+  private:
+    void metadata() {
         // compute metadata
         Tensor_view A = this->A->value.view();
         Tensor_view B = this->B->value.view();
@@ -83,6 +54,41 @@ template <class Kernel> class Node_binary_flex : public INode {
             forward_op = Dispatchers::get_flexOp<Scalar, Kernel>()[C_nDims];
             backward_op = Dispatchers::get_flexGrad<Scalar, Kernel>()[C_nDims];
         }
+    }
+
+  public:
+    const char *node_type() const noexcept override {
+        return "Node_binary_flex";
+    }
+
+    INode *B = nullptr; ///< Pointer to the second input Node.
+
+    tensorfuncs::primal::binary::flexible_fn<Scalar, Kernel> forward_op =
+        tensorfuncs::primal::binary::flexible<Scalar,
+                                              Kernel>; ///< Function pointer to
+                                                       ///< the value operation.
+    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> backward_op =
+        tensorfuncs::adjoint::binary::flexible<
+            Scalar, Kernel>; ///< Function pointer to the gradient operation.
+
+    std::vector<int> strideA;     ///< stride Array for A.
+    std::vector<int> strideB;     ///< stride Array for B.
+    std::vector<int> strideC;     ///< stride Array for C.
+    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
+    size_t C_nDims = 0;           ///< Number of the dimensions of the C tensor.
+
+    /**
+     * @brief Constructs a binary_flex operation node with binary_flex operation
+     * and gradient.
+     * @param A_ptr Pointer to the first input node.
+     * @param B_ptr Pointer to the second input node.
+     * @param tensor_args Arguments to construct the output tensor.
+     */
+    template <typename... TensorArgs>
+    Node_binary_flex(INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
+        : B(B_ptr), INode(A_ptr, tensor_args...) {
+
+        this->metadata();
     }
 
     /**

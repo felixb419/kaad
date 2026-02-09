@@ -2,9 +2,7 @@
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../common.hpp"                     // for along_dim_metadata_impl
-#include "../dispatchers.hpp" // for get_meanDim, get_meanDim_grad
-#include "inode.hpp"          // for INode
+#include "inode.hpp"                         // for INode
 
 namespace kaad {
 
@@ -14,8 +12,11 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::mean_dim
  */
 class Node_mean_dim : public INode {
+  private:
+    void metadata(int dim);
+
   public:
-    const char *node_type() const noexcept override { return "Node_mean_dim"; }
+    const char *node_type() const noexcept override;
 
     tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean_dim;
@@ -41,55 +42,21 @@ class Node_mean_dim : public INode {
     template <typename... TensorArgs>
     Node_mean_dim(INode *A_ptr, int dim, TensorArgs &&...tensor_args)
         : INode(A_ptr, tensor_args...) {
-        // compute metadata
-        Tensor_view A = this->A->value.view();
-        Tensor_view C = this->value.view();
-        Tensor_view dA = this->A->gradient.view();
 
-        this->divisor = A.shape[dim];
-        this->C_end = C.elements + C.len;
-        this->dA_end = dA.elements + dA.len;
-
-        detail::along_dim_metadata_impl(A, C, dim, this->A_nDims,
-                                        this->A_offset, this->strideA,
-                                        this->strideC);
-
-        // assign compile-time recursive function
-        size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();
-        if (a_ndims <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_meanDim<Scalar>()[a_ndims];
-            backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_ndims];
-        }
+        this->metadata(dim);
     }
 
     /**
      * @brief Evaluates the mean_dim operation by applying forward_op, if not
      * already evaluated.
      */
-    inline void eval() override {
-        if (!this->evaluated) {
-            this->A->eval();
-
-            forward_op(this->A->value.data(), this->value.elements_.data(),
-                       strideA.data(), strideC.data(), A_offset.data(), A_nDims,
-                       divisor, C_end);
-            this->evaluated = true;
-        }
-    }
+    void eval() override;
 
     /**
      * @brief Propagates gradients back through the mean_dim operation by
      * applying backward_op.
      */
-    inline void getGrad() override {
-        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), strideA.data(),
-                    strideC.data(), A_offset.data(), A_nDims, divisor, dA_end);
-
-        if (this->A->hasInputs) {
-            this->A->getGrad();
-        }
-    }
+    void getGrad() override;
 };
 
 } // namespace kaad

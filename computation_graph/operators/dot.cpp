@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../scalar.hpp"                  // for Scalar
 #include "../../tensor/tensor.hpp"           // for Tensor
@@ -13,18 +13,6 @@
 
 namespace kaad {
 
-/**
- * @brief Adds a binary dot product node (A ⋅ B) to the computation graph.
- *
- * Computes the element-wise dot product of two input tensor nodes `A` and
- * `B`. Both tensors must have the same shape or be broadcast-compatible.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the first input tensor node A.
- * @param B Handle of the second input tensor node B.
- * @return A handle of the new node representing the element-wise dot product
- * of A and B.
- */
 Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
     tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernels::Null> scalar =
         tensorfuncs::primal::binary::scalarDot<Scalar>;

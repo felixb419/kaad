@@ -1,8 +1,7 @@
 #pragma once
 
-#include "nodes/inode.hpp" // for INode
-#include <cstdint>         // for uint32_t
-#include <iostream>        // for std::ostream
+#include <cstdint>  // for uint32_t
+#include <iostream> // for std::ostream
 
 namespace kaad {
 class Computation_graph;

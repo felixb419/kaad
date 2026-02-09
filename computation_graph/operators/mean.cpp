@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"  // for Tensor
 #include "../computation_graph.hpp" // for Computation_graph
@@ -10,17 +10,6 @@
 
 namespace kaad {
 
-/**
- * @brief Adds a unary mean node to the computation graph.
- *
- * Computes the mean (average) of all elements in the input tensor node `A`,
- * producing a scalar tensor node containing the total average.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the scalar mean of all
- * elements of A.
- */
 Node_handle mean(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
@@ -29,27 +18,8 @@ Node_handle mean(Computation_graph &rec, Node_handle A) {
     return rec.back_handle();
 }
 
-/**
- * @brief Adds a mean node to the computation graph that computes the mean along
- * a specified dimension.
- *
- * Computes the mean of elements in the input tensor node `A` along the
- * given dimension `dim`. The resulting tensor shape depends on the `keepNDims`
- * flag:
- * - If `keepNDims` is false (default), the dimension `dim` is removed from the
- * output shape.
- * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @param dim The dimension along which to compute the mean.
- * @param keepNDims If true, retains the mean-reduced dimension with size 1; if
- * false, removes it.
- * @return A handle of the new node representing the tensor after mean
- * reduction along the specified dimension.
- */
 Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
-                 bool keepNDims = 0) {
+                 bool keepNDims) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
@@ -52,79 +52,31 @@ Node_handle unOperator(Computation_graph &rec, Node_handle A,
     return rec.back_handle();
 }
 
-/**
- * @brief Adds a unary negation node (-A) to the computation graph.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the negated tensor,
- *         with the same shape as A.
- */
 Node_handle negative(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<Scalar, class Kernels::Neg<Scalar>> negK;
     return unOperator(rec, A, negK);
 }
 
-/**
- * @brief Adds a unary square node (A²) to the computation graph.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the element-wise square of A,
- *         with the same shape as the input tensor.
- */
 Node_handle square(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<Scalar, class Kernels::Square<Scalar>> squareK;
     return unOperator(rec, A, squareK);
 }
 
-/**
- * @brief Adds a unary square root node (√A) to the computation graph.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the element-wise square root
- * of A, with the same shape as the input tensor.
- */
 Node_handle sqrt(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<Scalar, class Kernels::Sqrt<Scalar>> sqrtK;
     return unOperator(rec, A, sqrtK);
 }
 
-/**
- * @brief Adds a unary logarithm node (log(A)) to the computation graph.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the element-wise logarithm
- * of A, with the same shape as the input tensor.
- */
 Node_handle log(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<Scalar, class Kernels::Log<Scalar>> logK;
     return unOperator(rec, A, logK);
 }
 
-/**
- * @brief Adds a unary exponent node (e^A) to the computation graph.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the element-wise exponent
- * of A, with the same shape as the input tensor.
- */
 Node_handle exp(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<Scalar, class Kernels::Exp<Scalar>> expK;
     return unOperator(rec, A, expK);
 }
 
-/**
- * @brief Adds a unary absolute value node (|A|) to the computation graph.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the element-wise absolute
- * value of A, with the same shape as the input tensor.
- */
 Node_handle abs(Computation_graph &rec, Node_handle A) {
     static const UnaryKernels<Scalar, class Kernels::Abs<Scalar>> absK;
     return unOperator(rec, A, absK);

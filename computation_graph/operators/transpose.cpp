@@ -1,4 +1,4 @@
-#pragma once
+#include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"  // for Tensor
 #include "../computation_graph.hpp" // for Computation_graph
@@ -12,23 +12,8 @@
 
 namespace kaad {
 
-/**
- * @brief Adds a unary transpose node to the computation graph.
- *
- * Transposes the input tensor node `A` according to the permutation `perm`.
- * If `perm` is empty, the tensor is fully transposed by reversing its
- * dimensions.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @param perm An optional initializer list specifying the permutation of axes.
- *             If not provided or empty, a full transpose (reverse of all axes)
- * is performed.
- * @return A handle of the new node representing the transposed tensor,
- *         with shape adjusted according to `perm` or full transpose.
- */
 Node_handle transpose(Computation_graph &rec, Node_handle A,
-                      std::initializer_list<int> perm = {}) {
+                      std::initializer_list<int> perm) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
