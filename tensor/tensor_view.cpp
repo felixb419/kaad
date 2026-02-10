@@ -7,20 +7,19 @@ namespace kaad {
 
 Tensor_view::Tensor_view() {}
 
-Tensor_view::Tensor_view(const int *shape, const int *stride, size_type nDims,
+Tensor_view::Tensor_view(const int *shape, const int *stride, size_type rank,
                          const value_type *elements, size_type len)
-    : shape(shape), stride(stride), nDims(nDims), elements(elements), len(len) {
-}
+    : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
 static inline std::ostream &operator<<(std::ostream &os,
                                        const Tensor_view &view) {
-    if (view.nDims == 0) {
+    if (view.rank == 0) {
         std::cout << "[]";
     } else {
-        std::vector<int> cords(view.nDims);
+        std::vector<int> cords(view.rank);
         int indent = 0;
 
-        detail::print_tensor(os, cords, view.shape, view.stride, view.nDims,
+        detail::print_tensor(os, cords, view.shape, view.stride, view.rank,
                              view.elements, view.len, 0, indent);
     }
     return os;
@@ -29,25 +28,24 @@ static inline std::ostream &operator<<(std::ostream &os,
 Tensor_view_mut::Tensor_view_mut() {}
 
 Tensor_view_mut::Tensor_view_mut(const int *shape, const int *stride,
-                                 size_type nDims, value_type *elements,
+                                 size_type rank, value_type *elements,
                                  size_type len)
-    : shape(shape), stride(stride), nDims(nDims), elements(elements), len(len) {
-}
+    : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
 Tensor_view Tensor_view_mut::make_immutable() {
-    return Tensor_view(this->shape, this->stride, this->nDims, this->elements,
+    return Tensor_view(this->shape, this->stride, this->rank, this->elements,
                        this->len);
 }
 
 static inline std::ostream &operator<<(std::ostream &os,
                                        const Tensor_view_mut &view) {
-    if (view.nDims == 0) {
+    if (view.rank == 0) {
         std::cout << "[]";
     } else {
-        std::vector<int> cords(view.nDims);
+        std::vector<int> cords(view.rank);
         int indent = 0;
 
-        detail::print_tensor(os, cords, view.shape, view.stride, view.nDims,
+        detail::print_tensor(os, cords, view.shape, view.stride, view.rank,
                              view.elements, view.len, 0, indent);
     }
     return os;

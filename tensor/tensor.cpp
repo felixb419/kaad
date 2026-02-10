@@ -25,7 +25,7 @@ Tensor::Tensor(value_type scalar) : shape_(1), stride_(1), elements_(1) {
     this->elements_[0] = scalar;
 }
 
-Tensor::size_type Tensor::nDims() const noexcept {
+Tensor::size_type Tensor::rank() const noexcept {
     return static_cast<size_type>(this->shape_.size());
 }
 
@@ -67,24 +67,24 @@ Tensor::const_pointer Tensor::data() const noexcept {
 }
 
 struct Tensor_view Tensor::view() const {
-    return Tensor_view(this->shape_.data(), this->stride_.data(), this->nDims(),
+    return Tensor_view(this->shape_.data(), this->stride_.data(), this->rank(),
                        this->data(), this->size());
 }
 
 struct Tensor_view_mut Tensor::view_mut() {
     return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
-                           this->nDims(), this->elements_.data(), this->size());
+                           this->rank(), this->elements_.data(), this->size());
 }
 
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
-    if (tensor.nDims() == 0 || tensor.size() == 0) {
+    if (tensor.rank() == 0 || tensor.size() == 0) {
         os << "[]";
     } else {
-        std::vector<int> cords(tensor.nDims());
+        std::vector<int> cords(tensor.rank());
         int indent = 0;
 
         detail::print_tensor(os, cords, tensor.shape().data(),
-                             tensor.stride().data(), tensor.nDims(),
+                             tensor.stride().data(), tensor.rank(),
                              tensor.data(), tensor.size(), 0, indent);
     }
     return os;

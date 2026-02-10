@@ -32,8 +32,8 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
-    bool A_scalar = A_val.nDims() == 1 && A_val.shape()[0] == 1;
-    bool B_scalar = B_val.nDims() == 1 && B_val.shape()[0] == 1;
+    bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
+    bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;
     if (B_scalar) {
 
         rec.nodes.push_back(
@@ -50,7 +50,7 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
         static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
             B_val.data() + B_val.size(); // override end from constructor
 
-    } else if (A_val.nDims() == 1 && B_val.nDims() == 1 &&
+    } else if (A_val.rank() == 1 && B_val.rank() == 1 &&
                std::equal(A_val.shape().begin(), A_val.shape().end(),
                           B_val.shape().begin())) {
 

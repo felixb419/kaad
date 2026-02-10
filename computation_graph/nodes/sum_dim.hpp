@@ -30,7 +30,7 @@ class Node_sum_dim : public INode {
     std::vector<int> strideA;     ///< stride Array for A.
     std::vector<int> strideC;     ///< stride Array for C.
     std::vector<size_t> A_offset; ///< Per-dim offset to the end of A buffer.
-    size_t C_nDims = 0;           ///< Number of dimensions of A
+    size_t C_rank = 0;           ///< Number of dimensions of A
 
     /**
      * @brief Constructs a sum_dim node.

@@ -7,14 +7,14 @@ void Node_sum_dim::metadata(int dim) {
     Tensor_view A = this->A->value.view();
     Tensor_view C = this->value.view();
 
-    detail::along_dim_metadata_impl(A, C, dim, this->C_nDims, this->A_offset,
+    detail::along_dim_metadata_impl(A, C, dim, this->C_rank, this->A_offset,
                                     this->strideA, this->strideC);
 
     // assign compile-time recursive function
-    size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();
-    if (a_ndims <= Dispatchers::MAX_NDIMS) {
-        val_func = Dispatchers::get_sumDim<Scalar>()[a_ndims];
-        grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_ndims];
+    size_t a_rank = static_cast<INode *>(this)->A->value.rank();
+    if (a_rank <= Dispatchers::MAX_NDIMS) {
+        val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
+        grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
     }
 }
 
@@ -25,14 +25,14 @@ void Node_sum_dim::eval() {
         this->A->eval();
 
         val_func(this->A->value.data(), this->value.elements_.data(),
-                 strideA.data(), strideC.data(), A_offset.data(), C_nDims);
+                 strideA.data(), strideC.data(), A_offset.data(), C_rank);
         this->evaluated = true;
     }
 }
 
 void Node_sum_dim::getGrad() {
     grad_func(this->A->gradient.elements_.data(), this->gradient.data(),
-              strideA.data(), strideC.data(), A_offset.data(), C_nDims);
+              strideA.data(), strideC.data(), A_offset.data(), C_rank);
 
     if (this->A->hasInputs) {
         this->A->getGrad();

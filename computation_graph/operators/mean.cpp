@@ -25,17 +25,17 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
-    if (dim < 0 || dim >= A_val.nDims()) {
+    if (dim < 0 || dim >= A_val.rank()) {
         throw argument_error(recLen, "mean",
                              "dim has to be a valid index of A.shape",
                              {{"A.shape", A_val.shape()}}, {{"dim", dim}});
     }
 
-    if (A_val.nDims() == 1) {
+    if (A_val.rank() == 1) {
         return mean(rec, A);
     }
 
-    size_t newLen = A_val.nDims();
+    size_t newLen = A_val.rank();
     std::vector<int> newShape(newLen);
     if (keepNDims) {
         std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());

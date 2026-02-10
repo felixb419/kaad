@@ -30,7 +30,7 @@ void metadata_impl(const Tensor_view A, const Tensor_view B,
     for (int i = 1; i <= 2; i++) {
         idx = 2 - i;
 
-        idxC = C.nDims - i;
+        idxC = C.rank - i;
         prevC = offsetC;
         offsetC += ((idxC >= 0 ? C.shape[idxC] : i) - 1) * strideC[idx];
         strideC[idx] -= prevC + strideC[idx + 1];
@@ -45,8 +45,8 @@ void Node_matmul::metadata() {
 
     int A_T_shape[2];
     int A_T_stride[2];
-    std::reverse_copy(A.shape, A.shape + A.nDims, A_T_shape);
-    std::reverse_copy(A.stride, A.stride + A.nDims, A_T_stride);
+    std::reverse_copy(A.shape, A.shape + A.rank, A_T_shape);
+    std::reverse_copy(A.stride, A.stride + A.rank, A_T_stride);
 
     Tensor_view A_T = A;
     A_T.shape = A_T_shape;
@@ -54,8 +54,8 @@ void Node_matmul::metadata() {
 
     int B_T_shape[2];
     int B_T_stride[2];
-    std::reverse_copy(B.shape, B.shape + B.nDims, B_T_shape);
-    std::reverse_copy(B.stride, B.stride + B.nDims, B_T_stride);
+    std::reverse_copy(B.shape, B.shape + B.rank, B_T_shape);
+    std::reverse_copy(B.stride, B.stride + B.rank, B_T_stride);
 
     Tensor_view B_T = B;
     B_T.shape = B_T_shape;

@@ -48,7 +48,7 @@ class Node_batch_matmul : public INode {
     int A_colStride[3]; ///< Gap between columns of the A matrix.
     int B_rowStride[3]; ///< Gap between rows of the B matrix.
     int shared_dim[3];  ///< Shared inner dimension of the tensors.
-    size_t C_nDims = 0; ///< Number of the dimensions of the value tensor.
+    size_t C_rank = 0; ///< Number of the dimensions of the value tensor.
 
     /**
      * @brief Constructs a batch_matmul node.

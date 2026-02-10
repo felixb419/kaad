@@ -13,27 +13,27 @@ namespace kaad::detail {
  * Supports matmul-style broadcasting:
  *   (n?,k) x (k,m?) => (n?,m?)
  * @param shape1 Shape of first matrix.
- * @param nDims1 Number of dimensions of first matrix.
+ * @param rank1 Number of dimensions of first matrix.
  * @param shape2 Shape of second matrix.
- * @param nDims2 Number of dimensions of second matrix.
+ * @param rank2 Number of dimensions of second matrix.
  * @param newShape Output array to hold the result shape.
  * @param newLen Total number of dimensions in the result.
  * @return true if matmul broadcasting is possible, false otherwise.
  */
-inline bool combine_matrix(const int *shape1, size_t nDims1, const int *shape2,
-                           size_t nDims2, int *newShape, size_t newLen) {
-    if (shape1[nDims1 - 1] != shape2[nDims2 - 2]) {
+inline bool combine_matrix(const int *shape1, size_t rank1, const int *shape2,
+                           size_t rank2, int *newShape, size_t newLen) {
+    if (shape1[rank1 - 1] != shape2[rank2 - 2]) {
         return false;
     }
     std::fill(newShape, newShape + newLen, 0);
 
-    newShape[newLen - 1] = shape2[nDims2 - 1];
-    newShape[newLen - 2] = shape1[nDims1 - 2];
+    newShape[newLen - 1] = shape2[rank2 - 1];
+    newShape[newLen - 2] = shape1[rank1 - 2];
 
     int ind = newLen - 3;
     for (int i = 3; i <= newLen; i++, ind--) {
-        int ind1 = nDims1 - i;
-        int ind2 = nDims2 - i;
+        int ind1 = rank1 - i;
+        int ind2 = rank2 - i;
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 &&
                 shape2[ind2] != 1) {
@@ -63,12 +63,12 @@ static void along_dim_metadata_impl(Tensor_view &A, Tensor_view &C, int dim,
                                     size_t &D, std::vector<size_t> &A_offset,
                                     std::vector<int> &strideA,
                                     std::vector<int> &strideC) {
-    D = A.nDims;
+    D = A.rank;
     strideA.resize(D);
     strideC.resize(D);
 
-    std::copy(A.stride, A.stride + A.nDims, strideA.data());
-    std::copy(A.stride, A.stride + A.nDims, strideC.data());
+    std::copy(A.stride, A.stride + A.rank, strideA.data());
+    std::copy(A.stride, A.stride + A.rank, strideC.data());
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
     for (int i = 0; i < D; i++) {

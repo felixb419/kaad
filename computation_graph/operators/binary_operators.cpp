@@ -22,20 +22,20 @@ namespace kaad {
  *   - dimensions must match
  *   - or one of them must be 1
  * @param shape1 Shape of first tensor.
- * @param nDims1 Number of dimensions of first tensor.
+ * @param rank1 Number of dimensions of first tensor.
  * @param shape2 Shape of second tensor.
- * @param nDims2 Number of dimensions of second tensor.
+ * @param rank2 Number of dimensions of second tensor.
  * @param newShape Output array to hold the result shape.
  * @param newLen Total number of dimensions in the result.
  * @return true if broadcasting is possible, false otherwise.
  */
-static inline bool combine_flexible(const int *shape1, size_t nDims1,
-                                    const int *shape2, size_t nDims2,
+static inline bool combine_flexible(const int *shape1, size_t rank1,
+                                    const int *shape2, size_t rank2,
                                     int *newShape, size_t newLen) {
     int ind = newLen - 1;
     for (int i = 1; i <= newLen; i++, ind--) {
-        int ind1 = nDims1 - i;
-        int ind2 = nDims2 - i;
+        int ind1 = rank1 - i;
+        int ind2 = rank2 - i;
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 &&
                 shape2[ind2] != 1) {
@@ -106,10 +106,10 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
-    bool A_scalar = A_val.nDims() == 1 && A_val.shape()[0] == 1;
-    bool B_scalar = B_val.nDims() == 1 && B_val.shape()[0] == 1;
+    bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
+    bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;
 
-    size_t newLen = std::max(A_val.nDims(), B_val.nDims());
+    size_t newLen = std::max(A_val.rank(), B_val.rank());
     std::vector<int> newShape(newLen);
 
     if (B_scalar) {
@@ -124,7 +124,7 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
             kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
             B_val.shape())));
 
-    } else if (A_val.nDims() == B_val.nDims() &&
+    } else if (A_val.rank() == B_val.rank() &&
                std::equal(A_val.shape().begin(), A_val.shape().end(),
                           B_val.shape().begin()) &&
                std::equal(A_val.stride().begin(), A_val.stride().end(),
@@ -133,8 +133,8 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A_val.shape())));
 
-    } else if (combine_flexible(A_val.shape().data(), A_val.nDims(),
-                                B_val.shape().data(), B_val.nDims(),
+    } else if (combine_flexible(A_val.shape().data(), A_val.rank(),
+                                B_val.shape().data(), B_val.rank(),
                                 newShape.data(), newLen)) {
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary_flex<Kernel>>(A_ptr, B_ptr,

@@ -23,19 +23,19 @@ template <class Kernel> class Node_binary_flex : public INode {
         Tensor_view B = this->B->value.view();
         Tensor_view C = this->value.view();
 
-        this->C_nDims = C.nDims;
-        this->strideA.resize(this->C_nDims);
-        this->strideB.resize(this->C_nDims);
-        this->strideC.resize(this->C_nDims);
+        this->C_rank = C.rank;
+        this->strideA.resize(this->C_rank);
+        this->strideB.resize(this->C_rank);
+        this->strideC.resize(this->C_rank);
 
         int idx, idxA, idxB, idxC;
-        for (int i = 1; i <= this->C_nDims; i++) {
-            idx = this->C_nDims - i;
-            idxA = A.nDims - i;
+        for (int i = 1; i <= this->C_rank; i++) {
+            idx = this->C_rank - i;
+            idxA = A.rank - i;
             this->strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
-            idxB = B.nDims - i;
+            idxB = B.rank - i;
             this->strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
-            idxC = C.nDims - i;
+            idxC = C.rank - i;
             this->strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
             // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
             // traversing in flexible function
@@ -44,15 +44,15 @@ template <class Kernel> class Node_binary_flex : public INode {
             }
         }
 
-        this->C_offset.resize(this->C_nDims);
-        for (int i = 0; i < this->C_nDims; i++) {
+        this->C_offset.resize(this->C_rank);
+        for (int i = 0; i < this->C_rank; i++) {
             this->C_offset[i] = C.shape[i] * this->strideC[i];
         }
 
         // assign compile-time recursive function
-        if (C_nDims <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_flexOp<Scalar, Kernel>()[C_nDims];
-            backward_op = Dispatchers::get_flexGrad<Scalar, Kernel>()[C_nDims];
+        if (C_rank <= Dispatchers::MAX_NDIMS) {
+            forward_op = Dispatchers::get_flexOp<Scalar, Kernel>()[C_rank];
+            backward_op = Dispatchers::get_flexGrad<Scalar, Kernel>()[C_rank];
         }
     }
 
@@ -75,7 +75,7 @@ template <class Kernel> class Node_binary_flex : public INode {
     std::vector<int> strideB;     ///< stride Array for B.
     std::vector<int> strideC;     ///< stride Array for C.
     std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_nDims = 0;           ///< Number of the dimensions of the C tensor.
+    size_t C_rank = 0;           ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
@@ -103,7 +103,7 @@ template <class Kernel> class Node_binary_flex : public INode {
             forward_op(this->A->value.data(), this->B->value.data(),
                        this->value.elements_.data(), strideA.data(),
                        strideB.data(), strideC.data(), C_offset.data(),
-                       C_nDims);
+                       C_rank);
             this->evaluated = true;
         }
     }
@@ -116,7 +116,7 @@ template <class Kernel> class Node_binary_flex : public INode {
         backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                     this->B->value.data(), this->B->gradient.elements_.data(),
                     this->value.data(), this->gradient.data(), strideA.data(),
-                    strideB.data(), strideC.data(), C_offset.data(), C_nDims);
+                    strideB.data(), strideC.data(), C_offset.data(), C_rank);
 
         if (this->A->hasInputs) {
             this->A->getGrad();

@@ -19,13 +19,13 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
-    if (A_val.nDims() < 2) {
-        throw shape_error(recLen, "transpose", "A.nDims() hast to be > 1",
+    if (A_val.rank() < 2) {
+        throw shape_error(recLen, "transpose", "A.rank() hast to be > 1",
                           {{"A.shape", A_val.shape()}});
     }
 
-    std::vector<int> shape_T(A_val.nDims());
-    std::vector<int> stride_T(A_val.nDims());
+    std::vector<int> shape_T(A_val.rank());
+    std::vector<int> stride_T(A_val.rank());
     if (perm.size() == 0) {
 
         std::reverse_copy(A_val.shape().begin(), A_val.shape().end(),
@@ -34,14 +34,14 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
                           stride_T.data());
 
     } else {
-        if (perm.size() != A_val.nDims()) {
+        if (perm.size() != A_val.rank()) {
             throw argument_error(recLen, "transpose",
-                                 "perm.size() has to be same as A.nDims()",
+                                 "perm.size() has to be same as A.rank()",
                                  {{"A.shape", A_val.shape()}});
         }
 
-        int *count = new int[A_val.nDims()];
-        std::fill(count, count + A_val.nDims(), 0);
+        int *count = new int[A_val.rank()];
+        std::fill(count, count + A_val.rank(), 0);
 
         int *sh = shape_T.data();
         int *st = stride_T.data();
@@ -52,7 +52,7 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
             *(sh++) = A_val.shape()[idx];
             *(st++) = A_val.stride()[idx];
         }
-        for (int *p = count; p != count + A_val.nDims(); p++) {
+        for (int *p = count; p != count + A_val.rank(); p++) {
             if (*p != 1) {
                 throw argument_error(
                     recLen, "transpose",

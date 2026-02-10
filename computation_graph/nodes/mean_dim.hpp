@@ -30,7 +30,7 @@ class Node_mean_dim : public INode {
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
     const Scalar *dA_end =
         nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
-    size_t A_nDims = 0; ///< Number of the dimensions of the A tensor.
+    size_t A_rank = 0; ///< Number of the dimensions of the A tensor.
     Scalar divisor = 0; ///< Divisor to compute the mean of the A tensor (length
                         ///< of A in relevant dimension).
 

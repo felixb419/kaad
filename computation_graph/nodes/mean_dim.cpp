@@ -16,14 +16,14 @@ void Node_mean_dim::metadata(int dim) {
     this->C_end = C.elements + C.len;
     this->dA_end = dA.elements + dA.len;
 
-    detail::along_dim_metadata_impl(A, C, dim, this->A_nDims, this->A_offset,
+    detail::along_dim_metadata_impl(A, C, dim, this->A_rank, this->A_offset,
                                     this->strideA, this->strideC);
 
     // assign compile-time recursive function
-    size_t a_ndims = static_cast<INode *>(this)->A->value.nDims();
-    if (a_ndims <= Dispatchers::MAX_NDIMS) {
-        forward_op = Dispatchers::get_meanDim<Scalar>()[a_ndims];
-        backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_ndims];
+    size_t a_rank = static_cast<INode *>(this)->A->value.rank();
+    if (a_rank <= Dispatchers::MAX_NDIMS) {
+        forward_op = Dispatchers::get_meanDim<Scalar>()[a_rank];
+        backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_rank];
     }
 }
 
@@ -36,7 +36,7 @@ void Node_mean_dim::eval() {
         this->A->eval();
 
         forward_op(this->A->value.data(), this->value.elements_.data(),
-                   strideA.data(), strideC.data(), A_offset.data(), A_nDims,
+                   strideA.data(), strideC.data(), A_offset.data(), A_rank,
                    divisor, C_end);
         this->evaluated = true;
     }
@@ -45,7 +45,7 @@ void Node_mean_dim::eval() {
 void Node_mean_dim::getGrad() {
     backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
                 this->value.data(), this->gradient.data(), strideA.data(),
-                strideC.data(), A_offset.data(), A_nDims, divisor, dA_end);
+                strideC.data(), A_offset.data(), A_rank, divisor, dA_end);
 
     if (this->A->hasInputs) {
         this->A->getGrad();

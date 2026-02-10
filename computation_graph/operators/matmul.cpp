@@ -19,12 +19,12 @@ Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B) {
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
-    size_t newLen = std::max(A_val.nDims(), B_val.nDims());
+    size_t newLen = std::max(A_val.rank(), B_val.rank());
     std::vector<int> newShape(newLen);
 
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!detail::combine_matrix(A_val.shape().data(), A_val.nDims(),
-                                B_val.shape().data(), B_val.nDims(),
+    if (!detail::combine_matrix(A_val.shape().data(), A_val.rank(),
+                                B_val.shape().data(), B_val.rank(),
                                 newShape.data(), newLen)) {
         throw shape_error(
             recLen, opName,

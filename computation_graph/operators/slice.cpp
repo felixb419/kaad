@@ -19,32 +19,32 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
-    if (size.size() > A_val.nDims()) {
+    if (size.size() > A_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());
         throw argument_error(recLen, "slice",
-                             "length of size is bigger than A.nDims()",
+                             "length of size is bigger than A.rank()",
                              {{"size", size_span}, {"A.shape", A_val.shape()}});
     }
-    if (offset.size() > A_val.nDims()) {
+    if (offset.size() > A_val.rank()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
         throw argument_error(
-            recLen, "slice", "length of offset is bigger than A.nDims()",
+            recLen, "slice", "length of offset is bigger than A.rank()",
             {{"offset", offset_span}, {"A.shape", A_val.shape()}});
     }
 
-    int diff = A_val.nDims() - offset.size();
-    std::vector<int> size_owned(A_val.nDims());
+    int diff = A_val.rank() - offset.size();
+    std::vector<int> size_owned(A_val.rank());
     std::copy(A_val.shape().begin(), A_val.shape().begin() + diff,
               size_owned.begin());
     std::copy(size.begin(), size.begin() + size.size(),
               size_owned.begin() + diff);
 
-    std::vector<int> offset_owned(A_val.nDims());
+    std::vector<int> offset_owned(A_val.rank());
     std::fill(offset_owned.begin(), offset_owned.begin() + diff, 0);
     std::copy(offset.begin(), offset.begin() + offset.size(),
               offset_owned.begin() + diff);
 
-    for (int i = 0; i < A_val.nDims(); i++) {
+    for (int i = 0; i < A_val.rank(); i++) {
         if (offset_owned[i] + size_owned[i] > A_val.shape()[i]) {
             std::span<const int> size_span(size.begin(), size.size());
             std::span<const int> offset_span(offset.begin(), offset.size());
@@ -58,7 +58,7 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
         }
     }
 
-    size_t newLen = A_val.nDims();
+    size_t newLen = A_val.rank();
     std::vector<int> newShape(newLen);
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 

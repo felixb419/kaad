@@ -139,7 +139,7 @@ class Tensor {
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */
-    size_type nDims() const noexcept;
+    size_type rank() const noexcept;
 
     /**
      * @brief Get immutable reference to the shape array.
