@@ -28,9 +28,9 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
     std::vector<int> stride_T(A_val.nDims());
     if (perm.size() == 0) {
 
-        std::reverse_copy(A_val.shape_begin(), A_val.shape_end(),
+        std::reverse_copy(A_val.shape().begin(), A_val.shape().end(),
                           shape_T.data());
-        std::reverse_copy(A_val.stride_begin(), A_val.stride_end(),
+        std::reverse_copy(A_val.stride().begin(), A_val.stride().end(),
                           stride_T.data());
 
     } else {

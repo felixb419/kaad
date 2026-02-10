@@ -148,34 +148,10 @@ class Tensor {
     const std::vector<int> &shape() const noexcept;
 
     /**
-     * @brief Get immutable pointer to the begin of shape array.
-     * @return Const pointer to the first element of shape_.
-     */
-    const int *shape_begin() const noexcept;
-
-    /**
-     * @brief Get immutable pointer to the end of shape array.
-     * @return Const pointer one past the shape array.
-     */
-    const int *shape_end() const noexcept;
-
-    /**
      * @brief Get immutable reference to the stride array.
      * @return Const reference to stride_.
      */
     const std::vector<int> &stride() const noexcept;
-
-    /**
-     * @brief Get immutable pointer to the begin of stride array.
-     * @return Const pointer to the first element of stride_.
-     */
-    const int *stride_begin() const noexcept;
-
-    /**
-     * @brief Get immutable pointer to the end of stride array.
-     * @return Const pointer one past the stride array.
-     */
-    const int *stride_end() const noexcept;
 
     /**
      * @brief Get a const iterator to the begin of the value array.

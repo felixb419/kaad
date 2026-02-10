@@ -51,8 +51,8 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
             B_val.data() + B_val.size(); // override end from constructor
 
     } else if (A_val.nDims() == 1 && B_val.nDims() == 1 &&
-               std::equal(A_val.shape_begin(), A_val.shape_end(),
-                          B_val.shape_begin())) {
+               std::equal(A_val.shape().begin(), A_val.shape().end(),
+                          B_val.shape().begin())) {
 
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary<Kernels::Null>>(

@@ -38,14 +38,14 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     size_t newLen = A_val.nDims();
     std::vector<int> newShape(newLen);
     if (keepNDims) {
-        std::copy(A_val.shape_begin(), A_val.shape_end(), newShape.begin());
+        std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());
         newShape[dim] = 1;
 
     } else {
         newLen--;
-        std::copy(A_val.shape_begin(), A_val.shape_begin() + dim,
+        std::copy(A_val.shape().begin(), A_val.shape().begin() + dim,
                   newShape.begin());
-        std::copy(A_val.shape_begin() + dim + 1, A_val.shape_end(),
+        std::copy(A_val.shape().begin() + dim + 1, A_val.shape().end(),
                   newShape.begin() + dim);
     }
 

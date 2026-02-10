@@ -31,22 +31,8 @@ Tensor::size_type Tensor::nDims() const noexcept {
 
 const std::vector<int> &Tensor::shape() const noexcept { return this->shape_; }
 
-const int *Tensor::shape_begin() const noexcept { return this->shape_.data(); }
-
-const int *Tensor::shape_end() const noexcept {
-    return this->shape_.data() + this->shape_.size();
-}
-
 const std::vector<int> &Tensor::stride() const noexcept {
     return this->stride_;
-}
-
-const int *Tensor::stride_begin() const noexcept {
-    return this->stride_.data();
-}
-
-const int *Tensor::stride_end() const noexcept {
-    return this->stride_.data() + this->stride_.size();
 }
 
 Tensor::const_iterator Tensor::begin() const noexcept {
@@ -97,8 +83,8 @@ std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
         std::vector<int> cords(tensor.nDims());
         int indent = 0;
 
-        detail::print_tensor(os, cords, tensor.shape_begin(),
-                             tensor.stride_begin(), tensor.nDims(),
+        detail::print_tensor(os, cords, tensor.shape().data(),
+                             tensor.stride().data(), tensor.nDims(),
                              tensor.data(), tensor.size(), 0, indent);
     }
     return os;

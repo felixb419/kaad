@@ -23,8 +23,8 @@ Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B) {
     std::vector<int> newShape(newLen);
 
     const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
-    if (!detail::combine_matrix(A_val.shape_begin(), A_val.nDims(),
-                                B_val.shape_begin(), B_val.nDims(),
+    if (!detail::combine_matrix(A_val.shape().data(), A_val.nDims(),
+                                B_val.shape().data(), B_val.nDims(),
                                 newShape.data(), newLen)) {
         throw shape_error(
             recLen, opName,

@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    figure out what should be constexpr
     improve naming in getGradient
     mark functions as const and noexcept
     remove tensor_view from strides
@@ -13,7 +12,6 @@ REFACTOR:
     disallow iteration semantics and maybe make begin and end private
     (?) remove shape_end and shape_begin
     comment node_type funciton
-    remove shape_begin functions
 
 
 FEAT:
@@ -27,7 +25,6 @@ FEAT:
 
 
 PERF:
-    make stride function transpose dimensions so biggest is highest
 
 DOC:
     fix all include lists
@@ -64,3 +61,7 @@ kaad/
    └─ kaadConfig.cmake.in           # optional, for install/package
 
     Add impl files for succifciently large header functions (~50-100 LOC)
+
+LATER:
+    make Tensor variant with compile time shape
+    make stride function transpose dimensions so biggest is highest

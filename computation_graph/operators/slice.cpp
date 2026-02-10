@@ -34,7 +34,7 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
 
     int diff = A_val.nDims() - offset.size();
     std::vector<int> size_owned(A_val.nDims());
-    std::copy(A_val.shape_begin(), A_val.shape_begin() + diff,
+    std::copy(A_val.shape().begin(), A_val.shape().begin() + diff,
               size_owned.begin());
     std::copy(size.begin(), size.begin() + size.size(),
               size_owned.begin() + diff);

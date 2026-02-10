@@ -125,16 +125,16 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
             B_val.shape())));
 
     } else if (A_val.nDims() == B_val.nDims() &&
-               std::equal(A_val.shape_begin(), A_val.shape_end(),
-                          B_val.shape_begin()) &&
-               std::equal(A_val.stride_begin(), A_val.stride_end(),
-                          B_val.stride_begin())) {
+               std::equal(A_val.shape().begin(), A_val.shape().end(),
+                          B_val.shape().begin()) &&
+               std::equal(A_val.stride().begin(), A_val.stride().end(),
+                          B_val.stride().begin())) {
 
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
             kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A_val.shape())));
 
-    } else if (combine_flexible(A_val.shape_begin(), A_val.nDims(),
-                                B_val.shape_begin(), B_val.nDims(),
+    } else if (combine_flexible(A_val.shape().data(), A_val.nDims(),
+                                B_val.shape().data(), B_val.nDims(),
                                 newShape.data(), newLen)) {
         rec.nodes.push_back(
             std::move(std::make_unique<Node_binary_flex<Kernel>>(A_ptr, B_ptr,

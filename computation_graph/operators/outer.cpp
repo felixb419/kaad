@@ -18,8 +18,8 @@ Node_handle outer(Computation_graph &rec, Node_handle A, Node_handle B) {
 
     size_t newLen = A_val.nDims() + B_val.nDims();
     std::vector<int> newShape(newLen);
-    std::copy(A_val.shape_begin(), A_val.shape_end(), newShape.begin());
-    std::copy(B_val.shape_begin(), B_val.shape_end(),
+    std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());
+    std::copy(B_val.shape().begin(), B_val.shape().end(),
               newShape.begin() + A_val.nDims());
 
     rec.nodes.push_back(
