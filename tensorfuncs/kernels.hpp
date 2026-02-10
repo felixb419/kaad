@@ -97,13 +97,13 @@ template <typename T> struct Pow {
     /**
      * @brief C = A ^ B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = pow(A, B); }
+    constexpr static void Op(T A, T B, T &C) noexcept { C = std::pow(A, B); }
     /**
      * @brief Computes the gradient of an exponentiation.
      */
     constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-        dA += dC * B * pow(A, B - 1);
-        dB += dC * C * log(A);
+        dA += dC * B * std::pow(A, B - 1);
+        dB += dC * C * std::log(A);
     }
 };
 

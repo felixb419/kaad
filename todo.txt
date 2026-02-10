@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    make sure what goes into detail
     figure out what should be constexpr
     improve naming in getGradient
     mark functions as const and noexcept
@@ -14,7 +13,7 @@ REFACTOR:
     disallow iteration semantics and maybe make begin and end private
     (?) remove shape_end and shape_begin
     comment node_type funciton
-    remove shape_begin function
+    remove shape_begin functions
 
 
 FEAT:
@@ -63,3 +62,5 @@ kaad/
 │  └─ ...
 └─ cmake/
    └─ kaadConfig.cmake.in           # optional, for install/package
+
+    Add impl files for succifciently large header functions (~50-100 LOC)
