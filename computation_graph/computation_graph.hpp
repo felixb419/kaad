@@ -93,32 +93,32 @@ class Computation_graph {
      * @brief Computes gradients of the computation graph with respect to the
      * given input nodes.
      *
-     * Initializes the gradient of the output node `df` to 1 and performs
+     * Initializes the gradient of the output node `output` to 1 and performs
      * backpropagation through the graph. Returns a list of pointers to the
-     * gradient tensors corresponding to each input node in `dx`.
+     * gradient tensors corresponding to each input node in `wrt`.
      *
      * @tparam ptrs Variadic template parameter pack of Node_handle types.
      *
-     * @param df Handle of the output node (target function) with respect
+     * @param output Handle of the output node (target function) with respect
      * to which gradients are computed.
-     * @param dx A list of input node handles for which the gradients are
+     * @param wrt A list of input node handles for which the gradients are
      * requested.
      * @return An array of Tensor* pointers representing the gradients ∂f/∂xᵢ
      * for each input node.
      */
     template <typename... Handles>
         requires(std::same_as<Handles, Node_handle> && ...)
-    std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle df,
-                                                         Handles... dx) {
-        INode *f = this->get_node(df);
+    std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle output,
+                                                         Handles... wrt) {
+        INode *f = this->get_node(output);
         std::fill(f->gradient.elements_.begin(), f->gradient.elements_.end(),
                   1.0);
 
         f->getGrad();
 
-        std::array<Node_handle, sizeof...(dx)> nodes = {dx...};
-        std::array<Tensor *, sizeof...(dx)> partials = {};
-        for (size_t i = 0; i < sizeof...(dx); i++) {
+        std::array<Node_handle, sizeof...(wrt)> nodes = {wrt...};
+        std::array<Tensor *, sizeof...(wrt)> partials = {};
+        for (size_t i = 0; i < sizeof...(wrt); i++) {
             partials[i] = &this->get_node(nodes[i])->gradient;
         }
 
