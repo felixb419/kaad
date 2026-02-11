@@ -11,6 +11,7 @@ REFACTOR:
     disallow iteration semantics and maybe make begin and end private
     (?) remove shape_end and shape_begin
     comment node_type funciton
+    rename node Inputs
 
 
 FEAT:

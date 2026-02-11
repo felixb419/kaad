@@ -46,6 +46,9 @@ using flexible_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
                              int c_rank);
 
 template <typename T>
+using dot_fn = void (*)(const T *A, const T *B, T *C, const T *A_end);
+
+template <typename T>
 using matmul_fn = void (*)(const T *A, const T *B, T *C, int a_rows, int b_cols,
                            int shared_dim, int *strideA, int *strideB,
                            int *strideC);
@@ -139,8 +142,8 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
 
 /**
  * @brief Compile-time recursive version of flexible.
- * @see void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
- * int *strideC, size_t *c_dim_offset, int rank)
+ * @see void flexible(const T *A, const T *B, T *C, int *strideA, int
+ * *strideB, int *strideC, size_t *c_dim_offset, int rank)
  */
 template <typename T, class Kernel, int rank>
 void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
@@ -153,7 +156,7 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
             flexible<T, Kernel, rank - 1>(A, B, C, strideA + 1, strideB + 1,
-                                           strideC + 1, c_dim_offset + 1, 0);
+                                          strideC + 1, c_dim_offset + 1, 0);
         }
     }
 }
@@ -168,7 +171,7 @@ void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel = Kernels::Null>
+template <typename T>
 void scalarDot(const T *A, const T *B, T *C, const T *A_end) {
     for (; A != A_end; A++) {
         *C += *A * (*B);
@@ -185,8 +188,7 @@ void scalarDot(const T *A, const T *B, T *C, const T *A_end) {
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel = Kernels::Null>
-void dot(const T *A, const T *B, T *C, const T *A_end) {
+template <typename T> void dot(const T *A, const T *B, T *C, const T *A_end) {
     for (; A != A_end; A++, B++) {
         *C += *A * (*B);
     }
@@ -270,8 +272,8 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
 /**
  * @brief Compile-time recursive version of batched matrix multiplication.
  * @see void batch_matmul(const T *A, const T *B, T *C, int *strideA, int
- * *strideB, int *strideC, int *c_shape, int a_dim_offset, int b_dim_offset, int
- * shared_dim, int c_rank)
+ * *strideB, int *strideC, int *c_shape, int a_dim_offset, int b_dim_offset,
+ * int shared_dim, int c_rank)
  */
 template <typename T, int c_rank>
 void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
@@ -291,8 +293,8 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
         for (int i = 0; i < *c_shape;
              i++, A += *strideA, B += *strideB, C += *strideC) {
             batch_matmul<T, c_rank - 1>(A, B, C, strideA + 1, strideB + 1,
-                                         strideC + 1, c_shape + 1, a_dim_offset,
-                                         b_dim_offset, shared_dim, 0);
+                                        strideC + 1, c_shape + 1, a_dim_offset,
+                                        b_dim_offset, shared_dim, 0);
         }
     }
 }
@@ -411,8 +413,8 @@ void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
         }
     } else {
         for (; A != end; A += *strideA, C += *strideC) {
-            sum_dim<T, a_rank - 1>(A, C, strideA + 1, strideC + 1,
-                                    A_offset + 1, 0);
+            sum_dim<T, a_rank - 1>(A, C, strideA + 1, strideC + 1, A_offset + 1,
+                                   0);
         }
     }
 }
@@ -512,7 +514,7 @@ void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset_a,
     } else {
         for (; C < end; A += *strideA, C += *strideC) {
             slice<T, rank - 1>(A, C, strideA + 1, strideC + 1,
-                                start_offset_a + 1, c_dim_offset + 1, 0);
+                               start_offset_a + 1, c_dim_offset + 1, 0);
         }
     }
 }

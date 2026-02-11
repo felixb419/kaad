@@ -219,6 +219,7 @@ class Tensor {
 
     template <class Kernel> friend class Node_binary;
     template <class Kernel> friend class Node_binary_flex;
+    friend class Node_dot;
     friend class Node_matmul;
     friend class Node_batch_matmul;
     friend class Node_outer;

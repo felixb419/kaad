@@ -27,6 +27,10 @@ using flexible_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
                              int *strideC, size_t *c_dim_offset, int c_rank);
 
 template <typename T>
+using dot_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
+                        const T *dC, const T *A_end);
+
+template <typename T>
 using matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
                            const T *dC, int *a_rows, int *b_cols,
                            int *shared_dim, int *strideA, int *strideB,
@@ -183,7 +187,7 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel = Kernels::Null>
+template <typename T>
 void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                const T *A_end) {
     for (; A != A_end; A++, dA++) {
@@ -207,7 +211,7 @@ void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel = Kernels::Null>
+template <typename T>
 void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
          const T *A_end) {
     for (; A != A_end; A++, dA++, B++, dB++) {

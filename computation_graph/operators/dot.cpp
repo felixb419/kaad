@@ -1,29 +1,17 @@
 #include "operators.hpp"
 
-#include "../../scalar.hpp"                  // for Scalar
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Kernels
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../computation_graph.hpp"          // for Computation_graph
 #include "../node_handle.hpp"                // for Node_handle
-#include "../nodes/binary.hpp"               // for Node_binary
+#include "../nodes/dot.hpp"                  // for Node_dot
 #include "exceptions.hpp"                    // for shape_error
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
 
 Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
-    tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernels::Null> scalar =
-        tensorfuncs::primal::binary::scalarDot<Scalar>;
-    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernels::Null>
-        scalar_grad =
-            tensorfuncs::adjoint::binary::scalarDot<Scalar, Kernels::Null>;
-
-    tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernels::Null> dot =
-        tensorfuncs::primal::binary::dot<Scalar, Kernels::Null>;
-    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernels::Null> dot_grad =
-        tensorfuncs::adjoint::binary::dot<Scalar, Kernels::Null>;
 
     int recLen = rec.nodes.size();
 
@@ -34,31 +22,32 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
 
     bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
     bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;
-    if (B_scalar) {
 
-        rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary<Kernels::Null>>(
-                scalar, scalar_grad, A_ptr, B_ptr, ((Scalar)0))));
-        static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
-            A_val.data() + A_val.size();
+    if (A_scalar || B_scalar) {
 
-    } else if (A_scalar) {
+        if (B_scalar) {
 
-        rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary<Kernels::Null>>(
-                scalar, scalar_grad, B_ptr, A_ptr, ((Scalar)0))));
-        static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
-            B_val.data() + B_val.size(); // override end from constructor
+            rec.nodes.push_back(
+                std::move(std::make_unique<Node_dot>(A_ptr, B_ptr)));
+
+        } else if (A_scalar) {
+
+            rec.nodes.push_back(
+                std::move(std::make_unique<Node_dot>(B_ptr, A_ptr)));
+        }
+
+        // override functions to ScalarDot
+        static_cast<Node_dot *>(rec.nodes.back().get())->forward_op =
+            tensorfuncs::primal::binary::scalarDot;
+        static_cast<Node_dot *>(rec.nodes.back().get())->backward_op =
+            tensorfuncs::adjoint::binary::scalarDot;
 
     } else if (A_val.rank() == 1 && B_val.rank() == 1 &&
                std::equal(A_val.shape().begin(), A_val.shape().end(),
                           B_val.shape().begin())) {
 
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary<Kernels::Null>>(
-                dot, dot_grad, A_ptr, B_ptr, ((Scalar)0))));
-        static_cast<Node_binary<Kernels::Null> *>(rec.nodes.back().get())->end =
-            A_val.data() + A_val.size();
+            std::move(std::make_unique<Node_dot>(A_ptr, B_ptr)));
 
     } else {
         throw shape_error(
