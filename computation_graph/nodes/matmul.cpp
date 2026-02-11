@@ -1,5 +1,7 @@
 #include "matmul.hpp"
 
+#include <algorithm> // for std::reverse_copy
+
 namespace kaad {
 
 /**

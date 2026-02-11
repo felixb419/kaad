@@ -164,6 +164,22 @@ template <typename T> struct Max {
 };
 
 /**
+ * @brief Binary kernel for no-operation.
+ * @tparam T The scalar type.
+ */
+template <typename T> struct NoOp {
+    /**
+     * @brief C = A
+     */
+    constexpr static void Op(T A, T &C) noexcept { C = A; }
+
+    /**
+     * @brief dA += dC
+     */
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC; }
+};
+
+/**
  * @brief Unary kernel for summation.
  * @tparam T The scalar type.
  */

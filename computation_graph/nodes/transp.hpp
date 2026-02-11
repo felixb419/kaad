@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Null::Op
+#include "../../tensorfuncs/kernels.hpp"     // for NoOp
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "inode.hpp"                         // for INode
 
@@ -16,16 +16,17 @@ class Node_transp : public INode {
   public:
     const char *node_type() const noexcept override;
 
-    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernels::Null> forward_op =
-        tensorfuncs::primal::unary::noop<
+    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernels::NoOp<Scalar>>
+        forward_op = tensorfuncs::primal::unary::pointwise<
             Scalar,
-            Kernels::Null>; ///< Function pointer to the value operation.
+            Kernels::NoOp<Scalar>>; ///< Function pointer to the value
+                                    ///< operation.
 
-    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernels::Sum<Scalar>>
+    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernels::NoOp<Scalar>>
         backward_op = tensorfuncs::adjoint::unary::pointwise<
             Scalar,
-            Kernels::Sum<Scalar>>; ///< Function pointer to the gradient
-                                   ///< operation.
+            Kernels::NoOp<Scalar>>; ///< Function pointer to the gradient
+                                    ///< operation.
 
     const Scalar *A_end = nullptr; ///< Pointer to the end of the A buffer.
     const Scalar *C_end = nullptr; ///< Pointer to the end of the C buffer.

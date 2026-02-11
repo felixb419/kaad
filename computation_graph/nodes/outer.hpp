@@ -1,9 +1,10 @@
 #pragma once
 
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "inode.hpp"                         // for INode, Node_ptr
-#include <vector>                            // for std::vector
+#include "../../tensorfuncs/kernels.hpp"
+#include "../../tensorfuncs/primal_ops.hpp" // for tensorfuncs::primal
+#include "inode.hpp"                        // for INode, Node_ptr
+#include <vector>                           // for std::vector
 
 namespace kaad {
 
@@ -37,7 +38,7 @@ class Node_outer : public INode {
     std::vector<int> strideB;     ///< stride Array for B.
     std::vector<int> strideC;     ///< stride Array for C.
     std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_rank = 0;           ///< Number of the dimensions of the C tensor.
+    size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a outer prodcut operation node with outer prodcut

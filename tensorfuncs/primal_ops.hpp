@@ -1,8 +1,6 @@
 #pragma once
 
-#include "kernels.hpp" // for Kernels::Null
-#include <algorithm>   // for std::copy
-#include <cstddef>     // for size_t
+#include <cstddef> // for size_t
 
 namespace kaad {
 
@@ -325,20 +323,6 @@ template <typename T>
 using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
                           size_t *start_offset_a, size_t *c_dim_offset,
                           int c_rank);
-
-/**
- * @brief Performs no operation (copies A to C).
- * @tparam T Element type
- * @tparam Op Operation (ignored here).
- * @param A Pointer to input tensor.
- * @param C Pointer to output tensor.
- * @param A_end Pointer to the end of A.
- * @param op Instance of the callable class (ignored here).
- */
-template <typename T, class Kernel = Kernels::Null>
-void noop(const T *A, T *C, const T *A_end) {
-    std::copy(A, A_end, C);
-}
 
 /**
  * @brief Applies a unary operation to A(tensor).
