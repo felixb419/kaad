@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    mark functions as const and noexcept
     remove tensor_view from strides
     get rid of c_shape member in Node_batch_matmul
     make sure perm assumes correct dimensions if not given (and add comment)

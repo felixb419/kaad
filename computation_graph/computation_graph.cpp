@@ -21,7 +21,7 @@ INode *Computation_graph::get_node(Node_handle node) {
     return this->nodes[node.idx_].get();
 }
 
-Node_handle Computation_graph::back_handle() {
+Node_handle Computation_graph::back_handle() noexcept {
     return Node_handle(this->nodes.size() - 1, this);
 }
 

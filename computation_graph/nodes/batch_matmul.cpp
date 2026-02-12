@@ -90,7 +90,7 @@ const char *Node_batch_matmul::node_type() const noexcept {
     return "Node_batch_matmul";
 }
 
-Node_batch_matmul::~Node_batch_matmul() {
+Node_batch_matmul::~Node_batch_matmul() noexcept {
     for (int i = 0; i < 3; i++) {
         delete[] strideA[i];
         delete[] strideB[i];

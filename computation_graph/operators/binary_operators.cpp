@@ -31,7 +31,7 @@ namespace kaad {
  */
 static inline bool combine_flexible(const int *shape1, size_t rank1,
                                     const int *shape2, size_t rank2,
-                                    int *newShape, size_t newLen) {
+                                    int *newShape, size_t newLen) noexcept {
     int ind = newLen - 1;
     for (int i = 1; i <= newLen; i++, ind--) {
         int ind1 = rank1 - i;

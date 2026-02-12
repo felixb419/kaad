@@ -18,7 +18,8 @@ class Node_handle {
      * @param idx Index of the node in the Computation_graph.
      * @param origin Pointer to the Computation_graph.
      */
-    constexpr explicit Node_handle(uint32_t idx, Computation_graph *origin)
+    constexpr explicit Node_handle(uint32_t idx,
+                                   Computation_graph *origin) noexcept
         : idx_(idx), origin_(origin) {}
 
     friend class Computation_graph;
@@ -34,7 +35,9 @@ class Node_handle {
      * @brief Get the origin of the Node.
      * @return Pointer to the Computation_graph which contains the node.
      */
-    constexpr const Computation_graph *origin() { return this->origin_; }
+    constexpr const Computation_graph *origin() const noexcept {
+        return this->origin_;
+    }
 
     friend constexpr auto operator<=>(Node_handle, Node_handle) = default;
     friend std::ostream &operator<<(std::ostream &os, Node_handle node);

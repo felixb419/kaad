@@ -35,7 +35,7 @@ class Computation_graph {
      * @brief Get the last node in the graph.
      * @return Handle of the node at the back of the node vector.
      */
-    Node_handle back_handle();
+    Node_handle back_handle() noexcept;
 
     /**
      * @brief Constructs a Node valued with the given tensor arguments and
