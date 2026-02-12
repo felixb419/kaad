@@ -87,9 +87,10 @@ Node_handle abs(Computation_graph &rec, Node_handle A);
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @param size An initializer list specifying the size (length) of the slice
- * along each dimension.
+ * along each dimension, unspecified dimensions stay the same.
  * @param offset An initializer list specifying the starting indices (offset)
- * for the slice along each dimension.
+ * for the slice along each dimension, unspecified dimensions are assumed to be
+ * 0.
  * @return A handle of the new node representing the sliced tensor.
  */
 Node_handle slice(Computation_graph &rec, Node_handle A,

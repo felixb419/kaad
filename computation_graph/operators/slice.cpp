@@ -34,11 +34,16 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
 
     int diff = A_val.rank() - offset.size();
     std::vector<int> size_owned(A_val.rank());
+
+    // if length of size is smaller than rank of A, the left out dimensions stay
+    // the same.
     std::copy(A_val.shape().begin(), A_val.shape().begin() + diff,
               size_owned.begin());
     std::copy(size.begin(), size.begin() + size.size(),
               size_owned.begin() + diff);
 
+    // if length of offset is smaller than rank of A, the left out offsets are
+    // set to 0.
     std::vector<int> offset_owned(A_val.rank());
     std::fill(offset_owned.begin(), offset_owned.begin() + diff, 0);
     std::copy(offset.begin(), offset.begin() + offset.size(),
