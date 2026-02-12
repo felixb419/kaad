@@ -35,11 +35,16 @@ namespace tensorfuncs::primal {
  */
 namespace binary {
 
-template <typename T, class Kernel>
-using pointwise_fn = void (*)(const T *A, const T *B, T *C, const T *C_end);
+template <class Kernel>
+using pointwise_fn = void (*)(const typename Kernel::value_type *A,
+                              const typename Kernel::value_type *B,
+                              typename Kernel::value_type *C,
+                              const typename Kernel::value_type *C_end);
 
-template <typename T, class Kernel>
-using flexible_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
+template <class Kernel>
+using flexible_fn = void (*)(const typename Kernel::value_type *A,
+                             const typename Kernel::value_type *B,
+                             typename Kernel::value_type *C, int *strideA,
                              int *strideB, int *strideC, size_t *c_dim_offset,
                              int c_rank);
 
@@ -60,15 +65,17 @@ using batch_matmul_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
 /**
  * @brief Applies Op(A,B) to A(tensor) and B(scalar).
  * @pre @p A and @p C have the same shape and @p B is scalar.
- * @tparam T Element type
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to B(scalar).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void scalarRhs(const T *A, const T *B, T *C, const T *C_end) {
+template <class Kernel>
+void scalarRhs(const typename Kernel::value_type *A,
+               const typename Kernel::value_type *B,
+               typename Kernel::value_type *C,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; A++, C++) {
         Kernel::Op(*A, *B, *C);
     }
@@ -77,15 +84,17 @@ void scalarRhs(const T *A, const T *B, T *C, const T *C_end) {
 /**
  * @brief Applies Op(A,B) to A(scalar) and B(tensor).
  * @pre @p B and @p C have the same shape and @p A is scalar.
- * @tparam T Element type
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to A(scalar).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void scalarLhs(const T *A, const T *B, T *C, const T *C_end) {
+template <class Kernel>
+void scalarLhs(const typename Kernel::value_type *A,
+               const typename Kernel::value_type *B,
+               typename Kernel::value_type *C,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; B++, C++) {
         Kernel::Op(*A, *B, *C);
     }
@@ -94,15 +103,17 @@ void scalarLhs(const T *A, const T *B, T *C, const T *C_end) {
 /**
  * @brief Applies Op(A,B) to A(tensor) and B(tensor).
  * @pre @p A, @p B and @p C have the same shape.
- * @tparam T Element type
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to the start of B(tensor).
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void pointwise(const T *A, const T *B, T *C, const T *C_end) {
+template <class Kernel>
+void pointwise(const typename Kernel::value_type *A,
+               const typename Kernel::value_type *B,
+               typename Kernel::value_type *C,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; A++, B++, C++) {
         Kernel::Op(*A, *B, *C);
     }
@@ -111,7 +122,6 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end) {
 /**
  * @brief Applies Op(A,B) to A(tensor) and B(tensor).
  * @pre @p C shape is the result of broadcasting @p A and @p B.
- * @tparam T Element type
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[in] B Pointer to the start of B(tensor).
@@ -122,39 +132,41 @@ void pointwise(const T *A, const T *B, T *C, const T *C_end) {
  * @param c_dim_offset Offset to the end of @p C per dimension.
  * @param c_rank Number of dimensions of C.
  */
-template <typename T, class Kernel>
-void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
+template <class Kernel>
+void flexible(const typename Kernel::value_type *A,
+              const typename Kernel::value_type *B,
+              typename Kernel::value_type *C, int *strideA, int *strideB,
               int *strideC, size_t *c_dim_offset, int rank) {
-    const T *end = C + *c_dim_offset;
+    const typename Kernel::value_type *end = C + *c_dim_offset;
     if (rank <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
             Kernel::Op(*A, *B, *C);
         }
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
-            flexible<T, Kernel>(A, B, C, strideA + 1, strideB + 1, strideC + 1,
-                                c_dim_offset + 1, rank - 1);
+            flexible<Kernel>(A, B, C, strideA + 1, strideB + 1, strideC + 1,
+                             c_dim_offset + 1, rank - 1);
         }
     }
 }
 
 /**
- * @brief Compile-time recursive version of flexible.
- * @see void flexible(const T *A, const T *B, T *C, int *strideA, int
- * *strideB, int *strideC, size_t *c_dim_offset, int rank)
+ * @brief Compile-time recursive version of the runtime @ref flexible().
  */
-template <typename T, class Kernel, int rank>
-void flexible(const T *A, const T *B, T *C, int *strideA, int *strideB,
+template <class Kernel, int rank>
+void flexible(const typename Kernel::value_type *A,
+              const typename Kernel::value_type *B,
+              typename Kernel::value_type *C, int *strideA, int *strideB,
               int *strideC, size_t *c_dim_offset, int _) {
-    const T *end = C + *c_dim_offset;
+    const typename Kernel::value_type *end = C + *c_dim_offset;
     if constexpr (rank <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
             Kernel::Op(*A, *B, *C);
         }
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
-            flexible<T, Kernel, rank - 1>(A, B, C, strideA + 1, strideB + 1,
-                                          strideC + 1, c_dim_offset + 1, 0);
+            flexible<Kernel, rank - 1>(A, B, C, strideA + 1, strideB + 1,
+                                       strideC + 1, c_dim_offset + 1, 0);
         }
     }
 }
@@ -268,10 +280,7 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
 }
 
 /**
- * @brief Compile-time recursive version of batched matrix multiplication.
- * @see void batch_matmul(const T *A, const T *B, T *C, int *strideA, int
- * *strideB, int *strideC, int *c_shape, int a_dim_offset, int b_dim_offset,
- * int shared_dim, int c_rank)
+ * @brief Compile-time recursive version of runtime @ref batch_matmul().
  */
 template <typename T, int c_rank>
 void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
@@ -304,8 +313,10 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
  */
 namespace unary {
 
-template <typename T, class Kernel>
-using pointwise_fn = void (*)(const T *A, T *C, const T *C_end);
+template <class Kernel>
+using pointwise_fn = void (*)(const typename Kernel::value_type *A,
+                              typename Kernel::value_type *C,
+                              const typename Kernel::value_type *C_end);
 
 template <typename T>
 using sum_dim_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
@@ -326,14 +337,15 @@ using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
 
 /**
  * @brief Applies a unary operation to A(tensor).
- * @tparam T Element type
  * @tparam Kernel A struct containing a static unary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of A.
  */
-template <typename T, class Kernel>
-void scalarOut(const T *A, T *C, const T *A_end) {
+template <class Kernel>
+void scalarOut(const typename Kernel::value_type *A,
+               typename Kernel::value_type *C,
+               const typename Kernel::value_type *A_end) {
     for (; A != A_end; A++) {
         Kernel::Op(*A, *C);
     }
@@ -341,15 +353,16 @@ void scalarOut(const T *A, T *C, const T *A_end) {
 
 /**
  * @brief Applies a unary operation to A(tensor).
- * @tparam T Element type
  * @tparam Kernel A struct containing a static unary function ('Op').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] C Pointer to the start of C(tensor)
  * @param A_end Pointer to the end of C.
  * @param op Instance of the callable class.
  */
-template <typename T, class Kernel>
-void pointwise(const T *A, T *C, const T *C_end) {
+template <class Kernel>
+void pointwise(const typename Kernel::value_type *A,
+               typename Kernel::value_type *C,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; A++, C++) {
         Kernel::Op(*A, *C);
     }
@@ -383,9 +396,7 @@ void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
 }
 
 /**
- * @brief Compile-time recursive version of sum_dim.
- * @see void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t
- * *A_offset, int a_rank)
+ * @brief Compile-time recursive version of runtime @ref sum_dim().
  */
 template <typename T, int a_rank>
 void sum_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
@@ -440,9 +451,7 @@ void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
 }
 
 /**
- * @brief Compile-time recursive version of mean_dim.
- * @see mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
- * int N, T divisor, T *C_end)
+ * @brief Compile-time recursive version of runtime @ref mean_dim().
  */
 template <typename T, int N>
 void mean_dim(const T *A, T *C, int *strideA, int *strideC, size_t *A_offset,
@@ -482,9 +491,7 @@ void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset_a,
 }
 
 /**
- * @brief Compile-time recursive version of slice.
- * @see slice(const T *A, T *C, int *strideA, int *strideC, size_t
- * *start_offset_a, size_t *c_dim_offset, int rank)
+ * @brief Compile-time recursive version of runtime @ref slice().
  */
 template <typename T, int rank>
 void slice(const T *A, T *C, int *strideA, int *strideC, size_t *start_offset_a,

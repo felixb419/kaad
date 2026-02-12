@@ -19,15 +19,13 @@ template <class Kernel> class Node_binary : public INode {
 
     INode *B = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernel> forward_op =
+    tensorfuncs::primal::binary::pointwise_fn<Kernel> forward_op =
         tensorfuncs::primal::binary::pointwise<
-            Scalar, Kernel>; ///< Function pointer to the
-                             ///< value operation.
+            Kernel>; ///< Function pointer to the value operation.
 
-    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> backward_op =
+    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> backward_op =
         tensorfuncs::primal::binary::pointwise<
-            Scalar, Kernel>; ///< Function pointer to the
-                             ///< gradient operation.
+            Kernel>; ///< Function pointer to the gradient operation.
 
     const Scalar *end =
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
@@ -43,10 +41,9 @@ template <class Kernel> class Node_binary : public INode {
      * @param tensor_args Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_binary(
-        tensorfuncs::primal::binary::pointwise_fn<Scalar, Kernel> operation,
-        tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> derivative,
-        INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
+    Node_binary(tensorfuncs::primal::binary::pointwise_fn<Kernel> operation,
+                tensorfuncs::adjoint::binary::pointwise_fn<Kernel> derivative,
+                INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
         : B(B_ptr), forward_op(operation), backward_op(derivative),
           INode(A_ptr, tensor_args...) {
         INode *base_ptr = static_cast<INode *>(this);

@@ -27,8 +27,8 @@ void Node_outer::metadata() {
 
     // assign compile-time recursive function
     if (C_rank <= Dispatchers::MAX_NDIMS) {
-        forward_op = Dispatchers::get_flexOp<Scalar, Kernel>()[C_rank];
-        backward_op = Dispatchers::get_flexGrad<Scalar, Kernel>()[C_rank];
+        forward_op = Dispatchers::get_flexOp<Kernel>()[C_rank];
+        backward_op = Dispatchers::get_flexGrad<Kernel>()[C_rank];
     }
 }
 

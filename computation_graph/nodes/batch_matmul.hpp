@@ -13,8 +13,6 @@ class Node_batch_matmul;
  * @brief A batch_matmul operation node in a computation graph.
  * @see tensorfuncs::primal::binary::batch_matmul
  * @see tensorfuncs::adjoint::binary::batch_matmul
- * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
- * operation.
  */
 class Node_batch_matmul : public INode {
   private:
@@ -48,7 +46,7 @@ class Node_batch_matmul : public INode {
     int A_colStride[3]; ///< Gap between columns of the A matrix.
     int B_rowStride[3]; ///< Gap between rows of the B matrix.
     int shared_dim[3];  ///< Shared inner dimension of the tensors.
-    size_t C_rank = 0; ///< Number of the dimensions of the value tensor.
+    size_t C_rank = 0;  ///< Number of the dimensions of the value tensor.
 
     /**
      * @brief Constructs a batch_matmul node.

@@ -22,16 +22,16 @@ class Node_outer : public INode {
   public:
     const char *node_type() const noexcept override;
 
+    INode *B = nullptr; ///< Pointer to the second input Node.
+                        ///
     using Kernel = typename Kernels::Mul<Scalar>;
 
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =
+        tensorfuncs::primal::binary::flexible<Kernel>; ///< Function pointer to
+                                                       ///< the value operation.
 
-    tensorfuncs::primal::binary::flexible_fn<Scalar, Kernel> forward_op =
-        tensorfuncs::primal::binary::flexible<
-            Scalar, Kernel>; ///< Function pointer to the value operation.
-    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> backward_op =
+    tensorfuncs::adjoint::binary::flexible_fn<Kernel> backward_op =
         tensorfuncs::adjoint::binary::flexible<
-            Scalar,
             Kernel>; ///< Function pointer to the gradient operation.
 
     std::vector<int> strideA;     ///< stride Array for A.

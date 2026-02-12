@@ -17,14 +17,21 @@ namespace tensorfuncs::adjoint {
  */
 namespace binary {
 
-template <typename T, class Kernel>
-using pointwise_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                              const T *dC, const T *end);
+template <class Kernel>
+using pointwise_fn = void (*)(const typename Kernel::value_type *A,
+                              typename Kernel::value_type *dA,
+                              const typename Kernel::value_type *B,
+                              typename Kernel::value_type *dB,
+                              const typename Kernel::value_type *C,
+                              const typename Kernel::value_type *dC,
+                              const typename Kernel::value_type *end);
 
-template <typename T, class Kernel>
-using flexible_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
-                             const T *dC, int *strideA, int *strideB,
-                             int *strideC, size_t *c_dim_offset, int c_rank);
+template <class Kernel>
+using flexible_fn = void (*)(
+    const typename Kernel::value_type *A, typename Kernel::value_type *dA,
+    const typename Kernel::value_type *B, typename Kernel::value_type *dB,
+    const typename Kernel::value_type *C, const typename Kernel::value_type *dC,
+    int *strideA, int *strideB, int *strideC, size_t *c_dim_offset, int c_rank);
 
 template <typename T>
 using dot_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
@@ -47,7 +54,6 @@ using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
  * @brief Accumulates the gradient of Op(A,B), A(tensor), B(scalar).
  * @pre @p A and @p C have the same shape and @p B is scalar.
  * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
@@ -57,9 +63,14 @@ using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *C_end) {
+template <class Kernel>
+void scalarRhs(const typename Kernel::value_type *A,
+               typename Kernel::value_type *dA,
+               const typename Kernel::value_type *B,
+               typename Kernel::value_type *dB,
+               const typename Kernel::value_type *C,
+               const typename Kernel::value_type *dC,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; A++, dA++, C++, dC++) {
         Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
@@ -69,7 +80,6 @@ void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @brief Accumulates the gradient of Op(A,B), A(scalar), B(tensor).
  * @pre @p B and @p C have the same shape and @p A is scalar.
  * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
  * @param[in] A Pointer to the start of A(scalar).
  * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
@@ -79,9 +89,14 @@ void scalarRhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *C_end) {
+template <class Kernel>
+void scalarLhs(const typename Kernel::value_type *A,
+               typename Kernel::value_type *dA,
+               const typename Kernel::value_type *B,
+               typename Kernel::value_type *dB,
+               const typename Kernel::value_type *C,
+               const typename Kernel::value_type *dC,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; B++, dB++, C++, dC++) {
         Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
@@ -91,7 +106,6 @@ void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @brief Accumulates the gradient of Op(A,B), A(tensor), B(tensor).
  * @pre @p A, @p B and @p C have the same shape.
  * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
@@ -101,9 +115,14 @@ void scalarLhs(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *C_end) {
+template <class Kernel>
+void pointwise(const typename Kernel::value_type *A,
+               typename Kernel::value_type *dA,
+               const typename Kernel::value_type *B,
+               typename Kernel::value_type *dB,
+               const typename Kernel::value_type *C,
+               const typename Kernel::value_type *dC,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; A++, dA++, B++, dB++, C++, dC++) {
         Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
@@ -113,7 +132,6 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @brief Accumulates the gradient of Op(A,B), A(tensor), B(tensor).
  * @pre @p C shape is the result of broadcasting @p A and @p B.
  * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
@@ -127,11 +145,15 @@ void pointwise(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  * @param c_dim_offset Offset to the end of @p C per dimension.
  * @param c_rank Number of dimensions of C.
  */
-template <typename T, class Kernel>
-void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, size_t *c_dim_offset,
-              int c_rank) {
-    const T *end = C + *c_dim_offset;
+template <class Kernel>
+void flexible(const typename Kernel::value_type *A,
+              typename Kernel::value_type *dA,
+              const typename Kernel::value_type *B,
+              typename Kernel::value_type *dB,
+              const typename Kernel::value_type *C,
+              const typename Kernel::value_type *dC, int *strideA, int *strideB,
+              int *strideC, size_t *c_dim_offset, int c_rank) {
+    const typename Kernel::value_type *end = C + *c_dim_offset;
     if (c_rank <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -140,23 +162,24 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
     } else {
         for (; C < end; A += *strideA, B += *strideB, C += *strideC,
                         dA += *strideA, dB += *strideB, dC += *strideC) {
-            flexible<T, Kernel>(A, dA, B, dB, C, dC, strideA + 1, strideB + 1,
-                                strideC + 1, c_dim_offset + 1, c_rank - 1);
+            flexible<Kernel>(A, dA, B, dB, C, dC, strideA + 1, strideB + 1,
+                             strideC + 1, c_dim_offset + 1, c_rank - 1);
         }
     }
 }
 
 /**
- * @brief Compile-time recursive version of flexible().
- * @see void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T
- * *dC, int *strideA, int *strideB, int *strideC, size_t *c_dim_offset, int
- * c_rank) {
+ * @brief Compile-time recursive version of runtime @ref flexible().
  */
-template <typename T, class Kernel, int c_rank>
-void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-              int *strideA, int *strideB, int *strideC, size_t *c_dim_offset,
-              int _) {
-    const T *end = C + *c_dim_offset;
+template <class Kernel, int c_rank>
+void flexible(const typename Kernel::value_type *A,
+              typename Kernel::value_type *dA,
+              const typename Kernel::value_type *B,
+              typename Kernel::value_type *dB,
+              const typename Kernel::value_type *C,
+              const typename Kernel::value_type *dC, int *strideA, int *strideB,
+              int *strideC, size_t *c_dim_offset, int _) {
+    const typename Kernel::value_type *end = C + *c_dim_offset;
     if constexpr (c_rank <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
@@ -165,9 +188,9 @@ void flexible(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
     } else {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
                          dA += *strideA, dB += *strideB, dC += *strideC) {
-            flexible<T, Kernel, c_rank - 1>(A, dA, B, dB, C, dC, strideA + 1,
-                                            strideB + 1, strideC + 1,
-                                            c_dim_offset + 1, 0);
+            flexible<Kernel, c_rank - 1>(A, dA, B, dB, C, dC, strideA + 1,
+                                         strideB + 1, strideC + 1,
+                                         c_dim_offset + 1, 0);
         }
     }
 }
@@ -288,11 +311,7 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 }
 
 /**
- * @brief Compile-time recursive version of batched matrix multiplication
- * gradient.
- * @see void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C,
- * const T *dC, int **strideA, int **strideB, int **strideC, int **c_shape, int
- * *a_dim_offset, int *b_dim_offset, int *shared_dim, int c_rank)
+ * @brief Compile-time recursive version of runtime @ref batch_matmul().
  */
 template <typename T, int c_rank>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
@@ -316,9 +335,12 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  */
 namespace unary {
 
-template <typename T, class Kernel>
-using pointwise_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
-                              const T *end);
+template <class Kernel>
+using pointwise_fn = void (*)(const typename Kernel::value_type *A,
+                              typename Kernel::value_type *dA,
+                              const typename Kernel::value_type *C,
+                              const typename Kernel::value_type *dC,
+                              const typename Kernel::value_type *end);
 
 template <typename T>
 using sum_dim_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
@@ -341,7 +363,6 @@ using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
  * @brief Accumulates the gradient of Op(A), A(tensor).
  * @pre @p C is a scalar.
  * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
@@ -349,8 +370,12 @@ using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param A_end Pointer to the end of @p A.
  */
-template <typename T, class Kernel>
-void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end) {
+template <class Kernel>
+void scalarOut(const typename Kernel::value_type *A,
+               typename Kernel::value_type *dA,
+               const typename Kernel::value_type *C,
+               const typename Kernel::value_type *dC,
+               const typename Kernel::value_type *A_end) {
     for (; A != A_end; A++, dA++) {
         Kernel::Grad(*A, *dA, *C, *dC);
     }
@@ -360,7 +385,6 @@ void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end) {
  * @brief Accumulates the gradient of Op(A), A(tensor).
  * @pre @p A and @p C have the same shape.
  * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
  * @param[in] A Pointer to the start of A(tensor).
  * @param[out] dA Pointer to the start of the gradient w.r.t. @p A.
@@ -368,8 +392,12 @@ void scalarOut(const T *A, T *dA, const T *C, const T *dC, const T *A_end) {
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <typename T, class Kernel>
-void pointwise(const T *A, T *dA, const T *C, const T *dC, const T *C_end) {
+template <class Kernel>
+void pointwise(const typename Kernel::value_type *A,
+               typename Kernel::value_type *dA,
+               const typename Kernel::value_type *C,
+               const typename Kernel::value_type *dC,
+               const typename Kernel::value_type *C_end) {
     for (; C != C_end; A++, dA++, C++, dC++) {
         Kernel::Grad(*A, *dA, *C, *dC);
     }
@@ -402,9 +430,7 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
 }
 
 /**
- * @brief Compile-time recursive version of gradient of sum_dim.
- * @see void sum_dim(T *dA, const T *dC, int *strideA, int *strideC, size_t
- * *a_dim_offset, int a_rank)
+ * @brief Compile-time recursive version of runtime @ref sum_dim().
  */
 template <typename T, int a_rank>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
@@ -474,10 +500,7 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
 }
 
 /**
- * @brief Compile-time recursive version of gradient of mean of a tensor along a
- * given dimension
- * @see mean_dim(const T *A, T *dA, const T *C, T *dC, int *strideA, int
- * *strideC, size_t *a_dim_offsetset, int a_rank, T divisor, T *dA_end)
+ * @brief Compile-time recursive version of runtime @ref mean_dim().
  */
 template <typename T, int a_rank>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
@@ -518,9 +541,7 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
 }
 
 /**
- * @brief Compile-time recursive version of slice.
- * @see void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t
- * *start_offset, size_t *c_dim_offset, int rank)
+ * @brief Compile-time recursive version of runtime @ref slice().
  */
 template <typename T, int rank>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,

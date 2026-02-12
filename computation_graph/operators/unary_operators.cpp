@@ -19,11 +19,11 @@ namespace kaad {
  * @tparam T Datatype the operations are performed on (e.g. float, double, ...).
  * @tparam Kernel Kernel the functions should be using.
  */
-template <typename T, class Kernel> struct UnaryKernels {
-    tensorfuncs::primal::unary::pointwise_fn<T, Kernel> op =
-        tensorfuncs::primal::unary::pointwise<T, Kernel>;
-    tensorfuncs::adjoint::unary::pointwise_fn<T, Kernel> grad =
-        tensorfuncs::adjoint::unary::pointwise<T, Kernel>;
+template <class Kernel> struct UnaryKernels {
+    tensorfuncs::primal::unary::pointwise_fn<Kernel> op =
+        tensorfuncs::primal::unary::pointwise<Kernel>;
+    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> grad =
+        tensorfuncs::adjoint::unary::pointwise<Kernel>;
 };
 
 /**
@@ -42,7 +42,7 @@ template <typename T, class Kernel> struct UnaryKernels {
  */
 template <class Kernel>
 Node_handle unOperator(Computation_graph &rec, Node_handle A,
-                       const UnaryKernels<Scalar, Kernel> kernels) {
+                       const UnaryKernels<Kernel> kernels) {
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value;
 
@@ -53,32 +53,32 @@ Node_handle unOperator(Computation_graph &rec, Node_handle A,
 }
 
 Node_handle negative(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Scalar, class Kernels::Neg<Scalar>> negK;
+    static const UnaryKernels<Kernels::Neg<Scalar>> negK;
     return unOperator(rec, A, negK);
 }
 
 Node_handle square(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Scalar, class Kernels::Square<Scalar>> squareK;
+    static const UnaryKernels<Kernels::Square<Scalar>> squareK;
     return unOperator(rec, A, squareK);
 }
 
 Node_handle sqrt(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Scalar, class Kernels::Sqrt<Scalar>> sqrtK;
+    static const UnaryKernels<Kernels::Sqrt<Scalar>> sqrtK;
     return unOperator(rec, A, sqrtK);
 }
 
 Node_handle log(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Scalar, class Kernels::Log<Scalar>> logK;
+    static const UnaryKernels<Kernels::Log<Scalar>> logK;
     return unOperator(rec, A, logK);
 }
 
 Node_handle exp(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Scalar, class Kernels::Exp<Scalar>> expK;
+    static const UnaryKernels<Kernels::Exp<Scalar>> expK;
     return unOperator(rec, A, expK);
 }
 
 Node_handle abs(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Scalar, class Kernels::Abs<Scalar>> absK;
+    static const UnaryKernels<Kernels::Abs<Scalar>> absK;
     return unOperator(rec, A, absK);
 }
 

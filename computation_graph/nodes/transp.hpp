@@ -16,17 +16,16 @@ class Node_transp : public INode {
   public:
     const char *node_type() const noexcept override;
 
-    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernels::NoOp<Scalar>>
-        forward_op = tensorfuncs::primal::unary::pointwise<
-            Scalar,
-            Kernels::NoOp<Scalar>>; ///< Function pointer to the value
-                                    ///< operation.
+    using Kernel = Kernels::NoOp<Scalar>;
 
-    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernels::NoOp<Scalar>>
-        backward_op = tensorfuncs::adjoint::unary::pointwise<
-            Scalar,
-            Kernels::NoOp<Scalar>>; ///< Function pointer to the gradient
-                                    ///< operation.
+    tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =
+        tensorfuncs::primal::unary::pointwise<Kernel>; ///< Function pointer to
+                                                       ///< the value operation.
+
+    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> backward_op =
+        tensorfuncs::adjoint::unary::pointwise<Kernel>; ///< Function pointer to
+                                                        ///< the gradient
+                                                        ///< operation.
 
     const Scalar *A_end = nullptr; ///< Pointer to the end of the A buffer.
     const Scalar *C_end = nullptr; ///< Pointer to the end of the C buffer.

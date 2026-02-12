@@ -51,8 +51,8 @@ template <class Kernel> class Node_binary_flex : public INode {
 
         // assign compile-time recursive function
         if (C_rank <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_flexOp<Scalar, Kernel>()[C_rank];
-            backward_op = Dispatchers::get_flexGrad<Scalar, Kernel>()[C_rank];
+            forward_op = Dispatchers::get_flexOp<Kernel>()[C_rank];
+            backward_op = Dispatchers::get_flexGrad<Kernel>()[C_rank];
         }
     }
 
@@ -63,19 +63,19 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     INode *B = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::flexible_fn<Scalar, Kernel> forward_op =
-        tensorfuncs::primal::binary::flexible<Scalar,
-                                              Kernel>; ///< Function pointer to
+    tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =
+        tensorfuncs::primal::binary::flexible<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
-    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> backward_op =
+
+    tensorfuncs::adjoint::binary::flexible_fn<Kernel> backward_op =
         tensorfuncs::adjoint::binary::flexible<
-            Scalar, Kernel>; ///< Function pointer to the gradient operation.
+            Kernel>; ///< Function pointer to the gradient operation.
 
     std::vector<int> strideA;     ///< stride Array for A.
     std::vector<int> strideB;     ///< stride Array for B.
     std::vector<int> strideC;     ///< stride Array for C.
     std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_rank = 0;           ///< Number of the dimensions of the C tensor.
+    size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
@@ -102,8 +102,7 @@ template <class Kernel> class Node_binary_flex : public INode {
 
             forward_op(this->A->value.data(), this->B->value.data(),
                        this->value.elements_.data(), strideA.data(),
-                       strideB.data(), strideC.data(), C_offset.data(),
-                       C_rank);
+                       strideB.data(), strideC.data(), C_offset.data(), C_rank);
             this->evaluated = true;
         }
     }

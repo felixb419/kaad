@@ -10,8 +10,6 @@ namespace kaad {
  * @brief A binary operation node in a computation graph.
  * @see tensorfuncs::primal::binary::pointwise
  * @see tensorfuncs::adjoint::binary::pointwise
- * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
- * operation.
  */
 class Node_dot : public INode {
   public:

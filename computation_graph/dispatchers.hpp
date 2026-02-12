@@ -30,32 +30,33 @@ namespace Dispatchers {
 constexpr static int MAX_NDIMS = 10;
 
 /// @brief Returns full table of flexible binary operation implementations.
-template <typename T, class Op, size_t... Is>
-constexpr std::array<tensorfuncs::primal::binary::flexible_fn<T, Op>,
+template <class Kernel, size_t... Is>
+constexpr std::array<tensorfuncs::primal::binary::flexible_fn<Kernel>,
                      sizeof...(Is)>
 get_flexOp_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::primal::binary::flexible<T, Op, Is>...};
+    return {&tensorfuncs::primal::binary::flexible<Kernel, Is>...};
 }
 
-template <typename T, class Op>
-constexpr std::array<tensorfuncs::primal::binary::flexible_fn<T, Op>, MAX_NDIMS>
+template <class Kernel>
+constexpr std::array<tensorfuncs::primal::binary::flexible_fn<Kernel>,
+                     MAX_NDIMS>
 get_flexOp() {
-    return get_flexOp_impl<T, Op>(std::make_index_sequence<MAX_NDIMS>());
+    return get_flexOp_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of flexible binary gradient implementations.
-template <typename T, class Grad, size_t... Is>
-constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<T, Grad>,
+template <class Kernel, size_t... Is>
+constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<Kernel>,
                      sizeof...(Is)>
 get_flexGrad_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::adjoint::binary::flexible<T, Grad, Is>...};
+    return {&tensorfuncs::adjoint::binary::flexible<Kernel, Is>...};
 }
 
-template <typename T, class Grad>
-constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<T, Grad>,
+template <class Kernel>
+constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<Kernel>,
                      MAX_NDIMS>
 get_flexGrad() {
-    return get_flexGrad_impl<T, Grad>(std::make_index_sequence<MAX_NDIMS>());
+    return get_flexGrad_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of batch matmul operation implementations.

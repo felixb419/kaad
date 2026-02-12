@@ -17,15 +17,13 @@ template <class Kernel> class Node_unary : public INode {
   public:
     const char *node_type() const noexcept override { return "Node_unary"; }
 
-    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernel> forward_op =
-        tensorfuncs::primal::unary::pointwise<Scalar,
-                                              Kernel>; ///< Function pointer to
+    tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =
+        tensorfuncs::primal::unary::pointwise<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
 
-    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernel> backward_op =
+    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> backward_op =
         tensorfuncs::adjoint::unary::pointwise<
-            Scalar, Kernel>; ///< Function pointer to the
-                             ///< gradient operation.
+            Kernel>; ///< Function pointer to the gradient operation.
 
     const Scalar *end =
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
@@ -39,10 +37,9 @@ template <class Kernel> class Node_unary : public INode {
      * @param tensor_args       Arguments to construct the output tensor.
      */
     template <typename... TensorArgs>
-    Node_unary(
-        tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernel> operation,
-        tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernel> derivative,
-        INode *A_ptr, TensorArgs &&...tensor_args)
+    Node_unary(tensorfuncs::primal::unary::pointwise_fn<Kernel> operation,
+               tensorfuncs::adjoint::unary::pointwise_fn<Kernel> derivative,
+               INode *A_ptr, TensorArgs &&...tensor_args)
         : forward_op(operation), backward_op(derivative),
           INode(A_ptr, tensor_args...) {
         INode *base_ptr = static_cast<INode *>(this);

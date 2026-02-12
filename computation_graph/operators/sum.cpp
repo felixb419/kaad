@@ -20,10 +20,10 @@ Node_handle sum(Computation_graph &rec, Node_handle A) {
     Tensor &A_val = A_ptr->value;
 
     using Kernel = class Kernels::Sum<Scalar>;
-    tensorfuncs::primal::unary::pointwise_fn<Scalar, Kernel> op =
-        tensorfuncs::primal::unary::scalarOut<Scalar, Kernel>;
-    tensorfuncs::adjoint::unary::pointwise_fn<Scalar, Kernel> grad =
-        tensorfuncs::adjoint::unary::scalarOut<Scalar, Kernel>;
+    tensorfuncs::primal::unary::pointwise_fn<Kernel> op =
+        tensorfuncs::primal::unary::scalarOut<Kernel>;
+    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> grad =
+        tensorfuncs::adjoint::unary::scalarOut<Kernel>;
 
     rec.nodes.push_back(std::move(
         std::make_unique<Node_unary<Kernel>>(op, grad, A_ptr, (Scalar)0)));

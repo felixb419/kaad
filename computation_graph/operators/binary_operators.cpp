@@ -57,24 +57,24 @@ static inline bool combine_flexible(const int *shape1, size_t rank1,
  * @tparam T Datatype the operations are performed on (e.g. float, double, ...).
  * @tparam Kernel Kernel the functions should be using.
  */
-template <typename T, class Kernel> struct BinaryKernels {
-    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> scalarOpRhs =
-        tensorfuncs::primal::binary::scalarRhs<T, Kernel>;
-    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> scalarOpLhs =
-        tensorfuncs::primal::binary::scalarLhs<T, Kernel>;
-    tensorfuncs::primal::binary::pointwise_fn<T, Kernel> pointOp =
-        tensorfuncs::primal::binary::pointwise<T, Kernel>;
-    tensorfuncs::primal::binary::flexible_fn<T, Kernel> flexOp =
-        tensorfuncs::primal::binary::flexible<T, Kernel>;
+template <class Kernel> struct BinaryKernels {
+    tensorfuncs::primal::binary::pointwise_fn<Kernel> scalarOpRhs =
+        tensorfuncs::primal::binary::scalarRhs<Kernel>;
+    tensorfuncs::primal::binary::pointwise_fn<Kernel> scalarOpLhs =
+        tensorfuncs::primal::binary::scalarLhs<Kernel>;
+    tensorfuncs::primal::binary::pointwise_fn<Kernel> pointOp =
+        tensorfuncs::primal::binary::pointwise<Kernel>;
+    tensorfuncs::primal::binary::flexible_fn<Kernel> flexOp =
+        tensorfuncs::primal::binary::flexible<Kernel>;
 
-    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> scalarGradRhs =
-        tensorfuncs::adjoint::binary::scalarRhs<Scalar, Kernel>;
-    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> scalarGradLhs =
-        tensorfuncs::adjoint::binary::scalarLhs<Scalar, Kernel>;
-    tensorfuncs::adjoint::binary::pointwise_fn<Scalar, Kernel> pointGrad =
-        tensorfuncs::adjoint::binary::pointwise<Scalar, Kernel>;
-    tensorfuncs::adjoint::binary::flexible_fn<Scalar, Kernel> flexGrad =
-        tensorfuncs::adjoint::binary::flexible<Scalar, Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> scalarGradRhs =
+        tensorfuncs::adjoint::binary::scalarRhs<Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> scalarGradLhs =
+        tensorfuncs::adjoint::binary::scalarLhs<Kernel>;
+    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> pointGrad =
+        tensorfuncs::adjoint::binary::pointwise<Kernel>;
+    tensorfuncs::adjoint::binary::flexible_fn<Kernel> flexGrad =
+        tensorfuncs::adjoint::binary::flexible<Kernel>;
 };
 
 /**
@@ -97,7 +97,7 @@ template <typename T, class Kernel> struct BinaryKernels {
  */
 template <class Kernel>
 Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
-                        const BinaryKernels<Scalar, Kernel> kernels,
+                        const BinaryKernels<Kernel> kernels,
                         const char *opName) {
     int recLen = rec.nodes.size();
 
@@ -148,37 +148,37 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
 }
 
 Node_handle add(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Add<Scalar>> addK;
+    static const BinaryKernels<Kernels::Add<Scalar>> addK;
     return binOperator(rec, A, B, addK, "add");
 }
 
 Node_handle sub(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Sub<Scalar>> subK;
+    static const BinaryKernels<Kernels::Sub<Scalar>> subK;
     return binOperator(rec, A, B, subK, "sub");
 }
 
 Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Mul<Scalar>> mulK;
+    static const BinaryKernels<Kernels::Mul<Scalar>> mulK;
     return binOperator(rec, A, B, mulK, "mul");
 }
 
 Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Div<Scalar>> divK;
+    static const BinaryKernels<Kernels::Div<Scalar>> divK;
     return binOperator(rec, A, B, divK, "div");
 }
 
 Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Pow<Scalar>> powK;
+    static const BinaryKernels<Kernels::Pow<Scalar>> powK;
     return binOperator(rec, A, B, powK, "pow");
 }
 
 Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Min<Scalar>> minK;
+    static const BinaryKernels<Kernels::Min<Scalar>> minK;
     return binOperator(rec, A, B, minK, "minimum");
 }
 
 Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Scalar, class Kernels::Max<Scalar>> maxK;
+    static const BinaryKernels<Kernels::Max<Scalar>> maxK;
     return binOperator(rec, A, B, maxK, "minimum");
 }
 
