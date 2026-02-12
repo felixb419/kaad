@@ -19,11 +19,11 @@ template <class Kernel> class Node_binary_flex : public INode {
   private:
     void metadata() {
         // compute metadata
-        Tensor_view A = this->A->value.view();
-        Tensor_view B = this->B->value.view();
-        Tensor_view C = this->value.view();
+        Tensor &A = this->A->value;
+        Tensor &B = this->B->value;
+        Tensor &C = this->value;
 
-        this->C_rank = C.rank;
+        this->C_rank = C.rank();
         this->strideA.resize(this->C_rank);
         this->strideB.resize(this->C_rank);
         this->strideC.resize(this->C_rank);
@@ -31,22 +31,22 @@ template <class Kernel> class Node_binary_flex : public INode {
         int idx, idxA, idxB, idxC;
         for (int i = 1; i <= this->C_rank; i++) {
             idx = this->C_rank - i;
-            idxA = A.rank - i;
-            this->strideA[idx] = idxA >= 0 ? A.stride[idxA] : 0;
-            idxB = B.rank - i;
-            this->strideB[idx] = idxB >= 0 ? B.stride[idxB] : 0;
-            idxC = C.rank - i;
-            this->strideC[idx] = idxC >= 0 ? C.stride[idxC] : 0;
+            idxA = A.rank() - i;
+            this->strideA[idx] = idxA >= 0 ? A.stride()[idxA] : 0;
+            idxB = B.rank() - i;
+            this->strideB[idx] = idxB >= 0 ? B.stride()[idxB] : 0;
+            idxC = C.rank() - i;
+            this->strideC[idx] = idxC >= 0 ? C.stride()[idxC] : 0;
             // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
             // traversing in flexible function
-            if (this->strideC[idx] == 0 && C.shape[idxC] == 1) {
+            if (this->strideC[idx] == 0 && C.shape()[idxC] == 1) {
                 this->strideC[idx] = 1;
             }
         }
 
         this->C_offset.resize(this->C_rank);
         for (int i = 0; i < this->C_rank; i++) {
-            this->C_offset[i] = C.shape[i] * this->strideC[i];
+            this->C_offset[i] = C.shape()[i] * this->strideC[i];
         }
 
         // assign compile-time recursive function

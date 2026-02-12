@@ -6,23 +6,24 @@ namespace kaad {
 
 void Node_outer::metadata() {
     // compute metadata
-    Tensor_view A = this->A->value.view();
-    Tensor_view B = this->B->value.view();
-    Tensor_view C = this->value.view();
+    Tensor &A = this->A->value;
+    Tensor &B = this->B->value;
+    Tensor &C = this->value;
 
-    this->C_rank = C.rank;
+    this->C_rank = C.rank();
 
     this->strideA.resize(this->C_rank);
     this->strideB.resize(this->C_rank);
     this->strideC.resize(this->C_rank);
 
-    std::copy(C.stride, C.stride + C.rank, this->strideC.data());
-    std::copy(A.stride, A.stride + A.rank, this->strideA.data());
-    std::copy(B.stride, B.stride + B.rank, this->strideB.data() + A.rank);
+    std::copy(C.stride().begin(), C.stride().end(), this->strideC.data());
+    std::copy(A.stride().begin(), A.stride().end(), this->strideA.data());
+    std::copy(B.stride().begin(), B.stride().end(),
+              this->strideB.data() + A.rank());
 
     this->C_offset.resize(this->C_rank);
     for (int i = 0; i < this->C_rank; i++) {
-        this->C_offset[i] = C.shape[i] * this->strideC[i];
+        this->C_offset[i] = C.shape()[i] * this->strideC[i];
     }
 
     // assign compile-time recursive function

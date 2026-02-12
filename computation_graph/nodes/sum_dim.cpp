@@ -4,8 +4,8 @@ namespace kaad {
 
 void Node_sum_dim::metadata(int dim) {
     // compute metadata
-    Tensor_view A = this->A->value.view();
-    Tensor_view C = this->value.view();
+    Tensor &A = this->A->value;
+    Tensor &C = this->value;
 
     detail::along_dim_metadata_impl(A, C, dim, this->C_rank, this->A_offset,
                                     this->strideA, this->strideC);

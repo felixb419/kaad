@@ -8,13 +8,13 @@ namespace kaad {
 void Node_mean_dim::metadata(int dim) {
 
     // compute metadata
-    Tensor_view A = this->A->value.view();
-    Tensor_view C = this->value.view();
-    Tensor_view dA = this->A->gradient.view();
+    Tensor &A = this->A->value;
+    Tensor &C = this->value;
+    Tensor &dA = this->A->gradient;
 
-    this->divisor = A.shape[dim];
-    this->C_end = C.elements + C.len;
-    this->dA_end = dA.elements + dA.len;
+    this->divisor = A.shape()[dim];
+    this->C_end = C.data() + C.size();
+    this->dA_end = dA.data() + dA.size();
 
     detail::along_dim_metadata_impl(A, C, dim, this->A_rank, this->A_offset,
                                     this->strideA, this->strideC);

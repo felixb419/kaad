@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../tensor/tensor_view.hpp" // for Tensor_view
-#include <algorithm>                 // for fill, max
-#include <cstddef>                   // for size_t
-#include <vector>                    // for vector
+#include "../tensor/tensor.hpp" // for Tensor
+#include <algorithm>            // for fill, max
+#include <cstddef>              // for size_t
+#include <vector>               // for vector
 
 namespace kaad::detail {
 
@@ -59,32 +59,32 @@ inline bool combine_matrix(const int *shape1, size_t rank1, const int *shape2,
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
-static void along_dim_metadata_impl(Tensor_view &A, Tensor_view &C, int dim,
-                                    size_t &D, std::vector<size_t> &A_offset,
+static void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim, size_t &D,
+                                    std::vector<size_t> &A_offset,
                                     std::vector<int> &strideA,
                                     std::vector<int> &strideC) {
-    D = A.rank;
+    D = A.rank();
     strideA.resize(D);
     strideC.resize(D);
 
-    std::copy(A.stride, A.stride + A.rank, strideA.data());
-    std::copy(A.stride, A.stride + A.rank, strideC.data());
+    std::copy(A.stride().begin(), A.stride().end(), strideA.data());
+    std::copy(A.stride().begin(), A.stride().end(), strideC.data());
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
     for (int i = 0; i < D; i++) {
-        if (strideA[i] == 0 && A.shape[i] == 1) {
+        if (strideA[i] == 0 && A.shape()[i] == 1) {
             strideA[i] = 1;
         }
     }
 
     strideC[dim] = 0;
     for (int i = 0; i < dim; i++) {
-        strideC[i] /= A.shape[dim];
+        strideC[i] /= A.shape()[dim];
     }
 
     A_offset.resize(D);
     for (int i = 0; i < D; i++) {
-        A_offset[i] = A.shape[i] * strideA[i];
+        A_offset[i] = A.shape()[i] * strideA[i];
     }
 }
 
