@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef> // for size_t
+#include <utility> // for std::declval
 
 namespace kaad {
 
@@ -35,13 +36,27 @@ namespace tensorfuncs::primal {
  */
 namespace binary {
 
+/**
+ * @brief Concept requiring a kernel to have:
+ * 1. 'value_type' alias
+ * 2. static void Op(const value_type&, const value_type&, value_type&);
+ */
 template <class Kernel>
+concept kernel_class = requires { typename Kernel::value_type; } && requires {
+    {
+        Kernel::Op(std::declval<const typename Kernel::value_type &>(),
+                   std::declval<const typename Kernel::value_type &>(),
+                   std::declval<typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+};
+
+template <kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *A,
                               const typename Kernel::value_type *B,
                               typename Kernel::value_type *C,
                               const typename Kernel::value_type *C_end);
 
-template <class Kernel>
+template <kernel_class Kernel>
 using flexible_fn = void (*)(const typename Kernel::value_type *A,
                              const typename Kernel::value_type *B,
                              typename Kernel::value_type *C, int *strideA,
@@ -71,7 +86,7 @@ using batch_matmul_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void scalarRhs(const typename Kernel::value_type *A,
                const typename Kernel::value_type *B,
                typename Kernel::value_type *C,
@@ -90,7 +105,7 @@ void scalarRhs(const typename Kernel::value_type *A,
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void scalarLhs(const typename Kernel::value_type *A,
                const typename Kernel::value_type *B,
                typename Kernel::value_type *C,
@@ -109,7 +124,7 @@ void scalarLhs(const typename Kernel::value_type *A,
  * @param[out] C Pointer to the start of C(tensor).
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *A,
                const typename Kernel::value_type *B,
                typename Kernel::value_type *C,
@@ -132,7 +147,7 @@ void pointwise(const typename Kernel::value_type *A,
  * @param c_dim_offset Offset to the end of @p C per dimension.
  * @param c_rank Number of dimensions of C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void flexible(const typename Kernel::value_type *A,
               const typename Kernel::value_type *B,
               typename Kernel::value_type *C, int *strideA, int *strideB,
@@ -153,7 +168,7 @@ void flexible(const typename Kernel::value_type *A,
 /**
  * @brief Compile-time recursive version of the runtime @ref flexible().
  */
-template <class Kernel, int rank>
+template <kernel_class Kernel, int rank>
 void flexible(const typename Kernel::value_type *A,
               const typename Kernel::value_type *B,
               typename Kernel::value_type *C, int *strideA, int *strideB,
@@ -313,7 +328,20 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
  */
 namespace unary {
 
+/**
+ * @brief Concept requiring a kernel to have:
+ * 1. 'value_type' alias
+ * 2. static void Op(const value_type&, value_type&);
+ */
 template <class Kernel>
+concept kernel_class = requires { typename Kernel::value_type; } && requires {
+    {
+        Kernel::Op(std::declval<const typename Kernel::value_type &>(),
+                   std::declval<typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+};
+
+template <kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *A,
                               typename Kernel::value_type *C,
                               const typename Kernel::value_type *C_end);
@@ -342,7 +370,7 @@ using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
  * @param[out] C Pointer to C(scalar).
  * @param A_end Pointer to the end of A.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void scalarOut(const typename Kernel::value_type *A,
                typename Kernel::value_type *C,
                const typename Kernel::value_type *A_end) {
@@ -359,7 +387,7 @@ void scalarOut(const typename Kernel::value_type *A,
  * @param A_end Pointer to the end of C.
  * @param op Instance of the callable class.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *A,
                typename Kernel::value_type *C,
                const typename Kernel::value_type *C_end) {

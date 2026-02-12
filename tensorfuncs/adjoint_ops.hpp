@@ -17,7 +17,25 @@ namespace tensorfuncs::adjoint {
  */
 namespace binary {
 
+/**
+ * @brief Concept requiring a kernel to have:
+ * 1. 'value_type' alias
+ * 2. static void Op(const value_type&, value_type&, const value_type&,
+ *                   value_type&, const value_type&, const value_type&);
+ */
 template <class Kernel>
+concept kernel_class = requires { typename Kernel::value_type; } && requires {
+    {
+        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+};
+
+template <kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *A,
                               typename Kernel::value_type *dA,
                               const typename Kernel::value_type *B,
@@ -26,7 +44,7 @@ using pointwise_fn = void (*)(const typename Kernel::value_type *A,
                               const typename Kernel::value_type *dC,
                               const typename Kernel::value_type *end);
 
-template <class Kernel>
+template <kernel_class Kernel>
 using flexible_fn = void (*)(
     const typename Kernel::value_type *A, typename Kernel::value_type *dA,
     const typename Kernel::value_type *B, typename Kernel::value_type *dB,
@@ -63,7 +81,7 @@ using batch_matmul_fn = void (*)(const T *A, T *dA, const T *B, T *dB,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void scalarRhs(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *B,
@@ -89,7 +107,7 @@ void scalarRhs(const typename Kernel::value_type *A,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void scalarLhs(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *B,
@@ -115,7 +133,7 @@ void scalarLhs(const typename Kernel::value_type *A,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *B,
@@ -145,7 +163,7 @@ void pointwise(const typename Kernel::value_type *A,
  * @param c_dim_offset Offset to the end of @p C per dimension.
  * @param c_rank Number of dimensions of C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void flexible(const typename Kernel::value_type *A,
               typename Kernel::value_type *dA,
               const typename Kernel::value_type *B,
@@ -171,7 +189,7 @@ void flexible(const typename Kernel::value_type *A,
 /**
  * @brief Compile-time recursive version of runtime @ref flexible().
  */
-template <class Kernel, int c_rank>
+template <kernel_class Kernel, int c_rank>
 void flexible(const typename Kernel::value_type *A,
               typename Kernel::value_type *dA,
               const typename Kernel::value_type *B,
@@ -335,7 +353,23 @@ void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  */
 namespace unary {
 
+/**
+ * @brief Concept requiring a kernel to have:
+ * 1. 'value_type' alias
+ * 2. static void Op(const value_type&, value_type&, const value_type&, const
+ * value_type&);
+ */
 template <class Kernel>
+concept kernel_class = requires { typename Kernel::value_type; } && requires {
+    {
+        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+};
+
+template <kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *A,
                               typename Kernel::value_type *dA,
                               const typename Kernel::value_type *C,
@@ -370,7 +404,7 @@ using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param A_end Pointer to the end of @p A.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void scalarOut(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *C,
@@ -392,7 +426,7 @@ void scalarOut(const typename Kernel::value_type *A,
  * @param[in] dC Pointer to the start of the gradient w.r.t. @p C.
  * @param C_end Pointer to the end of @p C.
  */
-template <class Kernel>
+template <kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *C,
