@@ -35,6 +35,16 @@ concept kernel_class = requires { typename Kernel::value_type; } && requires {
     } -> std::same_as<void>;
 };
 
+template <kernel_class Kernel> constexpr bool kernel_noexcept() {
+    return noexcept(
+        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>()));
+}
+
 template <kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *A,
                               typename Kernel::value_type *dA,
@@ -88,7 +98,8 @@ void scalarRhs(const typename Kernel::value_type *A,
                typename Kernel::value_type *dB,
                const typename Kernel::value_type *C,
                const typename Kernel::value_type *dC,
-               const typename Kernel::value_type *C_end) {
+               const typename Kernel::value_type
+                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; C != C_end; A++, dA++, C++, dC++) {
         Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
@@ -114,7 +125,8 @@ void scalarLhs(const typename Kernel::value_type *A,
                typename Kernel::value_type *dB,
                const typename Kernel::value_type *C,
                const typename Kernel::value_type *dC,
-               const typename Kernel::value_type *C_end) {
+               const typename Kernel::value_type
+                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; C != C_end; B++, dB++, C++, dC++) {
         Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
@@ -140,7 +152,8 @@ void pointwise(const typename Kernel::value_type *A,
                typename Kernel::value_type *dB,
                const typename Kernel::value_type *C,
                const typename Kernel::value_type *dC,
-               const typename Kernel::value_type *C_end) {
+               const typename Kernel::value_type
+                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; C != C_end; A++, dA++, B++, dB++, C++, dC++) {
         Kernel::Grad(*A, *dA, *B, *dB, *C, *dC);
     }
@@ -170,7 +183,8 @@ void flexible(const typename Kernel::value_type *A,
               typename Kernel::value_type *dB,
               const typename Kernel::value_type *C,
               const typename Kernel::value_type *dC, int *strideA, int *strideB,
-              int *strideC, size_t *c_dim_offset, int c_rank) {
+              int *strideC, size_t *c_dim_offset,
+              int c_rank) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = C + *c_dim_offset;
     if (c_rank <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
@@ -196,7 +210,8 @@ void flexible(const typename Kernel::value_type *A,
               typename Kernel::value_type *dB,
               const typename Kernel::value_type *C,
               const typename Kernel::value_type *dC, int *strideA, int *strideB,
-              int *strideC, size_t *c_dim_offset, int _) {
+              int *strideC, size_t *c_dim_offset,
+              int _) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = C + *c_dim_offset;
     if constexpr (c_rank <= 1) {
         for (; C != end; A += *strideA, B += *strideB, C += *strideC,
@@ -230,7 +245,7 @@ void flexible(const typename Kernel::value_type *A,
  */
 template <typename T>
 void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-               const T *A_end) {
+               const T *A_end) noexcept {
     for (; A != A_end; A++, dA++) {
         *dA += *dC * (*B);
         *dB += *dC * (*A);
@@ -254,7 +269,7 @@ void scalarDot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
  */
 template <typename T>
 void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
-         const T *A_end) {
+         const T *A_end) noexcept {
     for (; A != A_end; A++, dA++, B++, dB++) {
         *dA += *dC * (*B);
         *dB += *dC * (*A);
@@ -282,7 +297,7 @@ void dot(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
 template <typename T>
 void matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
             int *a_rows, int *b_cols, int *shared_dim, int *strideA,
-            int *strideB, int *strideC) {
+            int *strideB, int *strideC) noexcept {
     // dA = dC * B^T
     tensorfuncs::primal::binary::matmul(dC, B, dA, a_rows[0], b_cols[0],
                                         shared_dim[0], strideC, strideB,
@@ -317,7 +332,7 @@ template <typename T>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
                   int *a_dim_offset, int *b_dim_offset, int *shared_dim,
-                  int c_rank) {
+                  int c_rank) noexcept {
     // dA = dC * B^T
     tensorfuncs::primal::binary::batch_matmul<T>(
         dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0],
@@ -335,7 +350,7 @@ template <typename T, int c_rank>
 void batch_matmul(const T *A, T *dA, const T *B, T *dB, const T *C, const T *dC,
                   int **strideA, int **strideB, int **strideC, int **c_shape,
                   int *a_dim_offset, int *b_dim_offset, int *shared_dim,
-                  int _) {
+                  int _) noexcept {
     // dA = dC * B^T
     tensorfuncs::primal::binary::batch_matmul<T, c_rank>(
         dC, B, dA, strideC[0], strideB[0], strideA[0], c_shape[0],
@@ -368,6 +383,14 @@ concept kernel_class = requires { typename Kernel::value_type; } && requires {
                      std::declval<const typename Kernel::value_type &>())
     } -> std::same_as<void>;
 };
+
+template <kernel_class Kernel> constexpr bool kernel_noexcept() {
+    return noexcept(
+        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>()));
+}
 
 template <kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *A,
@@ -409,7 +432,8 @@ void scalarOut(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *C,
                const typename Kernel::value_type *dC,
-               const typename Kernel::value_type *A_end) {
+               const typename Kernel::value_type
+                   *A_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; A != A_end; A++, dA++) {
         Kernel::Grad(*A, *dA, *C, *dC);
     }
@@ -431,7 +455,8 @@ void pointwise(const typename Kernel::value_type *A,
                typename Kernel::value_type *dA,
                const typename Kernel::value_type *C,
                const typename Kernel::value_type *dC,
-               const typename Kernel::value_type *C_end) {
+               const typename Kernel::value_type
+                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; C != C_end; A++, dA++, C++, dC++) {
         Kernel::Grad(*A, *dA, *C, *dC);
     }
@@ -449,7 +474,7 @@ void pointwise(const typename Kernel::value_type *A,
  */
 template <typename T>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
-             size_t *a_dim_offset, int a_rank) {
+             size_t *a_dim_offset, int a_rank) noexcept {
     const T *end = dA + *a_dim_offset;
     if (a_rank <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
@@ -468,7 +493,7 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
  */
 template <typename T, int a_rank>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
-             size_t *a_dim_offsetset, int _) {
+             size_t *a_dim_offsetset, int _) noexcept {
     const T *end = dA + *a_dim_offsetset;
     if constexpr (a_rank <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
@@ -491,26 +516,13 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
  * @param divisor Length of dA.
  */
 template <typename T>
-void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
+void mean(T *dA, const T *dC, const T *dA_end, T divisor) noexcept {
     T mean = *dC / divisor;
     for (; dA != dA_end; dA++) {
         *dA += mean;
     }
 }
 
-/**
- * @brief Computes gradient of taking the mean of tensor A along a given
- * dimension.
- * @tparam T Element type
- * @param dA Pointer to the start of gradient tensor dA.
- * @param dC Pointer to the start of gradient tensor dC.
- * @param strideA Stride for dA
- * @param strideC Stride for dC
- * @param a_dim_offsetset Offset array per dimension
- * @param a_rank Number of dimensions
- * @param divisor divisor to compute mean of A (length of dimension summed over)
- * @param dA_end Pointer to the end of gradient tensor dA.
- */
 /**
  * @brief Accumulates the gradient of mean_dim(A), A(tensor).
  * @tparam T Element type
@@ -526,7 +538,7 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) {
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
               int *strideC, size_t *a_dim_offset, int a_rank, T divisor,
-              const T *dA_end) {
+              const T *dA_end) noexcept {
     sum_dim(dA, dC, strideA, strideC, a_dim_offset, a_rank);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
@@ -539,7 +551,7 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
 template <typename T, int a_rank>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
               int *strideC, size_t *a_dim_offsetset, int _, T divisor,
-              const T *dA_end) {
+              const T *dA_end) noexcept {
     sum_dim<T, a_rank>(dA, dC, strideA, strideC, a_dim_offsetset, 0);
     for (; dA != dA_end; dA++) {
         *dA /= divisor;
@@ -559,7 +571,7 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
  */
 template <typename T>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_dim_offset, int rank) {
+           size_t *c_dim_offset, int rank) noexcept {
     dA += *start_offset;
     const T *end = dC + *c_dim_offset;
     if (rank <= 1) {
@@ -579,7 +591,7 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
  */
 template <typename T, int rank>
 void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_dim_offset, int _) {
+           size_t *c_dim_offset, int _) noexcept {
     dA += *start_offset;
     const T *end = dC + *c_dim_offset;
     if constexpr (rank <= 1) {
