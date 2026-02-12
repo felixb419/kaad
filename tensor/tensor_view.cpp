@@ -5,10 +5,10 @@
 
 namespace kaad {
 
-Tensor_view::Tensor_view() {}
+Tensor_view::Tensor_view() noexcept {}
 
 Tensor_view::Tensor_view(const int *shape, const int *stride, size_type rank,
-                         const value_type *elements, size_type len)
+                         const value_type *elements, size_type len) noexcept
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
 static inline std::ostream &operator<<(std::ostream &os,
@@ -25,14 +25,14 @@ static inline std::ostream &operator<<(std::ostream &os,
     return os;
 }
 
-Tensor_view_mut::Tensor_view_mut() {}
+Tensor_view_mut::Tensor_view_mut() noexcept {}
 
 Tensor_view_mut::Tensor_view_mut(const int *shape, const int *stride,
                                  size_type rank, value_type *elements,
-                                 size_type len)
+                                 size_type len) noexcept
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
-Tensor_view Tensor_view_mut::make_immutable() {
+Tensor_view Tensor_view_mut::make_immutable() noexcept {
     return Tensor_view(this->shape, this->stride, this->rank, this->elements,
                        this->len);
 }

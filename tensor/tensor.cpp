@@ -66,12 +66,12 @@ Tensor::const_pointer Tensor::data() const noexcept {
     return static_cast<const_pointer>(this->elements_.data());
 }
 
-struct Tensor_view Tensor::view() const {
+struct Tensor_view Tensor::view() const noexcept {
     return Tensor_view(this->shape_.data(), this->stride_.data(), this->rank(),
                        this->data(), this->size());
 }
 
-struct Tensor_view_mut Tensor::view_mut() {
+struct Tensor_view_mut Tensor::view_mut() noexcept {
     return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
                            this->rank(), this->elements_.data(), this->size());
 }

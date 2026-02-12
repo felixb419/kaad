@@ -22,6 +22,7 @@ FEAT:
         make computation_graph members private (and const from outside)
     make sure reset is called automatically (or add in comment)
     make getGradient not use std::fill(,,1) but add 1
+    safe division Kernel (maybe others too)
 
 
 PERF:

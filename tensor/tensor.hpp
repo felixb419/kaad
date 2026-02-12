@@ -80,8 +80,7 @@ class Tensor {
      * @param shape Array with the shape of the tensor.
      * @param shape Array with the values of the tensor.
      */
-    template <IntegralRange IR, typename VR>
-        requires ValueRange<VR>
+    template <IntegralRange IR, ValueRange VR>
     Tensor(IR shape, VR elements)
         : shape_(std::ranges::begin(shape), std::ranges::end(shape)),
           elements_(std::ranges::begin(elements), std::ranges::end(elements)) {
@@ -134,7 +133,12 @@ class Tensor {
      */
     Tensor(std::initializer_list<int> shape, value_type fill = 0);
 
+    /**
+     * @brief Constructs a tensor with a single scalar value.
+     * @param scalar The value for the tensor.
+     */
     Tensor(value_type scalar);
+
     /**
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
@@ -205,14 +209,14 @@ class Tensor {
      * @return A Tensor_view<T> structure representing a non-owning immutable
      * view of the tensor.
      */
-    struct Tensor_view view() const;
+    struct Tensor_view view() const noexcept;
 
     /**
      * @brief Creates a view of the tensor.
      * @return A Tensor_view<T> structure representing a non-owning mutable
      * view of the tensor.
      */
-    struct Tensor_view_mut view_mut();
+    struct Tensor_view_mut view_mut() noexcept;
 
     friend class Computation_graph;
     friend class INode;

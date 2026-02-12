@@ -30,7 +30,7 @@ struct Tensor_view {
     /**
      * @brief Default constructor.
      */
-    Tensor_view();
+    Tensor_view() noexcept;
 
     /**
      * @brief Constructs a tensor view.
@@ -41,7 +41,7 @@ struct Tensor_view {
      * @param len Length of the value array.
      */
     Tensor_view(const int *shape, const int *stride, size_type rank,
-                const value_type *elements, size_type len);
+                const value_type *elements, size_type len) noexcept;
 };
 
 /**
@@ -78,7 +78,7 @@ struct Tensor_view_mut {
     /**
      * @brief Default constructor.
      */
-    Tensor_view_mut();
+    Tensor_view_mut() noexcept;
 
     /**
      * @brief Constructs a tensor view.
@@ -89,13 +89,13 @@ struct Tensor_view_mut {
      * @param len Length of the value array.
      */
     Tensor_view_mut(const int *shape, const int *stride, size_type rank,
-                    value_type *elements, size_type len);
+                    value_type *elements, size_type len) noexcept;
 
     /**
      * @brief Get an immutable view of the Tensor.
      * @return Immutable view (Tensor_view).
      */
-    Tensor_view make_immutable();
+    Tensor_view make_immutable() noexcept;
 };
 
 /**
