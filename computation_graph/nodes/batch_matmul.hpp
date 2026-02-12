@@ -39,14 +39,15 @@ class Node_batch_matmul : public INode {
      * - [1] Gradient w.r.t. A (dA = dC * Bᵗ)
      * - [2] Gradient w.r.t. B (dB = Aᵗ * dC)
      */
-    int *(strideA[3]);  ///< Stride array for tensor A.
-    int *(strideB[3]);  ///< Stride array for tensor B.
-    int *(strideC[3]);  ///< Stride array for tensor C.
-    int *(c_shape[3]);  ///< shape of C (used for iteration).
-    int A_colStride[3]; ///< Gap between columns of the A matrix.
-    int B_rowStride[3]; ///< Gap between rows of the B matrix.
-    int shared_dim[3];  ///< Shared inner dimension of the tensors.
-    size_t C_rank = 0;  ///< Number of the dimensions of the value tensor.
+    int *(strideA[3]);           ///< Stride array for tensor A.
+    int *(strideB[3]);           ///< Stride array for tensor B.
+    int *(strideC[3]);           ///< Stride array for tensor C.
+    int *(c_shape_broadcast[3]); ///< shape of C (without summing over batch
+                                 ///< dimensions).
+    int A_colStride[3];          ///< Gap between columns of the A matrix.
+    int B_rowStride[3];          ///< Gap between rows of the B matrix.
+    int shared_dim[3];           ///< Shared inner dimension of the tensors.
+    size_t C_rank = 0; ///< Number of the dimensions of the value tensor.
 
     /**
      * @brief Constructs a batch_matmul node.
