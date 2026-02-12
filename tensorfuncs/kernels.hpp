@@ -22,6 +22,8 @@ struct Null {};
  * @tparam T The scalar type.
  */
 template <typename T> struct Add {
+    using value_type = T;
+
     /**
      * @brief C = A + B
      */
@@ -40,6 +42,8 @@ template <typename T> struct Add {
  * @tparam T The scalar type.
  */
 template <typename T> struct Sub {
+    using value_type = T;
+
     /**
      * @brief C = A - B
      */
@@ -58,6 +62,8 @@ template <typename T> struct Sub {
  * @tparam T The scalar type.
  */
 template <typename T> struct Mul {
+    using value_type = T;
+
     /**
      * @brief C = A * B
      */
@@ -76,6 +82,8 @@ template <typename T> struct Mul {
  * @tparam T The scalar type.
  */
 template <typename T> struct Div {
+    using value_type = T;
+
     /**
      * @brief C = A / B
      */
@@ -94,6 +102,8 @@ template <typename T> struct Div {
  * @tparam T The scalar type.
  */
 template <typename T> struct Pow {
+    using value_type = T;
+
     /**
      * @brief C = A ^ B
      */
@@ -112,6 +122,8 @@ template <typename T> struct Pow {
  * @tparam T The scalar type.
  */
 template <typename T> struct Dot {
+    using value_type = T;
+
     /**
      * @brief C += A * B
      */
@@ -130,6 +142,8 @@ template <typename T> struct Dot {
  * @tparam T The scalar type.
  */
 template <typename T> struct Min {
+    using value_type = T;
+
     /**
      * @brief C = min(A,B)
      */
@@ -149,6 +163,8 @@ template <typename T> struct Min {
  * @tparam T The scalar type.
  */
 template <typename T> struct Max {
+    using value_type = T;
+
     /**
      * @brief C = max(A,B)
      */
@@ -168,6 +184,8 @@ template <typename T> struct Max {
  * @tparam T The scalar type.
  */
 template <typename T> struct NoOp {
+    using value_type = T;
+
     /**
      * @brief C = A
      */
@@ -184,6 +202,8 @@ template <typename T> struct NoOp {
  * @tparam T The scalar type.
  */
 template <typename T> struct Sum {
+    using value_type = T;
+
     /**
      * @brief C += A
      */
@@ -199,6 +219,8 @@ template <typename T> struct Sum {
  * @tparam T The scalar type.
  */
 template <typename T> struct Neg {
+    using value_type = T;
+
     /**
      * @brief C = -A
      */
@@ -214,6 +236,8 @@ template <typename T> struct Neg {
  * @tparam T The scalar type.
  */
 template <typename T> struct Square {
+    using value_type = T;
+
     /**
      * @brief C = A ^ 2
      */
@@ -231,6 +255,8 @@ template <typename T> struct Square {
  * @tparam T The scalar type.
  */
 template <typename T> struct Sqrt {
+    using value_type = T;
+
     inline static T epsilon =
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
@@ -264,6 +290,8 @@ template <typename T> struct Sqrt {
  * @tparam T The scalar type.
  */
 template <typename T> struct Log {
+    using value_type = T;
+
     inline static T epsilon =
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
@@ -297,6 +325,8 @@ template <typename T> struct Log {
  * @tparam T The scalar type.
  */
 template <typename T> struct Exp {
+    using value_type = T;
+
     inline static T max_exp = std::log(std::numeric_limits<T>::max());
     inline static T min_exp = std::log(std::numeric_limits<T>::min());
     constexpr static void Op(T A, T &C) noexcept {
@@ -322,6 +352,8 @@ template <typename T> struct Exp {
  * @tparam T The scalar type.
  */
 template <typename T> struct Abs {
+    using value_type = T;
+
     /**
      * @brief C = abs(A)
      */
