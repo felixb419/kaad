@@ -15,8 +15,6 @@ namespace kaad {
  */
 namespace Kernels {
 
-struct Null {};
-
 /**
  * @brief Binary kernel for addition.
  * @tparam T The scalar type.
