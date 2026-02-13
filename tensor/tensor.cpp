@@ -114,6 +114,43 @@ Tensor Tensor::linspace(std::initializer_list<int> shape, Scalar start,
     return out;
 }
 
+Tensor Tensor::rand(std::initializer_list<int> shape, Scalar min, Scalar max) {
+    if (!Tensor::seeded_) {
+        Tensor::gen_.seed(std::random_device{}());
+        seeded_ = true;
+    }
+    std::uniform_real_distribution<Scalar> dist{min, max};
+
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+    for (int i = 0; i < out.size(); i++) {
+        out.data()[i] = dist(Tensor::gen_);
+    }
+
+    return out;
+}
+
+Tensor Tensor::randn(std::initializer_list<int> shape, Scalar mean,
+                     Scalar std) {
+
+    if (!Tensor::seeded_) {
+        Tensor::gen_.seed(std::random_device{}());
+        seeded_ = true;
+    }
+    std::normal_distribution<Scalar> dist{mean, std};
+
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+    for (int i = 0; i < out.size(); i++) {
+        out.data()[i] = dist(Tensor::gen_);
+    }
+
+    return out;
+}
+
+void Tensor::manual_seed(uint64_t seed) {
+    Tensor::gen_.seed(seed);
+    seeded_ = true;
+}
+
 Tensor::size_type Tensor::rank() const noexcept {
     return static_cast<size_type>(this->shape_.size());
 }

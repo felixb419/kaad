@@ -4,8 +4,10 @@
 #include "tensor_view.hpp"  // for kaad::Tensor_view
 #include <concepts>         // for concept
 #include <cstddef>          // for size_t
+#include <cstdint>          // for uint64_t
 #include <initializer_list> // for std::initializer_list
 #include <iostream>         // for std::ostream
+#include <random>           // for std::mt19937_64
 #include <ranges>           // for std::ranges
 #include <vector>           // for std::vector
 
@@ -35,6 +37,9 @@ class Tensor {
                  ///< to move one element in each dimension).
     std::vector<value_type>
         elements_; ///< Vector containing the elements of the Tensor.
+
+    thread_local static inline std::mt19937_64 gen_;
+    thread_local static inline bool seeded_ = false;
 
   public:
     /**
@@ -104,6 +109,29 @@ class Tensor {
      */
     static Tensor linspace(std::initializer_list<int> shape, Scalar start,
                            Scalar step);
+
+    /**
+     * @brief Returns a tensor with given shape and filled with random values.
+     * @param shape Shape array for the tensor.
+     */
+    static Tensor rand(std::initializer_list<int> shape, Scalar min = 0,
+                       Scalar max = 1);
+
+    /**
+     * @brief Returns a tensor with given shape and filled with random values,
+     * sampled from a normal distribution.
+     * @param shape Shape array for the tensor.
+     * @param mean Mean of the produced values.
+     * @param std Standard deviation of the produced values.
+     */
+    static Tensor randn(std::initializer_list<int> shape, Scalar mean = 0,
+                        Scalar std = 1);
+
+    /**
+     * @brief Set manual seed for random number generation.
+     * @param seed Seed to be used.
+     */
+    static void manual_seed(uint64_t seed);
 
     /**
      * @brief Get number of dimensions of the tensor.

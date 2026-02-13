@@ -3,13 +3,12 @@
 FIX:
 
 REFACTOR:
-    (?) change Tensor constructors to factory functions
     disallow iteration semantics and maybe make begin and end private
-    (?) remove shape_end and shape_begin
     comment node_type funciton
     rename node Inputs
     no c headers (size_t)
     (?) wrap all exceptions into kaad::excetpion
+    look if function pointer in Node_binary constructor are needed
 
 
 FEAT:
