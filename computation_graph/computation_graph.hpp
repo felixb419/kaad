@@ -46,7 +46,7 @@ class Computation_graph {
      *
      * @return A handle of the newly created Node_valued.
      */
-    Node_handle append(std::span<const int> value_shape);
+    Node_handle add_input_node(std::span<const int> value_shape);
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.

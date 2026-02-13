@@ -1,6 +1,7 @@
 [ TODO ]
 
 FIX:
+    add a way to set values of leaf nodes
 
 REFACTOR:
     disallow iteration semantics and maybe make begin and end private
@@ -9,6 +10,7 @@ REFACTOR:
     no c headers (size_t)
     (?) wrap all exceptions into kaad::excetpion
     look if function pointer in Node_binary constructor are needed
+    split node constructors into source and header
 
 
 FEAT:

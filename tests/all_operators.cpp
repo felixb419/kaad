@@ -21,9 +21,9 @@ void call_all_operators(kaad::Computation_graph &rec, kaad::Node_handle a,
 int main() {
     kaad::Computation_graph rec;
 
-    kaad::Node_handle a = rec.append(std::array{8, 8});
-    kaad::Node_handle b = rec.append(std::array{4, 5});
-    kaad::Node_handle d = rec.append(std::array{4, 5});
+    kaad::Node_handle a = rec.add_input_node(std::array{8, 8});
+    kaad::Node_handle b = rec.add_input_node(std::array{4, 5});
+    kaad::Node_handle d = rec.add_input_node(std::array{4, 5});
 
     call_all_operators(rec, a, b);
 

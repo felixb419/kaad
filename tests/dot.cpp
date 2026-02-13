@@ -4,9 +4,9 @@
 int main() {
     kaad::Computation_graph rec;
 
-    kaad::Node_handle a = rec.append(std::array{5});
-    kaad::Node_handle b = rec.append(std::array{5});
-    kaad::Node_handle d = rec.append(std::array{5});
+    kaad::Node_handle a = rec.add_input_node(std::array{5});
+    kaad::Node_handle b = rec.add_input_node(std::array{5});
+    kaad::Node_handle d = rec.add_input_node(std::array{5});
 
     kaad::Node_handle ab = dot(rec, a, b);
     kaad::Node_handle c = dot(rec, ab, d);
