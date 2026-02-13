@@ -65,6 +65,47 @@ class Tensor {
     Tensor(std::span<const int> shape, std::span<Scalar> elements);
 
     /**
+     * @brief Returns a tensor with given shape and uninitialized values.
+     * @param shape Shape array for the tensor.
+     */
+    static Tensor empty(std::initializer_list<int> shape);
+
+    /**
+     * @brief Returns a tensor with given shape and filled with @p fill_value.
+     * @param shape Shape array for the tensor.
+     * @param fill_value Value to fill the value array.
+     */
+    static Tensor full(std::initializer_list<int> shape, Scalar fill_value);
+
+    /**
+     * @brief Returns a tensor with given shape and filled with 0.
+     * @param shape Shape array for the tensor.
+     */
+    static Tensor zeros(std::initializer_list<int> shape);
+
+    /**
+     * @brief Returns a tensor with given shape and filled with 1.
+     * @param shape Shape array for the tensor.
+     */
+    static Tensor ones(std::initializer_list<int> shape);
+
+    /**
+     * @brief Returns a tensor with given shape and sequentially increasing
+     * values.
+     * @param shape Shape array for the tensor.
+     * @param starting_value The value to start the sequence at.
+     */
+    static Tensor sequential(std::initializer_list<int> shape,
+                             Scalar starting_value = 1);
+
+    /**
+     * @brief Returns a tensor with given shape and linearly spaced values.
+     * @param shape Shape array for the tensor.
+     */
+    static Tensor linspace(std::initializer_list<int> shape, Scalar start,
+                           Scalar step);
+
+    /**
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */
@@ -152,8 +193,8 @@ class Tensor {
 
     /**
      * @brief Creates a view of the tensor.
-     * @return A Tensor_view<T> structure representing a non-owning immutable
-     * view of the tensor.
+     * @return A Tensor_view<T> structure representing a non-owning
+     * immutable view of the tensor.
      */
     struct Tensor_view view() const noexcept;
 

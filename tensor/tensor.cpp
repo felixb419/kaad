@@ -4,6 +4,7 @@
 #include <algorithm>        // for std::copy, std::max, std::fill
 #include <initializer_list> // for std::initializer_list
 #include <iostream>         // for std::ostream
+#include <numeric>          // for std::iota
 #include <span>             // for std::span
 #include <vector>           // for std::vector
 
@@ -64,6 +65,53 @@ Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
         throw std::invalid_argument(
             "length suggested by shape and length of val dont match");
     }
+}
+
+Tensor Tensor::empty(std::initializer_list<int> shape) {
+    return Tensor(std::span<const int>(shape.begin(), shape.end()));
+}
+
+Tensor Tensor::full(std::initializer_list<int> shape, Scalar fill_value) {
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+    std::fill(out.begin(), out.end(), fill_value);
+
+    return out;
+}
+
+Tensor Tensor::zeros(std::initializer_list<int> shape) {
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+    std::fill(out.begin(), out.end(), 0);
+
+    return out;
+}
+
+Tensor Tensor::ones(std::initializer_list<int> shape) {
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+    std::fill(out.begin(), out.end(), 1);
+
+    return out;
+}
+
+Tensor Tensor::sequential(std::initializer_list<int> shape,
+                          Scalar starting_value) {
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+    std::iota(out.begin(), out.end(), starting_value);
+
+    return out;
+}
+
+Tensor Tensor::linspace(std::initializer_list<int> shape, Scalar start,
+                        Scalar step) {
+    Tensor out(std::span<const int>(shape.begin(), shape.end()));
+
+    Scalar value = start;
+    for (int i = 0; i < out.size(); i++) {
+
+        out.data()[i] = value;
+        value += step;
+    }
+
+    return out;
 }
 
 Tensor::size_type Tensor::rank() const noexcept {

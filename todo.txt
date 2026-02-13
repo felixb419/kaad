@@ -23,6 +23,8 @@ FEAT:
     make sure reset is called automatically (or add in comment)
     make getGradient not use std::fill(,,1) but add 1
     safe division Kernel (maybe others too)
+    make Tensor::linspace and Tensor::sequential iterate strdide-aware
+    make stride-aware iterator type
 
 
 PERF:
