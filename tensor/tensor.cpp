@@ -35,8 +35,17 @@ const std::vector<int> &Tensor::stride() const noexcept {
     return this->stride_;
 }
 
+Tensor::iterator Tensor::begin() noexcept {
+    return static_cast<iterator>(this->elements_.data());
+}
+
 Tensor::const_iterator Tensor::begin() const noexcept {
     return static_cast<const_iterator>(this->elements_.data());
+}
+
+Tensor::iterator Tensor::end() noexcept {
+    return static_cast<iterator>(this->elements_.data() +
+                                 this->elements_.size());
 }
 
 Tensor::const_iterator Tensor::end() const noexcept {
@@ -50,16 +59,24 @@ Tensor::size_type Tensor::size() const noexcept {
 
 bool Tensor::empty() const noexcept { return this->elements_.empty(); }
 
-Tensor::const_reference Tensor::operator[](size_type i) const noexcept {
-    return static_cast<const_reference>(this->elements_[i]);
+Tensor::reference Tensor::front() noexcept {
+    return static_cast<reference>(this->elements_.front());
 }
 
 Tensor::const_reference Tensor::front() const noexcept {
     return static_cast<const_reference>(this->elements_.front());
 }
 
+Tensor::reference Tensor::back() noexcept {
+    return static_cast<reference>(this->elements_.back());
+}
+
 Tensor::const_reference Tensor::back() const noexcept {
     return static_cast<const_reference>(this->elements_.back());
+}
+
+Tensor::pointer Tensor::data() noexcept {
+    return static_cast<pointer>(this->elements_.data());
 }
 
 Tensor::const_pointer Tensor::data() const noexcept {

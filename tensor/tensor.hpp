@@ -158,10 +158,22 @@ class Tensor {
     const std::vector<int> &stride() const noexcept;
 
     /**
+     * @brief Get an iterator to the begin of the value array.
+     * @return Iterator to the first element.
+     */
+    iterator begin() noexcept;
+
+    /**
      * @brief Get a const iterator to the begin of the value array.
      * @return Const iterator to the first element.
      */
     const_iterator begin() const noexcept;
+
+    /**
+     * @brief Get an iterator to the end of the value array.
+     * @return Iterator to one past the last element.
+     */
+    iterator end() noexcept;
 
     /**
      * @brief Get a const iterator to the end of the value array.
@@ -182,21 +194,30 @@ class Tensor {
     bool empty() const noexcept;
 
     /**
-     * @brief Gets an element based off 1d index.
-     * @param 1d index
-     * @return Element at @p i.
+     * @brief Returns a reference to the first element.
      */
-    const_reference operator[](size_type i) const noexcept;
+    reference front() noexcept;
 
     /**
-     * @brief Returns a reference to the first element.
+     * @brief Returns an immutable reference to the first element.
      */
     const_reference front() const noexcept;
 
     /**
      * @brief Returns a reference to the last element.
      */
+    reference back() noexcept;
+
+    /**
+     * @brief Returns an immutable reference to the last element.
+     */
     const_reference back() const noexcept;
+
+    /**
+     * @brief Get a pointer to the value array.
+     * @return Pointer to the start of the value array.
+     */
+    pointer data() noexcept;
 
     /**
      * @brief Get a const pointer to the value array.
