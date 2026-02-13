@@ -14,7 +14,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_mean>(rec.get_node(A), (Scalar)0)));
+        std::move(std::make_unique<Node_mean>(rec.get_node(A), std::array{1})));
     return rec.back_handle();
 }
 
@@ -50,7 +50,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     }
 
     rec.nodes.push_back(std::move(
-        std::make_unique<Node_mean_dim>(A_ptr, dim, newShape, newLen)));
+        std::make_unique<Node_mean_dim>(A_ptr, dim, newShape)));
     return rec.back_handle();
 }
 
