@@ -30,11 +30,10 @@ class Node_mean : public INode {
     /**
      * @brief Constructs a mean node.
      * @param A_ptr Pointer to the input node.
-     * @param tensor_args Arguments to construct the output tensor.
+     * @param value_shape Shape of the value and gradient tensors.
      */
-    template <typename... TensorArgs>
-    Node_mean(INode *A_ptr, TensorArgs &&...tensor_args)
-        : INode(A_ptr, tensor_args...) {
+    Node_mean(INode *A_ptr, std::span<const int> value_shape)
+        : INode(A_ptr, value_shape) {
         this->A_end = A_ptr->value.data() + A_ptr->value.size();
         this->dA_end = A_ptr->gradient.data() + A_ptr->gradient.size();
         this->divisor = A_ptr->value.size();

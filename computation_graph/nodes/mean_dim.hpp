@@ -30,18 +30,18 @@ class Node_mean_dim : public INode {
         nullptr; ///< Pointer to the end of the C buffer (used for iteration).
     const Scalar *dA_end =
         nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
-    size_t A_rank = 0; ///< Number of the dimensions of the A tensor.
+    size_t A_rank = 0;  ///< Number of the dimensions of the A tensor.
     Scalar divisor = 0; ///< Divisor to compute the mean of the A tensor (length
                         ///< of A in relevant dimension).
 
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
      * @param A_ptr Pointer to the input node.
-     * @param tensor_args Arguments to construct the output tensor.
+     * @param dim Index of the relevant dimension.
+     * @param value_shape Shape of the value and gradient tensors.
      */
-    template <typename... TensorArgs>
-    Node_mean_dim(INode *A_ptr, int dim, TensorArgs &&...tensor_args)
-        : INode(A_ptr, tensor_args...) {
+    Node_mean_dim(INode *A_ptr, int dim, std::span<const int> value_shape)
+        : INode(A_ptr, value_shape) {
 
         this->metadata(dim);
     }

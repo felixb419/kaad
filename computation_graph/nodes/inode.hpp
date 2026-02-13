@@ -29,15 +29,32 @@ class INode {
     bool hasInputs = false; ///< Whether this node depends on any input nodes.
 
     /**
-     * @brief Constructs an unevaluated node with a dependency on an input node.
+     * @brief Initializes the first input, flags, value and gradient tensors for
+     * a node.
      *
      * @param A_ptr Pointer to the input node.
-     * @param tensor_args Arguments to construct the value tensor.
+     * @param value_shape Shape of the value and gradient tensor.
      */
-    template <typename... TensorArgs>
-    INode(INode *A_ptr, TensorArgs &&...tensor_args)
-        : A(A_ptr), evaluated(false),
-          value(std::forward<TensorArgs>(tensor_args)...),
+    INode(INode *A_ptr, std::span<const int> value_shape)
+        : A(A_ptr), evaluated(false), value(value_shape),
+          hasInputs(this->A != nullptr), gradient(value) {
+        if (this->hasInputs) {
+            std::fill(value.elements_.begin(), value.elements_.end(), 0);
+        }
+        std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
+    }
+
+    /**
+     * @brief Initializes the first input, flags, value and gradient tensors for
+     * a node.
+     *
+     * @param A_ptr Pointer to the input node.
+     * @param value_shape Shape of the value and gradient tensor.
+     * @param value_stride Stride array of the value and gradient tensor.
+     */
+    INode(INode *A_ptr, std::span<const int> value_shape,
+          std::span<const int> value_stride)
+        : A(A_ptr), evaluated(false), value(value_shape, value_stride),
           hasInputs(this->A != nullptr), gradient(value) {
         if (this->hasInputs) {
             std::fill(value.elements_.begin(), value.elements_.end(), 0);

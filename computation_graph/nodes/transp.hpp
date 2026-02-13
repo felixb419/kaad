@@ -34,11 +34,12 @@ class Node_transp : public INode {
      * @brief Constructs a transpose node with the given operation and gradient.
      *
      * @param A_ptr Pointer to the input node.
-     * @param tensor_args Arguments to construct the output tensor.
+     * @param value_shape Shape of the value and gradient tensors.
+     * @param value_stride Stride array of the value and gradient tensors.
      */
-    template <typename... TensorArgs>
-    Node_transp(INode *A_ptr, TensorArgs &&...tensor_args)
-        : INode(A_ptr, tensor_args...) {
+    Node_transp(INode *A_ptr, std::span<const int> value_shape,
+                std::span<const int> value_stride)
+        : INode(A_ptr, value_shape, value_stride) {
         INode *base_ptr = static_cast<INode *>(this);
         this->A_end = base_ptr->A->value.data() + base_ptr->A->value.size();
         this->C_end = base_ptr->value.data() + base_ptr->value.size();

@@ -16,8 +16,8 @@ class Node_valued : public INode {
      * @brief Constructs a leaf node holding a constant value.
      * @param tensor The tensor value to store.
      */
-    template <typename... TensorArgs>
-    Node_valued(TensorArgs &&...tensor_args) : INode(nullptr, tensor_args...) {}
+    Node_valued(std::span<const int> value_shape)
+        : INode(nullptr, value_shape) {}
 
     /// No evaluation needed for fixed value nodes.
     void eval() override {}

@@ -35,11 +35,11 @@ class Node_sum_dim : public INode {
     /**
      * @brief Constructs a sum_dim node.
      * @param A_ptr    Pointer to the input node.
-     * @param tensor_args       Arguments to construct the output tensor.
+     * @param dim Index of the relevant dimension.
+     * @param value_shape Shape of the value and gradient tensors.
      */
-    template <typename... TensorArgs>
-    Node_sum_dim(INode *A_ptr, int dim, TensorArgs &&...tensor_args)
-        : INode(A_ptr, tensor_args...) {
+    Node_sum_dim(INode *A_ptr, int dim, std::span<const int> value_shape)
+        : INode(A_ptr, value_shape) {
         this->metadata(dim);
     }
 

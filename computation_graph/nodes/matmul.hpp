@@ -51,11 +51,10 @@ class Node_matmul : public INode {
      * @brief Constructs a matmul node.
      * @param A_ptr Pointer to the first input node.
      * @param B_ptr Pointer to the second input node.
-     * @param tensor_args Arguments to construct the output tensor.
+     * @param value_shape Shape of the value and gradient tensors.
      */
-    template <typename... Args>
-    Node_matmul(INode *A_ptr, INode *B_ptr, Args &&...args)
-        : B(B_ptr), INode(A_ptr, args...) {
+    Node_matmul(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape)
+        : B(B_ptr), INode(A_ptr, value_shape) {
 
         this->metadata();
     }

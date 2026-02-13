@@ -38,14 +38,13 @@ template <class Kernel> class Node_binary : public INode {
      * @param derivative Function pointer to the gradient operation.
      * @param A_ptr Pointer to the first input node.
      * @param B_ptr Pointer to the second input node.
-     * @param tensor_args Arguments to construct the output tensor.
+     * @param value_shape Shape of the value and gradient tensors.
      */
-    template <typename... TensorArgs>
     Node_binary(tensorfuncs::primal::binary::pointwise_fn<Kernel> operation,
                 tensorfuncs::adjoint::binary::pointwise_fn<Kernel> derivative,
-                INode *A_ptr, INode *B_ptr, TensorArgs &&...tensor_args)
+                INode *A_ptr, INode *B_ptr, std::span<const int> value_shape)
         : B(B_ptr), forward_op(operation), backward_op(derivative),
-          INode(A_ptr, tensor_args...) {
+          INode(A_ptr, value_shape) {
         INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value.data() + base_ptr->value.size();
     }
