@@ -25,6 +25,12 @@ Node_handle Computation_graph::back_handle() noexcept {
     return Node_handle(this->nodes.size() - 1, this);
 }
 
+Node_handle Computation_graph::append(std::span<const int> value_shape) {
+    this->nodes.push_back(std::make_unique<Node_valued>(value_shape));
+
+    return Node_handle(this->nodes.size() - 1, this);
+}
+
 void Computation_graph::reset() {
     for (int i = 0; i < nodes.size(); i++) {
         nodes[i]->reset();

@@ -38,25 +38,15 @@ class Computation_graph {
     Node_handle back_handle() noexcept;
 
     /**
-     * @brief Constructs a Node valued with the given tensor arguments and
-     * appends it to the node list.
+     * @brief Constructs an evaluated node with no inputs and adds it to the
+     * graph.
      *
-     * Creates a Tensor using the forwarded constructor arguments, wraps it
-     * in a Node_valued, and stores the node as a std::unique_ptr in the
-     * `nodes` container.
+     * Creates a Tensor using the given shape, wraps it in a Node_valued, and
+     * stores the node as a std::unique_ptr in the `nodes` container.
      *
-     * @tparam Args Variadic template parameter pack for tensor constructor
-     * arguments.
-     *
-     * @param tensor_args Arguments forwarded to the Tensor constructor.
      * @return A handle of the newly created Node_valued.
      */
-    template <typename... Args> Node_handle append(Args &&...tensor_args) {
-        this->nodes.push_back(
-            std::make_unique<Node_valued>(std::forward<Args>(tensor_args)...));
-
-        return Node_handle(this->nodes.size() - 1, this);
-    }
+    Node_handle append(std::span<const int> value_shape);
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.

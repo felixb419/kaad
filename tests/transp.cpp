@@ -9,7 +9,7 @@ int main() {
     std::vector<float> a_elements(30);
     std::iota(a_elements.begin(), a_elements.end(), 0);
 
-    kaad::Node_handle a = rec.append(std::vector<int>{3, 5, 2}, a_elements);
+    kaad::Node_handle a = rec.append(std::array{3, 5, 2});
 
     kaad::Node_handle c = transpose(rec, a);
 
