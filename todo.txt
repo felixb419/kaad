@@ -8,9 +8,13 @@ REFACTOR:
     (?) remove shape_end and shape_begin
     comment node_type funciton
     rename node Inputs
+    no c headers (size_t)
+    (?) wrap all exceptions into kaad::excetpion
 
 
 FEAT:
+    tensor reshape function
+    manual seed function
     label member for nodes
     make Node and pointer access impossible
         make operators return const Pointers (maybe Node_ptr)
@@ -24,6 +28,8 @@ FEAT:
 PERF:
 
 DOC:
+    improve comments for shape(), stride()
+    replace all "value array" with "element array" (make clear which arguments are copied and which are owned)
     fix all include lists
     get rid of non-ascii chars
     add doxygen groups

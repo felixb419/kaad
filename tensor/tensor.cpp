@@ -4,25 +4,66 @@
 #include <algorithm>        // for std::copy, std::max, std::fill
 #include <initializer_list> // for std::initializer_list
 #include <iostream>         // for std::ostream
+#include <span>             // for std::span
 #include <vector>           // for std::vector
 
 namespace kaad {
 
-Tensor::Tensor() {}
+static void compute_stride(std::vector<int> &stride, int &len,
+                           const std::vector<int> &shape) {
+    stride.resize(shape.size());
 
-Tensor::Tensor(std::initializer_list<int> shape, value_type fill)
-    : shape_(shape.begin(), shape.end()) {
-    int len;
-    detail::compute_stride(this->stride_, len, this->shape_);
+    len = 1;
+    int i = shape.size() - 1;
 
-    this->elements_.resize(len);
-    std::fill(this->elements_.begin(), this->elements_.end(), fill);
+    len *= shape[i];
+    stride[i--] = 1;
+
+    for (; i >= 0; i--) {
+        len *= shape[i];
+
+        stride[i] = shape[i + 1] * stride[i + 1];
+    }
+
+    for (size_t i = 0; i < stride.size(); i++) {
+        if (shape[i] <= 1) {
+            stride[i] = 0;
+        }
+    }
 }
 
-Tensor::Tensor(value_type scalar) : shape_(1), stride_(1), elements_(1) {
-    this->shape_[0] = 1;
-    this->stride_[0] = 0;
-    this->elements_[0] = scalar;
+Tensor::Tensor() : shape_({0}), stride_({0}), elements_({}) {}
+
+Tensor::Tensor(std::span<const int> shape)
+    : shape_(shape.begin(), shape.end()), stride_(shape.size()) {
+
+    int len = 1;
+    compute_stride(this->stride_, len, this->shape_);
+
+    this->elements_.resize(len);
+}
+
+Tensor::Tensor(std::span<const int> shape, std::span<const int> stride)
+    : shape_(shape.begin(), shape.end()),
+      stride_(stride.begin(), stride.end()) {
+    int len = 1;
+    for (int d : this->shape_) {
+        len *= d;
+    }
+
+    this->elements_.resize(len);
+}
+
+Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
+    : shape_(shape.begin(), shape.end()),
+      elements_(elements.begin(), elements.end()) {
+    int len;
+    compute_stride(this->stride_, len, this->shape_);
+
+    if (len != elements.size()) {
+        throw std::invalid_argument(
+            "length suggested by shape and length of val dont match");
+    }
 }
 
 Tensor::size_type Tensor::rank() const noexcept {
