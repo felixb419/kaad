@@ -16,6 +16,9 @@ class Node_mean_dim : public INode {
     void metadata(int dim);
 
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override;
 
     tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =

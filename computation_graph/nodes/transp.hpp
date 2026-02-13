@@ -14,6 +14,9 @@ namespace kaad {
  */
 class Node_transp : public INode {
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override;
 
     using Kernel = Kernels::NoOp<Scalar>;

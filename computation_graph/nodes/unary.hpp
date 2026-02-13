@@ -15,6 +15,9 @@ namespace kaad {
  */
 template <class Kernel> class Node_unary : public INode {
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override { return "Node_unary"; }
 
     tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =

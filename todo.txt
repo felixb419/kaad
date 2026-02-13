@@ -4,8 +4,8 @@ FIX:
     add a way to set values of leaf nodes
 
 REFACTOR:
+    split node constructors
     disallow iteration semantics and maybe make begin and end private
-    comment node_type funciton
     rename node Inputs
     no c headers (size_t)
     (?) wrap all exceptions into kaad::excetpion

@@ -15,6 +15,9 @@ namespace kaad {
  */
 template <class Kernel> class Node_binary : public INode {
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override { return "Node_binary"; }
 
     INode *B = nullptr; ///< Pointer to the second input Node.

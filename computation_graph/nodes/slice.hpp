@@ -16,6 +16,9 @@ class Node_slice : public INode {
     void metadata(const int *offset_arr);
 
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override;
 
     tensorfuncs::primal::unary::slice_fn<Scalar> forward_op =

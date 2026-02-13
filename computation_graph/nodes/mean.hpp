@@ -13,6 +13,9 @@ namespace kaad {
  */
 class Node_mean : public INode {
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override;
 
     tensorfuncs::primal::unary::mean_fn<Scalar> forward_op =

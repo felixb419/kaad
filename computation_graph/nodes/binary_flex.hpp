@@ -57,6 +57,9 @@ template <class Kernel> class Node_binary_flex : public INode {
     }
 
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override {
         return "Node_binary_flex";
     }

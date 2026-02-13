@@ -10,6 +10,9 @@ namespace kaad {
  */
 class Node_valued : public INode {
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override { return "Node_valued"; }
 
     /**

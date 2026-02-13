@@ -17,6 +17,9 @@ namespace kaad {
  */
 class INode {
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     virtual const char *node_type() const noexcept = 0;
 
     INode *A =

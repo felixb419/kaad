@@ -20,6 +20,9 @@ class Node_outer : public INode {
     void metadata();
 
   public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
     const char *node_type() const noexcept override;
 
     INode *B = nullptr; ///< Pointer to the second input Node.
