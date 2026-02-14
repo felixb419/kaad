@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../tensor/tensor.hpp" // for Tensor
-#include <utility>                 // for std::forward
 
 namespace kaad {
 
@@ -38,14 +37,7 @@ class INode {
      * @param A_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensor.
      */
-    INode(INode *A_ptr, std::span<const int> value_shape)
-        : A(A_ptr), evaluated(false), value(value_shape),
-          hasInputs(this->A != nullptr), gradient(value) {
-        if (this->hasInputs) {
-            std::fill(value.elements_.begin(), value.elements_.end(), 0);
-        }
-        std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
-    }
+    INode(INode *A_ptr, std::span<const int> value_shape);
 
     /**
      * @brief Initializes the first input, flags, value and gradient tensors for
@@ -56,14 +48,7 @@ class INode {
      * @param value_stride Stride array of the value and gradient tensor.
      */
     INode(INode *A_ptr, std::span<const int> value_shape,
-          std::span<const int> value_stride)
-        : A(A_ptr), evaluated(false), value(value_shape, value_stride),
-          hasInputs(this->A != nullptr), gradient(value) {
-        if (this->hasInputs) {
-            std::fill(value.elements_.begin(), value.elements_.end(), 0);
-        }
-        std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
-    }
+          std::span<const int> value_stride);
 
     /// Virtual destructor for polymorphic deletion
     virtual ~INode() = default;
@@ -74,13 +59,7 @@ class INode {
      * Clears the value tensor and sets the `evaluated` flag to false if the
      * node has inputs. Clears the gradient tensor in all cases.
      */
-    inline void reset() {
-        if (hasInputs) {
-            std::fill(value.elements_.begin(), value.elements_.end(), 0);
-            evaluated = false;
-        }
-        std::fill(gradient.elements_.begin(), gradient.elements_.end(), 0);
-    }
+    void reset();
 
     /**
      * @brief Evaluates the node's value. Must be implemented by derived
