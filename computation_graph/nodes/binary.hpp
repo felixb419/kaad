@@ -20,6 +20,7 @@ template <class Kernel> class Node_binary : public INode {
      */
     const char *node_type() const noexcept override { return "Node_binary"; }
 
+    INode *A = nullptr; ///< Pointer to the first input Node.
     INode *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::pointwise_fn<Kernel> forward_op =
@@ -46,8 +47,8 @@ template <class Kernel> class Node_binary : public INode {
     Node_binary(tensorfuncs::primal::binary::pointwise_fn<Kernel> operation,
                 tensorfuncs::adjoint::binary::pointwise_fn<Kernel> derivative,
                 INode *A_ptr, INode *B_ptr, std::span<const int> value_shape)
-        : B(B_ptr), forward_op(operation), backward_op(derivative),
-          INode(A_ptr, value_shape) {
+        : A(A_ptr), B(B_ptr), forward_op(operation), backward_op(derivative),
+          INode(value_shape, false) {
         INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value.data() + base_ptr->value.size();
     }

@@ -92,7 +92,7 @@ const char *Node_batch_matmul::node_type() const noexcept {
 
 Node_batch_matmul::Node_batch_matmul(INode *A_ptr, INode *B_ptr,
                                      std::span<const int> value_shape)
-    : B(B_ptr), INode(A_ptr, value_shape) {
+    : A(A_ptr), B(B_ptr), INode(value_shape, false) {
 
     node_batch_matmul_metadata(*this);
 }

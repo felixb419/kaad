@@ -23,6 +23,8 @@ class Node_sum_dim : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the input Node.
+
     tensorfuncs::primal::unary::sum_dim_fn<Scalar> val_func =
         tensorfuncs::primal::unary::sum_dim; ///< Function pointer to the
                                              ///< sum_dim operation.

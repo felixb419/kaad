@@ -18,6 +18,7 @@ class Node_matmul : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the first input Node.
     INode *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::matmul_fn<Scalar> forward_op =

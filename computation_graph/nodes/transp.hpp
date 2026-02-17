@@ -19,6 +19,8 @@ class Node_transp : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the input Node.
+
     using Kernel = Kernels::NoOp<Scalar>;
 
     tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =

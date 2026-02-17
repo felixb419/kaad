@@ -20,7 +20,7 @@ void Node_mean_dim_metadata(Node_mean_dim &node, int dim) {
                                     node.strideA, node.strideC);
 
     // assign compile-time recursive function
-    size_t a_rank = static_cast<INode *>(&node)->A->value.rank();
+    size_t a_rank = node.A->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
         node.forward_op = Dispatchers::get_meanDim<Scalar>()[a_rank];
         node.backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_rank];
@@ -33,7 +33,7 @@ const char *Node_mean_dim::node_type() const noexcept {
 
 Node_mean_dim::Node_mean_dim(INode *A_ptr, int dim,
                              std::span<const int> value_shape)
-    : INode(A_ptr, value_shape) {
+    : A(A_ptr), INode(value_shape, false) {
 
     Node_mean_dim_metadata(*this, dim);
 }

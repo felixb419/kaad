@@ -21,9 +21,6 @@ class INode {
      */
     virtual const char *node_type() const noexcept = 0;
 
-    INode *A =
-        nullptr; ///< Pointer to the first input Node (nullptr if leaf node).
-
     Tensor value;    ///< Value computed by this node.
     Tensor gradient; ///< Gradient associated with this node.
 
@@ -37,7 +34,7 @@ class INode {
      * @param A_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensor.
      */
-    INode(INode *A_ptr, std::span<const int> value_shape);
+    INode(std::span<const int> value_shape, bool is_input_node);
 
     /**
      * @brief Initializes the first input, flags, value and gradient tensors for
@@ -47,8 +44,8 @@ class INode {
      * @param value_shape Shape of the value and gradient tensor.
      * @param value_stride Stride array of the value and gradient tensor.
      */
-    INode(INode *A_ptr, std::span<const int> value_shape,
-          std::span<const int> value_stride);
+    INode(std::span<const int> value_shape, std::span<const int> value_stride,
+          bool is_input_node);
 
     /// Virtual destructor for polymorphic deletion
     virtual ~INode() = default;

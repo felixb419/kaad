@@ -39,7 +39,7 @@ void Node_slice_metadata(Node_slice &node, const int *offset_arr) {
     }
 
     // assign compile-time recursive function
-    size_t a_rank = static_cast<INode *>(&node)->A->value.rank();
+    size_t a_rank = node.A->value.rank();
     if (a_rank < Dispatchers::MAX_NDIMS) {
         node.forward_op = Dispatchers::get_slice<Scalar>()[a_rank];
         node.backward_op = Dispatchers::get_slice_grad<Scalar>()[a_rank];
@@ -50,7 +50,7 @@ const char *Node_slice::node_type() const noexcept { return "Node_slice"; }
 
 Node_slice::Node_slice(INode *A_ptr, const int *offset_arr,
                        std::span<const int> value_shape)
-    : INode(A_ptr, value_shape) {
+    : A(A_ptr), INode(value_shape, false) {
     Node_slice_metadata(*this, offset_arr);
 }
 

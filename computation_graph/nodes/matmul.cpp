@@ -75,7 +75,7 @@ const char *Node_matmul::node_type() const noexcept { return "Node_matmul"; }
 
 Node_matmul::Node_matmul(INode *A_ptr, INode *B_ptr,
                          std::span<const int> value_shape)
-    : B(B_ptr), INode(A_ptr, value_shape) {
+    : A(A_ptr), B(B_ptr), INode(value_shape, false) {
 
     Node_matmul_metadata(*this);
 }

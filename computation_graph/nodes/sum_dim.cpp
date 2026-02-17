@@ -11,7 +11,7 @@ void Node_sum_dim_metadata(Node_sum_dim &node, int dim) {
                                     node.strideA, node.strideC);
 
     // assign compile-time recursive function
-    size_t a_rank = static_cast<INode *>(&node)->A->value.rank();
+    size_t a_rank = node.A->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
         node.val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
         node.grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
@@ -22,7 +22,7 @@ const char *Node_sum_dim::node_type() const noexcept { return "Node_sum_dim"; }
 
 Node_sum_dim::Node_sum_dim(INode *A_ptr, int dim,
                            std::span<const int> value_shape)
-    : INode(A_ptr, value_shape) {
+    : A(A_ptr), INode(value_shape, false) {
     Node_sum_dim_metadata(*this, dim);
 }
 

@@ -18,6 +18,8 @@ class Node_mean_dim : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the input Node.
+
     tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean_dim;
     tensorfuncs::adjoint::unary::mean_dim_fn<Scalar> backward_op =

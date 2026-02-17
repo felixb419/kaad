@@ -4,6 +4,7 @@
 #include "binary.hpp"
 #include "binary_flex.hpp"
 #include "inode.hpp"
+#include "input.hpp"
 #include "matmul.hpp"
 #include "mean.hpp"
 #include "mean_dim.hpp"
@@ -12,4 +13,3 @@
 #include "sum_dim.hpp"
 #include "transp.hpp"
 #include "unary.hpp"
-#include "valued.hpp"

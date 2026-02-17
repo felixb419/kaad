@@ -66,6 +66,7 @@ template <class Kernel> class Node_binary_flex : public INode {
         return "Node_binary_flex";
     }
 
+    INode *A = nullptr; ///< Pointer to the first input Node.
     INode *B = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =
@@ -91,7 +92,7 @@ template <class Kernel> class Node_binary_flex : public INode {
      */
     Node_binary_flex(INode *A_ptr, INode *B_ptr,
                      std::span<const int> value_shape)
-        : B(B_ptr), INode(A_ptr, value_shape) {
+        : A(A_ptr), B(B_ptr), INode(value_shape, false) {
 
         Node_binary_flex_metadata(*this);
     }

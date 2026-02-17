@@ -3,7 +3,7 @@
 #include "../tensor/tensor.hpp" // for Tensor
 #include "node_handle.hpp"      // for Node_handle
 #include "nodes/inode.hpp"      // for INode
-#include "nodes/valued.hpp"     // for Node_valued
+#include "nodes/input.hpp"      // for InputNode
 #include <array>                // for std::array
 #include <cstddef>              // for size_t
 #include <memory>               // for std::unique_ptr, std::make_unique
@@ -41,10 +41,10 @@ class Computation_graph {
      * @brief Constructs an evaluated node with no inputs and adds it to the
      * graph.
      *
-     * Creates a Tensor using the given shape, wraps it in a Node_valued, and
+     * Creates a Tensor using the given shape, wraps it in a InputNode, and
      * stores the node as a std::unique_ptr in the `nodes` container.
      *
-     * @return A handle of the newly created Node_valued.
+     * @return A handle of the newly created InputNode.
      */
     Node_handle add_input_node(std::span<const int> value_shape);
 

@@ -18,6 +18,8 @@ class Node_slice : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the input Node.
+
     tensorfuncs::primal::unary::slice_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::slice;
     tensorfuncs::adjoint::unary::slice_fn<Scalar> backward_op =

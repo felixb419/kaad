@@ -5,10 +5,9 @@ namespace kaad {
 const char *Node_dot::node_type() const noexcept { return "Node_dot"; }
 
 Node_dot::Node_dot(INode *A_ptr, INode *B_ptr)
-    : B(B_ptr), INode(A_ptr, std::array{1}) {
+    : A(A_ptr), B(B_ptr), INode(std::array{1}, false) {
 
-    INode *base_ptr = static_cast<INode *>(this);
-    this->A_end = base_ptr->A->value.data() + base_ptr->A->value.size();
+    this->A_end = this->A->value.data() + this->A->value.size();
 }
 
 void Node_dot::eval() {

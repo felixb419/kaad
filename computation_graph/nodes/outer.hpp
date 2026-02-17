@@ -22,8 +22,9 @@ class Node_outer : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the first input Node.
     INode *B = nullptr; ///< Pointer to the second input Node.
-                        ///
+
     using Kernel = typename Kernels::Mul<Scalar>;
 
     tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =

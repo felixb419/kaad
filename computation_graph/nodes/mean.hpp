@@ -18,6 +18,8 @@ class Node_mean : public INode {
      */
     const char *node_type() const noexcept override;
 
+    INode *A = nullptr; ///< Pointer to the input Node.
+
     tensorfuncs::primal::unary::mean_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean;
     tensorfuncs::adjoint::unary::mean_fn<Scalar> backward_op =

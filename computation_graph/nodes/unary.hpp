@@ -20,6 +20,8 @@ template <class Kernel> class Node_unary : public INode {
      */
     const char *node_type() const noexcept override { return "Node_unary"; }
 
+    INode *A = nullptr; ///< Pointer to the input Node.
+
     tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =
         tensorfuncs::primal::unary::pointwise<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
@@ -42,10 +44,9 @@ template <class Kernel> class Node_unary : public INode {
     Node_unary(tensorfuncs::primal::unary::pointwise_fn<Kernel> operation,
                tensorfuncs::adjoint::unary::pointwise_fn<Kernel> derivative,
                INode *A_ptr, std::span<const int> value_shape)
-        : forward_op(operation), backward_op(derivative),
-          INode(A_ptr, value_shape) {
-        INode *base_ptr = static_cast<INode *>(this);
-        this->end = base_ptr->value.data() + base_ptr->value.size();
+        : forward_op(operation), backward_op(derivative), A(A_ptr),
+          INode(value_shape, false) {
+        this->end = this->value.data() + this->value.size();
     }
 
     /**
