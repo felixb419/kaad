@@ -15,9 +15,6 @@ class Node_batch_matmul;
  * @see tensorfuncs::adjoint::binary::batch_matmul
  */
 class Node_batch_matmul : public INode {
-  private:
-    void metadata();
-
   public:
     /**
      * @brief Returns the type of the node as a string.
@@ -59,11 +56,7 @@ class Node_batch_matmul : public INode {
      * @param value_shape Shape of the value and gradient tensors.
      */
     Node_batch_matmul(INode *A_ptr, INode *B_ptr,
-                      std::span<const int> value_shape)
-        : B(B_ptr), INode(A_ptr, value_shape) {
-
-        this->metadata();
-    }
+                      std::span<const int> value_shape);
 
     /**
      * @brief Destructor for Node_batch_matmul.

@@ -16,9 +16,6 @@ namespace kaad {
  * operation.
  */
 class Node_outer : public INode {
-  private:
-    void metadata();
-
   public:
     /**
      * @brief Returns the type of the node as a string.
@@ -50,11 +47,7 @@ class Node_outer : public INode {
      * @param B_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_outer(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape)
-        : B(B_ptr), INode(A_ptr, value_shape) {
-
-        this->metadata();
-    }
+    Node_outer(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the outer prodcut operation by calling forward_op, if

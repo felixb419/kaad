@@ -4,36 +4,45 @@
 
 namespace kaad {
 
-void Node_outer::metadata() {
+void Node_outer_metadata(Node_outer &node) {
     // compute metadata
-    Tensor &A = this->A->value;
-    Tensor &B = this->B->value;
-    Tensor &C = this->value;
+    Tensor &A = node.A->value;
+    Tensor &B = node.B->value;
+    Tensor &C = node.value;
 
-    this->C_rank = C.rank();
+    node.C_rank = C.rank();
 
-    this->strideA.resize(this->C_rank);
-    this->strideB.resize(this->C_rank);
-    this->strideC.resize(this->C_rank);
+    node.strideA.resize(node.C_rank);
+    node.strideB.resize(node.C_rank);
+    node.strideC.resize(node.C_rank);
 
-    std::copy(C.stride().begin(), C.stride().end(), this->strideC.data());
-    std::copy(A.stride().begin(), A.stride().end(), this->strideA.data());
+    std::copy(C.stride().begin(), C.stride().end(), node.strideC.data());
+    std::copy(A.stride().begin(), A.stride().end(), node.strideA.data());
     std::copy(B.stride().begin(), B.stride().end(),
-              this->strideB.data() + A.rank());
+              node.strideB.data() + A.rank());
 
-    this->C_offset.resize(this->C_rank);
-    for (int i = 0; i < this->C_rank; i++) {
-        this->C_offset[i] = C.shape()[i] * this->strideC[i];
+    node.C_offset.resize(node.C_rank);
+    for (int i = 0; i < node.C_rank; i++) {
+        node.C_offset[i] = C.shape()[i] * node.strideC[i];
     }
 
     // assign compile-time recursive function
-    if (C_rank <= Dispatchers::MAX_NDIMS) {
-        forward_op = Dispatchers::get_flexOp<Kernel>()[C_rank];
-        backward_op = Dispatchers::get_flexGrad<Kernel>()[C_rank];
+    if (node.C_rank <= Dispatchers::MAX_NDIMS) {
+        node.forward_op =
+            Dispatchers::get_flexOp<Node_outer::Kernel>()[node.C_rank];
+        node.backward_op =
+            Dispatchers::get_flexGrad<Node_outer::Kernel>()[node.C_rank];
     }
 }
 
 const char *Node_outer::node_type() const noexcept { return "Node_outer"; }
+
+Node_outer::Node_outer(INode *A_ptr, INode *B_ptr,
+                       std::span<const int> value_shape)
+    : B(B_ptr), INode(A_ptr, value_shape) {
+
+    Node_outer_metadata(*this);
+}
 
 void Node_outer::eval() {
     if (!this->evaluated) {

@@ -12,9 +12,6 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::slice
  */
 class Node_slice : public INode {
-  private:
-    void metadata(const int *offset_arr);
-
   public:
     /**
      * @brief Returns the type of the node as a string.
@@ -39,10 +36,7 @@ class Node_slice : public INode {
      * @param value_shape Shape of the value and gradient tensors.
      */
     Node_slice(INode *A_ptr, const int *offset_arr,
-               std::span<const int> value_shape)
-        : INode(A_ptr, value_shape) {
-        this->metadata(offset_arr);
-    }
+               std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the slice operation by applying forward_op, if not

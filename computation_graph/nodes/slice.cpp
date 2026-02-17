@@ -4,49 +4,55 @@
 
 namespace kaad {
 
-void Node_slice::metadata(const int *offset_arr) {
+void Node_slice_metadata(Node_slice &node, const int *offset_arr) {
     // compute metadata
-    Tensor &A = this->A->value;
-    Tensor &C = this->value;
+    Tensor &A = node.A->value;
+    Tensor &C = node.value;
 
-    this->C_rank = C.rank();
-    this->strideA.resize(this->C_rank);
-    this->strideC.resize(this->C_rank);
+    node.C_rank = C.rank();
+    node.strideA.resize(node.C_rank);
+    node.strideC.resize(node.C_rank);
 
     int idx, idxA, idxC;
-    for (int i = 1; i <= this->C_rank; i++) {
-        idx = this->C_rank - i;
+    for (int i = 1; i <= node.C_rank; i++) {
+        idx = node.C_rank - i;
         idxA = A.rank() - i;
-        this->strideA[idx] = idxA >= 0 ? A.stride()[idxA] : 0;
+        node.strideA[idx] = idxA >= 0 ? A.stride()[idxA] : 0;
         idxC = C.rank() - i;
-        this->strideC[idx] = idxC >= 0 ? C.stride()[idxC] : 0;
+        node.strideC[idx] = idxC >= 0 ? C.stride()[idxC] : 0;
         // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
         // traversing in flexible function
-        if (this->strideC[idx] == 0 && C.shape()[idxC] == 1) {
-            this->strideC[idx] = 1;
+        if (node.strideC[idx] == 0 && C.shape()[idxC] == 1) {
+            node.strideC[idx] = 1;
         }
     }
 
-    this->C_offset.resize(this->C_rank);
-    for (int i = 0; i < this->C_rank; i++) {
-        this->C_offset[i] = C.shape()[i] * this->strideC[i];
+    node.C_offset.resize(node.C_rank);
+    for (int i = 0; i < node.C_rank; i++) {
+        node.C_offset[i] = C.shape()[i] * node.strideC[i];
     }
 
-    this->start_offset_a.resize(A.rank());
-    std::copy(offset_arr, offset_arr + A.rank(), this->start_offset_a.data());
+    node.start_offset_a.resize(A.rank());
+    std::copy(offset_arr, offset_arr + A.rank(), node.start_offset_a.data());
     for (int i = 0; i < A.rank(); i++) {
-        this->start_offset_a[i] *= this->strideA[i];
+        node.start_offset_a[i] *= node.strideA[i];
     }
 
     // assign compile-time recursive function
-    size_t a_rank = static_cast<INode *>(this)->A->value.rank();
+    size_t a_rank = static_cast<INode *>(&node)->A->value.rank();
     if (a_rank < Dispatchers::MAX_NDIMS) {
-        forward_op = Dispatchers::get_slice<Scalar>()[a_rank];
-        backward_op = Dispatchers::get_slice_grad<Scalar>()[a_rank];
+        node.forward_op = Dispatchers::get_slice<Scalar>()[a_rank];
+        node.backward_op = Dispatchers::get_slice_grad<Scalar>()[a_rank];
     }
 }
 
 const char *Node_slice::node_type() const noexcept { return "Node_slice"; }
+
+Node_slice::Node_slice(INode *A_ptr, const int *offset_arr,
+                       std::span<const int> value_shape)
+    : INode(A_ptr, value_shape) {
+    Node_slice_metadata(*this, offset_arr);
+}
 
 void Node_slice::eval() {
     if (!this->evaluated) {

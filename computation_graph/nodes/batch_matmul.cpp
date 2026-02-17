@@ -38,11 +38,11 @@ void metadata_impl(Tensor_view A, Tensor_view B, Tensor_view C, int *&strideA,
     strideB[D - 2] = 0;
 }
 
-void Node_batch_matmul::metadata() {
+void node_batch_matmul_metadata(Node_batch_matmul &node) {
     // compute metadata
-    Tensor_view A = this->A->value.view();
-    Tensor_view B = this->B->value.view();
-    Tensor_view C = this->value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view B = node.B->value.view();
+    Tensor_view C = node.value.view();
 
     std::vector<int> a_T_shape(A.rank);
     std::vector<int> a_T_stride(A.rank);
@@ -68,29 +68,33 @@ void Node_batch_matmul::metadata() {
     b_T.shape = b_T_shape.data();
     b_T.stride = b_T_stride.data();
 
-    metadata_impl(A, B, C, this->strideA[0], this->strideB[0], this->strideC[0],
-                  this->c_shape_broadcast[0], this->A_colStride[0],
-                  this->B_rowStride[0], this->shared_dim[0], this->C_rank);
-    metadata_impl(C, b_T, A, this->strideC[1], this->strideB[1],
-                  this->strideA[1], this->c_shape_broadcast[1],
-                  this->A_colStride[1], this->B_rowStride[1],
-                  this->shared_dim[1], this->C_rank);
-    metadata_impl(a_T, C, B, this->strideA[2], this->strideC[2],
-                  this->strideB[2], this->c_shape_broadcast[2],
-                  this->A_colStride[2], this->B_rowStride[2],
-                  this->shared_dim[2], this->C_rank);
+    metadata_impl(A, B, C, node.strideA[0], node.strideB[0], node.strideC[0],
+                  node.c_shape_broadcast[0], node.A_colStride[0],
+                  node.B_rowStride[0], node.shared_dim[0], node.C_rank);
+    metadata_impl(C, b_T, A, node.strideC[1], node.strideB[1], node.strideA[1],
+                  node.c_shape_broadcast[1], node.A_colStride[1],
+                  node.B_rowStride[1], node.shared_dim[1], node.C_rank);
+    metadata_impl(a_T, C, B, node.strideA[2], node.strideC[2], node.strideB[2],
+                  node.c_shape_broadcast[2], node.A_colStride[2],
+                  node.B_rowStride[2], node.shared_dim[2], node.C_rank);
 
     // assign compile-time recursive function
-    if (this->C_rank <= Dispatchers::MAX_NDIMS) {
-        this->forward_op =
-            Dispatchers::get_batch_matmul<Scalar>()[this->C_rank];
-        this->backward_op =
-            Dispatchers::get_batch_matmul_grad<Scalar>()[this->C_rank];
+    if (node.C_rank <= Dispatchers::MAX_NDIMS) {
+        node.forward_op = Dispatchers::get_batch_matmul<Scalar>()[node.C_rank];
+        node.backward_op =
+            Dispatchers::get_batch_matmul_grad<Scalar>()[node.C_rank];
     }
 }
 
 const char *Node_batch_matmul::node_type() const noexcept {
     return "Node_batch_matmul";
+}
+
+Node_batch_matmul::Node_batch_matmul(INode *A_ptr, INode *B_ptr,
+                                     std::span<const int> value_shape)
+    : B(B_ptr), INode(A_ptr, value_shape) {
+
+    node_batch_matmul_metadata(*this);
 }
 
 Node_batch_matmul::~Node_batch_matmul() noexcept {

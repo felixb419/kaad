@@ -35,12 +35,7 @@ class Node_mean : public INode {
      * @param A_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_mean(INode *A_ptr, std::span<const int> value_shape)
-        : INode(A_ptr, value_shape) {
-        this->A_end = A_ptr->value.data() + A_ptr->value.size();
-        this->dA_end = A_ptr->gradient.data() + A_ptr->gradient.size();
-        this->divisor = A_ptr->value.size();
-    }
+    Node_mean(INode *A_ptr, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the mean operation by applying forwrd_op, if not already

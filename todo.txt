@@ -4,8 +4,6 @@ FIX:
     add a way to set values of leaf nodes
 
 REFACTOR:
-    split node constructors
-    disallow iteration semantics and maybe make begin and end private
     rename node Inputs
     no c headers (size_t)
     (?) wrap all exceptions into kaad::excetpion
@@ -31,6 +29,7 @@ FEAT:
 PERF:
 
 DOC:
+    roughly comment metadata functions
     improve comments for shape(), stride()
     replace all "value array" with "element array" (make clear which arguments are copied and which are owned)
     fix all include lists

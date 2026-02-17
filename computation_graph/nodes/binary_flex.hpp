@@ -8,6 +8,48 @@
 
 namespace kaad {
 
+template <class Kernel> class Node_binary_flex;
+
+template <class Kernel>
+void Node_binary_flex_metadata(Node_binary_flex<Kernel> &node) {
+    // compute metadata
+    Tensor &A = node.A->value;
+    Tensor &B = node.B->value;
+    Tensor &C = node.value;
+
+    node.C_rank = C.rank();
+    node.strideA.resize(node.C_rank);
+    node.strideB.resize(node.C_rank);
+    node.strideC.resize(node.C_rank);
+
+    int idx, idxA, idxB, idxC;
+    for (int i = 1; i <= node.C_rank; i++) {
+        idx = node.C_rank - i;
+        idxA = A.rank() - i;
+        node.strideA[idx] = idxA >= 0 ? A.stride()[idxA] : 0;
+        idxB = B.rank() - i;
+        node.strideB[idx] = idxB >= 0 ? B.stride()[idxB] : 0;
+        idxC = C.rank() - i;
+        node.strideC[idx] = idxC >= 0 ? C.stride()[idxC] : 0;
+        // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
+        // traversing in flexible function
+        if (node.strideC[idx] == 0 && C.shape()[idxC] == 1) {
+            node.strideC[idx] = 1;
+        }
+    }
+
+    node.C_offset.resize(node.C_rank);
+    for (int i = 0; i < node.C_rank; i++) {
+        node.C_offset[i] = C.shape()[i] * node.strideC[i];
+    }
+
+    // assign compile-time recursive function
+    if (node.C_rank <= Dispatchers::MAX_NDIMS) {
+        node.forward_op = Dispatchers::get_flexOp<Kernel>()[node.C_rank];
+        node.backward_op = Dispatchers::get_flexGrad<Kernel>()[node.C_rank];
+    }
+}
+
 /**
  * @brief A binary_flex operation node in a computation graph.
  * @see tensorfuncs::primal::binary::flexible
@@ -16,46 +58,6 @@ namespace kaad {
  * operation.
  */
 template <class Kernel> class Node_binary_flex : public INode {
-  private:
-    void metadata() {
-        // compute metadata
-        Tensor &A = this->A->value;
-        Tensor &B = this->B->value;
-        Tensor &C = this->value;
-
-        this->C_rank = C.rank();
-        this->strideA.resize(this->C_rank);
-        this->strideB.resize(this->C_rank);
-        this->strideC.resize(this->C_rank);
-
-        int idx, idxA, idxB, idxC;
-        for (int i = 1; i <= this->C_rank; i++) {
-            idx = this->C_rank - i;
-            idxA = A.rank() - i;
-            this->strideA[idx] = idxA >= 0 ? A.stride()[idxA] : 0;
-            idxB = B.rank() - i;
-            this->strideB[idx] = idxB >= 0 ? B.stride()[idxB] : 0;
-            idxC = C.rank() - i;
-            this->strideC[idx] = idxC >= 0 ? C.stride()[idxC] : 0;
-            // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
-            // traversing in flexible function
-            if (this->strideC[idx] == 0 && C.shape()[idxC] == 1) {
-                this->strideC[idx] = 1;
-            }
-        }
-
-        this->C_offset.resize(this->C_rank);
-        for (int i = 0; i < this->C_rank; i++) {
-            this->C_offset[i] = C.shape()[i] * this->strideC[i];
-        }
-
-        // assign compile-time recursive function
-        if (C_rank <= Dispatchers::MAX_NDIMS) {
-            forward_op = Dispatchers::get_flexOp<Kernel>()[C_rank];
-            backward_op = Dispatchers::get_flexGrad<Kernel>()[C_rank];
-        }
-    }
-
   public:
     /**
      * @brief Returns the type of the node as a string.
@@ -91,7 +93,7 @@ template <class Kernel> class Node_binary_flex : public INode {
                      std::span<const int> value_shape)
         : B(B_ptr), INode(A_ptr, value_shape) {
 
-        this->metadata();
+        Node_binary_flex_metadata(*this);
     }
 
     /**

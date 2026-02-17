@@ -41,12 +41,7 @@ class Node_transp : public INode {
      * @param value_stride Stride array of the value and gradient tensors.
      */
     Node_transp(INode *A_ptr, std::span<const int> value_shape,
-                std::span<const int> value_stride)
-        : INode(A_ptr, value_shape, value_stride) {
-        INode *base_ptr = static_cast<INode *>(this);
-        this->A_end = base_ptr->A->value.data() + base_ptr->A->value.size();
-        this->C_end = base_ptr->value.data() + base_ptr->value.size();
-    }
+                std::span<const int> value_stride);
 
     /**
      * @brief Evaluates the transpose operation by applying forward_op, if not

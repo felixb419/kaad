@@ -41,10 +41,7 @@ class Node_sum_dim : public INode {
      * @param dim Index of the relevant dimension.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_sum_dim(INode *A_ptr, int dim, std::span<const int> value_shape)
-        : INode(A_ptr, value_shape) {
-        this->metadata(dim);
-    }
+    Node_sum_dim(INode *A_ptr, int dim, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the sum_dim operation by applying forward_op, if not

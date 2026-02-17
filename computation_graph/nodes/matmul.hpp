@@ -12,9 +12,6 @@ namespace kaad {
  * @see tensorfuncs::adjoint::binary::matmul
  */
 class Node_matmul : public INode {
-  private:
-    void metadata();
-
   public:
     /**
      * @brief Returns the type of the node as a string.
@@ -56,11 +53,7 @@ class Node_matmul : public INode {
      * @param B_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_matmul(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape)
-        : B(B_ptr), INode(A_ptr, value_shape) {
-
-        this->metadata();
-    }
+    Node_matmul(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the matmul operation by apllying forward_op,if not

@@ -2,23 +2,29 @@
 
 namespace kaad {
 
-void Node_sum_dim::metadata(int dim) {
+void Node_sum_dim_metadata(Node_sum_dim &node, int dim) {
     // compute metadata
-    Tensor &A = this->A->value;
-    Tensor &C = this->value;
+    Tensor &A = node.A->value;
+    Tensor &C = node.value;
 
-    detail::along_dim_metadata_impl(A, C, dim, this->C_rank, this->A_offset,
-                                    this->strideA, this->strideC);
+    detail::along_dim_metadata_impl(A, C, dim, node.C_rank, node.A_offset,
+                                    node.strideA, node.strideC);
 
     // assign compile-time recursive function
-    size_t a_rank = static_cast<INode *>(this)->A->value.rank();
+    size_t a_rank = static_cast<INode *>(&node)->A->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
-        val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
-        grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
+        node.val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
+        node.grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
     }
 }
 
 const char *Node_sum_dim::node_type() const noexcept { return "Node_sum_dim"; }
+
+Node_sum_dim::Node_sum_dim(INode *A_ptr, int dim,
+                           std::span<const int> value_shape)
+    : INode(A_ptr, value_shape) {
+    Node_sum_dim_metadata(*this, dim);
+}
 
 void Node_sum_dim::eval() {
     if (!this->evaluated) {

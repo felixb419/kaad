@@ -12,9 +12,6 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::mean_dim
  */
 class Node_mean_dim : public INode {
-  private:
-    void metadata(int dim);
-
   public:
     /**
      * @brief Returns the type of the node as a string.
@@ -43,11 +40,7 @@ class Node_mean_dim : public INode {
      * @param dim Index of the relevant dimension.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_mean_dim(INode *A_ptr, int dim, std::span<const int> value_shape)
-        : INode(A_ptr, value_shape) {
-
-        this->metadata(dim);
-    }
+    Node_mean_dim(INode *A_ptr, int dim, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the mean_dim operation by applying forward_op, if not

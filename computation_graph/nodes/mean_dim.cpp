@@ -5,30 +5,37 @@
 
 namespace kaad {
 
-void Node_mean_dim::metadata(int dim) {
+void Node_mean_dim_metadata(Node_mean_dim &node, int dim) {
 
     // compute metadata
-    Tensor &A = this->A->value;
-    Tensor &C = this->value;
-    Tensor &dA = this->A->gradient;
+    Tensor &A = node.A->value;
+    Tensor &C = node.value;
+    Tensor &dA = node.A->gradient;
 
-    this->divisor = A.shape()[dim];
-    this->C_end = C.data() + C.size();
-    this->dA_end = dA.data() + dA.size();
+    node.divisor = A.shape()[dim];
+    node.C_end = C.data() + C.size();
+    node.dA_end = dA.data() + dA.size();
 
-    detail::along_dim_metadata_impl(A, C, dim, this->A_rank, this->A_offset,
-                                    this->strideA, this->strideC);
+    detail::along_dim_metadata_impl(A, C, dim, node.A_rank, node.A_offset,
+                                    node.strideA, node.strideC);
 
     // assign compile-time recursive function
-    size_t a_rank = static_cast<INode *>(this)->A->value.rank();
+    size_t a_rank = static_cast<INode *>(&node)->A->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
-        forward_op = Dispatchers::get_meanDim<Scalar>()[a_rank];
-        backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_rank];
+        node.forward_op = Dispatchers::get_meanDim<Scalar>()[a_rank];
+        node.backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_rank];
     }
 }
 
 const char *Node_mean_dim::node_type() const noexcept {
     return "Node_mean_dim";
+}
+
+Node_mean_dim::Node_mean_dim(INode *A_ptr, int dim,
+                             std::span<const int> value_shape)
+    : INode(A_ptr, value_shape) {
+
+    Node_mean_dim_metadata(*this, dim);
 }
 
 void Node_mean_dim::eval() {

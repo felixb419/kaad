@@ -39,11 +39,11 @@ void metadata_impl(const Tensor_view A, const Tensor_view B,
     }
 }
 
-void Node_matmul::metadata() {
+void Node_matmul_metadata(Node_matmul &node) {
     // compute metadata
-    Tensor_view A = this->A->value.view();
-    Tensor_view B = this->B->value.view();
-    Tensor_view C = this->value.view();
+    Tensor_view A = node.A->value.view();
+    Tensor_view B = node.B->value.view();
+    Tensor_view C = node.value.view();
 
     int A_T_shape[2];
     int A_T_stride[2];
@@ -63,18 +63,22 @@ void Node_matmul::metadata() {
     B_T.shape = B_T_shape;
     B_T.stride = B_T_stride;
 
-    metadata_impl(A, B, C, this->a_rows[0], this->b_cols[0],
-                  this->shared_dim[0], this->strideA, this->strideB,
-                  this->strideC);
-    metadata_impl(C, B_T, A, this->a_rows[1], this->b_cols[1],
-                  this->shared_dim[1], this->strideC + 2, this->strideB + 2,
-                  this->strideA + 2);
-    metadata_impl(A_T, C, B, this->a_rows[2], this->b_cols[2],
-                  this->shared_dim[2], this->strideA + 4, this->strideC + 4,
-                  this->strideB + 4);
+    metadata_impl(A, B, C, node.a_rows[0], node.b_cols[0], node.shared_dim[0],
+                  node.strideA, node.strideB, node.strideC);
+    metadata_impl(C, B_T, A, node.a_rows[1], node.b_cols[1], node.shared_dim[1],
+                  node.strideC + 2, node.strideB + 2, node.strideA + 2);
+    metadata_impl(A_T, C, B, node.a_rows[2], node.b_cols[2], node.shared_dim[2],
+                  node.strideA + 4, node.strideC + 4, node.strideB + 4);
 }
 
 const char *Node_matmul::node_type() const noexcept { return "Node_matmul"; }
+
+Node_matmul::Node_matmul(INode *A_ptr, INode *B_ptr,
+                         std::span<const int> value_shape)
+    : B(B_ptr), INode(A_ptr, value_shape) {
+
+    Node_matmul_metadata(*this);
+}
 
 void Node_matmul::eval() {
     if (!this->evaluated) {
