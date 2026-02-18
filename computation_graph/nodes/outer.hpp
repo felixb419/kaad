@@ -12,8 +12,6 @@ namespace kaad {
  * @brief A outer prodcut operation node in a computation graph.
  * @see tensorfuncs::primal::binary::flexible
  * @see tensorfuncs::adjoint::binary::flexible
- * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
- * operation.
  */
 class Node_outer : public INode {
   public:
@@ -22,8 +20,8 @@ class Node_outer : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the first input Node.
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     using Kernel = typename Kernels::Mul<Scalar>;
 
@@ -35,8 +33,8 @@ class Node_outer : public INode {
         tensorfuncs::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
 
-    std::vector<int> strideA;     ///< stride Array for A.
-    std::vector<int> strideB;     ///< stride Array for B.
+    std::vector<int> lhs_stride;  ///< stride Array for lhs.
+    std::vector<int> rhs_stride;  ///< stride Array for rhs.
     std::vector<int> strideC;     ///< stride Array for C.
     std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
     size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
@@ -44,11 +42,12 @@ class Node_outer : public INode {
     /**
      * @brief Constructs a outer prodcut operation node with outer prodcut
      * operation and gradient.
-     * @param A_ptr Pointer to the first input node.
-     * @param B_ptr Pointer to the second input node.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_outer(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape);
+    Node_outer(INode *lhs_ptr, INode *rhs_ptr,
+               std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the outer prodcut operation by calling forward_op, if

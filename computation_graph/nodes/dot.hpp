@@ -18,8 +18,8 @@ class Node_dot : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the first input Node.
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::dot_fn<Scalar> forward_op =
         tensorfuncs::primal::binary::dot<Scalar>; ///< Function pointer to
@@ -30,7 +30,7 @@ class Node_dot : public INode {
         tensorfuncs::adjoint::binary::dot<Scalar>; ///< Function pointer to the
                                                    ///< gradient operation.
 
-    const Scalar *A_end =
+    const Scalar *lhs_end =
         nullptr; ///< Pointer to the end of the A buffer (used for iteration).
 
     /**

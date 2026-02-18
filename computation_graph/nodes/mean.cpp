@@ -4,29 +4,30 @@ namespace kaad {
 
 const char *Node_mean::node_type() const noexcept { return "Node_mean"; }
 
-Node_mean::Node_mean(INode *A_ptr, std::span<const int> value_shape)
-    : A(A_ptr), INode(value_shape, false) {
-    this->A_end = A_ptr->value.data() + A_ptr->value.size();
-    this->dA_end = A_ptr->gradient.data() + A_ptr->gradient.size();
-    this->divisor = A_ptr->value.size();
+Node_mean::Node_mean(INode *input_ptr, std::span<const int> value_shape)
+    : input(input_ptr), INode(value_shape, false) {
+    this->input_end = input_ptr->value.data() + input_ptr->value.size();
+    this->input_grad_end =
+        input_ptr->gradient.data() + input_ptr->gradient.size();
+    this->divisor = input_ptr->value.size();
 }
 
 void Node_mean::eval() {
     if (!this->evaluated) {
-        this->A->eval();
+        this->input->eval();
 
-        forward_op(this->A->value.data(), this->value.elements_.data(), A_end,
-                   divisor);
+        forward_op(this->input->value.data(), this->value.elements_.data(),
+                   input_end, divisor);
         this->evaluated = true;
     }
 }
 
 void Node_mean::getGrad() {
-    backward_op(this->A->gradient.elements_.data(), this->gradient.data(),
-                dA_end, divisor);
+    backward_op(this->input->gradient.elements_.data(), this->gradient.data(),
+                input_grad_end, divisor);
 
-    if (this->A->hasInputs) {
-        this->A->getGrad();
+    if (this->input->hasInputs) {
+        this->input->getGrad();
     }
 }
 

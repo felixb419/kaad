@@ -18,26 +18,27 @@ class Node_slice : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the input Node.
+    INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::slice_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::slice;
     tensorfuncs::adjoint::unary::slice_fn<Scalar> backward_op =
         tensorfuncs::adjoint::unary::slice;
 
-    std::vector<int> strideA;           ///< Stride array for tensor A.
-    std::vector<int> strideC;           ///< Stride array for tensor C.
-    std::vector<size_t> start_offset_a; ///< Offset for the start of A.
-    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
+    std::vector<int> input_stride;      ///< Stride array for tensor input.
+    std::vector<int> value_stride;      ///< Stride array for tensor value.
+    std::vector<size_t> start_offset_a; ///< Offset for the start of input.
+    std::vector<size_t>
+        value_offset;      ///< Per-dim offset to the end of value buffer.
+    size_t value_rank = 0; ///< Number of the dimensions of the value tensor.
 
     /**
      * @brief Constructs a slice node.
-     * @param A_ptr    Pointer to the input node.
+     * @param input_ptr    Pointer to the input node.
      * @param offset_arr Array with the per-dim offsets of the slice.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_slice(INode *A_ptr, const int *offset_arr,
+    Node_slice(INode *input_ptr, const int *offset_arr,
                std::span<const int> value_shape);
 
     /**

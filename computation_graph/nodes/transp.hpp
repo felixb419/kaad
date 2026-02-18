@@ -19,7 +19,7 @@ class Node_transp : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the input Node.
+    INode *input = nullptr; ///< Pointer to the input Node.
 
     using Kernel = Kernels::NoOp<Scalar>;
 
@@ -32,17 +32,19 @@ class Node_transp : public INode {
                                                         ///< the gradient
                                                         ///< operation.
 
-    const Scalar *A_end = nullptr; ///< Pointer to the end of the A buffer.
-    const Scalar *C_end = nullptr; ///< Pointer to the end of the C buffer.
+    const Scalar *input_end =
+        nullptr; ///< Pointer to the end of the input buffer.
+    const Scalar *value_end =
+        nullptr; ///< Pointer to the end of the value buffer.
 
     /**
      * @brief Constructs a transpose node with the given operation and gradient.
      *
-     * @param A_ptr Pointer to the input node.
+     * @param input_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensors.
      * @param value_stride Stride array of the value and gradient tensors.
      */
-    Node_transp(INode *A_ptr, std::span<const int> value_shape,
+    Node_transp(INode *input_ptr, std::span<const int> value_shape,
                 std::span<const int> value_stride);
 
     /**

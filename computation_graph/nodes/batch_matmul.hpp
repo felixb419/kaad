@@ -21,8 +21,8 @@ class Node_batch_matmul : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the first input Node.
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    INode *rhs = nullptr; ///< Pointer to the first input Node.
+    INode *lhs = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::batch_matmul_fn<Scalar> forward_op =
         tensorfuncs::primal::binary::batch_matmul; ///< Function pointer to
@@ -40,15 +40,15 @@ class Node_batch_matmul : public INode {
      * - [1] Gradient w.r.t. A (dA = dC * Bᵗ)
      * - [2] Gradient w.r.t. B (dB = Aᵗ * dC)
      */
-    int *(strideA[3]);           ///< Stride array for tensor A.
-    int *(strideB[3]);           ///< Stride array for tensor B.
-    int *(strideC[3]);           ///< Stride array for tensor C.
-    int *(c_shape_broadcast[3]); ///< shape of C (without summing over batch
-                                 ///< dimensions).
-    int A_colStride[3];          ///< Gap between columns of the A matrix.
-    int B_rowStride[3];          ///< Gap between rows of the B matrix.
-    int shared_dim[3];           ///< Shared inner dimension of the tensors.
-    size_t C_rank = 0; ///< Number of the dimensions of the value tensor.
+    int *(lhs_stride[3]);            ///< Stride array for tensor A.
+    int *(rhs_stride[3]);            ///< Stride array for tensor B.
+    int *(value_stride[3]);          ///< Stride array for tensor C.
+    int *(value_shape_broadcast[3]); ///< shape of C (without summing over batch
+                                     ///< dimensions).
+    int lhs_colStride[3];            ///< Gap between columns of the A matrix.
+    int rhs_rowStride[3];            ///< Gap between rows of the B matrix.
+    int shared_dim[3];               ///< Shared inner dimension of the tensors.
+    size_t value_rank = 0; ///< Number of the dimensions of the value tensor.
 
     /**
      * @brief Constructs a batch_matmul node.
@@ -56,7 +56,7 @@ class Node_batch_matmul : public INode {
      * @param B_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_batch_matmul(INode *A_ptr, INode *B_ptr,
+    Node_batch_matmul(INode *lhs_ptr, INode *rhs_ptr,
                       std::span<const int> value_shape);
 
     /**

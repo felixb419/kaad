@@ -13,40 +13,40 @@ template <class Kernel> class Node_binary_flex;
 template <class Kernel>
 void Node_binary_flex_metadata(Node_binary_flex<Kernel> &node) {
     // compute metadata
-    Tensor &A = node.A->value;
-    Tensor &B = node.B->value;
-    Tensor &C = node.value;
+    Tensor &lhs = node.lhs->value;
+    Tensor &rhs = node.rhs->value;
+    Tensor &value = node.value;
 
-    node.C_rank = C.rank();
-    node.strideA.resize(node.C_rank);
-    node.strideB.resize(node.C_rank);
-    node.strideC.resize(node.C_rank);
+    node.value_rank = value.rank();
+    node.lhs_stride.resize(node.value_rank);
+    node.rhs_stride.resize(node.value_rank);
+    node.value_stride.resize(node.value_rank);
 
     int idx, idxA, idxB, idxC;
-    for (int i = 1; i <= node.C_rank; i++) {
-        idx = node.C_rank - i;
-        idxA = A.rank() - i;
-        node.strideA[idx] = idxA >= 0 ? A.stride()[idxA] : 0;
-        idxB = B.rank() - i;
-        node.strideB[idx] = idxB >= 0 ? B.stride()[idxB] : 0;
-        idxC = C.rank() - i;
-        node.strideC[idx] = idxC >= 0 ? C.stride()[idxC] : 0;
-        // make sure strideC[idx] is 1 instead of 0 if C.shape[idx] is 1 for
-        // traversing in flexible function
-        if (node.strideC[idx] == 0 && C.shape()[idxC] == 1) {
-            node.strideC[idx] = 1;
+    for (int i = 1; i <= node.value_rank; i++) {
+        idx = node.value_rank - i;
+        idxA = lhs.rank() - i;
+        node.lhs_stride[idx] = idxA >= 0 ? lhs.stride()[idxA] : 0;
+        idxB = rhs.rank() - i;
+        node.rhs_stride[idx] = idxB >= 0 ? rhs.stride()[idxB] : 0;
+        idxC = value.rank() - i;
+        node.value_stride[idx] = idxC >= 0 ? value.stride()[idxC] : 0;
+        // make sure value_stride[idx] is 1 instead of 0 if value.shape[idx] is
+        // 1 for traversing in flexible function
+        if (node.value_stride[idx] == 0 && value.shape()[idxC] == 1) {
+            node.value_stride[idx] = 1;
         }
     }
 
-    node.C_offset.resize(node.C_rank);
-    for (int i = 0; i < node.C_rank; i++) {
-        node.C_offset[i] = C.shape()[i] * node.strideC[i];
+    node.C_offset.resize(node.value_rank);
+    for (int i = 0; i < node.value_rank; i++) {
+        node.C_offset[i] = value.shape()[i] * node.value_stride[i];
     }
 
     // assign compile-time recursive function
-    if (node.C_rank <= Dispatchers::MAX_NDIMS) {
-        node.forward_op = Dispatchers::get_flexOp<Kernel>()[node.C_rank];
-        node.backward_op = Dispatchers::get_flexGrad<Kernel>()[node.C_rank];
+    if (node.value_rank <= Dispatchers::MAX_NDIMS) {
+        node.forward_op = Dispatchers::get_flexOp<Kernel>()[node.value_rank];
+        node.backward_op = Dispatchers::get_flexGrad<Kernel>()[node.value_rank];
     }
 }
 
@@ -66,8 +66,8 @@ template <class Kernel> class Node_binary_flex : public INode {
         return "Node_binary_flex";
     }
 
-    INode *A = nullptr; ///< Pointer to the first input Node.
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =
         tensorfuncs::primal::binary::flexible<Kernel>; ///< Function pointer to
@@ -77,11 +77,11 @@ template <class Kernel> class Node_binary_flex : public INode {
         tensorfuncs::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
 
-    std::vector<int> strideA;     ///< stride Array for A.
-    std::vector<int> strideB;     ///< stride Array for B.
-    std::vector<int> strideC;     ///< stride Array for C.
-    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
+    std::vector<int> lhs_stride;   ///< stride Array for A.
+    std::vector<int> rhs_stride;   ///< stride Array for B.
+    std::vector<int> value_stride; ///< stride Array for C.
+    std::vector<size_t> C_offset;  ///< Per-dim offset to the end of C buffer.
+    size_t value_rank = 0; ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
@@ -90,9 +90,9 @@ template <class Kernel> class Node_binary_flex : public INode {
      * @param B_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_binary_flex(INode *A_ptr, INode *B_ptr,
+    Node_binary_flex(INode *lhs_ptr, INode *rhs_ptr,
                      std::span<const int> value_shape)
-        : A(A_ptr), B(B_ptr), INode(value_shape, false) {
+        : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
 
         Node_binary_flex_metadata(*this);
     }
@@ -103,12 +103,13 @@ template <class Kernel> class Node_binary_flex : public INode {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->A->eval();
-            this->B->eval();
+            this->lhs->eval();
+            this->rhs->eval();
 
-            forward_op(this->A->value.data(), this->B->value.data(),
-                       this->value.elements_.data(), strideA.data(),
-                       strideB.data(), strideC.data(), C_offset.data(), C_rank);
+            forward_op(this->lhs->value.data(), this->rhs->value.data(),
+                       this->value.elements_.data(), lhs_stride.data(),
+                       rhs_stride.data(), value_stride.data(), C_offset.data(),
+                       value_rank);
             this->evaluated = true;
         }
     }
@@ -118,16 +119,18 @@ template <class Kernel> class Node_binary_flex : public INode {
      * calling backward_op.
      */
     inline void getGrad() override {
-        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->B->value.data(), this->B->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), strideA.data(),
-                    strideB.data(), strideC.data(), C_offset.data(), C_rank);
+        backward_op(this->lhs->value.data(),
+                    this->lhs->gradient.elements_.data(),
+                    this->rhs->value.data(),
+                    this->rhs->gradient.elements_.data(), this->value.data(),
+                    this->gradient.data(), lhs_stride.data(), rhs_stride.data(),
+                    value_stride.data(), C_offset.data(), value_rank);
 
-        if (this->A->hasInputs) {
-            this->A->getGrad();
+        if (this->lhs->hasInputs) {
+            this->lhs->getGrad();
         }
-        if (this->B->hasInputs) {
-            this->B->getGrad();
+        if (this->rhs->hasInputs) {
+            this->rhs->getGrad();
         }
     }
 };

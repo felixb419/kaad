@@ -18,8 +18,8 @@ class Node_matmul : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the first input Node.
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::matmul_fn<Scalar> forward_op =
         tensorfuncs::primal::binary::matmul; ///< Function pointer to the matmul
@@ -37,24 +37,25 @@ class Node_matmul : public INode {
      * - [2..3] Gradient w.r.t. A (dA = dC * Bᵗ)
      * - [4..5] Gradient w.r.t. B (dB = Aᵗ * dC)
      */
-    int a_rows[3]; ///< Number of rows of tensor A for each computation stage.
-    int b_cols[3]; ///< Number of columns of tensor B for each computation
-                   ///< stage.
+    int lhs_rows[3]; ///< Number of rows of tensor A for each computation stage.
+    int rhs_cols[3]; ///< Number of columns of tensor B for each computation
+                     ///< stage.
     int shared_dim[3]; ///< Shared inner dimension for each computation stage.
-    int strideA[6];    ///< Flattened stride pairs for tensor A (2 per stage × 3
+    int lhs_stride[6]; ///< Flattened stride pairs for tensor A (2 per stage × 3
                        ///< stages).
-    int strideB[6];    ///< Flattened stride pairs for tensor B (2 per stage × 3
+    int rhs_stride[6]; ///< Flattened stride pairs for tensor B (2 per stage × 3
                        ///< stages).
-    int strideC[6];    ///< Flattened stride pairs for tensor C (2 per stage × 3
-                       ///< stages).
+    int value_stride[6]; ///< Flattened stride pairs for tensor C (2 per stage ×
+                         ///< 3 stages).
 
     /**
      * @brief Constructs a matmul node.
-     * @param A_ptr Pointer to the first input node.
-     * @param B_ptr Pointer to the second input node.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_matmul(INode *A_ptr, INode *B_ptr, std::span<const int> value_shape);
+    Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
+                std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the matmul operation by apllying forward_op,if not

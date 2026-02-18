@@ -23,7 +23,7 @@ class Node_sum_dim : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the input Node.
+    INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::sum_dim_fn<Scalar> val_func =
         tensorfuncs::primal::unary::sum_dim; ///< Function pointer to the
@@ -32,18 +32,19 @@ class Node_sum_dim : public INode {
         tensorfuncs::adjoint::unary::sum_dim; ///< Function pointer to the
                                               ///< sum_dim gradient.
 
-    std::vector<int> strideA;     ///< stride Array for A.
-    std::vector<int> strideC;     ///< stride Array for C.
-    std::vector<size_t> A_offset; ///< Per-dim offset to the end of A buffer.
-    size_t C_rank = 0;            ///< Number of dimensions of A
+    std::vector<int> input_stride; ///< stride Array for input.
+    std::vector<int> value_stride; ///< stride Array for value.
+    std::vector<size_t>
+        input_offset;      ///< Per-dim offset to the end of input buffer.
+    size_t value_rank = 0; ///< Number of dimensions of value.
 
     /**
-     * @brief Constructs a sum_dim node.
-     * @param A_ptr    Pointer to the input node.
+     * @brief Constructrs a sum_dim node.
+     * @param input_ptr    Pointer to the input node.
      * @param dim Index of the relevant dimension.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_sum_dim(INode *A_ptr, int dim, std::span<const int> value_shape);
+    Node_sum_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the sum_dim operation by applying forward_op, if not

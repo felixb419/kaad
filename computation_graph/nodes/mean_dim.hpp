@@ -18,31 +18,33 @@ class Node_mean_dim : public INode {
      */
     const char *node_type() const noexcept override;
 
-    INode *A = nullptr; ///< Pointer to the input Node.
+    INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =
         tensorfuncs::primal::unary::mean_dim;
     tensorfuncs::adjoint::unary::mean_dim_fn<Scalar> backward_op =
         tensorfuncs::adjoint::unary::mean_dim;
 
-    std::vector<int> strideA;     ///< stride Array for A.
-    std::vector<int> strideC;     ///< stride Array for C.
-    std::vector<size_t> A_offset; ///< Per-dim offset to the end of A buffer.
-    const Scalar *C_end =
-        nullptr; ///< Pointer to the end of the C buffer (used for iteration).
-    const Scalar *dA_end =
-        nullptr; ///< Pointer to the end of the dA buffer (used for iteration).
-    size_t A_rank = 0;  ///< Number of the dimensions of the A tensor.
-    Scalar divisor = 0; ///< Divisor to compute the mean of the A tensor (length
-                        ///< of A in relevant dimension).
+    std::vector<int> input_stride; ///< stride Array for input tensor.
+    std::vector<int> value_stride; ///< stride Array for value tensor.
+    std::vector<size_t>
+        input_offset; ///< Per-dim offset to the end of input buffer.
+    const Scalar *value_end = nullptr; ///< Pointer to the end of the value
+                                       ///< buffer (used for iteration).
+    const Scalar *input_grad_end =
+        nullptr; ///< Pointer to the end of the value gradient buffer (used for
+                 ///< iteration).
+    size_t input_rank = 0; ///< Number of the dimensions of the input tensor.
+    Scalar divisor = 0;    ///< Divisor to compute the mean of the input tensor
+                           ///< (length of A in relevant dimension).
 
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
-     * @param A_ptr Pointer to the input node.
+     * @param lhs_ptr Pointer to the input node.
      * @param dim Index of the relevant dimension.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_mean_dim(INode *A_ptr, int dim, std::span<const int> value_shape);
+    Node_mean_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
 
     /**
      * @brief Evaluates the mean_dim operation by applying forward_op, if not

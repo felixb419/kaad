@@ -4,28 +4,30 @@ namespace kaad {
 
 const char *Node_transp::node_type() const noexcept { return "Node_transp"; }
 
-Node_transp::Node_transp(INode *A_ptr, std::span<const int> value_shape,
+Node_transp::Node_transp(INode *input_ptr, std::span<const int> value_shape,
                          std::span<const int> value_stride)
-    : A(A_ptr), INode(value_shape, value_stride, false) {
-    this->A_end = this->A->value.data() + this->A->value.size();
-    this->C_end = this->value.data() + this->value.size();
+    : input(input_ptr), INode(value_shape, value_stride, false) {
+    this->input_end = this->input->value.data() + this->input->value.size();
+    this->value_end = this->value.data() + this->value.size();
 }
 
 void Node_transp::eval() {
     if (!this->evaluated) {
-        this->A->eval();
+        this->input->eval();
 
-        forward_op(this->A->value.data(), this->value.elements_.data(), A_end);
+        forward_op(this->input->value.data(), this->value.elements_.data(),
+                   input_end);
         this->evaluated = true;
     }
 }
 
 void Node_transp::getGrad() {
-    backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                this->value.data(), this->gradient.data(), C_end);
+    backward_op(this->input->value.data(),
+                this->input->gradient.elements_.data(), this->value.data(),
+                this->gradient.data(), value_end);
 
-    if (this->A->hasInputs) {
-        this->A->getGrad();
+    if (this->input->hasInputs) {
+        this->input->getGrad();
     }
 }
 

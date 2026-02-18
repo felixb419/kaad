@@ -20,8 +20,8 @@ template <class Kernel> class Node_binary : public INode {
      */
     const char *node_type() const noexcept override { return "Node_binary"; }
 
-    INode *A = nullptr; ///< Pointer to the first input Node.
-    INode *B = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     tensorfuncs::primal::binary::pointwise_fn<Kernel> forward_op =
         tensorfuncs::primal::binary::pointwise<
@@ -40,15 +40,16 @@ template <class Kernel> class Node_binary : public INode {
      * gradient.
      * @param operation Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
-     * @param A_ptr Pointer to the first input node.
-     * @param B_ptr Pointer to the second input node.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
     Node_binary(tensorfuncs::primal::binary::pointwise_fn<Kernel> operation,
                 tensorfuncs::adjoint::binary::pointwise_fn<Kernel> derivative,
-                INode *A_ptr, INode *B_ptr, std::span<const int> value_shape)
-        : A(A_ptr), B(B_ptr), forward_op(operation), backward_op(derivative),
-          INode(value_shape, false) {
+                INode *lhs_ptr, INode *rhs_ptr,
+                std::span<const int> value_shape)
+        : lhs(lhs_ptr), rhs(rhs_ptr), forward_op(operation),
+          backward_op(derivative), INode(value_shape, false) {
         INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value.data() + base_ptr->value.size();
     }
@@ -59,10 +60,10 @@ template <class Kernel> class Node_binary : public INode {
      */
     inline void eval() override {
         if (!this->evaluated) {
-            this->A->eval();
-            this->B->eval();
+            this->lhs->eval();
+            this->rhs->eval();
 
-            forward_op(this->A->value.data(), this->B->value.data(),
+            forward_op(this->lhs->value.data(), this->rhs->value.data(),
                        this->value.elements_.data(), end);
             this->evaluated = true;
         }
@@ -73,15 +74,16 @@ template <class Kernel> class Node_binary : public INode {
      * backward_op.
      */
     inline void getGrad() override {
-        backward_op(this->A->value.data(), this->A->gradient.elements_.data(),
-                    this->B->value.data(), this->B->gradient.elements_.data(),
-                    this->value.data(), this->gradient.data(), end);
+        backward_op(
+            this->lhs->value.data(), this->lhs->gradient.elements_.data(),
+            this->rhs->value.data(), this->rhs->gradient.elements_.data(),
+            this->value.data(), this->gradient.data(), end);
 
-        if (this->A->hasInputs) {
-            this->A->getGrad();
+        if (this->lhs->hasInputs) {
+            this->lhs->getGrad();
         }
-        if (this->B->hasInputs) {
-            this->B->getGrad();
+        if (this->rhs->hasInputs) {
+            this->rhs->getGrad();
         }
     }
 };
