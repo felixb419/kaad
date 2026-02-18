@@ -1,10 +1,10 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"     // for argument_error
 #include "../../tensor/tensor.hpp"  // for Tensor
 #include "../computation_graph.hpp" // for Computation_graph
 #include "../node_handle.hpp"       // for Node_handle
 #include "../nodes/slice.hpp"       // for Node_slice
-#include "exceptions.hpp"           // for argument_error
 #include <memory>                   // for std::make_unique
 #include <span>                     // for  std::span
 #include <string>                   // for  std::string
@@ -21,15 +21,17 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
 
     if (size.size() > A_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());
-        throw argument_error(recLen, "slice",
-                             "length of size is bigger than A.rank()",
-                             {{"size", size_span}, {"A.shape", A_val.shape()}});
+        throw argument_error(make_graph_errmsg(
+            "argument error", recLen, "slice",
+            "length of size is bigger than A.rank()",
+            {{"size", size_span}, {"A.shape", A_val.shape()}}));
     }
     if (offset.size() > A_val.rank()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
-        throw argument_error(
-            recLen, "slice", "length of offset is bigger than A.rank()",
-            {{"offset", offset_span}, {"A.shape", A_val.shape()}});
+        throw argument_error(make_graph_errmsg(
+            "argument error", recLen, "slice",
+            "length of offset is bigger than A.rank()",
+            {{"offset", offset_span}, {"A.shape", A_val.shape()}}));
     }
 
     int diff = A_val.rank() - offset.size();
@@ -56,10 +58,11 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
             std::string idx_str = std::to_string(i);
             std::string msg = "offset[" + idx_str + "] + length[" + idx_str +
                               "] > A.shape[" + idx_str + "]";
-            throw argument_error(recLen, "slice", msg.c_str(),
-                                 {{"size", size_span},
-                                  {"offset", offset_span},
-                                  {"A.shape", A_val.shape()}});
+            throw argument_error(make_graph_errmsg(
+                "argument error", recLen, "slice", msg.c_str(),
+                {{"size", size_span},
+                 {"offset", offset_span},
+                 {"A.shape", A_val.shape()}}));
         }
     }
 

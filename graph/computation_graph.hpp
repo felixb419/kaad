@@ -24,7 +24,7 @@ class Computation_graph {
 
     /**
      * @brief Returns a pointer to a node handle.
-     * @warning Will throw std::invalid_argument if @p node doesnt refer to
+     * @warning Will throw argument_error if @p node doesnt refer to
      * correct graph.
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.

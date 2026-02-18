@@ -1,5 +1,6 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"              // for argument_error
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
@@ -8,7 +9,6 @@
 #include "../nodes/inode.hpp"                // for INode
 #include "../nodes/sum_dim.hpp"              // for Node_sum_dim
 #include "../nodes/unary.hpp"                // for Node_unary
-#include "exceptions.hpp"                    // for argument_error
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
@@ -41,9 +41,10 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
     Tensor &A_val = A_ptr->value;
 
     if (dim < 0 || dim >= A_val.rank()) {
-        throw argument_error(recLen, "sum",
-                             "dim has to be a valid index of A.shape",
-                             {{"A.shape", A_val.shape()}}, {{"dim", dim}});
+        throw argument_error(
+            make_graph_errmsg("argument error", recLen, "sum",
+                              "dim has to be a valid index of A.shape",
+                              {{"A.shape", A_val.shape()}}, {{"dim", dim}}));
     }
 
     if (A_val.rank() == 1) {

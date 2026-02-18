@@ -1,12 +1,12 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"      // for shape_error
 #include "../../tensor/tensor.hpp"   // for Tensor
 #include "../common.hpp"             // for combine_matrix
 #include "../computation_graph.hpp"  // for Computation_graph
 #include "../node_handle.hpp"        // for Node_handle
 #include "../nodes/batch_matmul.hpp" // for Node_batch_matmul
 #include "../nodes/matmul.hpp"       // for Node_matmul
-#include "exceptions.hpp"            // for shape_error
 #include <memory>                    // for std::make_unique
 
 namespace kaad {
@@ -26,10 +26,10 @@ Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B) {
     if (!detail::combine_matrix(A_val.shape().data(), A_val.rank(),
                                 B_val.shape().data(), B_val.rank(),
                                 newShape.data(), newLen)) {
-        throw shape_error(
-            recLen, opName,
+        throw shape_error(make_graph_errmsg(
+            "shape error", recLen, opName,
             "incompatible tensor shapes for matrix multiplication",
-            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}});
+            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}}));
     }
 
     if (newLen == 2) {

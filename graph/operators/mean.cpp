@@ -1,11 +1,11 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"     // for param_error
 #include "../../tensor/tensor.hpp"  // for Tensor
 #include "../computation_graph.hpp" // for Computation_graph
 #include "../node_handle.hpp"       // for Node_handle
 #include "../nodes/mean.hpp"        // for Node_mean
 #include "../nodes/mean_dim.hpp"    // for Node_mean_dim
-#include "exceptions.hpp"           // for param_error
 #include <memory>                   // for std::make_unique
 
 namespace kaad {
@@ -26,9 +26,10 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     Tensor &A_val = A_ptr->value;
 
     if (dim < 0 || dim >= A_val.rank()) {
-        throw argument_error(recLen, "mean",
-                             "dim has to be a valid index of A.shape",
-                             {{"A.shape", A_val.shape()}}, {{"dim", dim}});
+        throw argument_error(
+            make_graph_errmsg("argument error", recLen, "mean",
+                              "dim has to be a valid index of A.shape",
+                              {{"A.shape", A_val.shape()}}, {{"dim", dim}}));
     }
 
     if (A_val.rank() == 1) {
@@ -49,8 +50,8 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
                   newShape.begin() + dim);
     }
 
-    rec.nodes.push_back(std::move(
-        std::make_unique<Node_mean_dim>(A_ptr, dim, newShape)));
+    rec.nodes.push_back(
+        std::move(std::make_unique<Node_mean_dim>(A_ptr, dim, newShape)));
     return rec.back_handle();
 }
 

@@ -1,4 +1,6 @@
 #include "computation_graph.hpp"
+
+#include "../exceptions.hpp"    // for argument_error
 #include "../tensor/tensor.hpp" // for Tensor
 #include "node_handle.hpp"      // for Node_handle
 #include "nodes/inode.hpp"      // for INode
@@ -9,13 +11,12 @@ namespace kaad {
 
 INode *Computation_graph::get_node(Node_handle node) {
     if (node.origin_ != this) {
-        throw std::invalid_argument(
+        throw argument_error(
             "node does not belong to this instance of Computation_graph");
     }
     if (node.idx_ < 0 && node.idx_ >= this->nodes.size()) {
-        throw std::invalid_argument(
-            std::to_string(node.idx_) +
-            "is not a valid index for this Computation_graph");
+        throw argument_error(std::to_string(node.idx_) +
+                             "is not a valid index for this Computation_graph");
     }
 
     return this->nodes[node.idx_].get();

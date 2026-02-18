@@ -1,11 +1,11 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"     // for shape_error, argument_error
 #include "../../tensor/tensor.hpp"  // for Tensor
 #include "../computation_graph.hpp" // for Computation_graph
 #include "../node_handle.hpp"       // for Node_handle
 #include "../nodes/inode.hpp"       // for INode
 #include "../nodes/transp.hpp"      // for Node_transp
-#include "exceptions.hpp"           // for shape_error, argument_error
 #include <algorithm>                // for std::reverse_copy
 #include <initializer_list>         // for std::initializer_list
 #include <memory>                   // for std::make_unique
@@ -20,8 +20,9 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
     Tensor &A_val = A_ptr->value;
 
     if (A_val.rank() < 2) {
-        throw shape_error(recLen, "transpose", "A.rank() hast to be > 1",
-                          {{"A.shape", A_val.shape()}});
+        throw shape_error(make_graph_errmsg("shape error", recLen, "transpose",
+                                            "A.rank() hast to be > 1",
+                                            {{"A.shape", A_val.shape()}}));
     }
 
     std::vector<int> shape_T(A_val.rank());
@@ -35,9 +36,10 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
 
     } else {
         if (perm.size() != A_val.rank()) {
-            throw argument_error(recLen, "transpose",
-                                 "perm.size() has to be same as A.rank()",
-                                 {{"A.shape", A_val.shape()}});
+            throw argument_error(
+                make_graph_errmsg("argument erro", recLen, "transpose",
+                                  "perm.size() has to be same as A.rank()",
+                                  {{"A.shape", A_val.shape()}}));
         }
 
         int *count = new int[A_val.rank()];
@@ -54,10 +56,10 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
         }
         for (int *p = count; p != count + A_val.rank(); p++) {
             if (*p != 1) {
-                throw argument_error(
-                    recLen, "transpose",
+                throw argument_error(make_graph_errmsg(
+                    "argument error", recLen, "transpose",
                     "perm has to contain index of every dimension exactly once",
-                    {{"perm", perm}});
+                    {{"perm", perm}}));
             }
         }
     }

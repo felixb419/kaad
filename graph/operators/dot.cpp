@@ -1,12 +1,12 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"              // for shape_error
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include "../computation_graph.hpp"          // for Computation_graph
 #include "../node_handle.hpp"                // for Node_handle
 #include "../nodes/dot.hpp"                  // for Node_dot
-#include "exceptions.hpp"                    // for shape_error
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
@@ -50,9 +50,10 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
             std::move(std::make_unique<Node_dot>(A_ptr, B_ptr)));
 
     } else {
-        throw shape_error(
-            recLen, "dot", "incompatible tensor shapes for dot product",
-            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}});
+        throw shape_error(make_graph_errmsg(
+            "shape error", recLen, "dot",
+            "incompatible tensor shapes for dot product",
+            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}}));
     }
 
     return rec.back_handle();

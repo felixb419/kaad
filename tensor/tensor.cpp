@@ -1,12 +1,14 @@
 #include "tensor.hpp"
-#include "common.hpp"       // for kaad::detail::print_tensor
-#include "tensor_view.hpp"  // for kaad::Tensor_view
-#include <algorithm>        // for std::copy, std::max, std::fill
-#include <initializer_list> // for std::initializer_list
-#include <iostream>         // for std::ostream
-#include <numeric>          // for std::iota
-#include <span>             // for std::span
-#include <vector>           // for std::vector
+
+#include "../exceptions.hpp" // for argument_error
+#include "common.hpp"        // for kaad::detail::print_tensor
+#include "tensor_view.hpp"   // for kaad::Tensor_view
+#include <algorithm>         // for std::copy, std::max, std::fill
+#include <initializer_list>  // for std::initializer_list
+#include <iostream>          // for std::ostream
+#include <numeric>           // for std::iota
+#include <span>              // for std::span
+#include <vector>            // for std::vector
 
 namespace kaad {
 
@@ -62,7 +64,7 @@ Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
     compute_stride(this->stride_, len, this->shape_);
 
     if (len != elements.size()) {
-        throw std::invalid_argument(
+        throw argument_error(
             "length suggested by shape and length of val dont match");
     }
 }

@@ -1,5 +1,6 @@
 #include "operators.hpp"
 
+#include "../../exceptions.hpp"              // for shape_error
 #include "../../scalar.hpp"                  // for Scalar
 #include "../../tensor/tensor.hpp"           // for Tensor
 #include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
@@ -10,7 +11,6 @@
 #include "../nodes/binary.hpp"               // for Node_binary
 #include "../nodes/binary_flex.hpp"          // for Node_binary_flex
 #include "../nodes/inode.hpp"                // for INode
-#include "exceptions.hpp"                    // for shape_error
 #include <cstddef>                           // for std::size_t
 #include <memory>                            // for std::make_unique
 
@@ -31,7 +31,8 @@ namespace kaad {
  */
 static inline bool combine_flexible(const int *shape1, std::size_t rank1,
                                     const int *shape2, std::size_t rank2,
-                                    int *newShape, std::size_t newLen) noexcept {
+                                    int *newShape,
+                                    std::size_t newLen) noexcept {
     int ind = newLen - 1;
     for (int i = 1; i <= newLen; i++, ind--) {
         int ind1 = rank1 - i;
@@ -140,9 +141,10 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
             std::move(std::make_unique<Node_binary_flex<Kernel>>(A_ptr, B_ptr,
                                                                  newShape)));
     } else {
-        throw shape_error(
-            recLen, opName, "incompatible tensor shapes for binary operation",
-            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}});
+        throw shape_error(make_graph_errmsg(
+            "shape error", recLen, opName,
+            "incompatible tensor shapes for binary operation",
+            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}}));
     }
     return rec.back_handle();
 }
