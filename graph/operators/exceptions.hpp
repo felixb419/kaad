@@ -97,6 +97,6 @@ class argument_error : public std::invalid_argument {
         std::initializer_list<std::pair<const char *, int>> numbers =
             std::initializer_list<std::pair<const char *, int>>{})
         : std::invalid_argument(detail::make_message(
-              "shape error", graph_idx, op_name, msg, arrays, numbers)) {}
+              "argument error", graph_idx, op_name, msg, arrays, numbers)) {}
 };
 } // namespace kaad
