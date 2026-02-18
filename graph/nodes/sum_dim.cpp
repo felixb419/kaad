@@ -12,7 +12,7 @@ void Node_sum_dim_metadata(Node_sum_dim &node, int dim) {
                                     node.value_stride);
 
     // assign compile-time recursive function
-    size_t a_rank = node.input->value.rank();
+    std::size_t a_rank = node.input->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
         node.val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
         node.grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];

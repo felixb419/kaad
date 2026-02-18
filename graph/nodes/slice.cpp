@@ -40,7 +40,7 @@ void Node_slice_metadata(Node_slice &node, const int *offset_arr) {
     }
 
     // assign compile-time recursive function
-    size_t a_rank = node.input->value.rank();
+    std::size_t a_rank = node.input->value.rank();
     if (a_rank < Dispatchers::MAX_NDIMS) {
         node.forward_op = Dispatchers::get_slice<Scalar>()[a_rank];
         node.backward_op = Dispatchers::get_slice_grad<Scalar>()[a_rank];

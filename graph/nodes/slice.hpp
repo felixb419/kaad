@@ -27,10 +27,10 @@ class Node_slice : public INode {
 
     std::vector<int> input_stride;      ///< Stride array for tensor input.
     std::vector<int> value_stride;      ///< Stride array for tensor value.
-    std::vector<size_t> start_offset_a; ///< Offset for the start of input.
-    std::vector<size_t>
+    std::vector<std::size_t> start_offset_a; ///< Offset for the start of input.
+    std::vector<std::size_t>
         value_offset;      ///< Per-dim offset to the end of value buffer.
-    size_t value_rank = 0; ///< Number of the dimensions of the value tensor.
+    std::size_t value_rank = 0; ///< Number of the dimensions of the value tensor.
 
     /**
      * @brief Constructs a slice node.

@@ -7,8 +7,8 @@
 namespace kaad::detail {
 
 inline void print_tensor(std::ostream &os, std::vector<int> &cords,
-                         const int *shape, const int *stride, size_t rank,
-                         const Scalar *elements, size_t nElems, int ind,
+                         const int *shape, const int *stride, std::size_t rank,
+                         const Scalar *elements, std::size_t nElems, int ind,
                          int &indent) {
     if (ind == rank) {
         int idx = 0;

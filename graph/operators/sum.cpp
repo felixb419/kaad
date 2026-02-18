@@ -50,7 +50,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
         return sum(rec, A);
     }
 
-    size_t newLen = A_val.rank();
+    std::size_t newLen = A_val.rank();
     std::vector<int> newShape(newLen);
     if (keepNDims) {
         std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());

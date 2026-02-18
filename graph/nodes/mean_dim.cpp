@@ -21,7 +21,7 @@ void Node_mean_dim_metadata(Node_mean_dim &node, int dim) {
                                     node.value_stride);
 
     // assign compile-time recursive function
-    size_t a_rank = node.input->value.rank();
+    std::size_t a_rank = node.input->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
         node.forward_op = Dispatchers::get_meanDim<Scalar>()[a_rank];
         node.backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_rank];

@@ -9,7 +9,7 @@ namespace kaad {
 void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
                    int *&lhs_stride, int *&rhs_stride, int *&res_stride,
                    int *&c_shape_broadcast, int &a_off, int &b_off, int &k,
-                   size_t &D) {
+                   std::size_t &D) {
     a_off = lhs.stride[lhs.rank - 1];
     b_off = rhs.stride[rhs.rank - 2];
     k = lhs.shape[lhs.rank - 1];

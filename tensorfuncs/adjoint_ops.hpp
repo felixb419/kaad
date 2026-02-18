@@ -1,7 +1,7 @@
 #pragma once
 
 #include "primal_ops.hpp" // for batch_matmul, matmul
-#include <cstddef>        // for size_t
+#include <cstddef>        // for std::size_t
 
 namespace kaad {
 
@@ -59,7 +59,7 @@ using flexible_fn = void (*)(
     const typename Kernel::value_type *A, typename Kernel::value_type *dA,
     const typename Kernel::value_type *B, typename Kernel::value_type *dB,
     const typename Kernel::value_type *C, const typename Kernel::value_type *dC,
-    int *strideA, int *strideB, int *strideC, size_t *c_dim_offset, int c_rank);
+    int *strideA, int *strideB, int *strideC, std::size_t *c_dim_offset, int c_rank);
 
 template <typename T>
 using dot_fn = void (*)(const T *A, T *dA, const T *B, T *dB, const T *C,
@@ -183,7 +183,7 @@ void flexible(const typename Kernel::value_type *A,
               typename Kernel::value_type *dB,
               const typename Kernel::value_type *C,
               const typename Kernel::value_type *dC, int *strideA, int *strideB,
-              int *strideC, size_t *c_dim_offset,
+              int *strideC, std::size_t *c_dim_offset,
               int c_rank) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = C + *c_dim_offset;
     if (c_rank <= 1) {
@@ -210,7 +210,7 @@ void flexible(const typename Kernel::value_type *A,
               typename Kernel::value_type *dB,
               const typename Kernel::value_type *C,
               const typename Kernel::value_type *dC, int *strideA, int *strideB,
-              int *strideC, size_t *c_dim_offset,
+              int *strideC, std::size_t *c_dim_offset,
               int _) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = C + *c_dim_offset;
     if constexpr (c_rank <= 1) {
@@ -401,7 +401,7 @@ using pointwise_fn = void (*)(const typename Kernel::value_type *A,
 
 template <typename T>
 using sum_dim_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                            size_t *a_dim_offsetset, int a_rank);
+                            std::size_t *a_dim_offsetset, int a_rank);
 
 template <typename T>
 using mean_fn = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
@@ -409,12 +409,12 @@ using mean_fn = void (*)(T *dA, const T *dC, const T *dA_end, T divisor);
 template <typename T>
 using mean_dim_fn = void (*)(const T *A, T *dA, const T *C, const T *dC,
                              int *strideA, int *strideC,
-                             size_t *a_dim_offsetset, int a_rank, T divisor,
+                             std::size_t *a_dim_offsetset, int a_rank, T divisor,
                              const T *c_end);
 
 template <typename T>
 using slice_fn = void (*)(T *dA, const T *dC, int *strideA, int *strideC,
-                          size_t *start_offset, size_t *c_dim_offset, int rank);
+                          std::size_t *start_offset, std::size_t *c_dim_offset, int rank);
 
 /**
  * @brief Accumulates the gradient of Op(A), A(tensor).
@@ -474,7 +474,7 @@ void pointwise(const typename Kernel::value_type *A,
  */
 template <typename T>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
-             size_t *a_dim_offset, int a_rank) noexcept {
+             std::size_t *a_dim_offset, int a_rank) noexcept {
     const T *end = dA + *a_dim_offset;
     if (a_rank <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
@@ -493,7 +493,7 @@ void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
  */
 template <typename T, int a_rank>
 void sum_dim(T *dA, const T *dC, int *strideA, int *strideC,
-             size_t *a_dim_offsetset, int _) noexcept {
+             std::size_t *a_dim_offsetset, int _) noexcept {
     const T *end = dA + *a_dim_offsetset;
     if constexpr (a_rank <= 1) {
         for (; dA != end; dA += *strideA, dC += *strideC) {
@@ -537,7 +537,7 @@ void mean(T *dA, const T *dC, const T *dA_end, T divisor) noexcept {
  */
 template <typename T>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
-              int *strideC, size_t *a_dim_offset, int a_rank, T divisor,
+              int *strideC, std::size_t *a_dim_offset, int a_rank, T divisor,
               const T *dA_end) noexcept {
     sum_dim(dA, dC, strideA, strideC, a_dim_offset, a_rank);
     for (; dA != dA_end; dA++) {
@@ -550,7 +550,7 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
  */
 template <typename T, int a_rank>
 void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
-              int *strideC, size_t *a_dim_offsetset, int _, T divisor,
+              int *strideC, std::size_t *a_dim_offsetset, int _, T divisor,
               const T *dA_end) noexcept {
     sum_dim<T, a_rank>(dA, dC, strideA, strideC, a_dim_offsetset, 0);
     for (; dA != dA_end; dA++) {
@@ -570,8 +570,8 @@ void mean_dim(const T *A, T *dA, const T *C, const T *dC, int *strideA,
  * @param rank Number of dimensions in A and C.
  */
 template <typename T>
-void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_dim_offset, int rank) noexcept {
+void slice(T *dA, const T *dC, int *strideA, int *strideC, std::size_t *start_offset,
+           std::size_t *c_dim_offset, int rank) noexcept {
     dA += *start_offset;
     const T *end = dC + *c_dim_offset;
     if (rank <= 1) {
@@ -590,8 +590,8 @@ void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
  * @brief Compile-time recursive version of runtime @ref slice().
  */
 template <typename T, int rank>
-void slice(T *dA, const T *dC, int *strideA, int *strideC, size_t *start_offset,
-           size_t *c_dim_offset, int _) noexcept {
+void slice(T *dA, const T *dC, int *strideA, int *strideC, std::size_t *start_offset,
+           std::size_t *c_dim_offset, int _) noexcept {
     dA += *start_offset;
     const T *end = dC + *c_dim_offset;
     if constexpr (rank <= 1) {

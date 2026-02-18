@@ -3,7 +3,7 @@
 #include "../scalar.hpp"    // for Scalar
 #include "tensor_view.hpp"  // for kaad::Tensor_view
 #include <concepts>         // for concept
-#include <cstddef>          // for size_t
+#include <cstddef>          // for std::size_t
 #include <cstdint>          // for uint64_t
 #include <initializer_list> // for std::initializer_list
 #include <iostream>         // for std::ostream

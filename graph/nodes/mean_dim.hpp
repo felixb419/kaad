@@ -27,14 +27,14 @@ class Node_mean_dim : public INode {
 
     std::vector<int> input_stride; ///< stride Array for input tensor.
     std::vector<int> value_stride; ///< stride Array for value tensor.
-    std::vector<size_t>
+    std::vector<std::size_t>
         input_offset; ///< Per-dim offset to the end of input buffer.
     const Scalar *value_end = nullptr; ///< Pointer to the end of the value
                                        ///< buffer (used for iteration).
     const Scalar *input_grad_end =
         nullptr; ///< Pointer to the end of the value gradient buffer (used for
                  ///< iteration).
-    size_t input_rank = 0; ///< Number of the dimensions of the input tensor.
+    std::size_t input_rank = 0; ///< Number of the dimensions of the input tensor.
     Scalar divisor = 0;    ///< Divisor to compute the mean of the input tensor
                            ///< (length of A in relevant dimension).
 

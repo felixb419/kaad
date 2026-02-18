@@ -4,7 +4,7 @@
 #include "../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
 #include "../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
 #include <array>                          // for std::array
-#include <cstddef>                        // for size_t
+#include <cstddef>                        // for std::size_t
 #include <utility> // for std::index_sequence, std::make_index_sequence
 
 namespace kaad {
@@ -30,7 +30,7 @@ namespace Dispatchers {
 constexpr static int MAX_NDIMS = 10;
 
 /// @brief Returns full table of flexible binary operation implementations.
-template <class Kernel, size_t... Is>
+template <class Kernel, std::size_t... Is>
 constexpr std::array<tensorfuncs::primal::binary::flexible_fn<Kernel>,
                      sizeof...(Is)>
 get_flexOp_impl(std::index_sequence<Is...>) {
@@ -45,7 +45,7 @@ get_flexOp() {
 }
 
 /// @brief Returns full table of flexible binary gradient implementations.
-template <class Kernel, size_t... Is>
+template <class Kernel, std::size_t... Is>
 constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<Kernel>,
                      sizeof...(Is)>
 get_flexGrad_impl(std::index_sequence<Is...>) {
@@ -60,7 +60,7 @@ get_flexGrad() {
 }
 
 /// @brief Returns full table of batch matmul operation implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::primal::binary::batch_matmul_fn<T>,
                      sizeof...(Is)>
 get_batch_matmul_impl(std::index_sequence<Is...>) {
@@ -74,7 +74,7 @@ get_batch_matmul() {
 }
 
 /// @brief Returns full table of batch matmul gradient implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::adjoint::binary::batch_matmul_fn<T>,
                      sizeof...(Is)>
 get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
@@ -89,7 +89,7 @@ get_batch_matmul_grad() {
 }
 
 /// @brief Returns full table of sum_dim operation implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::primal::unary::sum_dim_fn<T>, sizeof...(Is)>
 get_sumDim_impl(std::index_sequence<Is...>) {
     return {&tensorfuncs::primal::unary::sum_dim<T, Is>...};
@@ -102,7 +102,7 @@ get_sumDim() {
 }
 
 /// @brief Returns full table of sum_dim gradient implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::adjoint::unary::sum_dim_fn<T>, sizeof...(Is)>
 get_sumDim_grad_impl(std::index_sequence<Is...>) {
     return {&tensorfuncs::adjoint::unary::sum_dim<T, Is>...};
@@ -115,7 +115,7 @@ get_sumDim_grad() {
 }
 
 /// @brief Returns full table of mean_dim operation implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::primal::unary::mean_dim_fn<T>, sizeof...(Is)>
 get_meanDim_impl(std::index_sequence<Is...>) {
     return {&tensorfuncs::primal::unary::mean_dim<T, Is>...};
@@ -128,7 +128,7 @@ get_meanDim() {
 }
 
 /// @brief Returns full table of mean_dim gradient implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::adjoint::unary::mean_dim_fn<T>, sizeof...(Is)>
 get_meanDim_grad_impl(std::index_sequence<Is...>) {
     return {&tensorfuncs::adjoint::unary::mean_dim<T, Is>...};
@@ -141,7 +141,7 @@ get_meanDim_grad() {
 }
 
 /// @brief Returns full table of slice operation implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::primal::unary::slice_fn<T>, sizeof...(Is)>
 get_slice_impl(std::index_sequence<Is...>) {
     return {&tensorfuncs::primal::unary::slice<T, Is>...};
@@ -154,7 +154,7 @@ get_slice() {
 }
 
 /// @brief Returns full table of slice gradient implementations.
-template <typename T, size_t... Is>
+template <typename T, std::size_t... Is>
 constexpr std::array<tensorfuncs::adjoint::unary::slice_fn<T>, sizeof...(Is)>
 get_slice_grad_impl(std::index_sequence<Is...>) {
     return {&tensorfuncs::adjoint::unary::slice<T, Is>...};

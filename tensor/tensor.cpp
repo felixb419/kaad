@@ -26,7 +26,7 @@ static void compute_stride(std::vector<int> &stride, int &len,
         stride[i] = shape[i + 1] * stride[i + 1];
     }
 
-    for (size_t i = 0; i < stride.size(); i++) {
+    for (std::size_t i = 0; i < stride.size(); i++) {
         if (shape[i] <= 1) {
             stride[i] = 0;
         }

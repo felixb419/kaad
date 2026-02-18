@@ -63,7 +63,7 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
         }
     }
 
-    size_t newLen = A_val.rank();
+    std::size_t newLen = A_val.rank();
     std::vector<int> newShape(newLen);
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 

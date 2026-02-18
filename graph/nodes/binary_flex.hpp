@@ -80,8 +80,8 @@ template <class Kernel> class Node_binary_flex : public INode {
     std::vector<int> lhs_stride;   ///< stride Array for A.
     std::vector<int> rhs_stride;   ///< stride Array for B.
     std::vector<int> value_stride; ///< stride Array for C.
-    std::vector<size_t> C_offset;  ///< Per-dim offset to the end of C buffer.
-    size_t value_rank = 0; ///< Number of the dimensions of the C tensor.
+    std::vector<std::size_t> C_offset;  ///< Per-dim offset to the end of C buffer.
+    std::size_t value_rank = 0; ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation

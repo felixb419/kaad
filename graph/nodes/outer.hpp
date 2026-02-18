@@ -36,8 +36,8 @@ class Node_outer : public INode {
     std::vector<int> lhs_stride;  ///< stride Array for lhs.
     std::vector<int> rhs_stride;  ///< stride Array for rhs.
     std::vector<int> strideC;     ///< stride Array for C.
-    std::vector<size_t> C_offset; ///< Per-dim offset to the end of C buffer.
-    size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
+    std::vector<std::size_t> C_offset; ///< Per-dim offset to the end of C buffer.
+    std::size_t C_rank = 0;            ///< Number of the dimensions of the C tensor.
 
     /**
      * @brief Constructs a outer prodcut operation node with outer prodcut

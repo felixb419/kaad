@@ -5,7 +5,7 @@
 #include "nodes/inode.hpp"      // for INode
 #include "nodes/input.hpp"      // for InputNode
 #include <array>                // for std::array
-#include <cstddef>              // for size_t
+#include <cstddef>              // for std::size_t
 #include <memory>               // for std::unique_ptr, std::make_unique
 #include <vector>               // for std::vector
 
@@ -108,7 +108,7 @@ class Computation_graph {
 
         std::array<Node_handle, sizeof...(wrt)> nodes = {wrt...};
         std::array<Tensor *, sizeof...(wrt)> partials = {};
-        for (size_t i = 0; i < sizeof...(wrt); i++) {
+        for (std::size_t i = 0; i < sizeof...(wrt); i++) {
             partials[i] = &this->get_node(nodes[i])->gradient;
         }
 

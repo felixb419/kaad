@@ -23,6 +23,7 @@ class Node_input : public INode {
 
     /// No evaluation needed for fixed value nodes.
     void eval() override {}
+
     /// No gradient computation needed for fixed value nodes.
     void getGrad() override {}
 };

@@ -34,9 +34,9 @@ class Node_sum_dim : public INode {
 
     std::vector<int> input_stride; ///< stride Array for input.
     std::vector<int> value_stride; ///< stride Array for value.
-    std::vector<size_t>
+    std::vector<std::size_t>
         input_offset;      ///< Per-dim offset to the end of input buffer.
-    size_t value_rank = 0; ///< Number of dimensions of value.
+    std::size_t value_rank = 0; ///< Number of dimensions of value.
 
     /**
      * @brief Constructrs a sum_dim node.

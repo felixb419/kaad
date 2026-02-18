@@ -2,7 +2,7 @@
 
 #include "../tensor/tensor.hpp" // for Tensor
 #include <algorithm>            // for fill, max
-#include <cstddef>              // for size_t
+#include <cstddef>              // for std::size_t
 #include <vector>               // for vector
 
 namespace kaad::detail {
@@ -20,8 +20,8 @@ namespace kaad::detail {
  * @param newLen Total number of dimensions in the result.
  * @return true if matmul broadcasting is possible, false otherwise.
  */
-inline bool combine_matrix(const int *shape1, size_t rank1, const int *shape2,
-                           size_t rank2, int *newShape, size_t newLen) {
+inline bool combine_matrix(const int *shape1, std::size_t rank1, const int *shape2,
+                           std::size_t rank2, int *newShape, std::size_t newLen) {
     if (shape1[rank1 - 1] != shape2[rank2 - 2]) {
         return false;
     }
@@ -59,8 +59,8 @@ inline bool combine_matrix(const int *shape1, size_t rank1, const int *shape2,
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
-static void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim, size_t &D,
-                                    std::vector<size_t> &A_offset,
+static void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim, std::size_t &D,
+                                    std::vector<std::size_t> &A_offset,
                                     std::vector<int> &strideA,
                                     std::vector<int> &strideC) {
     D = A.rank();

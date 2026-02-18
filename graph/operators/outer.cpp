@@ -16,7 +16,7 @@ Node_handle outer(Computation_graph &rec, Node_handle A, Node_handle B) {
     Tensor &A_val = A_ptr->value;
     Tensor &B_val = B_ptr->value;
 
-    size_t newLen = A_val.rank() + B_val.rank();
+    std::size_t newLen = A_val.rank() + B_val.rank();
     std::vector<int> newShape(newLen);
     std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());
     std::copy(B_val.shape().begin(), B_val.shape().end(),

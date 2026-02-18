@@ -11,7 +11,7 @@
 #include "../nodes/binary_flex.hpp"          // for Node_binary_flex
 #include "../nodes/inode.hpp"                // for INode
 #include "exceptions.hpp"                    // for shape_error
-#include <cstddef>                           // for size_t
+#include <cstddef>                           // for std::size_t
 #include <memory>                            // for std::make_unique
 
 namespace kaad {
@@ -29,9 +29,9 @@ namespace kaad {
  * @param newLen Total number of dimensions in the result.
  * @return true if broadcasting is possible, false otherwise.
  */
-static inline bool combine_flexible(const int *shape1, size_t rank1,
-                                    const int *shape2, size_t rank2,
-                                    int *newShape, size_t newLen) noexcept {
+static inline bool combine_flexible(const int *shape1, std::size_t rank1,
+                                    const int *shape2, std::size_t rank2,
+                                    int *newShape, std::size_t newLen) noexcept {
     int ind = newLen - 1;
     for (int i = 1; i <= newLen; i++, ind--) {
         int ind1 = rank1 - i;
@@ -109,7 +109,7 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
     bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
     bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;
 
-    size_t newLen = std::max(A_val.rank(), B_val.rank());
+    std::size_t newLen = std::max(A_val.rank(), B_val.rank());
     std::vector<int> newShape(newLen);
 
     if (B_scalar) {
