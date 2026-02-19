@@ -65,7 +65,7 @@ Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
 
     if (len != elements.size()) {
         throw argument_error(
-            "length suggested by shape and length of val dont match");
+            "length suggested by shape and length of elements dont match");
     }
 }
 
