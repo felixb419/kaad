@@ -6,8 +6,6 @@ FIX:
 REFACTOR:
 
 FEAT:
-    tensor reshape function
-    manual seed function
     label member for nodes
     make Node and pointer access impossible
         make operators return const Pointers (maybe Node_ptr)

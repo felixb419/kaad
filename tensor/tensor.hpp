@@ -134,6 +134,13 @@ class Tensor {
     static void manual_seed(uint64_t seed);
 
     /**
+     * @brief Reshapes the tensor.
+     * @note Recomputes the stride array for the new shape.
+     * @param shape New shape. Must preserve the total number of elements.
+     */
+    void reshape(std::span<const int> shape);
+
+    /**
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */

@@ -153,6 +153,19 @@ void Tensor::manual_seed(uint64_t seed) {
     seeded_ = true;
 }
 
+void Tensor::reshape(std::span<const int> shape) {
+
+    std::copy(shape.begin(), shape.end(), this->shape_.begin());
+
+    int suggested_len;
+    compute_stride(this->stride_, suggested_len, this->shape_);
+
+    if (suggested_len != this->size()) {
+        throw argument_error("length suggested by shape and previous length "
+                             "number of elements dont match");
+    }
+}
+
 Tensor::size_type Tensor::rank() const noexcept {
     return static_cast<size_type>(this->shape_.size());
 }
