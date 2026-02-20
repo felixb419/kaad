@@ -91,10 +91,6 @@ void Node_batch_matmul::metadata() {
     }
 }
 
-const char *Node_batch_matmul::node_type() const noexcept {
-    return "Node_batch_matmul";
-}
-
 Node_batch_matmul::Node_batch_matmul(INode *lhs_ptr, INode *rhs_ptr,
                                      std::span<const int> value_shape)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
@@ -109,6 +105,10 @@ Node_batch_matmul::~Node_batch_matmul() noexcept {
         delete[] value_stride[i];
         delete[] value_shape_broadcast[i];
     }
+}
+
+const char *Node_batch_matmul::node_type() const noexcept {
+    return "Node_batch_matmul";
 }
 
 void Node_batch_matmul::eval() {

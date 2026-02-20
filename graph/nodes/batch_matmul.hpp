@@ -15,12 +15,7 @@ class Node_batch_matmul;
  * @see tensorfuncs::adjoint::binary::batch_matmul
  */
 class Node_batch_matmul : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *rhs = nullptr; ///< Pointer to the first input Node.
     INode *lhs = nullptr; ///< Pointer to the second input Node.
 
@@ -52,6 +47,12 @@ class Node_batch_matmul : public INode {
         0; ///< Number of the dimensions of the value tensor.
 
     void metadata();
+
+  public:
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Constructs a batch_matmul node.
