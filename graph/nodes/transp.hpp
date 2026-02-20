@@ -13,12 +13,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::pointwise
  */
 class Node_transp : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
     using Kernel = Kernels::NoOp<Scalar>;
@@ -37,6 +32,7 @@ class Node_transp : public INode {
     const Scalar *value_end =
         nullptr; ///< Pointer to the end of the value buffer.
 
+  public:
     /**
      * @brief Constructs a transpose node with the given operation and gradient.
      *
@@ -46,6 +42,11 @@ class Node_transp : public INode {
      */
     Node_transp(INode *input_ptr, std::span<const int> value_shape,
                 std::span<const int> value_stride);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the transpose operation by applying forward_op, if not
