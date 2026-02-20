@@ -48,6 +48,8 @@ class Node_matmul : public INode {
     int value_stride[6]; ///< Flattened stride pairs for tensor C (2 per stage ×
                          ///< 3 stages).
 
+    void metadata();
+
     /**
      * @brief Constructs a matmul node.
      * @param lhs_ptr Pointer to the first input node.

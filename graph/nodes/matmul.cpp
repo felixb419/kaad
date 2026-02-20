@@ -28,11 +28,11 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
     }
 }
 
-void Node_matmul_metadata(Node_matmul &node) {
+void Node_matmul::metadata() {
     // compute metadata
-    Tensor_view lhs = node.lhs->value.view();
-    Tensor_view rhs = node.rhs->value.view();
-    Tensor_view value = node.value.view();
+    Tensor_view lhs = this->lhs->value.view();
+    Tensor_view rhs = this->rhs->value.view();
+    Tensor_view value = this->value.view();
 
     int lhs_T_shape[2];
     int lhs_T_stride[2];
@@ -52,15 +52,15 @@ void Node_matmul_metadata(Node_matmul &node) {
     rhs_T.shape = rhs_T_shape;
     rhs_T.stride = rhs_T_stride;
 
-    metadata_impl(lhs, rhs, value, node.lhs_rows[0], node.rhs_cols[0],
-                  node.shared_dim[0], node.lhs_stride, node.rhs_stride,
-                  node.value_stride);
-    metadata_impl(value, rhs_T, lhs, node.lhs_rows[1], node.rhs_cols[1],
-                  node.shared_dim[1], node.value_stride + 2,
-                  node.rhs_stride + 2, node.lhs_stride + 2);
-    metadata_impl(lhs_T, value, rhs, node.lhs_rows[2], node.rhs_cols[2],
-                  node.shared_dim[2], node.lhs_stride + 4,
-                  node.value_stride + 4, node.rhs_stride + 4);
+    metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
+                  this->shared_dim[0], this->lhs_stride, this->rhs_stride,
+                  this->value_stride);
+    metadata_impl(value, rhs_T, lhs, this->lhs_rows[1], this->rhs_cols[1],
+                  this->shared_dim[1], this->value_stride + 2,
+                  this->rhs_stride + 2, this->lhs_stride + 2);
+    metadata_impl(lhs_T, value, rhs, this->lhs_rows[2], this->rhs_cols[2],
+                  this->shared_dim[2], this->lhs_stride + 4,
+                  this->value_stride + 4, this->rhs_stride + 4);
 }
 
 const char *Node_matmul::node_type() const noexcept { return "Node_matmul"; }
@@ -69,7 +69,7 @@ Node_matmul::Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
                          std::span<const int> value_shape)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
 
-    Node_matmul_metadata(*this);
+    this->metadata();
 }
 
 void Node_matmul::eval() {

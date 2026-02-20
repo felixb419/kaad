@@ -2,20 +2,20 @@
 
 namespace kaad {
 
-void Node_sum_dim_metadata(Node_sum_dim &node, int dim) {
+void Node_sum_dim::metadata(int dim) {
     // compute metadata
-    Tensor &input = node.input->value;
-    Tensor &value = node.value;
+    Tensor &input = this->input->value;
+    Tensor &value = this->value;
 
-    detail::along_dim_metadata_impl(input, value, dim, node.value_rank,
-                                    node.input_offset, node.input_stride,
-                                    node.value_stride);
+    detail::along_dim_metadata_impl(input, value, dim, this->value_rank,
+                                    this->input_offset, this->input_stride,
+                                    this->value_stride);
 
     // assign compile-time recursive function
-    std::size_t a_rank = node.input->value.rank();
+    std::size_t a_rank = this->input->value.rank();
     if (a_rank <= Dispatchers::MAX_NDIMS) {
-        node.val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
-        node.grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
+        this->val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
+        this->grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
     }
 }
 
@@ -24,7 +24,8 @@ const char *Node_sum_dim::node_type() const noexcept { return "Node_sum_dim"; }
 Node_sum_dim::Node_sum_dim(INode *input_ptr, int dim,
                            std::span<const int> value_shape)
     : input(input_ptr), INode(value_shape, false) {
-    Node_sum_dim_metadata(*this, dim);
+
+    this->metadata(dim);
 }
 
 void Node_sum_dim::eval() {

@@ -4,34 +4,35 @@
 
 namespace kaad {
 
-void Node_outer_metadata(Node_outer &node) {
+void Node_outer::metadata() {
     // compute metadata
-    Tensor &lhs = node.lhs->value;
-    Tensor &rhs = node.rhs->value;
-    Tensor &C = node.value;
+    Tensor &lhs = this->lhs->value;
+    Tensor &rhs = this->rhs->value;
+    Tensor &C = this->value;
 
-    node.C_rank = C.rank();
+    this->C_rank = C.rank();
 
-    node.lhs_stride.resize(node.C_rank);
-    node.rhs_stride.resize(node.C_rank);
-    node.strideC.resize(node.C_rank);
+    this->lhs_stride.resize(this->C_rank);
+    this->rhs_stride.resize(this->C_rank);
+    this->strideC.resize(this->C_rank);
 
-    std::copy(C.stride().begin(), C.stride().end(), node.strideC.data());
-    std::copy(lhs.stride().begin(), lhs.stride().end(), node.lhs_stride.data());
+    std::copy(C.stride().begin(), C.stride().end(), this->strideC.data());
+    std::copy(lhs.stride().begin(), lhs.stride().end(),
+              this->lhs_stride.data());
     std::copy(rhs.stride().begin(), rhs.stride().end(),
-              node.rhs_stride.data() + lhs.rank());
+              this->rhs_stride.data() + lhs.rank());
 
-    node.C_offset.resize(node.C_rank);
-    for (int i = 0; i < node.C_rank; i++) {
-        node.C_offset[i] = C.shape()[i] * node.strideC[i];
+    this->C_offset.resize(this->C_rank);
+    for (int i = 0; i < this->C_rank; i++) {
+        this->C_offset[i] = C.shape()[i] * this->strideC[i];
     }
 
     // assign compile-time recursive function
-    if (node.C_rank <= Dispatchers::MAX_NDIMS) {
-        node.forward_op =
-            Dispatchers::get_flexOp<Node_outer::Kernel>()[node.C_rank];
-        node.backward_op =
-            Dispatchers::get_flexGrad<Node_outer::Kernel>()[node.C_rank];
+    if (this->C_rank <= Dispatchers::MAX_NDIMS) {
+        this->forward_op =
+            Dispatchers::get_flexOp<Node_outer::Kernel>()[this->C_rank];
+        this->backward_op =
+            Dispatchers::get_flexGrad<Node_outer::Kernel>()[this->C_rank];
     }
 }
 
@@ -41,7 +42,7 @@ Node_outer::Node_outer(INode *lhs_ptr, INode *rhs_ptr,
                        std::span<const int> value_shape)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
 
-    Node_outer_metadata(*this);
+    this->metadata();
 }
 
 void Node_outer::eval() {

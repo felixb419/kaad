@@ -34,9 +34,12 @@ class Node_mean_dim : public INode {
     const Scalar *input_grad_end =
         nullptr; ///< Pointer to the end of the value gradient buffer (used for
                  ///< iteration).
-    std::size_t input_rank = 0; ///< Number of the dimensions of the input tensor.
-    Scalar divisor = 0;    ///< Divisor to compute the mean of the input tensor
-                           ///< (length of A in relevant dimension).
+    std::size_t input_rank =
+        0;              ///< Number of the dimensions of the input tensor.
+    Scalar divisor = 0; ///< Divisor to compute the mean of the input tensor
+                        ///< (length of A in relevant dimension).
+
+    void metadata(int dim);
 
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
