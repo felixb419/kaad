@@ -18,7 +18,7 @@ namespace kaad {
  * evaluating node values and computing gradients through backpropagation.
  */
 class Computation_graph {
-  public:
+  private:
     std::vector<std::unique_ptr<INode>>
         nodes; ///< Holds unique pointers pointing to computation nodes
 
@@ -31,6 +31,7 @@ class Computation_graph {
      */
     INode *get_node(Node_handle node);
 
+  public:
     /**
      * @brief Get the last node in the graph.
      * @return Handle of the node at the back of the node vector.
@@ -124,8 +125,31 @@ class Computation_graph {
      * new forward pass.
      */
     void reset();
-};
 
-std::ostream &operator<<(std::ostream &os, Node_handle node);
+    friend std::ostream &operator<<(std::ostream &os, Node_handle node);
+
+    template <class Kernel>
+    friend Node_handle binOperator(Computation_graph &rec, Node_handle A,
+                                   Node_handle B, const char *opName);
+    friend Node_handle dot(Computation_graph &rec, Node_handle A,
+                           Node_handle B);
+    friend Node_handle matmul(Computation_graph &rec, Node_handle A,
+                              Node_handle B);
+    friend Node_handle mean(Computation_graph &rec, Node_handle A);
+    friend Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
+                            bool keepNDims);
+    friend Node_handle outer(Computation_graph &rec, Node_handle A,
+                             Node_handle B);
+    friend Node_handle slice(Computation_graph &rec, Node_handle A,
+                             std::initializer_list<int> size,
+                             std::initializer_list<int> offset);
+    friend Node_handle sum(Computation_graph &rec, Node_handle A);
+    friend Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
+                           bool keepNDims);
+    friend Node_handle transpose(Computation_graph &rec, Node_handle A,
+                                 std::initializer_list<int> perm);
+    template <class Kernel>
+    friend Node_handle unOperator(Computation_graph &rec, Node_handle A);
+};
 
 } // namespace kaad
