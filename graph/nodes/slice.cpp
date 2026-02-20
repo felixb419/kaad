@@ -49,13 +49,13 @@ void Node_slice::metadata(const int *offset_arr) {
     }
 }
 
-const char *Node_slice::node_type() const noexcept { return "Node_slice"; }
-
 Node_slice::Node_slice(INode *input_ptr, const int *offset_arr,
                        std::span<const int> value_shape)
     : input(input_ptr), INode(value_shape, false) {
     this->metadata(offset_arr);
 }
+
+const char *Node_slice::node_type() const noexcept { return "Node_slice"; }
 
 void Node_slice::eval() {
     if (!this->evaluated()) {

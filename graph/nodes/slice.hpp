@@ -12,12 +12,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::slice
  */
 class Node_slice : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::slice_fn<Scalar> forward_op =
@@ -35,6 +30,7 @@ class Node_slice : public INode {
 
     void metadata(const int *offset_arr);
 
+  public:
     /**
      * @brief Constructs a slice node.
      * @param input_ptr    Pointer to the input node.
@@ -43,6 +39,11 @@ class Node_slice : public INode {
      */
     Node_slice(INode *input_ptr, const int *offset_arr,
                std::span<const int> value_shape);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the slice operation by applying forward_op, if not
