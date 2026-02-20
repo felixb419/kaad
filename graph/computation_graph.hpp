@@ -23,6 +23,12 @@ class Computation_graph {
         nodes; ///< Holds unique pointers pointing to computation nodes
 
     /**
+     * @brief Get the last node in the graph.
+     * @return Handle of the node at the back of the node vector.
+     */
+    Node_handle back_handle() noexcept;
+
+    /**
      * @brief Returns a pointer to a node handle.
      * @warning Will throw argument_error if @p node doesnt refer to
      * correct graph.
@@ -40,12 +46,6 @@ class Computation_graph {
      * @return Immutable pointer to the Node.
      */
     const INode *get_node(Node_handle node) const;
-
-    /**
-     * @brief Get the last node in the graph.
-     * @return Handle of the node at the back of the node vector.
-     */
-    Node_handle back_handle() noexcept;
 
     /**
      * @brief Constructs an evaluated node with no inputs and adds it to the

@@ -10,6 +10,10 @@
 
 namespace kaad {
 
+Node_handle Computation_graph::back_handle() noexcept {
+    return Node_handle(this->nodes.size() - 1, this);
+}
+
 INode *Computation_graph::get_node(Node_handle node) {
     return const_cast<INode *>(std::as_const(*this).get_node(node));
 }
@@ -25,10 +29,6 @@ const INode *Computation_graph::get_node(Node_handle node) const {
     }
 
     return this->nodes[node.idx_].get();
-}
-
-Node_handle Computation_graph::back_handle() noexcept {
-    return Node_handle(this->nodes.size() - 1, this);
 }
 
 Node_handle
