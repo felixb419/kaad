@@ -6,6 +6,10 @@
 
 namespace kaad {
 
+// forward declarations for friend declaration
+class Computation_graph;
+class Node_handle;
+
 /**
  * @brief A unary operation node in a computation graph.
  * @see tensorfuncs::primal::unary::pointwise
@@ -14,12 +18,7 @@ namespace kaad {
  * operation.
  */
 template <class Kernel> class Node_unary : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override { return "Node_unary"; }
-
+  private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =
@@ -34,6 +33,7 @@ template <class Kernel> class Node_unary : public INode {
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
                  ///< buffer may differ depending on operation).
 
+  public:
     /**
      * @brief Constructs a unary node with the given operation and gradient.
      * @param operation  Function pointer to the value operation.
@@ -51,6 +51,11 @@ template <class Kernel> class Node_unary : public INode {
             this->value()
                 .size(); // Points to end of value if not overriden in operator.
     }
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override { return "Node_unary"; }
 
     /**
      * @brief Evaluates the unary operation by applying forward_op, if not
@@ -79,6 +84,8 @@ template <class Kernel> class Node_unary : public INode {
             this->input->getGrad();
         }
     }
+
+    friend Node_handle sum(Computation_graph &rec, Node_handle A);
 };
 
 } // namespace kaad
