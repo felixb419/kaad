@@ -5,11 +5,16 @@
 #include "node_handle.hpp"      // for Node_handle
 #include "nodes/inode.hpp"      // for INode
 #include <memory>               // for std::unique_ptr, std::make_unique
+#include <utility>              // for std::as_const
 #include <vector>               // for std::vector
 
 namespace kaad {
 
 INode *Computation_graph::get_node(Node_handle node) {
+    return const_cast<INode *>(std::as_const(*this).get_node(node));
+}
+
+const INode *Computation_graph::get_node(Node_handle node) const {
     if (node.origin_ != this) {
         throw argument_error(
             "node does not belong to this instance of Computation_graph");
