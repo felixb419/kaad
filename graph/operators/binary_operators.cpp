@@ -98,8 +98,9 @@ template <class Kernel> struct BinaryKernels {
  */
 template <class Kernel>
 Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
-                        const BinaryKernels<Kernel> kernels,
                         const char *opName) {
+
+    static const BinaryKernels<Kernel> kernels;
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
@@ -150,38 +151,31 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
 }
 
 Node_handle add(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Add<Scalar>> addK;
-    return binOperator(rec, A, B, addK, "add");
+    return binOperator<Kernels::Add<Scalar>>(rec, A, B, "add");
 }
 
 Node_handle sub(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Sub<Scalar>> subK;
-    return binOperator(rec, A, B, subK, "sub");
+    return binOperator<Kernels::Sub<Scalar>>(rec, A, B, "sub");
 }
 
 Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Mul<Scalar>> mulK;
-    return binOperator(rec, A, B, mulK, "mul");
+    return binOperator<Kernels::Mul<Scalar>>(rec, A, B, "mul");
 }
 
 Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Div<Scalar>> divK;
-    return binOperator(rec, A, B, divK, "div");
+    return binOperator<Kernels::Div<Scalar>>(rec, A, B, "div");
 }
 
 Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Pow<Scalar>> powK;
-    return binOperator(rec, A, B, powK, "pow");
+    return binOperator<Kernels::Pow<Scalar>>(rec, A, B, "pow");
 }
 
 Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Min<Scalar>> minK;
-    return binOperator(rec, A, B, minK, "minimum");
+    return binOperator<Kernels::Min<Scalar>>(rec, A, B, "minimum");
 }
 
 Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B) {
-    static const BinaryKernels<Kernels::Max<Scalar>> maxK;
-    return binOperator(rec, A, B, maxK, "minimum");
+    return binOperator<Kernels::Max<Scalar>>(rec, A, B, "minimum");
 }
 
 } // namespace kaad

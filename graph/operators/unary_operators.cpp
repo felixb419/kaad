@@ -41,8 +41,10 @@ template <class Kernel> struct UnaryKernels {
  * @return Handle of the newly created unary operation node.
  */
 template <class Kernel>
-Node_handle unOperator(Computation_graph &rec, Node_handle A,
-                       const UnaryKernels<Kernel> kernels) {
+Node_handle unOperator(Computation_graph &rec, Node_handle A) {
+
+    static const UnaryKernels<Kernel> kernels;
+
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();
 
@@ -53,33 +55,27 @@ Node_handle unOperator(Computation_graph &rec, Node_handle A,
 }
 
 Node_handle negative(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Kernels::Neg<Scalar>> negK;
-    return unOperator(rec, A, negK);
+    return unOperator<Kernels::Neg<Scalar>>(rec, A);
 }
 
 Node_handle square(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Kernels::Square<Scalar>> squareK;
-    return unOperator(rec, A, squareK);
+    return unOperator<Kernels::Square<Scalar>>(rec, A);
 }
 
 Node_handle sqrt(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Kernels::Sqrt<Scalar>> sqrtK;
-    return unOperator(rec, A, sqrtK);
+    return unOperator<Kernels::Sqrt<Scalar>>(rec, A);
 }
 
 Node_handle log(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Kernels::Log<Scalar>> logK;
-    return unOperator(rec, A, logK);
+    return unOperator<Kernels::Log<Scalar>>(rec, A);
 }
 
 Node_handle exp(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Kernels::Exp<Scalar>> expK;
-    return unOperator(rec, A, expK);
+    return unOperator<Kernels::Exp<Scalar>>(rec, A);
 }
 
 Node_handle abs(Computation_graph &rec, Node_handle A) {
-    static const UnaryKernels<Kernels::Abs<Scalar>> absK;
-    return unOperator(rec, A, absK);
+    return unOperator<Kernels::Abs<Scalar>>(rec, A);
 }
 
 } // namespace kaad
