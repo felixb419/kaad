@@ -28,15 +28,15 @@ void Node_mean_dim::metadata(int dim) {
     }
 }
 
-const char *Node_mean_dim::node_type() const noexcept {
-    return "Node_mean_dim";
-}
-
 Node_mean_dim::Node_mean_dim(INode *input_ptr, int dim,
                              std::span<const int> value_shape)
     : input(input_ptr), INode(value_shape, false) {
 
     this->metadata(dim);
+}
+
+const char *Node_mean_dim::node_type() const noexcept {
+    return "Node_mean_dim";
 }
 
 void Node_mean_dim::eval() {

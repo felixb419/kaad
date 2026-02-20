@@ -12,12 +12,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::mean_dim
  */
 class Node_mean_dim : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =
@@ -41,6 +36,7 @@ class Node_mean_dim : public INode {
 
     void metadata(int dim);
 
+  public:
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
      * @param lhs_ptr Pointer to the input node.
@@ -48,6 +44,11 @@ class Node_mean_dim : public INode {
      * @param value_shape Shape of the value and gradient tensors.
      */
     Node_mean_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the mean_dim operation by applying forward_op, if not
