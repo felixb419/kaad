@@ -14,12 +14,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::binary::flexible
  */
 class Node_outer : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
@@ -42,6 +37,7 @@ class Node_outer : public INode {
 
     void metadata();
 
+  public:
     /**
      * @brief Constructs a outer prodcut operation node with outer prodcut
      * operation and gradient.
@@ -51,6 +47,11 @@ class Node_outer : public INode {
      */
     Node_outer(INode *lhs_ptr, INode *rhs_ptr,
                std::span<const int> value_shape);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the outer prodcut operation by calling forward_op, if

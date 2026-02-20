@@ -36,14 +36,14 @@ void Node_outer::metadata() {
     }
 }
 
-const char *Node_outer::node_type() const noexcept { return "Node_outer"; }
-
 Node_outer::Node_outer(INode *lhs_ptr, INode *rhs_ptr,
                        std::span<const int> value_shape)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
 
     this->metadata();
 }
+
+const char *Node_outer::node_type() const noexcept { return "Node_outer"; }
 
 void Node_outer::eval() {
     if (!this->evaluated()) {
