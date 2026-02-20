@@ -14,12 +14,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::sum_dim
  */
 class Node_sum_dim : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::sum_dim_fn<Scalar> val_func =
@@ -37,6 +32,7 @@ class Node_sum_dim : public INode {
 
     void metadata(int dim);
 
+  public:
     /**
      * @brief Constructrs a sum_dim node.
      * @param input_ptr    Pointer to the input node.
@@ -44,6 +40,11 @@ class Node_sum_dim : public INode {
      * @param value_shape Shape of the value and gradient tensors.
      */
     Node_sum_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the sum_dim operation by applying forward_op, if not
