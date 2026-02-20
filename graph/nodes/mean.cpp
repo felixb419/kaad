@@ -2,8 +2,6 @@
 
 namespace kaad {
 
-const char *Node_mean::node_type() const noexcept { return "Node_mean"; }
-
 Node_mean::Node_mean(INode *input_ptr, std::span<const int> value_shape)
     : input(input_ptr), INode(value_shape, false) {
     this->input_end = input_ptr->value().data() + input_ptr->value().size();
@@ -11,6 +9,8 @@ Node_mean::Node_mean(INode *input_ptr, std::span<const int> value_shape)
         input_ptr->gradient().data() + input_ptr->gradient().size();
     this->divisor = input_ptr->value().size();
 }
+
+const char *Node_mean::node_type() const noexcept { return "Node_mean"; }
 
 void Node_mean::eval() {
     if (!this->evaluated()) {

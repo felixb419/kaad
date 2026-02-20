@@ -12,12 +12,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::unary::mean
  */
 class Node_mean : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
     tensorfuncs::primal::unary::mean_fn<Scalar> forward_op =
@@ -33,12 +28,18 @@ class Node_mean : public INode {
     Scalar divisor = 0; ///< Divisor to compute the mean of the input tensor
                         ///< (length of input buffer).
 
+  public:
     /**
      * @brief Constructs a mean node.
      * @param input_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
     Node_mean(INode *input_ptr, std::span<const int> value_shape);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the mean operation by applying forwrd_op, if not already
