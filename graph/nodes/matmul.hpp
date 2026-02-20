@@ -12,12 +12,7 @@ namespace kaad {
  * @see tensorfuncs::adjoint::binary::matmul
  */
 class Node_matmul : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
@@ -50,6 +45,7 @@ class Node_matmul : public INode {
 
     void metadata();
 
+  public:
     /**
      * @brief Constructs a matmul node.
      * @param lhs_ptr Pointer to the first input node.
@@ -58,6 +54,11 @@ class Node_matmul : public INode {
      */
     Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
                 std::span<const int> value_shape);
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the matmul operation by apllying forward_op,if not

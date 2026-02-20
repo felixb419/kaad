@@ -63,14 +63,14 @@ void Node_matmul::metadata() {
                   this->value_stride + 4, this->rhs_stride + 4);
 }
 
-const char *Node_matmul::node_type() const noexcept { return "Node_matmul"; }
-
 Node_matmul::Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
                          std::span<const int> value_shape)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
 
     this->metadata();
 }
+
+const char *Node_matmul::node_type() const noexcept { return "Node_matmul"; }
 
 void Node_matmul::eval() {
     if (!this->evaluated()) {
