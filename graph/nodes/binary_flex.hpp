@@ -18,14 +18,7 @@ template <class Kernel> class Node_binary_flex;
  * operation.
  */
 template <class Kernel> class Node_binary_flex : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override {
-        return "Node_binary_flex";
-    }
-
+  private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
@@ -85,6 +78,7 @@ template <class Kernel> class Node_binary_flex : public INode {
         }
     }
 
+  public:
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
      * and gradient.
@@ -97,6 +91,13 @@ template <class Kernel> class Node_binary_flex : public INode {
         : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
 
         this->metadata();
+    }
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override {
+        return "Node_binary_flex";
     }
 
     /**

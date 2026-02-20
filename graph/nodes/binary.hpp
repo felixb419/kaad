@@ -14,12 +14,7 @@ namespace kaad {
  * operation.
  */
 template <class Kernel> class Node_binary : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override { return "Node_binary"; }
-
+  private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
@@ -35,6 +30,7 @@ template <class Kernel> class Node_binary : public INode {
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
                  ///< buffer may differ depending on operation).
 
+  public:
     /**
      * @brief Constructs a binary operation node with the given operation and
      * gradient.
@@ -53,6 +49,11 @@ template <class Kernel> class Node_binary : public INode {
         INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value().data() + base_ptr->value().size();
     }
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override { return "Node_binary"; }
 
     /**
      * @brief Evaluates the binary operation by applying forward_op, if not
