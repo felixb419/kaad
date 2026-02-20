@@ -14,7 +14,7 @@ INode *Computation_graph::get_node(Node_handle node) {
         throw argument_error(
             "node does not belong to this instance of Computation_graph");
     }
-    if (node.idx_ < 0 && node.idx_ >= this->nodes.size()) {
+    if (node.idx_ < 0 || node.idx_ >= this->nodes.size()) {
         throw argument_error(std::to_string(node.idx_) +
                              "is not a valid index for this Computation_graph");
     }
