@@ -17,7 +17,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value();
 
     using Kernel = class Kernels::Sum<Scalar>;
     tensorfuncs::primal::unary::pointwise_fn<Kernel> op =
@@ -38,7 +38,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value();
 
     if (dim < 0 || dim >= A_val.rank()) {
         throw argument_error(

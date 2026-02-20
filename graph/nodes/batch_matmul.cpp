@@ -41,9 +41,9 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
 
 void Node_batch_matmul::metadata() {
     // compute metadata
-    Tensor_view lhs = this->lhs->value.view();
-    Tensor_view rhs = this->rhs->value.view();
-    Tensor_view value = this->value.view();
+    Tensor_view lhs = this->lhs->value().view();
+    Tensor_view rhs = this->rhs->value().view();
+    Tensor_view value = this->value().view();
 
     std::vector<int> a_T_shape(lhs.rank);
     std::vector<int> a_T_stride(lhs.rank);
@@ -112,30 +112,30 @@ Node_batch_matmul::~Node_batch_matmul() noexcept {
 }
 
 void Node_batch_matmul::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
 
-        forward_op(this->lhs->value.data(), this->rhs->value.data(),
-                   this->value.elements_.data(), lhs_stride[0], rhs_stride[0],
+        forward_op(this->lhs->value().data(), this->rhs->value().data(),
+                   this->value().data(), lhs_stride[0], rhs_stride[0],
                    value_stride[0], value_shape_broadcast[0], lhs_colStride[0],
                    rhs_rowStride[0], shared_dim[0], value_rank);
-        this->evaluated = true;
+        this->evaluated_ = true;
     }
 }
 
 void Node_batch_matmul::getGrad() {
-    backward_op(this->lhs->value.data(), this->lhs->gradient.elements_.data(),
-                this->rhs->value.data(), this->rhs->gradient.elements_.data(),
-                this->value.data(), this->gradient.data(), lhs_stride + 1,
-                rhs_stride + 1, value_stride + 1, value_shape_broadcast + 1,
-                lhs_colStride + 1, rhs_rowStride + 1, shared_dim + 1,
-                value_rank);
+    backward_op(
+        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
+        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
+        this->value().data(), this->gradient().data(), lhs_stride + 1,
+        rhs_stride + 1, value_stride + 1, value_shape_broadcast + 1,
+        lhs_colStride + 1, rhs_rowStride + 1, shared_dim + 1, value_rank);
 
-    if (this->lhs->hasInputs) {
+    if (this->lhs->hasInputs()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs) {
+    if (this->rhs->hasInputs()) {
         this->rhs->getGrad();
     }
 }

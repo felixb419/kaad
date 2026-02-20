@@ -17,7 +17,7 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value();
 
     if (A_val.rank() < 2) {
         throw shape_error(make_graph_errmsg("shape error", recLen, "transpose",

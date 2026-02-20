@@ -17,7 +17,7 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value();
 
     if (size.size() > A_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());

@@ -7,29 +7,30 @@ const char *Node_dot::node_type() const noexcept { return "Node_dot"; }
 Node_dot::Node_dot(INode *lhs_ptr, INode *rhs_ptr)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(std::array{1}, false) {
 
-    this->lhs_end = this->lhs->value.data() + this->lhs->value.size();
+    this->lhs_end = this->lhs->value().data() + this->lhs->value().size();
 }
 
 void Node_dot::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
 
-        forward_op(this->lhs->value.data(), this->rhs->value.data(),
-                   this->value.elements_.data(), lhs_end);
-        this->evaluated = true;
+        forward_op(this->lhs->value().data(), this->rhs->value().data(),
+                   this->value().elements_.data(), lhs_end);
+        this->evaluated_ = true;
     }
 }
 
 void Node_dot::getGrad() {
-    backward_op(this->lhs->value.data(), this->lhs->gradient.elements_.data(),
-                this->rhs->value.data(), this->rhs->gradient.elements_.data(),
-                this->value.data(), this->gradient.data(), lhs_end);
+    backward_op(
+        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
+        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
+        this->value().data(), this->gradient().data(), lhs_end);
 
-    if (this->lhs->hasInputs) {
+    if (this->lhs->hasInputs()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs) {
+    if (this->rhs->hasInputs()) {
         this->rhs->getGrad();
     }
 }

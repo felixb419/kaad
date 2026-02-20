@@ -30,9 +30,9 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
 
 void Node_matmul::metadata() {
     // compute metadata
-    Tensor_view lhs = this->lhs->value.view();
-    Tensor_view rhs = this->rhs->value.view();
-    Tensor_view value = this->value.view();
+    Tensor_view lhs = this->lhs->value().view();
+    Tensor_view rhs = this->rhs->value().view();
+    Tensor_view value = this->value().view();
 
     int lhs_T_shape[2];
     int lhs_T_stride[2];
@@ -73,28 +73,29 @@ Node_matmul::Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
 }
 
 void Node_matmul::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
 
-        forward_op(this->lhs->value.data(), this->rhs->value.data(),
-                   this->value.elements_.data(), lhs_rows[0], rhs_cols[0],
+        forward_op(this->lhs->value().data(), this->rhs->value().data(),
+                   this->value().elements_.data(), lhs_rows[0], rhs_cols[0],
                    shared_dim[0], lhs_stride, rhs_stride, value_stride);
-        this->evaluated = true;
+        this->evaluated_ = true;
     }
 }
 
 void Node_matmul::getGrad() {
-    backward_op(this->lhs->value.data(), this->lhs->gradient.elements_.data(),
-                this->rhs->value.data(), this->rhs->gradient.elements_.data(),
-                this->value.data(), this->gradient.data(), lhs_rows + 1,
-                rhs_cols + 1, shared_dim + 1, lhs_stride + 2, rhs_stride + 2,
-                value_stride + 2);
+    backward_op(
+        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
+        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
+        this->value().data(), this->gradient().data(), lhs_rows + 1,
+        rhs_cols + 1, shared_dim + 1, lhs_stride + 2, rhs_stride + 2,
+        value_stride + 2);
 
-    if (this->lhs->hasInputs) {
+    if (this->lhs->hasInputs()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs) {
+    if (this->rhs->hasInputs()) {
         this->rhs->getGrad();
     }
 }

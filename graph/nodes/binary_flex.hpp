@@ -46,9 +46,9 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     void metadata() {
         // compute metadata
-        Tensor &lhs = this->lhs->value;
-        Tensor &rhs = this->rhs->value;
-        Tensor &value = this->value;
+        Tensor &lhs = this->lhs->value();
+        Tensor &rhs = this->rhs->value();
+        Tensor &value = this->value();
 
         this->value_rank = value.rank();
         this->lhs_stride.resize(this->value_rank);
@@ -104,15 +104,15 @@ template <class Kernel> class Node_binary_flex : public INode {
      * already evaluated.
      */
     inline void eval() override {
-        if (!this->evaluated) {
+        if (!this->evaluated()) {
             this->lhs->eval();
             this->rhs->eval();
 
-            forward_op(this->lhs->value.data(), this->rhs->value.data(),
-                       this->value.elements_.data(), lhs_stride.data(),
+            forward_op(this->lhs->value().data(), this->rhs->value().data(),
+                       this->value().elements_.data(), lhs_stride.data(),
                        rhs_stride.data(), value_stride.data(), C_offset.data(),
                        value_rank);
-            this->evaluated = true;
+            this->evaluated_ = true;
         }
     }
 
@@ -121,17 +121,17 @@ template <class Kernel> class Node_binary_flex : public INode {
      * calling backward_op.
      */
     inline void getGrad() override {
-        backward_op(this->lhs->value.data(),
-                    this->lhs->gradient.elements_.data(),
-                    this->rhs->value.data(),
-                    this->rhs->gradient.elements_.data(), this->value.data(),
-                    this->gradient.data(), lhs_stride.data(), rhs_stride.data(),
-                    value_stride.data(), C_offset.data(), value_rank);
+        backward_op(
+            this->lhs->value().data(), this->lhs->gradient().elements_.data(),
+            this->rhs->value().data(), this->rhs->gradient().elements_.data(),
+            this->value().data(), this->gradient().data(), lhs_stride.data(),
+            rhs_stride.data(), value_stride.data(), C_offset.data(),
+            value_rank);
 
-        if (this->lhs->hasInputs) {
+        if (this->lhs->hasInputs()) {
             this->lhs->getGrad();
         }
-        if (this->rhs->hasInputs) {
+        if (this->rhs->hasInputs()) {
             this->rhs->getGrad();
         }
     }

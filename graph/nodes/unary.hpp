@@ -47,8 +47,8 @@ template <class Kernel> class Node_unary : public INode {
         : forward_op(operation), backward_op(derivative), input(input_ptr),
           INode(value_shape, false) {
         this->end =
-            this->value.data() +
-            this->value
+            this->value().data() +
+            this->value()
                 .size(); // Points to end of value if not overriden in operator.
     }
 
@@ -57,12 +57,12 @@ template <class Kernel> class Node_unary : public INode {
      * already evaluated.
      */
     inline void eval() override {
-        if (!this->evaluated) {
+        if (!this->evaluated()) {
             this->input->eval();
 
-            forward_op(this->input->value.data(), this->value.elements_.data(),
-                       end);
-            this->evaluated = true;
+            forward_op(this->input->value().data(),
+                       this->value().elements_.data(), end);
+            this->evaluated_ = true;
         }
     }
 
@@ -71,11 +71,11 @@ template <class Kernel> class Node_unary : public INode {
      * backward_op.
      */
     inline void getGrad() override {
-        backward_op(this->input->value.data(),
-                    this->input->gradient.elements_.data(), this->value.data(),
-                    this->gradient.data(), end);
+        backward_op(this->input->value().data(),
+                    this->input->gradient().elements_.data(),
+                    this->value().data(), this->gradient().data(), end);
 
-        if (this->input->hasInputs) {
+        if (this->input->hasInputs()) {
             this->input->getGrad();
         }
     }

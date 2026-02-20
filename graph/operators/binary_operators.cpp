@@ -104,8 +104,8 @@ Node_handle binOperator(Computation_graph &rec, Node_handle A, Node_handle B,
 
     INode *A_ptr = rec.get_node(A);
     INode *B_ptr = rec.get_node(B);
-    Tensor &A_val = A_ptr->value;
-    Tensor &B_val = B_ptr->value;
+    Tensor &A_val = A_ptr->value();
+    Tensor &B_val = B_ptr->value();
 
     bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
     bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;

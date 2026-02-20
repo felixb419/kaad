@@ -4,6 +4,7 @@ FIX:
     add a way to set values of leaf nodes
 
 REFACTOR:
+    overthink hasInputs flag
 
 FEAT:
     label member for nodes

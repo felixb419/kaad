@@ -73,7 +73,7 @@ class Computation_graph {
         for (int i = 0; i < sizeof...(nodes); i++) {
             INode *node_ptr = this->get_node(node_arr[i]);
             node_ptr->eval();
-            values[i] = &node_ptr->value;
+            values[i] = &node_ptr->value();
         }
 
         return values;
@@ -101,15 +101,15 @@ class Computation_graph {
     std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle output,
                                                          Handles... wrt) {
         INode *f = this->get_node(output);
-        std::fill(f->gradient.elements_.begin(), f->gradient.elements_.end(),
-                  1.0);
+        std::fill(f->gradient().elements_.begin(),
+                  f->gradient().elements_.end(), 1.0);
 
         f->getGrad();
 
         std::array<Node_handle, sizeof...(wrt)> nodes = {wrt...};
         std::array<Tensor *, sizeof...(wrt)> partials = {};
         for (std::size_t i = 0; i < sizeof...(wrt); i++) {
-            partials[i] = &this->get_node(nodes[i])->gradient;
+            partials[i] = &this->get_node(nodes[i])->gradient();
         }
 
         return partials;

@@ -6,9 +6,9 @@ namespace kaad {
 
 void Node_outer::metadata() {
     // compute metadata
-    Tensor &lhs = this->lhs->value;
-    Tensor &rhs = this->rhs->value;
-    Tensor &C = this->value;
+    Tensor &lhs = this->lhs->value();
+    Tensor &rhs = this->rhs->value();
+    Tensor &C = this->value();
 
     this->C_rank = C.rank();
 
@@ -46,27 +46,28 @@ Node_outer::Node_outer(INode *lhs_ptr, INode *rhs_ptr,
 }
 
 void Node_outer::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
 
-        forward_op(this->lhs->value.data(), this->rhs->value.data(),
-                   this->value.elements_.data(), lhs_stride.data(),
+        forward_op(this->lhs->value().data(), this->rhs->value().data(),
+                   this->value().elements_.data(), lhs_stride.data(),
                    rhs_stride.data(), strideC.data(), C_offset.data(), C_rank);
-        this->evaluated = true;
+        this->evaluated_ = true;
     }
 }
 
 void Node_outer::getGrad() {
-    backward_op(this->lhs->value.data(), this->lhs->gradient.elements_.data(),
-                this->rhs->value.data(), this->rhs->gradient.elements_.data(),
-                this->value.data(), this->gradient.data(), lhs_stride.data(),
-                rhs_stride.data(), strideC.data(), C_offset.data(), C_rank);
+    backward_op(
+        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
+        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
+        this->value().data(), this->gradient().data(), lhs_stride.data(),
+        rhs_stride.data(), strideC.data(), C_offset.data(), C_rank);
 
-    if (this->lhs->hasInputs) {
+    if (this->lhs->hasInputs()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs) {
+    if (this->rhs->hasInputs()) {
         this->rhs->getGrad();
     }
 }

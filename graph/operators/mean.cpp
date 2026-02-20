@@ -23,7 +23,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value;
+    Tensor &A_val = A_ptr->value();
 
     if (dim < 0 || dim >= A_val.rank()) {
         throw argument_error(

@@ -8,9 +8,9 @@ namespace kaad {
 void Node_mean_dim::metadata(int dim) {
 
     // compute metadata
-    Tensor &input = this->input->value;
-    Tensor &value = this->value;
-    Tensor &input_grad = this->input->gradient;
+    Tensor &input = this->input->value();
+    Tensor &value = this->value();
+    Tensor &input_grad = this->input->gradient();
 
     this->divisor = input.shape()[dim];
     this->value_end = value.data() + value.size();
@@ -21,10 +21,10 @@ void Node_mean_dim::metadata(int dim) {
                                     this->value_stride);
 
     // assign compile-time recursive function
-    std::size_t a_rank = this->input->value.rank();
-    if (a_rank <= Dispatchers::MAX_NDIMS) {
-        this->forward_op = Dispatchers::get_meanDim<Scalar>()[a_rank];
-        this->backward_op = Dispatchers::get_meanDim_grad<Scalar>()[a_rank];
+    std::size_t input_rank = input.rank();
+    if (input_rank <= Dispatchers::MAX_NDIMS) {
+        this->forward_op = Dispatchers::get_meanDim<Scalar>()[input_rank];
+        this->backward_op = Dispatchers::get_meanDim_grad<Scalar>()[input_rank];
     }
 }
 
@@ -40,23 +40,24 @@ Node_mean_dim::Node_mean_dim(INode *input_ptr, int dim,
 }
 
 void Node_mean_dim::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->input->eval();
 
-        forward_op(this->input->value.data(), this->value.elements_.data(),
+        forward_op(this->input->value().data(), this->value().elements_.data(),
                    input_stride.data(), value_stride.data(),
                    input_offset.data(), input_rank, divisor, value_end);
-        this->evaluated = true;
+        this->evaluated_ = true;
     }
 }
 
 void Node_mean_dim::getGrad() {
-    backward_op(this->input->value.data(),
-                this->input->gradient.elements_.data(), this->value.data(),
-                this->gradient.data(), input_stride.data(), value_stride.data(),
-                input_offset.data(), input_rank, divisor, input_grad_end);
+    backward_op(this->input->value().data(),
+                this->input->gradient().elements_.data(), this->value().data(),
+                this->gradient().data(), input_stride.data(),
+                value_stride.data(), input_offset.data(), input_rank, divisor,
+                input_grad_end);
 
-    if (this->input->hasInputs) {
+    if (this->input->hasInputs()) {
         this->input->getGrad();
     }
 }

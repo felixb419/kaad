@@ -51,7 +51,7 @@ template <class Kernel> class Node_binary : public INode {
         : lhs(lhs_ptr), rhs(rhs_ptr), forward_op(operation),
           backward_op(derivative), INode(value_shape, false) {
         INode *base_ptr = static_cast<INode *>(this);
-        this->end = base_ptr->value.data() + base_ptr->value.size();
+        this->end = base_ptr->value().data() + base_ptr->value().size();
     }
 
     /**
@@ -59,13 +59,13 @@ template <class Kernel> class Node_binary : public INode {
      * already evaluated.
      */
     inline void eval() override {
-        if (!this->evaluated) {
+        if (!this->evaluated()) {
             this->lhs->eval();
             this->rhs->eval();
 
-            forward_op(this->lhs->value.data(), this->rhs->value.data(),
-                       this->value.elements_.data(), end);
-            this->evaluated = true;
+            forward_op(this->lhs->value().data(), this->rhs->value().data(),
+                       this->value().elements_.data(), end);
+            this->evaluated_ = true;
         }
     }
 
@@ -75,14 +75,14 @@ template <class Kernel> class Node_binary : public INode {
      */
     inline void getGrad() override {
         backward_op(
-            this->lhs->value.data(), this->lhs->gradient.elements_.data(),
-            this->rhs->value.data(), this->rhs->gradient.elements_.data(),
-            this->value.data(), this->gradient.data(), end);
+            this->lhs->value().data(), this->lhs->gradient().elements_.data(),
+            this->rhs->value().data(), this->rhs->gradient().elements_.data(),
+            this->value().data(), this->gradient().data(), end);
 
-        if (this->lhs->hasInputs) {
+        if (this->lhs->hasInputs()) {
             this->lhs->getGrad();
         }
-        if (this->rhs->hasInputs) {
+        if (this->rhs->hasInputs()) {
             this->rhs->getGrad();
         }
     }

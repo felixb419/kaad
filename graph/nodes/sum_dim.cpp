@@ -4,18 +4,18 @@ namespace kaad {
 
 void Node_sum_dim::metadata(int dim) {
     // compute metadata
-    Tensor &input = this->input->value;
-    Tensor &value = this->value;
+    Tensor &input = this->input->value();
+    Tensor &value = this->value();
 
     detail::along_dim_metadata_impl(input, value, dim, this->value_rank,
                                     this->input_offset, this->input_stride,
                                     this->value_stride);
 
     // assign compile-time recursive function
-    std::size_t a_rank = this->input->value.rank();
-    if (a_rank <= Dispatchers::MAX_NDIMS) {
-        this->val_func = Dispatchers::get_sumDim<Scalar>()[a_rank];
-        this->grad_func = Dispatchers::get_sumDim_grad<Scalar>()[a_rank];
+    std::size_t input_rank = input.rank();
+    if (input_rank <= Dispatchers::MAX_NDIMS) {
+        this->val_func = Dispatchers::get_sumDim<Scalar>()[input_rank];
+        this->grad_func = Dispatchers::get_sumDim_grad<Scalar>()[input_rank];
     }
 }
 
@@ -29,22 +29,22 @@ Node_sum_dim::Node_sum_dim(INode *input_ptr, int dim,
 }
 
 void Node_sum_dim::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->input->eval();
 
-        val_func(this->input->value.data(), this->value.elements_.data(),
+        val_func(this->input->value().data(), this->value().elements_.data(),
                  input_stride.data(), value_stride.data(), input_offset.data(),
                  value_rank);
-        this->evaluated = true;
+        this->evaluated_ = true;
     }
 }
 
 void Node_sum_dim::getGrad() {
-    grad_func(this->input->gradient.elements_.data(), this->gradient.data(),
+    grad_func(this->input->gradient().elements_.data(), this->gradient().data(),
               input_stride.data(), value_stride.data(), input_offset.data(),
               value_rank);
 
-    if (this->input->hasInputs) {
+    if (this->input->hasInputs()) {
         this->input->getGrad();
     }
 }

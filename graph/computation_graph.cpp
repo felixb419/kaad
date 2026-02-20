@@ -44,8 +44,8 @@ std::ostream &operator<<(std::ostream &os, Node_handle node) {
     os << node_ptr->node_type() << " at idx " << node.idx()
        << " of Computation_graph at " << node.origin() << "\n"
        << "value:\n"
-       << node_ptr->value << "\ngradient:\n"
-       << node_ptr->gradient;
+       << node_ptr->value() << "\ngradient:\n"
+       << node_ptr->gradient();
     return os;
 }
 

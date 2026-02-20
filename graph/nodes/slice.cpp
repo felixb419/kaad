@@ -6,8 +6,8 @@ namespace kaad {
 
 void Node_slice::metadata(const int *offset_arr) {
     // compute metadata
-    Tensor &input = this->input->value;
-    Tensor &value = this->value;
+    Tensor &input = this->input->value();
+    Tensor &value = this->value();
 
     this->value_rank = value.rank();
     this->input_stride.resize(this->value_rank);
@@ -42,7 +42,7 @@ void Node_slice::metadata(const int *offset_arr) {
     }
 
     // assign compile-time recursive function
-    std::size_t a_rank = this->input->value.rank();
+    std::size_t a_rank = this->input->value().rank();
     if (a_rank < Dispatchers::MAX_NDIMS) {
         this->forward_op = Dispatchers::get_slice<Scalar>()[a_rank];
         this->backward_op = Dispatchers::get_slice_grad<Scalar>()[a_rank];
@@ -58,22 +58,23 @@ Node_slice::Node_slice(INode *input_ptr, const int *offset_arr,
 }
 
 void Node_slice::eval() {
-    if (!this->evaluated) {
+    if (!this->evaluated()) {
         this->input->eval();
 
-        forward_op(this->input->value.data(), this->value.elements_.data(),
+        forward_op(this->input->value().data(), this->value().elements_.data(),
                    input_stride.data(), value_stride.data(),
                    start_offset_a.data(), value_offset.data(), value_rank);
-        this->evaluated = true;
+        this->evaluated_ = true;
     }
 }
 
 void Node_slice::getGrad() {
-    backward_op(this->input->gradient.elements_.data(), this->gradient.data(),
-                input_stride.data(), value_stride.data(), start_offset_a.data(),
-                value_offset.data(), value_rank);
+    backward_op(this->input->gradient().elements_.data(),
+                this->gradient().data(), input_stride.data(),
+                value_stride.data(), start_offset_a.data(), value_offset.data(),
+                value_rank);
 
-    if (this->input->hasInputs) {
+    if (this->input->hasInputs()) {
         this->input->getGrad();
     }
 }

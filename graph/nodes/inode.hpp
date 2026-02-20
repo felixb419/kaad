@@ -15,17 +15,12 @@ namespace kaad {
  * corresponding helper functions in the Strides namespace.
  */
 class INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    virtual const char *node_type() const noexcept = 0;
+  protected:
+    Tensor value_;    ///< Value computed by this node.
+    Tensor gradient_; ///< Gradient associated with this node.
 
-    Tensor value;    ///< Value computed by this node.
-    Tensor gradient; ///< Gradient associated with this node.
-
-    bool evaluated = false; ///< Whether this node is currently evaluated.
-    bool hasInputs = false; ///< Whether this node depends on any input nodes.
+    bool evaluated_ = false; ///< Whether this node is currently evaluated.
+    bool hasInputs_ = false; ///< Whether this node depends on any input nodes.
 
     /**
      * @brief Initializes the first input, flags, value and gradient tensors for
@@ -47,8 +42,50 @@ class INode {
     INode(std::span<const int> value_shape, std::span<const int> value_stride,
           bool is_input_node);
 
+  public:
     /// Virtual destructor for polymorphic deletion
     virtual ~INode() = default;
+
+    /**
+     * @brief Returns the type of the node as a string.
+     */
+    virtual const char *node_type() const noexcept = 0;
+
+    /**
+     * @brief Get a refernce to the value tensor.
+     * @return Reference to the value tensor.
+     */
+    Tensor &value() noexcept;
+
+    /**
+     * @brief Get a refernce to the value tensor.
+     * @return Immutable reference to the value tensor.
+     */
+    const Tensor &value() const noexcept;
+
+    /**
+     * @brief Get a refernce to the gradient tensor.
+     * @return Immutable reference to the gradient tensor.
+     */
+    Tensor &gradient() noexcept;
+
+    /**
+     * @brief Get a refernce to the gradient tensor.
+     * @return Reference to the gradient tensor.
+     */
+    const Tensor &gradient() const noexcept;
+
+    /**
+     * @brief Tells wether the node has been evaluated.
+     * @return True if the node was already evaluated, False otherwise.
+     */
+    bool evaluated() const noexcept;
+
+    /**
+     * @brief Tells wether the node has inputs.
+     * @return True if the node has inputs, False otherwise.
+     */
+    bool hasInputs() const noexcept;
 
     /**
      * @brief Resets the value and gradient of the node.
@@ -68,6 +105,8 @@ class INode {
      * derived classes.
      */
     inline virtual void getGrad() = 0;
+
+    friend class Computation_grap;
 };
 
 } // namespace kaad
