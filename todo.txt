@@ -8,10 +8,6 @@ REFACTOR:
 
 FEAT:
     label member for nodes
-    make Node and pointer access impossible
-        make operators return const Pointers (maybe Node_ptr)
-        make Node members private (and const from outside)
-        make computation_graph members private (and const from outside)
     make sure reset is called automatically (or add in comment)
     make getGradient not use std::fill(,,1) but add 1
     safe division Kernel (maybe others too)

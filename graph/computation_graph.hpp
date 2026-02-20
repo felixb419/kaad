@@ -65,11 +65,11 @@ class Computation_graph {
      */
     template <typename... Node_handles>
         requires(std::same_as<Node_handles, Node_handle> && ...)
-    std::array<Tensor *, sizeof...(Node_handles)>
+    std::array<const Tensor *, sizeof...(Node_handles)>
     evaluate(Node_handles... nodes) {
 
         Node_handle node_arr[] = {nodes...};
-        std::array<Tensor *, sizeof...(nodes)> values;
+        std::array<const Tensor *, sizeof...(nodes)> values;
 
         for (int i = 0; i < sizeof...(nodes); i++) {
             INode *node_ptr = this->get_node(node_arr[i]);
@@ -99,8 +99,8 @@ class Computation_graph {
      */
     template <typename... Handles>
         requires(std::same_as<Handles, Node_handle> && ...)
-    std::array<Tensor *, sizeof...(Handles)> getGradient(Node_handle output,
-                                                         Handles... wrt) {
+    std::array<const Tensor *, sizeof...(Handles)>
+    getGradient(Node_handle output, Handles... wrt) {
         INode *f = this->get_node(output);
         std::fill(f->gradient().elements_.begin(),
                   f->gradient().elements_.end(), 1.0);
@@ -108,7 +108,7 @@ class Computation_graph {
         f->getGrad();
 
         std::array<Node_handle, sizeof...(wrt)> nodes = {wrt...};
-        std::array<Tensor *, sizeof...(wrt)> partials = {};
+        std::array<const Tensor *, sizeof...(wrt)> partials = {};
         for (std::size_t i = 0; i < sizeof...(wrt); i++) {
             partials[i] = &this->get_node(nodes[i])->gradient();
         }
