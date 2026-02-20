@@ -6,18 +6,17 @@
 
 namespace kaad {
 
+// forward declarations for friend declaration
+class Computation_graph;
+class Node_handle;
+
 /**
  * @brief A binary operation node in a computation graph.
  * @see tensorfuncs::primal::binary::pointwise
  * @see tensorfuncs::adjoint::binary::pointwise
  */
 class Node_dot : public INode {
-  public:
-    /**
-     * @brief Returns the type of the node as a string.
-     */
-    const char *node_type() const noexcept override;
-
+  private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
@@ -33,6 +32,7 @@ class Node_dot : public INode {
     const Scalar *lhs_end =
         nullptr; ///< Pointer to the end of the A buffer (used for iteration).
 
+  public:
     /**
      * @brief Constructs a binary operation node with the given operation and
      * gradient.
@@ -45,6 +45,11 @@ class Node_dot : public INode {
     Node_dot(INode *A_ptr, INode *B_ptr);
 
     /**
+     * @brief Returns the type of the node as a string.
+     */
+    const char *node_type() const noexcept override;
+
+    /**
      * @brief Evaluates the binary operation by applying forward_op, if not
      * already evaluated.
      */
@@ -55,6 +60,9 @@ class Node_dot : public INode {
      * backward_op.
      */
     void getGrad() override;
+
+    friend Node_handle dot(Computation_graph &rec, Node_handle A,
+                           Node_handle B);
 };
 
 } // namespace kaad

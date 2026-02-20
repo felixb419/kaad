@@ -2,13 +2,13 @@
 
 namespace kaad {
 
-const char *Node_dot::node_type() const noexcept { return "Node_dot"; }
-
 Node_dot::Node_dot(INode *lhs_ptr, INode *rhs_ptr)
     : lhs(lhs_ptr), rhs(rhs_ptr), INode(std::array{1}, false) {
 
     this->lhs_end = this->lhs->value().data() + this->lhs->value().size();
 }
+
+const char *Node_dot::node_type() const noexcept { return "Node_dot"; }
 
 void Node_dot::eval() {
     if (!this->evaluated()) {
