@@ -12,6 +12,8 @@ FEAT:
     safe division Kernel (maybe others too)
     make Tensor::linspace and Tensor::sequential iterate strdide-aware
     make stride-aware iterator type
+    maybe rename tensorfunc params
+    maybe rename tensorfunc 
 
 
 PERF:
