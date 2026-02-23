@@ -4,10 +4,21 @@
 int main() {
     kaad::Computation_graph rec;
 
-    auto a = rec.add_input_node(std::array{3, 2});
-    auto b = rec.add_input_node(std::array{3, 2});
-    auto c = rec.add_input_node(std::array{1});
-    auto d = rec.add_input_node(std::array{2, 3, 1});
+    std::span<float> a_vals;
+    auto a = rec.add_input_node(std::array{3, 2}, a_vals);
+    std::fill(a_vals.begin(), a_vals.end(), 10);
+
+    std::span<float> b_vals;
+    auto b = rec.add_input_node(std::array{3, 2}, b_vals);
+    std::fill(b_vals.begin(), b_vals.end(), 30);
+
+    std::span<float> c_vals;
+    auto c = rec.add_input_node(std::array{1}, c_vals);
+    std::fill(c_vals.begin(), c_vals.end(), 50);
+
+    std::span<float> d_vals;
+    auto d = rec.add_input_node(std::array{2, 3, 1}, d_vals);
+    std::fill(d_vals.begin(), d_vals.end(), 20);
 
     auto ab = add(rec, a, b);
     auto abc = add(rec, ab, c);

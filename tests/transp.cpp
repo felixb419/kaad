@@ -6,10 +6,9 @@
 int main() {
     kaad::Computation_graph rec;
 
-    std::vector<float> a_elements(30);
-    std::iota(a_elements.begin(), a_elements.end(), 0);
-
-    kaad::Node_handle a = rec.add_input_node(std::array{3, 5, 2});
+    std::span<float> a_vals;
+    kaad::Node_handle a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
+    std::iota(a_vals.begin(), a_vals.end(), 0);
 
     kaad::Node_handle c = transpose(rec, a);
 
