@@ -1,20 +1,27 @@
 #include "inode.hpp"
 
+#include "../../exceptions.hpp" // for argument_error
+
 namespace kaad {
 
-INode::INode(std::span<const int> value_shape, bool is_input_node)
-    : evaluated_(is_input_node), hasInputs_(!is_input_node),
-      value_(value_shape), gradient_(value_) {
-    if (this->hasInputs_) {
-        std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
-    }
-    std::fill(gradient_.elements_.begin(), gradient_.elements_.end(), 0);
-}
+INode::INode(std::span<const int> value_shape, bool is_input_node,
+             std::span<const int> value_stride)
+    : evaluated_(is_input_node), hasInputs_(!is_input_node) {
 
-INode::INode(std::span<const int> value_shape,
-             std::span<const int> value_stride, bool is_input_node)
-    : evaluated_(is_input_node), hasInputs_(!is_input_node),
-      value_(value_shape, value_stride), gradient_(value_) {
+    // if @p value_stride is given its used to construct value_
+    if (value_stride.size() != 0) {
+        if (value_shape.size() != value_stride.size()) {
+            throw argument_error(
+                "sizes of shape_value and shape_stride dont match");
+        }
+
+        this->value_ = Tensor(value_shape, value_stride);
+    } else {
+        this->value_ = Tensor(value_shape);
+    }
+
+    this->gradient_ = Tensor(this->value_);
+
     if (this->hasInputs_) {
         std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
     }

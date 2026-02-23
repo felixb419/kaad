@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    overthink hasInputs flag
 
 FEAT:
     label member for nodes

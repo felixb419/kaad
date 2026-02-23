@@ -29,18 +29,8 @@ class INode {
      * @param A_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensor.
      */
-    INode(std::span<const int> value_shape, bool is_input_node);
-
-    /**
-     * @brief Initializes the first input, flags, value and gradient tensors for
-     * a node.
-     *
-     * @param A_ptr Pointer to the input node.
-     * @param value_shape Shape of the value and gradient tensor.
-     * @param value_stride Stride array of the value and gradient tensor.
-     */
-    INode(std::span<const int> value_shape, std::span<const int> value_stride,
-          bool is_input_node);
+    INode(std::span<const int> value_shape, bool is_input_node,
+          std::span<const int> value_stride = {});
 
   public:
     /// Virtual destructor for polymorphic deletion
