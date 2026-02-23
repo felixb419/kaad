@@ -1,14 +1,15 @@
 #include "operators.hpp"
 
-#include "../../tensor/tensor.hpp"           // for Tensor
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Kernels
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../computation_graph.hpp"          // for Computation_graph
-#include "../node_handle.hpp"                // for Node_handle
-#include "../nodes/unary.hpp"                // for Node_unarysewfease
-#include <algorithm>                         // for std::copy, std::fill
-#include <memory>                            // for std::make_unique
+#include "../../tensor/tensor.hpp"            // for Tensor
+#include "../../tensorfuncs/adjoint_ops.hpp"  // for tensorfuncs::adjoint
+#include "../../tensorfuncs/kernels.hpp"      // for Kernels
+#include "../../tensorfuncs/primal_ops.hpp"   // for tensorfuncs::primal
+#include "../../tensorfuncs/safe_kernels.hpp" // for Kernels
+#include "../computation_graph.hpp"           // for Computation_graph
+#include "../node_handle.hpp"                 // for Node_handle
+#include "../nodes/unary.hpp"                 // for Node_unarysewfease
+#include <algorithm>                          // for std::copy, std::fill
+#include <memory>                             // for std::make_unique
 
 namespace kaad {
 
@@ -63,15 +64,15 @@ Node_handle square(Computation_graph &rec, Node_handle A) {
 }
 
 Node_handle sqrt(Computation_graph &rec, Node_handle A) {
-    return unOperator<Kernels::Sqrt<Scalar>>(rec, A);
+    return unOperator<Kernels::safe_Sqrt<Scalar>>(rec, A);
 }
 
 Node_handle log(Computation_graph &rec, Node_handle A) {
-    return unOperator<Kernels::Log<Scalar>>(rec, A);
+    return unOperator<Kernels::safe_Log<Scalar>>(rec, A);
 }
 
 Node_handle exp(Computation_graph &rec, Node_handle A) {
-    return unOperator<Kernels::Exp<Scalar>>(rec, A);
+    return unOperator<Kernels::safe_Exp<Scalar>>(rec, A);
 }
 
 Node_handle abs(Computation_graph &rec, Node_handle A) {

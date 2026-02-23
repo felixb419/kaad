@@ -1,18 +1,19 @@
 #include "operators.hpp"
 
-#include "../../exceptions.hpp"              // for shape_error
-#include "../../scalar.hpp"                  // for Scalar
-#include "../../tensor/tensor.hpp"           // for Tensor
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Kernels
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
-#include "../computation_graph.hpp"          // for Computation_graph
-#include "../node_handle.hpp"                // for Node_handle
-#include "../nodes/binary.hpp"               // for Node_binary
-#include "../nodes/binary_flex.hpp"          // for Node_binary_flex
-#include "../nodes/inode.hpp"                // for INode
-#include <cstddef>                           // for std::size_t
-#include <memory>                            // for std::make_unique
+#include "../../exceptions.hpp"               // for shape_error
+#include "../../scalar.hpp"                   // for Scalar
+#include "../../tensor/tensor.hpp"            // for Tensor
+#include "../../tensorfuncs/adjoint_ops.hpp"  // for tensorfuncs::adjoint
+#include "../../tensorfuncs/kernels.hpp"      // for Kernels
+#include "../../tensorfuncs/primal_ops.hpp"   // for tensorfuncs::primal
+#include "../../tensorfuncs/safe_kernels.hpp" // for Kernels
+#include "../computation_graph.hpp"           // for Computation_graph
+#include "../node_handle.hpp"                 // for Node_handle
+#include "../nodes/binary.hpp"                // for Node_binary
+#include "../nodes/binary_flex.hpp"           // for Node_binary_flex
+#include "../nodes/inode.hpp"                 // for INode
+#include <cstddef>                            // for std::size_t
+#include <memory>                             // for std::make_unique
 
 namespace kaad {
 
@@ -163,11 +164,11 @@ Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B) {
 }
 
 Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B) {
-    return binOperator<Kernels::Div<Scalar>>(rec, A, B, "div");
+    return binOperator<Kernels::safe_Div<Scalar>>(rec, A, B, "div");
 }
 
 Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B) {
-    return binOperator<Kernels::Pow<Scalar>>(rec, A, B, "pow");
+    return binOperator<Kernels::safe_Pow<Scalar>>(rec, A, B, "pow");
 }
 
 Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B) {

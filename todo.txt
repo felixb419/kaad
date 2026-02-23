@@ -6,9 +6,8 @@ REFACTOR:
     add input checking in kernels
 
 FEAT:
-    safe division Kernel (maybe others too)
-    make Tensor::linspace and Tensor::sequential iterate strdide-aware
     make stride-aware iterator type
+    make Tensor::linspace and Tensor::sequential iterate strdide-aware
     maybe rename tensorfunc params
     maybe rename tensorfunc 
 
@@ -23,6 +22,7 @@ DOC:
     get rid of non-ascii chars
     add doxygen groups
 
+LATER:
 
 Repo Layout:
 kaad/
@@ -54,7 +54,8 @@ kaad/
 
     Add impl files for succifciently large header functions (~50-100 LOC)
 
-LATER:
+
+    adjust getting started
     make Tensor variant with compile time shape
     make stride function transpose dimensions so biggest is highest
     (?) label member for nodes
