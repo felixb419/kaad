@@ -2,9 +2,9 @@
 
 #include "../scalar.hpp" // for Scalar
 #include <algorithm>     // for std::max, std::min
-#include <cmath>         // for std::log, std::pow, std::exp, std::sqrt
-#include <cstdlib>       // for std::abs
-#include <limits>        // for std::numeric_limits
+#include <cmath> // for std::log, std::pow, std::exp, std::sqrt, std::copysignf
+#include <cstdlib> // for std::abs
+#include <limits>  // for std::numeric_limits
 
 namespace kaad {
 
@@ -82,16 +82,31 @@ template <typename T> struct Mul {
 template <typename T> struct Div {
     using value_type = T;
 
+    inline static T epsilon =
+        static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
+
     /**
      * @brief C = A / B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A / B; }
+    constexpr static void Op(T A, T B, T &C) noexcept {
+#ifdef NO_STABLE_DIV
+        C = A / B;
+#else
+        C = A / ((abs(B) < epsilon) ? std::copysign(epsilon, B) : B);
+#endif
+    }
+
     /**
      * @brief Computes the gradient of a division.
      */
     constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+#ifdef NO_STABLE_DIV
         dA += dC * (1 / B);
         dB -= dC * (A / (B * B));
+#else
+        dA += dC * (Op(1, B));
+        dB -= dC * (Op(A, (B * B)));
+#endif
     }
 };
 

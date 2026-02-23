@@ -13,6 +13,7 @@ FEAT:
 
 
 PERF:
+    get rid of #ifdef in kernels
 
 DOC:
     roughly comment metadata functions
