@@ -3,7 +3,8 @@
 namespace kaad {
 
 INode::INode(std::span<const int> value_shape, bool is_input_node)
-    : evaluated_(false), value_(value_shape), gradient_(value_) {
+    : evaluated_(is_input_node), hasInputs_(!is_input_node),
+      value_(value_shape), gradient_(value_) {
     if (this->hasInputs_) {
         std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
     }
@@ -12,7 +13,8 @@ INode::INode(std::span<const int> value_shape, bool is_input_node)
 
 INode::INode(std::span<const int> value_shape,
              std::span<const int> value_stride, bool is_input_node)
-    : evaluated_(false), value_(value_shape, value_stride), gradient_(value_) {
+    : evaluated_(is_input_node), hasInputs_(!is_input_node),
+      value_(value_shape, value_stride), gradient_(value_) {
     if (this->hasInputs_) {
         std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
     }
