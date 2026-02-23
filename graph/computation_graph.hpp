@@ -65,6 +65,7 @@ class Computation_graph {
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.
+     * @warning reset has to be called before nodes are evaluated.
      *
      * Accepts a variadic list of node handles, evaluates each one by calling
      * its `eval()` method, and returns a std::array of pointers to their
@@ -97,6 +98,9 @@ class Computation_graph {
     /**
      * @brief Computes gradients of the computation graph with respect to the
      * given input nodes.
+     * @warning evaluate has to be called on @p output before this.
+     * @warning getGradient should only be called once before resetting and
+     * evaluating again.
      *
      * Initializes the gradient of the output node `output` to 1 and performs
      * backpropagation through the graph. Returns a list of pointers to the

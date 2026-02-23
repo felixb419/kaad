@@ -5,9 +5,6 @@ FIX:
 REFACTOR:
 
 FEAT:
-    label member for nodes
-    make sure reset is called automatically (or add in comment)
-    make getGradient not use std::fill(,,1) but add 1
     safe division Kernel (maybe others too)
     make Tensor::linspace and Tensor::sequential iterate strdide-aware
     make stride-aware iterator type
@@ -59,3 +56,5 @@ kaad/
 LATER:
     make Tensor variant with compile time shape
     make stride function transpose dimensions so biggest is highest
+    (?) label member for nodes
+    (?) put reset, evaluate and getGradient into single function
