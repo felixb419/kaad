@@ -3,6 +3,8 @@
 FIX:
 
 REFACTOR:
+    get rid of #ifdef in kernels
+    add input checking in kernels
 
 FEAT:
     safe division Kernel (maybe others too)
@@ -13,7 +15,6 @@ FEAT:
 
 
 PERF:
-    get rid of #ifdef in kernels
 
 DOC:
     roughly comment metadata functions

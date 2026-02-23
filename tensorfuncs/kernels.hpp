@@ -92,7 +92,7 @@ template <typename T> struct Div {
 #ifdef NO_STABLE_DIV
         C = A / B;
 #else
-        C = A / ((abs(B) < epsilon) ? std::copysign(epsilon, B) : B);
+        C = A / ((std::abs(B) < epsilon) ? std::copysign(epsilon, B) : B);
 #endif
     }
 
@@ -104,8 +104,13 @@ template <typename T> struct Div {
         dA += dC * (1 / B);
         dB -= dC * (A / (B * B));
 #else
-        dA += dC * (Op(1, B));
-        dB -= dC * (Op(A, (B * B)));
+        T B_inv;
+        Op(T(1), B, B_inv);
+        dA += dC * B_inv;
+
+        T A_ovr_Bsqr;
+        Op(A, (B * B), A_ovr_Bsqr);
+        dB -= dC * A_ovr_Bsqr;
 #endif
     }
 };
@@ -117,16 +122,55 @@ template <typename T> struct Div {
 template <typename T> struct Pow {
     using value_type = T;
 
+    inline static T epsilon =
+        static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
+
+    static constexpr T max_finite = std::numeric_limits<T>::max();
+    static constexpr T max_exp = std::log(max_finite);
+    static constexpr T min_exp = -max_exp;
+
     /**
      * @brief C = A ^ B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = std::pow(A, B); }
+    constexpr static void Op(T A, T B, T &C) noexcept {
+#ifdef NO_STABLE_POW
+        C = std::pow(A, B);
+#else
+        if (A == 0) {
+            C = (B == 0 ? 1 : 0); // 0^0=1 policy
+            return;
+        }
+        if (A < 0 && std::abs(B - std::round(B)) > epsilon) {
+            C = 0; // or max_finite * sign, but 0 is simple
+            return;
+        }
+        T absA = std::abs(A);
+        T t = B * std::log(absA);
+        if (t > max_exp)
+            C = max_finite;
+        else if (t < min_exp)
+            C = 0;
+        else {
+            C = std::exp(t);
+            if (A < 0)
+                C *= (int(std::floor(B + 0.5)) % 2 == 0 ? 1 : -1);
+        }
+#endif
+    }
     /**
      * @brief Computes the gradient of an exponentiation.
      */
     constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+#ifdef NO_STABLE_POW
         dA += dC * B * std::pow(A, B - 1);
         dB += dC * C * std::log(A);
+#else
+        if (A == 0 || std::abs(A) < epsilon) {
+            return;
+        }
+        dA += dC * (C / A);
+        dB += dC * C * std::log(std::abs(A));
+#endif
     }
 };
 
