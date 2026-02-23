@@ -75,21 +75,21 @@ Tensor Tensor::empty(std::initializer_list<int> shape) {
 
 Tensor Tensor::full(std::initializer_list<int> shape, Scalar fill_value) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    std::fill(out.begin(), out.end(), fill_value);
+    std::fill(out.data(), out.data() + out.size(), fill_value);
 
     return out;
 }
 
 Tensor Tensor::zeros(std::initializer_list<int> shape) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    std::fill(out.begin(), out.end(), 0);
+    std::fill(out.data(), out.data() + out.size(), 0);
 
     return out;
 }
 
 Tensor Tensor::ones(std::initializer_list<int> shape) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    std::fill(out.begin(), out.end(), 1);
+    std::fill(out.data(), out.data() + out.size(), 1);
 
     return out;
 }
@@ -97,7 +97,7 @@ Tensor Tensor::ones(std::initializer_list<int> shape) {
 Tensor Tensor::sequential(std::initializer_list<int> shape,
                           Scalar starting_value) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    std::iota(out.begin(), out.end(), starting_value);
+    std::iota(out.data(), out.data() + out.size(), starting_value);
 
     return out;
 }

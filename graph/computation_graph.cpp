@@ -37,8 +37,8 @@ Computation_graph::add_input_node(std::span<const int> value_shape,
     this->nodes.push_back(std::make_unique<Node_input>(value_shape));
 
     Tensor &Node_value = nodes.back()->value();
-    node_value_elements =
-        std::span<Scalar>(Node_value.begin(), Node_value.end());
+    node_value_elements = std::span<Scalar>(
+        Node_value.data(), Node_value.data() + Node_value.size());
 
     return Node_handle(this->nodes.size() - 1, this);
 }
