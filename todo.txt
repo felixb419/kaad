@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    get rid of #ifdef in kernels
     add input checking in kernels
 
 FEAT:

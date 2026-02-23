@@ -77,6 +77,7 @@ template <typename T> struct Mul {
 
 /**
  * @brief Binary kernel for division.
+ * @note In most applications @ref safe_Div is preferable.
  * @tparam T The scalar type.
  */
 template <typename T> struct Div {
@@ -88,35 +89,20 @@ template <typename T> struct Div {
     /**
      * @brief C = A / B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept {
-#ifdef NO_STABLE_DIV
-        C = A / B;
-#else
-        C = A / ((std::abs(B) < epsilon) ? std::copysign(epsilon, B) : B);
-#endif
-    }
+    constexpr static void Op(T A, T B, T &C) noexcept { C = A / B; }
 
     /**
      * @brief Computes the gradient of a division.
      */
     constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-#ifdef NO_STABLE_DIV
         dA += dC * (1 / B);
         dB -= dC * (A / (B * B));
-#else
-        T B_inv;
-        Op(T(1), B, B_inv);
-        dA += dC * B_inv;
-
-        T A_ovr_Bsqr;
-        Op(A, (B * B), A_ovr_Bsqr);
-        dB -= dC * A_ovr_Bsqr;
-#endif
     }
 };
 
 /**
  * @brief Binary kernel for power.
+ * @note In most applications @ref safe_Pow is preferable.
  * @tparam T The scalar type.
  */
 template <typename T> struct Pow {
@@ -132,45 +118,13 @@ template <typename T> struct Pow {
     /**
      * @brief C = A ^ B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept {
-#ifdef NO_STABLE_POW
-        C = std::pow(A, B);
-#else
-        if (A == 0) {
-            C = (B == 0 ? 1 : 0); // 0^0=1 policy
-            return;
-        }
-        if (A < 0 && std::abs(B - std::round(B)) > epsilon) {
-            C = 0; // or max_finite * sign, but 0 is simple
-            return;
-        }
-        T absA = std::abs(A);
-        T t = B * std::log(absA);
-        if (t > max_exp)
-            C = max_finite;
-        else if (t < min_exp)
-            C = 0;
-        else {
-            C = std::exp(t);
-            if (A < 0)
-                C *= (int(std::floor(B + 0.5)) % 2 == 0 ? 1 : -1);
-        }
-#endif
-    }
+    constexpr static void Op(T A, T B, T &C) noexcept { C = std::pow(A, B); }
     /**
      * @brief Computes the gradient of an exponentiation.
      */
     constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-#ifdef NO_STABLE_POW
         dA += dC * B * std::pow(A, B - 1);
         dB += dC * C * std::log(A);
-#else
-        if (A == 0 || std::abs(A) < epsilon) {
-            return;
-        }
-        dA += dC * (C / A);
-        dB += dC * C * std::log(std::abs(A));
-#endif
     }
 };
 
@@ -309,6 +263,7 @@ template <typename T> struct Square {
 
 /**
  * @brief Unary kernel for squareroot.
+ * @note In most applications @ref safe_Sqrt is preferable.
  * @tparam T The scalar type.
  */
 template <typename T> struct Sqrt {
@@ -318,32 +273,20 @@ template <typename T> struct Sqrt {
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
      * @brief C = sqrt(A)
-     * @note if NO_STABLE_SQRT is not defined a numerically safe version is
-     * used instead.
      */
-    constexpr static void Op(T A, T &C) noexcept {
-#ifdef NO_STABLE_SQRT
-        C = std::sqrt(A);
-#else
-        C = std::sqrt(std::max(A, T(0)));
-#endif
-    }
+    constexpr static void Op(T A, T &C) noexcept { C = std::sqrt(A); }
+
+    /**
+     * @brief Computes the gradient of the squareroot
+     */
     constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
-        /**
-         * @brief Computes the gradient of the squareroot
-         * @note if NO_STABLE_SQRT is not defined a numerically safe version
-         * is used instead.
-         */
-#ifdef NO_STABLE_SQRT
         dA += dC / (2 * C);
-#else
-        dA += C < epsilon ? 0 : dC / (2 * C);
-#endif
     }
 };
 
 /**
  * @brief Unary kernel for logarithm.
+ * @note In most applications @ref safe_Log is preferable.
  * @tparam T The scalar type.
  */
 template <typename T> struct Log {
@@ -353,32 +296,17 @@ template <typename T> struct Log {
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
      * @brief C = log(A)
-     * @note if NO_STABLE_LOG is not defined a numerically save version is
-     * used instead.
      */
-    constexpr static void Op(T A, T &C) noexcept {
-#ifdef NO_STABLE_LOG
-        C = std::log(A);
-#else
-        C = std::log(std::max(A, epsilon));
-#endif
-    }
+    constexpr static void Op(T A, T &C) noexcept { C = std::log(A); }
     /**
      * @brief Computes the gradient of the logarithm
-     * @note if NO_STABLE_LOG is not defined a numerically safe version is
-     * used instead.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
-#ifdef NO_STABLE_LOG
-        dA += dC / A;
-#else
-        dA += dC / std::max(A, epsilon);
-#endif
-    }
+    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC / A; }
 };
 
 /**
  * @brief Unary kernel for exponent.
+ * @note In most applications @ref safe_Exp is preferable.
  * @tparam T The scalar type.
  */
 template <typename T> struct Exp {
@@ -392,11 +320,7 @@ template <typename T> struct Exp {
          * @if NO_STABLE_EXP is not defined a numerically safe version is
          * used instead.
          */
-#ifdef NO_STABLE_EXP
         C = std::exp(A);
-#else
-        C = std::exp(std::max(min_exp, std::min(max_exp, A)));
-#endif
     }
     /**
      * @brief Computes the gradient of the exp function.
