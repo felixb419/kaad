@@ -1,7 +1,6 @@
 [ TODO ]
 
 FIX:
-    add a way to set values of leaf nodes
 
 REFACTOR:
     overthink hasInputs flag

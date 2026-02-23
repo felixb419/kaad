@@ -52,11 +52,16 @@ class Computation_graph {
      * graph.
      *
      * Creates a Tensor using the given shape, wraps it in a InputNode, and
-     * stores the node as a std::unique_ptr in the `nodes` container.
+     * stores the node as a std::unique_ptr in the `nodes` container. Also sets
+     * @p node_value_elements to the value array of the node so it can be filled
+     * with values.
      *
+     * @param[in] value_shape Shape of the tensor of the input node.
+     * @param[out] node_value_elements Range of the value elements fo the node.
      * @return A handle of the newly created InputNode.
      */
-    Node_handle add_input_node(std::span<const int> value_shape);
+    Node_handle add_input_node(std::span<const int> value_shape,
+                               std::span<Scalar> &node_value_elements);
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.
