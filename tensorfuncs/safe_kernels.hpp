@@ -24,9 +24,9 @@ static constexpr T max_finite = std::numeric_limits<T>::max();
 template <typename T>
 static constexpr T min_finite = std::numeric_limits<T>::min();
 
-template <typename T> static constexpr T max_exp = std::log(max_finite<T>);
+template <typename T> static inline const T max_exp = std::log(max_finite<T>);
 
-template <typename T> static constexpr T min_exp = std::log(min_finite<T>);
+template <typename T> static inline const T min_exp = std::log(min_finite<T>);
 
 /**
  * @brief Binary kernel for division.
