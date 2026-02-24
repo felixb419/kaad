@@ -100,7 +100,10 @@ Tensor Tensor::ones(std::initializer_list<int> shape) {
 Tensor Tensor::sequential(std::initializer_list<int> shape,
                           Scalar starting_value) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    std::iota(out.data(), out.data() + out.size(), starting_value);
+
+    for (auto it = out.begin(); it != out.end(); it++) {
+        *it = starting_value++;
+    }
 
     return out;
 }
@@ -110,9 +113,8 @@ Tensor Tensor::linspace(std::initializer_list<int> shape, Scalar start,
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
 
     Scalar value = start;
-    for (int i = 0; i < out.size(); i++) {
-
-        out.data()[i] = value;
+    for (auto it = out.begin(); it != out.end(); it++) {
+        *it = value;
         value += step;
     }
 
