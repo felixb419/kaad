@@ -23,11 +23,115 @@ class Tensor {
     using const_reference = const value_type &;
     using pointer = value_type *;
     using const_pointer = const value_type *;
-
-    using iterator = value_type *;
-    using const_iterator = const value_type *;
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
+
+    template <bool isConst> class iterator_impl {
+      private:
+        using Tensor_reference =
+            std::conditional_t<isConst, const Tensor &, Tensor &>;
+        Tensor_reference origin_;       ///< Origin tensor of the iterator.
+        std::vector<int> cords_;        ///< Per-dim coordinates of the element.
+        const std::vector<int> &shape_; ///< Shape of the tensor.
+        const std::vector<int> &stride_; ///< Stride array of the tensor.
+
+      public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = Tensor::value_type;
+        using difference_type = Tensor::difference_type;
+        using pointer =
+            std::conditional_t<isConst, Tensor::const_pointer, Tensor::pointer>;
+        using reference = std::conditional_t<isConst, Tensor::const_reference,
+                                             Tensor::reference>;
+
+        iterator_impl(Tensor_reference &origin, std::vector<int> &&cords)
+            : origin_(origin), cords_(cords), shape_(origin_.shape()),
+              stride_(origin_.stride()) {}
+
+        const Tensor &origin() { return this->origin_; }
+
+        reference operator*() const {
+            size_t idx = 0;
+            for (int i = 0; i < this->origin_.rank(); i++) {
+                idx += this->cords_[i] * this->stride_[i];
+            }
+            return this->origin_.data()[idx];
+        }
+
+        iterator_impl &operator++() {
+            int rank = static_cast<int>(this->origin_.rank() - 1);
+
+            this->cords_[rank]++;
+
+            while (this->cords_[rank] >= this->shape_[rank]) {
+
+                this->cords_[rank] = 0;
+                if (rank >= 0) {
+                    rank--;
+                    this->cords_[rank]++;
+
+                } else {
+                    // increment every cord but the last, so iterator points one
+                    // past end and return.
+                    std::copy(this->shape_.begin(), this->shape_.end(),
+                              this->cords_.begin());
+                    for (int i = 0; i < this->origin_.rank() - 1; i++) {
+                        this->cords_[i]--;
+                    }
+                    break;
+                }
+            }
+
+            return *this;
+        }
+
+        iterator_impl operator++(int) {
+            iterator_impl old = *this;
+            ++(*this);
+            return old;
+        }
+
+        iterator_impl &operator--() {
+            int rank = static_cast<int>(this->origin_.rank() - 1);
+
+            this->cords_[rank]--;
+
+            while (this->cords_[rank] < 0) {
+
+                this->cords_[rank] = this->shape_[rank] - 1;
+                if (rank >= 0) {
+                    rank--;
+                    this->cords_[rank]--;
+
+                } else {
+                    // set cords to all 0 and return
+                    std::fill(this->cords_.begin(), this->cords_.end(), 0);
+                    break;
+                }
+            }
+
+            return *this;
+        }
+
+        iterator_impl operator--(int) {
+            iterator_impl old = *this;
+            --(*this);
+            return old;
+        }
+
+        bool operator==(const iterator_impl &other) const {
+            return (&this->origin_ == &other.origin_) &&
+                   std::equal(this->cords_.begin(), this->cords_.end(),
+                              other.cords_.begin());
+        }
+
+        bool operator!=(const iterator_impl &other) const {
+            return !(*this == other);
+        }
+    };
+
+    using iterator = iterator_impl<false>;
+    using const_iterator = iterator_impl<true>;
 
   private:
     std::vector<int>
@@ -162,25 +266,25 @@ class Tensor {
      * @brief Get an iterator to the begin of the value array.
      * @return Iterator to the first element.
      */
-    iterator begin() noexcept;
+    iterator begin();
 
     /**
      * @brief Get a const iterator to the begin of the value array.
      * @return Const iterator to the first element.
      */
-    const_iterator begin() const noexcept;
+    const_iterator begin() const;
 
     /**
      * @brief Get an iterator to the end of the value array.
      * @return Iterator to one past the last element.
      */
-    iterator end() noexcept;
+    iterator end();
 
     /**
      * @brief Get a const iterator to the end of the value array.
      * @return Const iterator to one past the last element.
      */
-    const_iterator end() const noexcept;
+    const_iterator end() const;
 
     /**
      * @brief Get number of elements in the tensor.

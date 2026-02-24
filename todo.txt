@@ -6,7 +6,6 @@ REFACTOR:
     add input checking in kernels
 
 FEAT:
-    make stride-aware iterator type
     make Tensor::linspace and Tensor::sequential iterate strdide-aware
     maybe rename tensorfunc params
     maybe rename tensorfunc 

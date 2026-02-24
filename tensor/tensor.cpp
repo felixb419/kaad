@@ -12,6 +12,9 @@
 
 namespace kaad {
 
+template class Tensor::iterator_impl<false>;
+template class Tensor::iterator_impl<true>;
+
 static void compute_stride(std::vector<int> &stride, int &len,
                            const std::vector<int> &shape) {
     stride.resize(shape.size());
@@ -176,22 +179,39 @@ const std::vector<int> &Tensor::stride() const noexcept {
     return this->stride_;
 }
 
-Tensor::iterator Tensor::begin() noexcept {
-    return static_cast<iterator>(this->elements_.data());
+Tensor::iterator Tensor::begin() {
+    std::vector<int> cords(this->rank());
+    std::fill(cords.begin(), cords.end(), 0);
+
+    return iterator(*this, std::move(cords));
 }
 
-Tensor::const_iterator Tensor::begin() const noexcept {
-    return static_cast<const_iterator>(this->elements_.data());
+Tensor::const_iterator Tensor::begin() const {
+    std::vector<int> cords(this->rank());
+    std::fill(cords.begin(), cords.end(), 0);
+
+    return const_iterator(*this, std::move(cords));
 }
 
-Tensor::iterator Tensor::end() noexcept {
-    return static_cast<iterator>(this->elements_.data() +
-                                 this->elements_.size());
+Tensor::iterator Tensor::end() {
+
+    std::vector<int> cords(this->shape_);
+    // increment every cord but the last, so iterator points one past end.
+    for (size_type i = 0; i < this->rank() - 1; i++) {
+        cords[i]--;
+    }
+
+    return iterator(*this, std::move(cords));
 }
 
-Tensor::const_iterator Tensor::end() const noexcept {
-    return static_cast<const_iterator>(this->elements_.data() +
-                                       this->elements_.size());
+Tensor::const_iterator Tensor::end() const {
+    std::vector<int> cords(this->shape_);
+    // increment every cord but the last, so iterator points one past end.
+    for (size_type i = 0; i < this->rank() - 1; i++) {
+        cords[i]--;
+    }
+
+    return const_iterator(*this, std::move(cords));
 }
 
 Tensor::size_type Tensor::size() const noexcept {
