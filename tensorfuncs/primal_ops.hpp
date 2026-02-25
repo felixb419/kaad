@@ -86,12 +86,12 @@ using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
                                  int shared_dim, int res_rank);
 
 /**
- * @brief Applies Op(lhs,rhs) to lhs(tensor) and rhs(scalar).
- * @pre @p lhs and @p res have the same shape and @p rhs is scalar.
+ * @brief Applies Op to @p lhssand @p rhs .
+ * @pre @p lhs and @p res have the same shape and @p rhs is rank-0.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[in] rhs Pointer to rhs(scalar).
- * @param[out] res Pointer to the start of res(tensor).
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[in] rhs Pointer to rank-0 tensor.
+ * @param[out] res Pointer to the start of tensor.
  * @param res_end Pointer to the end of @p res.
  */
 template <kernel_class Kernel>
@@ -106,12 +106,12 @@ void scalarRhs(const typename Kernel::value_type *lhs,
 }
 
 /**
- * @brief Applies Op(lhs,rhs) to lhs(scalar) and rhs(tensor).
- * @pre @p rhs and @p res have the same shape and @p lhs is scalar.
+ * @brief Applies Op to @p lhssand @p rhs .
+ * @pre @p rhs and @p res have the same shape and @p lhs is rank-0.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to lhs(scalar).
- * @param[in] rhs Pointer to the start of rhs(tensor).
- * @param[out] res Pointer to the start of res(tensor).
+ * @param[in] lhs Pointer to rank-0 tensor.
+ * @param[in] rhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
  * @param res_end Pointer to the end of @p res.
  */
 template <kernel_class Kernel>
@@ -126,12 +126,12 @@ void scalarLhs(const typename Kernel::value_type *lhs,
 }
 
 /**
- * @brief Applies Op(lhs,rhs) to lhs(tensor) and rhs(tensor).
+ * @brief Applies Op to @p lhssand @p rhs .
  * @pre @p lhs, @p rhs and @p res have the same shape.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[in] rhs Pointer to the start of rhs(tensor).
- * @param[out] res Pointer to the start of res(tensor).
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[in] rhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
  * @param res_end Pointer to the end of @p res.
  */
 template <kernel_class Kernel>
@@ -146,17 +146,17 @@ void pointwise(const typename Kernel::value_type *lhs,
 }
 
 /**
- * @brief Applies Op(lhs,rhs) to lhs(tensor) and rhs(tensor).
+ * @brief Applies Op to @p lhssand @p rhs .
  * @pre @p res shape is the result of broadcasting @p lhs and @p rhs.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[in] rhs Pointer to the start of rhs(tensor).
- * @param[out] res Pointer to the start of res(tensor).
- * @param stride_lhs Stride array of lhs.
- * @param stride_rhs Stride array of rhs.
- * @param stride_res Stride array of res.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[in] rhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
+ * @param stride_lhs Stride array of @p lhs.
+ * @param stride_rhs Stride array of @p rhs.
+ * @param stride_res Stride array of @p res.
  * @param res_dim_offset Offset to the end of @p res per dimension.
- * @param res_rank Number of dimensions of res.
+ * @param res_rank Number of dimensions of @p res.
  */
 template <kernel_class Kernel>
 void flexible(const typename Kernel::value_type *lhs,
@@ -205,13 +205,13 @@ void flexible(const typename Kernel::value_type *lhs,
 }
 
 /**
- * @brief Computes the dot product of lhs and rhs into res.
- * @pre @p lhs is a vector and rhs and res are scalars.
+ * @brief Computes the dot product of @p lhs and @p rhs into @p res.
+ * @pre @p lhs is rank-2 and @p rhs and @p res are rank-0.
  * @tparam T Element type
  * @tparam Kernel (Only needed for signature).
- * @param[in] lhs Pointer to the start of lhs(vector).
- * @param[in] rhs Pointer to rhs(scalar)
- * @param[out] res Pointer to res(scalar).
+ * @param[in] lhs Pointer to the start of rank-1 tensor.
+ * @param[in] rhs Pointer to rank-0 tensor
+ * @param[out] res Pointer to rank-0 tensor.
  * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
@@ -222,13 +222,13 @@ void scalarDot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
 }
 
 /**
- * @brief Computes the dot product of lhs and rhs into res.
- * @pre @p lhs and @p rhs are vectors and res is a scalar.
+ * @brief Computes the dot product of @p lhs and @p rhs into @p res.
+ * @pre @p lhs and @p rhs are rank-1 and @p res is rank-0.
  * @tparam T Element type
  * @tparam Kernel (Only needed for signature).
- * @param[in] lhs Pointer to the start of lhs(vector).
- * @param[in] rhs Pointer to the start of rhs(vector)
- * @param[out] res Pointer to res(scalar).
+ * @param[in] lhs Pointer to the start of rank-1 tensor.
+ * @param[in] rhs Pointer to the start of rank-1 tensor
+ * @param[out] res Pointer to rank-0 tensor.
  * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
@@ -239,17 +239,17 @@ void dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
 }
 
 /**
- * @brief Computes matrix product of lhs and rhs into res.
+ * @brief Computes matrix product of @p lhs and @p rhs into @p res.
  * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @tparam T Element type
- * @param[in] lhs Pointer to the start of lhs(matrix).
- * @param[in] rhs Pointer to the start of rhs(matrix).
- * @param[out] res Pointer to the start of res(matrix).
+ * @param[in] lhs Pointer to the start of rank-2 tensor.
+ * @param[in] rhs Pointer to the start of rank-2 tensor.
+ * @param[out] res Pointer to the start of rank-2 tensor.
  * @param lhs_rows Number of rows in @p lhs.
  * @param rhs_cols Number of columns in @p rhs.
- * @param stride_lhs Stride array of lhs.
- * @param stride_rhs Stride array of rhs.
- * @param stride_res Stride array of res.
+ * @param stride_lhs Stride array of @p lhs.
+ * @param stride_rhs Stride array of @p rhs.
+ * @param stride_res Stride array of @p res.
  */
 template <typename T>
 void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
@@ -274,21 +274,21 @@ void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
 }
 
 /**
- * @brief Computes Matrix product of lhs and rhs into res (treats additional
- * dimensions as batch dimensions).
+ * @brief Computes Matrix product of @p lhs and @p rhs into @p res (treats
+ * additional dimensions as batch dimensions).
  * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @tparam T Element type
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[in] rhs Pointer to the start of rhs(tensor).
- * @param[out] res Pointer to the start of res(tensor).
- * @param stride_lhs Stride array of lhs.
- * @param stride_rhs Stride array of rhs.
- * @param stride_res Stride array of res.
- * @param Pointer to shape array of res.
- * @param lhs_dim_offset Step size for lhs.
- * @param rhs_dim_offset Step size for rhs.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[in] rhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
+ * @param stride_lhs Stride array of @p lhs.
+ * @param stride_rhs Stride array of @p rhs.
+ * @param stride_res Stride array of @p res.
+ * @param Pointer to shape array of @p res.
+ * @param lhs_dim_offset Step size for @p lhs.
+ * @param rhs_dim_offset Step size for @p rhs.
  * @param shared_dim Shared inner dimension.
- * @param res_rank Number of dimension of res.
+ * @param res_rank Number of dimension of @p res.
  */
 template <typename T>
 void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
@@ -393,11 +393,11 @@ using slice_fn = void (*)(const T *lhs, T *res, int *stride_lhs,
                           std::size_t *res_dim_offset, int res_rank);
 
 /**
- * @brief Applies a unary operation to lhs(tensor).
+ * @brief Applies a unary operation to @p lhs .
  * @tparam Kernel A struct containing a static unary function ('Op').
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[out] res Pointer to res(scalar).
- * @param lhs_end Pointer to the end of lhs.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[out] res Pointer to rank-0 tensor.
+ * @param lhs_end Pointer to the end of @p lhs.
  */
 template <kernel_class Kernel>
 void scalarOut(const typename Kernel::value_type *lhs,
@@ -410,11 +410,11 @@ void scalarOut(const typename Kernel::value_type *lhs,
 }
 
 /**
- * @brief Applies a unary operation to lhs(tensor).
+ * @brief Applies a unary operation to @p lhs .
  * @tparam Kernel A struct containing a static unary function ('Op').
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[out] res Pointer to the start of res(tensor)
- * @param lhs_end Pointer to the end of res.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor
+ * @param res_end Pointer to the end of @p res.
  * @param op Instance of the callable class.
  */
 template <kernel_class Kernel>
@@ -428,16 +428,17 @@ void pointwise(const typename Kernel::value_type *lhs,
 }
 
 /**
- * @brief Sums lhs(Tensor) along a dimension into res(Tensor).
- * @pre Shape of res needs to be same as lhs with relevant dimension removed.
+ * @brief Sums @p lhssalong a dimension into @p res .
+ * @pre Shape of @p res needs to be same as @p lhs with relevant dimension
+ * removed.
  * @tparam T Element type
- * @param lhs Pointer to the start of lhs(Tensor).
- * @param res Pointer to the start of res(Tensor).
- * @param stride_lhs Stride array of lhs.
+ * @param lhs Pointer to the start of tensor.
+ * @param res Pointer to the start of tensor.
+ * @param stride_lhs Stride array of @p lhs.
  * @param strideB Stride array of B.
- * @param stride_res Stride array of res.
+ * @param stride_res Stride array of @p res.
  * @param lhs_offset Offset to the end of @p lhs per dimension.
- * @param lhs_rank Number of dimensions of lhs.
+ * @param lhs_rank Number of dimensions of @p lhs.
  */
 template <typename T>
 void sum_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
@@ -475,11 +476,11 @@ void sum_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
 }
 
 /**
- * @brief Computes the mean of all elements in lhs(tensor).
+ * @brief Computes the mean of all elements in @p lhs .
  * @tparam T Element type
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[out] lhs Pointer to the start of res(tensor).
- * @param lhs_end Pointer to the end of lhs.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
+ * @param lhs_end Pointer to the end of @p lhs.
  * @param divisor Number of elements
  */
 template <typename T>
@@ -491,17 +492,17 @@ void mean(const T *lhs, T *res, const T *lhs_end, T divisor) noexcept {
 }
 
 /**
- * @brief Computes mean of lhs(tensor) along a given dimension.
+ * @brief Computes mean of @p lhssalong a given dimension.
  * @tparam T Element type
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[out] res Pointer to the start of res(tensor).
- * @param stride_lhs Stride array for lhs.
- * @param stride_res Stride array for res.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
+ * @param stride_lhs Stride array for @p lhs.
+ * @param stride_res Stride array for @p res.
  * @param lhs_offset Offset array per dimension
- * @param lhs_rank Number of dimensions in lhs.
- * @param divisor divisor to compute mean of lhs (length of dimension summed
+ * @param lhs_rank Number of dimensions in @p lhs.
+ * @param divisor divisor to compute mean of @p lhs (length of dimension summed
  * over)
- * @param res_end Pointer to the end of output tensor res.
+ * @param res_end Pointer to the end of output tensor @p res.
  */
 template <typename T>
 void mean_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
@@ -527,15 +528,15 @@ void mean_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
 }
 
 /**
- * @brief Copies a sliced view of lhs into res based on offset and stride.
+ * @brief Copies a sliced view of @p lhs into @p res based on offset and stride.
  * @tparam T Element type
- * @param[in] lhs Pointer to the start of lhs(tensor).
- * @param[out] res Pointer to the start of res(tensor).
- * @param stride_lhs Stride array for lhs.
- * @param stride_res Stride array for res.
- * @param start_offset_a Offset to apply to lhs.
+ * @param[in] lhs Pointer to the start of tensor.
+ * @param[out] res Pointer to the start of tensor.
+ * @param stride_lhs Stride array for @p lhs.
+ * @param stride_res Stride array for @p res.
+ * @param start_offset_a Offset to apply to @p lhs.
  * @param res_dim_offset Size of output slice.
- * @param rank Number of dimensions in lhs and res.
+ * @param rank Number of dimensions in @p lhs and @p res.
  */
 template <typename T>
 void slice(const T *lhs, T *res, int *stride_lhs, int *stride_res,
