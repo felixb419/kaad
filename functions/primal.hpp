@@ -33,12 +33,23 @@ namespace kaad {
 namespace functions::primal {
 
 /**
+ * @defgroup primal_functions Primal (e.g. used for forward computation) tensor
+ * operations.
+ */
+
+/**
  * @namespace kaad::functions::adjoint::binary
  */
 namespace binary {
 
 /**
+ * @defgroup binary_primal_functions Primal functions that take two inputs.
+ * @ingroup primal_functions
+ */
+
+/**
  * @brief Concept requiring a kernel to have:
+ * @ingroup binary_primal_functions
  * 1. 'value_type' alias
  * 2. static void Op(const value_type&, const value_type&, value_type&);
  */
@@ -88,6 +99,7 @@ using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
 
 /**
  * @brief Applies Op to @p lhssand @p rhs .
+ * @ingroup binary_primal_functions
  * @pre @p lhs and @p res have the same shape and @p rhs is rank-0.
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] lhs Pointer to the start of tensor.
@@ -108,6 +120,7 @@ void scalarRhs(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Applies Op to @p lhssand @p rhs .
+ * @ingroup binary_primal_functions
  * @pre @p rhs and @p res have the same shape and @p lhs is rank-0.
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] lhs Pointer to rank-0 tensor.
@@ -128,6 +141,7 @@ void scalarLhs(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Applies Op to @p lhssand @p rhs .
+ * @ingroup binary_primal_functions
  * @pre @p lhs, @p rhs and @p res have the same shape.
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] lhs Pointer to the start of tensor.
@@ -148,6 +162,7 @@ void pointwise(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Applies Op to @p lhssand @p rhs .
+ * @ingroup binary_primal_functions
  * @pre @p res shape is the result of broadcasting @p lhs and @p rhs.
  * @tparam Kernel A struct containing a static binary function ('Op').
  * @param[in] lhs Pointer to the start of tensor.
@@ -182,6 +197,7 @@ void flexible(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Compile-time recursive version of the runtime @ref flexible().
+ * @ingroup binary_primal_functions
  */
 template <kernel_class Kernel, int rank>
 void flexible(const typename Kernel::value_type *lhs,
@@ -207,6 +223,7 @@ void flexible(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Computes the dot product of @p lhs and @p rhs into @p res.
+ * @ingroup binary_primal_functions
  * @pre @p lhs is rank-2 and @p rhs and @p res are rank-0.
  * @tparam T Element type
  * @tparam Kernel (Only needed for signature).
@@ -224,6 +241,7 @@ void scalarDot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
 
 /**
  * @brief Computes the dot product of @p lhs and @p rhs into @p res.
+ * @ingroup binary_primal_functions
  * @pre @p lhs and @p rhs are rank-1 and @p res is rank-0.
  * @tparam T Element type
  * @tparam Kernel (Only needed for signature).
@@ -241,6 +259,7 @@ void dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
 
 /**
  * @brief Computes matrix product of @p lhs and @p rhs into @p res.
+ * @ingroup binary_primal_functions
  * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @tparam T Element type
  * @param[in] lhs Pointer to the start of rank-2 tensor.
@@ -276,6 +295,7 @@ void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
 
 /**
  * @brief Computes Matrix product of @p lhs and @p rhs into @p res (treats
+ * @ingroup binary_primal_functions
  * additional dimensions as batch dimensions).
  * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @tparam T Element type
@@ -318,6 +338,7 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
 
 /**
  * @brief Compile-time recursive version of runtime @ref batch_matmul().
+ * @ingroup binary_primal_functions
  */
 template <typename T, int res_rank>
 void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
@@ -394,7 +415,13 @@ using slice_fn = void (*)(const T *inp, T *res, int *stride_inp,
                           std::size_t *res_dim_offset, int res_rank);
 
 /**
+ * @defgroup unary_primal_functions Primal functions that take one input.
+ * @ingroup primal_functions
+ */
+
+/**
  * @brief Applies a unary operation to @p inp .
+ * @ingroup unary_primal_functions
  * @tparam Kernel A struct containing a static unary function ('Op').
  * @param[in] inp Pointer to the start of tensor.
  * @param[out] res Pointer to rank-0 tensor.
@@ -412,6 +439,7 @@ void scalarOut(const typename Kernel::value_type *inp,
 
 /**
  * @brief Applies a unary operation to @p inp .
+ * @ingroup unary_primal_functions
  * @tparam Kernel A struct containing a static unary function ('Op').
  * @param[in] inp Pointer to the start of tensor.
  * @param[out] res Pointer to the start of tensor
@@ -430,6 +458,7 @@ void pointwise(const typename Kernel::value_type *inp,
 
 /**
  * @brief Sums @p inpsalong a dimension into @p res .
+ * @ingroup unary_primal_functions
  * @pre Shape of @p res needs to be same as @p inp with relevant dimension
  * removed.
  * @tparam T Element type
@@ -459,6 +488,7 @@ void sum_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref sum_dim().
+ * @ingroup unary_primal_functions
  */
 template <typename T, int inp_rank>
 void sum_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
@@ -478,6 +508,7 @@ void sum_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Computes the mean of all elements in @p inp .
+ * @ingroup unary_primal_functions
  * @tparam T Element type
  * @param[in] inp Pointer to the start of tensor.
  * @param[out] res Pointer to the start of tensor.
@@ -494,6 +525,7 @@ void mean(const T *inp, T *res, const T *inp_end, T divisor) noexcept {
 
 /**
  * @brief Computes mean of @p inpsalong a given dimension.
+ * @ingroup unary_primal_functions
  * @tparam T Element type
  * @param[in] inp Pointer to the start of tensor.
  * @param[out] res Pointer to the start of tensor.
@@ -517,6 +549,7 @@ void mean_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref mean_dim().
+ * @ingroup unary_primal_functions
  */
 template <typename T, int N>
 void mean_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
@@ -530,6 +563,7 @@ void mean_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Copies a sliced view of @p inp into @p res based on offset and stride.
+ * @ingroup unary_primal_functions
  * @tparam T Element type
  * @param[in] inp Pointer to the start of tensor.
  * @param[out] res Pointer to the start of tensor.
@@ -559,6 +593,7 @@ void slice(const T *inp, T *res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref slice().
+ * @ingroup unary_primal_functions
  */
 template <typename T, int rank>
 void slice(const T *inp, T *res, int *stride_inp, int *stride_res,

@@ -15,12 +15,23 @@ namespace kaad {
 namespace functions::adjoint {
 
 /**
+ * @defgroup adjoint_functions Adjoint (e.g. used for backward computation)
+ * tensor operations.
+ */
+
+/**
  * @namespace kaad::tensoruncs::adjoint
  */
 namespace binary {
 
 /**
+ * @defgroup binary_adjoint_functions Adjoint functions that take two inputs.
+ * @ingroup adjoint_functions
+ */
+
+/**
  * @brief Concept requiring a kernel to have:
+ * @ingroup binary_adjoint_functions
  * 1. 'value_type' alias
  * 2. static void Op(const value_type&, value_type&, const value_type&,
  *                   value_type&, const value_type&, const value_type&);
@@ -86,6 +97,7 @@ using batch_matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
+ * @ingroup binary_adjoint_functions
  * @pre @p lhs and @p res have the same shape and @p rhs is 1-rank.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
@@ -113,6 +125,7 @@ void scalarRhs(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
+ * @ingroup binary_adjoint_functions
  * @pre @p rhs and @p res have the same shape and @p lhs is 0-rank.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
@@ -140,6 +153,7 @@ void scalarLhs(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
+ * @ingroup binary_adjoint_functions
  * @pre @p lhs, @p rhs and @p res have the same shape.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
@@ -167,6 +181,7 @@ void pointwise(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
+ * @ingroup binary_adjoint_functions
  * @pre @p res shape is the result of broadcasting @p lhs and @p rhs.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
@@ -211,6 +226,7 @@ void flexible(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Compile-time recursive version of runtime @ref flexible().
+ * @ingroup binary_adjoint_functions
  */
 template <kernel_class Kernel, int res_rank>
 void flexible(const typename Kernel::value_type *lhs,
@@ -241,6 +257,7 @@ void flexible(const typename Kernel::value_type *lhs,
 
 /**
  * @brief Accumulates the gradient of the dot-product of @p lhs and @p rhs.
+ * @ingroup binary_adjoint_functions
  * @pre @p lhs is a 1-rank and @p rhs and @p res is 0-rank.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam T Element type.
@@ -264,6 +281,7 @@ void scalarDot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
 
 /**
  * @brief Accumulates the gradient of the dot-product of @p lhs and
+ * @ingroup binary_adjoint_functions
  * @p rhs.
  * @pre @p lhs and @p rhs are 2-rank and @p res is 0-rank.
  * @pre Every operand must have the same shape as their gradient.
@@ -288,6 +306,7 @@ void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
+ * @ingroup binary_adjoint_functions
  * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam T Element type.
@@ -320,6 +339,7 @@ void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
+ * @ingroup binary_adjoint_functions
  * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam T Element type.
@@ -357,6 +377,7 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref batch_matmul().
+ * @ingroup binary_adjoint_functions
  */
 template <typename T, int res_rank>
 void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
@@ -381,7 +402,13 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
 namespace unary {
 
 /**
+ * @defgroup unary_adjoint_functions Adjoint functions that take one input.
+ * @ingroup adjoint_functions
+ */
+
+/**
  * @brief Concept requiring a kernel to have:
+ * @ingroup unary_adjoint_functions
  * 1. 'value_type' alias
  * 2. static void Op(const value_type&, value_type&, const value_type&, const
  * value_type&);
@@ -433,6 +460,7 @@ using slice_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
 
 /**
  * @brief Accumulates the gradient of Op, @p inp .
+ * @ingroup unary_adjoint_functions
  * @pre @p res is 0-rank.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
@@ -456,6 +484,7 @@ void scalarOut(const typename Kernel::value_type *inp,
 
 /**
  * @brief Accumulates the gradient of Op, @p inp .
+ * @ingroup unary_adjoint_functions
  * @pre @p inp and @p res have the same shape.
  * @pre Every operand must have the same shape as their gradient.
  * @tparam Kernel A struct containing a static binary funcion ('Grad').
@@ -479,6 +508,7 @@ void pointwise(const typename Kernel::value_type *inp,
 
 /**
  * @brief Accumulates the gradient of sum_dim, @p inp .
+ * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
@@ -505,6 +535,7 @@ void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref sum_dim().
+ * @ingroup unary_adjoint_functions
  */
 template <typename T, int inp_rank>
 void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
@@ -524,6 +555,7 @@ void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Accumulates the gradient of mean_dim, @p inp .
+ * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
@@ -540,6 +572,7 @@ void mean(T *d_inp, const T *d_res, const T *d_inp_end, T divisor) noexcept {
 
 /**
  * @brief Accumulates the gradient of mean_dim, @p inp .
+ * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
@@ -562,6 +595,7 @@ void mean_dim(const T *inp, T *d_inp, const T *res, const T *d_res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref mean_dim().
+ * @ingroup unary_adjoint_functions
  */
 template <typename T, int inp_rank>
 void mean_dim(const T *inp, T *d_inp, const T *res, const T *d_res,
@@ -576,6 +610,7 @@ void mean_dim(const T *inp, T *d_inp, const T *res, const T *d_res,
 
 /**
  * @brief Accumulates the gradient of slice, @p inp .
+ * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
@@ -605,6 +640,7 @@ void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 
 /**
  * @brief Compile-time recursive version of runtime @ref slice().
+ * @ingroup unary_adjoint_functions
  */
 template <typename T, int rank>
 void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
