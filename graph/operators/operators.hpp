@@ -8,17 +8,17 @@ namespace kaad {
 class Computation_graph;
 
 /**
- * @defgroup ops Operators applied to Nodes on a computation graph.
+ * @defgroup operators Operators applied to Nodes on a computation graph.
  */
 
 /**
- * @defgroup unary_ops Unary operators.
- * @ingroup ops
+ * @defgroup unary_operators Unary operators.
+ * @ingroup operators
  */
 
 /**
  * @brief Adds a unary negation node (-A) to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
@@ -29,7 +29,7 @@ Node_handle negative(Computation_graph &rec, Node_handle A);
 
 /**
  * @brief Adds a unary square node (A^2) to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
@@ -40,7 +40,7 @@ Node_handle square(Computation_graph &rec, Node_handle A);
 
 /**
  * @brief Adds a unary square root node (sqrt(A)) to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
@@ -51,7 +51,7 @@ Node_handle sqrt(Computation_graph &rec, Node_handle A);
 
 /**
  * @brief Adds a unary logarithm node (log(A)) to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
@@ -62,7 +62,7 @@ Node_handle log(Computation_graph &rec, Node_handle A);
 
 /**
  * @brief Adds a unary exponent node (e^A) to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
@@ -73,7 +73,7 @@ Node_handle exp(Computation_graph &rec, Node_handle A);
 
 /**
  * @brief Adds a unary absolute value node (|A|) to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
@@ -84,7 +84,7 @@ Node_handle abs(Computation_graph &rec, Node_handle A);
 
 /**
  * @brief Adds a slice node to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * Extracts a slice from the input tensor node `A`, starting at the
  * specified `offset` and extending for the given `size` along each dimension.
@@ -104,7 +104,7 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
 
 /**
  * @brief Adds a unary sum node to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * Computes the sum of all elements in the input tensor node `A`,
  * producing a scalar tensor node containing the total sum.
@@ -119,7 +119,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A);
 /**
  * @brief Adds a sum node to the computation graph that sums elements along a
  * specified dimension.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * Computes the sum of elements in the input tensor node `A` along the given
  * dimension `dim`. The resulting tensor shape depends on the `keepNDims` flag:
@@ -140,7 +140,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
- * @ingroup unary_ops
+ * @ingroup unary_operators
  *
  * Transposes the input tensor node `A` according to the permutation `perm`.
  * If `perm` is empty, the tensor is fully transposed by reversing its
@@ -158,13 +158,13 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
                       std::initializer_list<int> perm = {});
 
 /**
- * @defgroup binary_ops Binary operators.
- * @ingroup ops
+ * @defgroup binary_operators Binary operators.
+ * @ingroup operators
  */
 
 /**
  * @brief Adds a binary addition node (A + B) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise sum of two input tensor nodes `A` and `B`.
  * Both tensors must have the same shape or be broadcast-compatible.
@@ -179,7 +179,7 @@ Node_handle add(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a binary subtratction node (A - B) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise difference of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -195,7 +195,7 @@ Node_handle sub(Computation_graph &rec, Node_handle A, Node_handle B);
 /**
  * @brief Adds a binary multiplication node (A * B) to the computation
  * graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise product of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -210,7 +210,7 @@ Node_handle mul(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a binary division node (A / B) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise quotient of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -225,7 +225,7 @@ Node_handle div(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a binary power node (A ^ B) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise power of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -240,7 +240,7 @@ Node_handle pow(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a binary minimum node (min(A, B)) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise minimum of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -255,7 +255,7 @@ Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a binary maximum node (max(A, B)) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise maximum of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -270,7 +270,7 @@ Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a binary dot product node (A dot B) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the element-wise dot product of two input tensor nodes `A` and
  * `B`. Both tensors must have the same shape or be broadcast-compatible.
@@ -285,7 +285,7 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a matrix multiplication node (A x B) to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Performs matrix multiplication between two input tensor nodes `A` and
  * `B`. Supports both standard 2D matrix multiplication and batched matrix
@@ -306,7 +306,7 @@ Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
  * @brief Adds a unary mean node to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the mean (average) of all elements in the input tensor node `A`,
  * producing a scalar tensor node containing the total average.
@@ -321,7 +321,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A);
 /**
  * @brief Adds a mean node to the computation graph that computes the mean along
  * a specified dimension.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the mean of elements in the input tensor node `A` along the
  * given dimension `dim`. The resulting tensor shape depends on the `keepNDims`
@@ -343,7 +343,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
- * @ingroup binary_ops
+ * @ingroup binary_operators
  *
  * Computes the outer product of two input tensor nodes `A` and `B`.
  * The result is a tensor whose shape is the concatenation of the shapes of A

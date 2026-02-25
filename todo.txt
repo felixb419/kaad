@@ -11,7 +11,13 @@ FEAT:
 PERF:
 
 DOC:
-    add doxygen groups
+    add doxygen groups:
+        functions
+            binary_functions
+            unary_functions
+        nodes
+            binary_nodes
+            unary_nodes
 
 LATER:
 
