@@ -1,9 +1,8 @@
 #pragma once
 
-#include <algorithm> // for std::max, std::min
-#include <cmath> // for std::log, std::pow, std::exp, std::sqrt, std::copysignf
-#include <cstdlib> // for std::abs
-#include <limits>  // for std::numeric_limits
+#include <cmath>   // for log, exp, copysign, floor, round, sqrt
+#include <cstdlib> // for abs
+#include <limits>  // for numeric_limits
 
 namespace kaad {
 

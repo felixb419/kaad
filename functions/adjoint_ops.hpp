@@ -1,7 +1,9 @@
 #pragma once
 
 #include "primal_ops.hpp" // for batch_matmul, matmul
-#include <cstddef>        // for std::size_t
+#include <concepts>       // for concept
+#include <cstddef>        // for size_t
+#include <type_traits>    // for declval
 
 namespace kaad {
 
@@ -308,8 +310,8 @@ void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
             int *stride_lhs, int *stride_rhs, int *stride_res) noexcept {
     // d_lhs = d_res * rhs^T
     functions::primal::binary::matmul(d_res, rhs, d_lhs, lhs_rows[0],
-                                        rhs_cols[0], shared_dim[0], stride_res,
-                                        stride_rhs, stride_lhs);
+                                      rhs_cols[0], shared_dim[0], stride_res,
+                                      stride_rhs, stride_lhs);
     // d_rhs = lhs^T * d_res
     functions::primal::binary::matmul(
         lhs, d_res, d_rhs, lhs_rows[1], rhs_cols[1], shared_dim[1],

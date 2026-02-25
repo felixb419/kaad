@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstddef> // for std::size_t
-#include <utility> // for std::declval
+#include <concepts>    // for concept
+#include <cstddef>     // for size_t
+#include <type_traits> // for declval
 
 namespace kaad {
 
