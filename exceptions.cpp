@@ -1,7 +1,5 @@
 #include "exceptions.hpp"
 
-#include <span>
-
 namespace kaad {
 
 static inline std::string to_array_string(std::span<const int> array) {
