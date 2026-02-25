@@ -8,6 +8,7 @@ REFACTOR:
 
 FEAT:
     example programs
+    Install support
     test programs
     (?) label member for nodes
     (?) add debug input checking in kernels
