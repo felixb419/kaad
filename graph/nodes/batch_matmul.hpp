@@ -34,8 +34,8 @@ class Node_batch_matmul : public INode {
      * @brief Stride arrays for A, B, and C for each stage of computation.
      * Index convention:
      * - [0] Forward pass (C = A * B)
-     * - [1] Gradient w.r.t. A (dA = dC * Bᵗ)
-     * - [2] Gradient w.r.t. B (dB = Aᵗ * dC)
+     * - [1] Gradient w.r.t. A (dA = dC * B^t)
+     * - [2] Gradient w.r.t. B (dB = A^t * dC)
      */
     int *(lhs_stride[3]);            ///< Stride array for tensor A.
     int *(rhs_stride[3]);            ///< Stride array for tensor B.

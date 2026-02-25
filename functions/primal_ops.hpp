@@ -20,10 +20,10 @@ namespace kaad {
  * - The resulting tensor shape is the elementwise maximum along each dimension.
  *
  * Examples:
- *   (3, 1, 5) and (1, 4, 5) → broadcast to (3, 4, 5)
- *   (2, 3) and (3,) → broadcast to (2, 3)
+ *   (3, 1, 5) and (1, 4, 5) -> broadcast to (3, 4, 5)
+ *   (2, 3) and (3,) -> broadcast to (2, 3)
  *
- * @note These rules are identical to NumPy’s broadcasting semantics.
+ * @note These rules are identical to NumPy's broadcasting semantics.
  */
 
 /**

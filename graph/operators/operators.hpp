@@ -28,7 +28,7 @@ class Computation_graph;
 Node_handle negative(Computation_graph &rec, Node_handle A);
 
 /**
- * @brief Adds a unary square node (A²) to the computation graph.
+ * @brief Adds a unary square node (A^2) to the computation graph.
  * @ingroup unary_ops
  *
  * @param rec The computation graph to which the node will be added.
@@ -39,7 +39,7 @@ Node_handle negative(Computation_graph &rec, Node_handle A);
 Node_handle square(Computation_graph &rec, Node_handle A);
 
 /**
- * @brief Adds a unary square root node (√A) to the computation graph.
+ * @brief Adds a unary square root node (sqrt(A)) to the computation graph.
  * @ingroup unary_ops
  *
  * @param rec The computation graph to which the node will be added.
@@ -269,7 +269,7 @@ Node_handle min(Computation_graph &rec, Node_handle A, Node_handle B);
 Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
- * @brief Adds a binary dot product node (A ⋅ B) to the computation graph.
+ * @brief Adds a binary dot product node (A dot B) to the computation graph.
  * @ingroup binary_ops
  *
  * Computes the element-wise dot product of two input tensor nodes `A` and
@@ -284,7 +284,7 @@ Node_handle max(Computation_graph &rec, Node_handle A, Node_handle B);
 Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B);
 
 /**
- * @brief Adds a matrix multiplication node (A × B) to the computation graph.
+ * @brief Adds a matrix multiplication node (A x B) to the computation graph.
  * @ingroup binary_ops
  *
  * Performs matrix multiplication between two input tensor nodes `A` and
@@ -293,7 +293,7 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B);
  * - If both tensors are 2D, performs standard matrix multiplication.
  * - If tensors have more than 2 dimensions, performs batched matrix
  * multiplication over the leading dimensions. For example, multiplying tensors
- * of shape (batch, M, K) × (batch, K, N) yields a result of shape (batch, M,
+ * of shape (batch, M, K) x (batch, K, N) yields a result of shape (batch, M,
  * N).
  *
  * @param rec The computation graph to which the node will be added.

@@ -11,7 +11,6 @@ FEAT:
 PERF:
 
 DOC:
-    get rid of non-ascii chars
     add doxygen groups
 
 LATER:

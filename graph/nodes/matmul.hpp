@@ -31,18 +31,18 @@ class Node_matmul : public INode {
      * all 3 passes (forward and both backward gradients).
      * Index layout for each stride array:
      * - [0..1] Forward pass (C = A * B)
-     * - [2..3] Gradient w.r.t. A (dA = dC * Bᵗ)
-     * - [4..5] Gradient w.r.t. B (dB = Aᵗ * dC)
+     * - [2..3] Gradient w.r.t. A (dA = dC * B^t)
+     * - [4..5] Gradient w.r.t. B (dB = A^t * dC)
      */
     int lhs_rows[3]; ///< Number of rows of tensor A for each computation stage.
     int rhs_cols[3]; ///< Number of columns of tensor B for each computation
                      ///< stage.
     int shared_dim[3]; ///< Shared inner dimension for each computation stage.
-    int lhs_stride[6]; ///< Flattened stride pairs for tensor A (2 per stage × 3
+    int lhs_stride[6]; ///< Flattened stride pairs for tensor A (2 per stage x 3
                        ///< stages).
-    int rhs_stride[6]; ///< Flattened stride pairs for tensor B (2 per stage × 3
+    int rhs_stride[6]; ///< Flattened stride pairs for tensor B (2 per stage x 3
                        ///< stages).
-    int value_stride[6]; ///< Flattened stride pairs for tensor C (2 per stage ×
+    int value_stride[6]; ///< Flattened stride pairs for tensor C (2 per stage x
                          ///< 3 stages).
 
     void metadata();

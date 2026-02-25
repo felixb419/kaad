@@ -116,7 +116,7 @@ class Computation_graph {
      * to which gradients are computed.
      * @param wrt A list of input node handles for which the gradients are
      * requested.
-     * @return An array of Tensor* pointers representing the gradients ∂f/∂xᵢ
+     * @return An array of Tensor* pointers representing the gradients df/dx
      * for each input node.
      */
     template <typename... Handles>
