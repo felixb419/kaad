@@ -1,6 +1,6 @@
 #include "sum_dim.hpp"
 #include "../../functions/adjoint_ops.hpp" // for sum_dim_fn
-#include "../../functions/primal_ops.hpp"  // for sum_dim_fn
+#include "../../functions/primal.hpp"      // for sum_dim_fn
 #include "../../scalar.hpp"                // for Scalar
 #include "../../tensor/tensor.hpp"         // for Tensor
 #include "../common.hpp"                   // for along_dim_m...

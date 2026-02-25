@@ -2,7 +2,7 @@
 
 #include "../../functions/adjoint_ops.hpp" // for pointwise, pointwise_fn
 #include "../../functions/kernels.hpp"     // for NoOp
-#include "../../functions/primal_ops.hpp"  // for pointwise, pointwise_fn
+#include "../../functions/primal.hpp"      // for pointwise, pointwise_fn
 #include "../../scalar.hpp"                // for Scalar
 #include "inode.hpp"                       // for INode
 #include <span>                            // for span

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../functions/adjoint_ops.hpp" // for flexible, flexible_fn
-#include "../../functions/primal_ops.hpp"  // for flexible, flexible_fn
+#include "../../functions/primal.hpp"      // for flexible, flexible_fn
 #include "../../tensor/tensor.hpp"         // for Tensor
 #include "../dispatchers.hpp"              // for MAX_NDIMS, get_flex...
 #include "inode.hpp"                       // for INode

@@ -1,6 +1,6 @@
 #include "slice.hpp"
 #include "../../functions/adjoint_ops.hpp" // for slice_fn
-#include "../../functions/primal_ops.hpp"  // for slice_fn
+#include "../../functions/primal.hpp"      // for slice_fn
 #include "../../tensor/tensor.hpp"         // for Tensor
 #include "../dispatchers.hpp"              // for get_slice
 #include <algorithm>                       // for copy

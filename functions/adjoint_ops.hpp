@@ -1,9 +1,9 @@
 #pragma once
 
-#include "primal_ops.hpp" // for batch_matmul, matmul
-#include <concepts>       // for concept
-#include <cstddef>        // for size_t
-#include <type_traits>    // for declval
+#include "primal.hpp"  // for batch_matmul, matmul
+#include <concepts>    // for concept
+#include <cstddef>     // for size_t
+#include <type_traits> // for declval
 
 namespace kaad {
 

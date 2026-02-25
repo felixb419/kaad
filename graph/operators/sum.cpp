@@ -1,7 +1,7 @@
 #include "../../exceptions.hpp"            // for make_graph_e...
 #include "../../functions/adjoint_ops.hpp" // for scalarOut
 #include "../../functions/kernels.hpp"     // for Sum
-#include "../../functions/primal_ops.hpp"  // for scalarOut
+#include "../../functions/primal.hpp"      // for scalarOut
 #include "../../scalar.hpp"                // for Scalar
 #include "../../tensor/tensor.hpp"         // for Tensor
 #include "../computation_graph.hpp"        // for Computation_...

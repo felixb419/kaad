@@ -1,7 +1,7 @@
 #include "../nodes/dot.hpp"                // for Node_dot, dot
 #include "../../exceptions.hpp"            // for make_graph_errmsg
 #include "../../functions/adjoint_ops.hpp" // for scalarDot
-#include "../../functions/primal_ops.hpp"  // for scalarDot
+#include "../../functions/primal.hpp"      // for scalarDot
 #include "../../graph/nodes/inode.hpp"     // for INode
 #include "../../tensor/tensor.hpp"         // for Tensor
 #include "../computation_graph.hpp"        // for Computation_graph

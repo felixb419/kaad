@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../functions/adjoint_ops.hpp" // for sum_dim, sum_dim_fn
-#include "../../functions/primal_ops.hpp"  // for sum_dim, sum_dim_fn
+#include "../../functions/primal.hpp"      // for sum_dim, sum_dim_fn
 #include "../../scalar.hpp"                // for Scalar
 #include "inode.hpp"                       // for INode
 #include <cstddef>                         // for size_t

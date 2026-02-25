@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../functions/adjoint_ops.hpp" // for dot, dot_fn
-#include "../../functions/primal_ops.hpp"  // for dot, dot_fn
+#include "../../functions/primal.hpp"      // for dot, dot_fn
 #include "../../scalar.hpp"                // for Scalar
 #include "inode.hpp"                       // for INode
 

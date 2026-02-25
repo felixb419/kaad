@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../functions/adjoint_ops.hpp" // for mean, mean_fn
-#include "../../functions/primal_ops.hpp"  // for mean, mean_fn
+#include "../../functions/primal.hpp"      // for mean, mean_fn
 #include "../../scalar.hpp"                // for Scalar
 #include "inode.hpp"                       // for INode
 #include <span>                            // for span

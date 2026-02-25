@@ -1,6 +1,6 @@
 #include "mean_dim.hpp"
 #include "../../functions/adjoint_ops.hpp" // for mean_dim_fn
-#include "../../functions/primal_ops.hpp"  // for mean_dim_fn
+#include "../../functions/primal.hpp"      // for mean_dim_fn
 #include "../../tensor/tensor.hpp"         // for Tensor
 #include "../common.hpp"                   // for along_dim_m...
 #include "../dispatchers.hpp"              // for get_meanDim
