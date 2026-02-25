@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../functions/adjoint_ops.hpp" // for batch_matmul_fn, flexible_fn
-#include "../functions/primal.hpp"      // for batch_matmul_fn, flexible_fn
-#include <array>                        // for array
-#include <bits/utility.h>               // for index_sequence, make_index_s...
-#include <cstddef>                      // for size_t
+#include "../functions/adjoint.hpp" // for batch_matmul_fn, flexible_fn
+#include "../functions/primal.hpp"  // for batch_matmul_fn, flexible_fn
+#include <array>                    // for array
+#include <bits/utility.h>           // for index_sequence, make_index_s...
+#include <cstddef>                  // for size_t
 
 namespace kaad {
 

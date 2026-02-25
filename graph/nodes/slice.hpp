@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for slice, slice_fn
-#include "../../functions/primal.hpp"      // for slice, slice_fn
-#include "../../scalar.hpp"                // for Scalar
-#include "inode.hpp"                       // for INode
-#include <cstddef>                         // for size_t
-#include <span>                            // for span
-#include <vector>                          // for vector
+#include "../../functions/adjoint.hpp" // for slice, slice_fn
+#include "../../functions/primal.hpp"  // for slice, slice_fn
+#include "../../scalar.hpp"            // for Scalar
+#include "inode.hpp"                   // for INode
+#include <cstddef>                     // for size_t
+#include <span>                        // for span
+#include <vector>                      // for vector
 
 namespace kaad {
 

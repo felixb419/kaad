@@ -1,5 +1,5 @@
 #include "../../exceptions.hpp"             // for make_graph_errmsg
-#include "../../functions/adjoint_ops.hpp"  // for pointwise_fn, flexible
+#include "../../functions/adjoint.hpp"      // for pointwise_fn, flexible
 #include "../../functions/kernels.hpp"      // for Add, Max, Min, Mul
 #include "../../functions/primal.hpp"       // for pointwise_fn, flexible
 #include "../../functions/safe_kernels.hpp" // for safe_Div, safe_Pow

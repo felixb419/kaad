@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for pointwise_fn, pointwise
-#include "../../functions/primal.hpp"      // for pointwise_fn, pointwise
-#include "../../scalar.hpp"                // for Scalar
-#include "inode.hpp"                       // for INode
-#include <span>                            // for span
+#include "../../functions/adjoint.hpp" // for pointwise_fn, pointwise
+#include "../../functions/primal.hpp"  // for pointwise_fn, pointwise
+#include "../../scalar.hpp"            // for Scalar
+#include "inode.hpp"                   // for INode
+#include <span>                        // for span
 
 namespace kaad {
 

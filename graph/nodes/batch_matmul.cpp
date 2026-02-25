@@ -1,15 +1,15 @@
 #include "batch_matmul.hpp"
-#include "../../functions/adjoint_ops.hpp" // for batch_matmu...
-#include "../../functions/primal.hpp"      // for batch_matmu...
-#include "../../scalar.hpp"                // for Scalar
-#include "../../tensor/tensor.hpp"         // for Tensor
-#include "../../tensor/tensor_view.hpp"    // for Tensor_view
-#include "../common.hpp"                   // for combine_matrix
-#include "../dispatchers.hpp"              // for get_batch_m...
-#include <algorithm>                       // for copy, max
-#include <array>                           // for array
-#include <utility>                         // for swap
-#include <vector>                          // for vector
+#include "../../functions/adjoint.hpp"  // for batch_matmu...
+#include "../../functions/primal.hpp"   // for batch_matmu...
+#include "../../scalar.hpp"             // for Scalar
+#include "../../tensor/tensor.hpp"      // for Tensor
+#include "../../tensor/tensor_view.hpp" // for Tensor_view
+#include "../common.hpp"                // for combine_matrix
+#include "../dispatchers.hpp"           // for get_batch_m...
+#include <algorithm>                    // for copy, max
+#include <array>                        // for array
+#include <utility>                      // for swap
+#include <vector>                       // for vector
 
 namespace kaad {
 

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for flexible, flexible_fn
-#include "../../functions/kernels.hpp"     // for Mul
-#include "../../functions/primal.hpp"      // for flexible, flexible_fn
-#include "../../scalar.hpp"                // for Scalar
-#include "inode.hpp"                       // for INode
-#include <cstddef>                         // for size_t
-#include <span>                            // for span
-#include <vector>                          // for vector
+#include "../../functions/adjoint.hpp" // for flexible, flexible_fn
+#include "../../functions/kernels.hpp" // for Mul
+#include "../../functions/primal.hpp"  // for flexible, flexible_fn
+#include "../../scalar.hpp"            // for Scalar
+#include "inode.hpp"                   // for INode
+#include <cstddef>                     // for size_t
+#include <span>                        // for span
+#include <vector>                      // for vector
 
 namespace kaad {
 

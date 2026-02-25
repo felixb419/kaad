@@ -1,10 +1,10 @@
 #include "outer.hpp"
-#include "../../functions/adjoint_ops.hpp" // for flexible_fn
-#include "../../functions/primal.hpp"      // for flexible_fn
-#include "../../tensor/tensor.hpp"         // for Tensor
-#include "../dispatchers.hpp"              // for get_flexGrad
-#include <algorithm>                       // for copy
-#include <array>                           // for array
+#include "../../functions/adjoint.hpp" // for flexible_fn
+#include "../../functions/primal.hpp"  // for flexible_fn
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../dispatchers.hpp"          // for get_flexGrad
+#include <algorithm>                   // for copy
+#include <array>                       // for array
 
 namespace kaad {
 

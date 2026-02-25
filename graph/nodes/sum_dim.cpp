@@ -1,11 +1,11 @@
 #include "sum_dim.hpp"
-#include "../../functions/adjoint_ops.hpp" // for sum_dim_fn
-#include "../../functions/primal.hpp"      // for sum_dim_fn
-#include "../../scalar.hpp"                // for Scalar
-#include "../../tensor/tensor.hpp"         // for Tensor
-#include "../common.hpp"                   // for along_dim_m...
-#include "../dispatchers.hpp"              // for get_sumDim
-#include <array>                           // for array
+#include "../../functions/adjoint.hpp" // for sum_dim_fn
+#include "../../functions/primal.hpp"  // for sum_dim_fn
+#include "../../scalar.hpp"            // for Scalar
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../common.hpp"               // for along_dim_m...
+#include "../dispatchers.hpp"          // for get_sumDim
+#include <array>                       // for array
 
 namespace kaad {
 

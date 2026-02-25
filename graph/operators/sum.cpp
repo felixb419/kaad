@@ -1,21 +1,21 @@
-#include "../../exceptions.hpp"            // for make_graph_e...
-#include "../../functions/adjoint_ops.hpp" // for scalarOut
-#include "../../functions/kernels.hpp"     // for Sum
-#include "../../functions/primal.hpp"      // for scalarOut
-#include "../../scalar.hpp"                // for Scalar
-#include "../../tensor/tensor.hpp"         // for Tensor
-#include "../computation_graph.hpp"        // for Computation_...
-#include "../node_handle.hpp"              // for Node_handle
-#include "../nodes/inode.hpp"              // for INode
-#include "../nodes/sum_dim.hpp"            // for Node_sum_dim
-#include "../nodes/unary.hpp"              // for Node_unary
-#include "operators.hpp"                   // for sum
-#include <algorithm>                       // for copy
-#include <array>                           // for array
-#include <cstddef>                         // for size_t
-#include <memory>                          // for unique_ptr
-#include <utility>                         // for move
-#include <vector>                          // for vector
+#include "../../exceptions.hpp"        // for make_graph_e...
+#include "../../functions/adjoint.hpp" // for scalarOut
+#include "../../functions/kernels.hpp" // for Sum
+#include "../../functions/primal.hpp"  // for scalarOut
+#include "../../scalar.hpp"            // for Scalar
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../computation_graph.hpp"    // for Computation_...
+#include "../node_handle.hpp"          // for Node_handle
+#include "../nodes/inode.hpp"          // for INode
+#include "../nodes/sum_dim.hpp"        // for Node_sum_dim
+#include "../nodes/unary.hpp"          // for Node_unary
+#include "operators.hpp"               // for sum
+#include <algorithm>                   // for copy
+#include <array>                       // for array
+#include <cstddef>                     // for size_t
+#include <memory>                      // for unique_ptr
+#include <utility>                     // for move
+#include <vector>                      // for vector
 
 namespace kaad {
 
