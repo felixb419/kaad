@@ -6,7 +6,6 @@ REFACTOR:
     add input checking in kernels
 
 FEAT:
-    maybe rename tensorfunc params
     maybe rename tensorfunc 
 
 
