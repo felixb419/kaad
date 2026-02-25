@@ -1,6 +1,8 @@
 #include "../kaad.hpp"
-#include "../scalar.hpp"
-#include <iostream>
+#include <algorithm> // for fill
+#include <array>     // for array
+#include <iostream>  // for operator<<
+#include <span>      // for span
 
 int main() {
     kaad::Computation_graph rec;

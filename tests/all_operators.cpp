@@ -1,6 +1,6 @@
 #include "../kaad.hpp"
-#include "../scalar.hpp"
-#include <iostream>
+#include <array> // for array
+#include <span>  // for span
 
 void call_all_operators(kaad::Computation_graph &rec, kaad::Node_handle a,
                         kaad::Node_handle b) {
