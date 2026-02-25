@@ -1,14 +1,14 @@
 #include "tensor.hpp"
-
 #include "../exceptions.hpp" // for argument_error
-#include "common.hpp"        // for kaad::detail::print_tensor
-#include "tensor_view.hpp"   // for kaad::Tensor_view
-#include <algorithm>         // for std::copy, std::max, std::fill
-#include <initializer_list>  // for std::initializer_list
-#include <iostream>          // for std::ostream
-#include <numeric>           // for std::iota
-#include <span>              // for std::span
-#include <vector>            // for std::vector
+#include "../scalar.hpp"     // for Scalar
+#include "common.hpp"        // for print_tensor
+#include "tensor_view.hpp"   // for Tensor_view, Tensor_view_mut
+#include <algorithm>         // for copy, fill, fill_n, max
+#include <initializer_list>  // for initializer_list
+#include <iostream>          // for operator<<, ostream
+#include <span>              // for span
+#include <utility>           // for move
+#include <vector>            // for vector, vector<>::iterator
 
 namespace kaad {
 

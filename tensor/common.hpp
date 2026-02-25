@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../scalar.hpp" // for Scalar
-#include <iostream>      // for std::ostream, std::endl
-#include <vector>        // for std::vector
+#include <cstddef>       // for size_t
+#include <iostream>      // for operator<<, ostream, endl
+#include <vector>        // for vector
 
 namespace kaad::detail {
 
