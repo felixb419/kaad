@@ -1,5 +1,6 @@
 #include "transp.hpp"
-#include <cassert>
+#include "../../tensor/tensor.hpp" // for Tensor
+#include <vector>                  // for vector
 
 namespace kaad {
 

@@ -1,15 +1,16 @@
-#include "operators.hpp"
-
-#include "../../tensor/tensor.hpp"            // for Tensor
-#include "../../functions/adjoint_ops.hpp"  // for functions::adjoint
-#include "../../functions/kernels.hpp"      // for Kernels
-#include "../../functions/primal_ops.hpp"   // for functions::primal
-#include "../../functions/safe_kernels.hpp" // for Kernels
-#include "../computation_graph.hpp"           // for Computation_graph
-#include "../node_handle.hpp"                 // for Node_handle
-#include "../nodes/unary.hpp"                 // for Node_unarysewfease
-#include <algorithm>                          // for std::copy, std::fill
-#include <memory>                             // for std::make_unique
+#include "../../functions/adjoint_ops.hpp"  // for pointwise, poin...
+#include "../../functions/kernels.hpp"      // for Abs, Neg, Square
+#include "../../functions/primal_ops.hpp"   // for pointwise, poin...
+#include "../../functions/safe_kernels.hpp" // for safe_Exp, safe_Log
+#include "../../graph/nodes/inode.hpp"      // for INode
+#include "../../scalar.hpp"                 // for Scalar
+#include "../../tensor/tensor.hpp"          // for Tensor
+#include "../computation_graph.hpp"         // for Computation_graph
+#include "../node_handle.hpp"               // for Node_handle
+#include "../nodes/unary.hpp"               // for Node_unary
+#include "operators.hpp"                    // for abs, exp, log
+#include <memory>                           // for make_unique
+#include <utility>                          // for move
 
 namespace kaad {
 

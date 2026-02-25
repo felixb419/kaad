@@ -1,10 +1,12 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "../common.hpp"                     // for along_dim_metadata_impl
-#include "../dispatchers.hpp"                // for get_sumDim, get_sumDim_grad
-#include "inode.hpp"                         // for INode
+#include "../../functions/adjoint_ops.hpp" // for sum_dim, sum_dim_fn
+#include "../../functions/primal_ops.hpp"  // for sum_dim, sum_dim_fn
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
+#include <cstddef>                         // for size_t
+#include <span>                            // for span
+#include <vector>                          // for vector
 
 namespace kaad {
 
@@ -19,10 +21,10 @@ class Node_sum_dim : public INode {
 
     functions::primal::unary::sum_dim_fn<Scalar> val_func =
         functions::primal::unary::sum_dim; ///< Function pointer to the
-                                             ///< sum_dim operation.
+                                           ///< sum_dim operation.
     functions::adjoint::unary::sum_dim_fn<Scalar> grad_func =
         functions::adjoint::unary::sum_dim; ///< Function pointer to the
-                                              ///< sum_dim gradient.
+                                            ///< sum_dim gradient.
 
     std::vector<int> input_stride; ///< stride Array for input.
     std::vector<int> value_stride; ///< stride Array for value.

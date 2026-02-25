@@ -1,10 +1,14 @@
-#include "operators.hpp"
-
-#include "../../tensor/tensor.hpp"  // for Tensor
-#include "../computation_graph.hpp" // for Computation_graph
-#include "../node_handle.hpp"       // for Node_handle
-#include "../nodes/outer.hpp"       // for Node_outer
-#include <memory>                   // for std::make_unique
+#include "../nodes/outer.hpp"          // for Node_outer
+#include "../../graph/nodes/inode.hpp" // for INode
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../computation_graph.hpp"    // for Computation_graph
+#include "../node_handle.hpp"          // for Node_handle
+#include "operators.hpp"               // for outer
+#include <algorithm>                   // for copy
+#include <cstddef>                     // for size_t
+#include <memory>                      // for unique_ptr, __u...
+#include <utility>                     // for move
+#include <vector>                      // for vector
 
 namespace kaad {
 

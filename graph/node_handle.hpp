@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>  // for uint32_t
-#include <iostream> // for std::ostream
+#include <iostream> // for ostream
+#include <stdint.h> // for uint32_t
 
 namespace kaad {
 class Computation_graph;

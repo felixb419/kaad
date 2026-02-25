@@ -1,13 +1,17 @@
 #pragma once
 
+#include "../scalar.hpp"        // for Scalar
 #include "../tensor/tensor.hpp" // for Tensor
 #include "node_handle.hpp"      // for Node_handle
 #include "nodes/inode.hpp"      // for INode
-#include "nodes/input.hpp"      // for InputNode
-#include <array>                // for std::array
-#include <cstddef>              // for std::size_t
-#include <memory>               // for std::unique_ptr, std::make_unique
-#include <vector>               // for std::vector
+#include <algorithm>            // for fill
+#include <array>                // for array
+#include <cstddef>              // for size_t
+#include <initializer_list>     // for initializer_list
+#include <iosfwd>               // for ostream
+#include <memory>               // for unique_ptr
+#include <span>                 // for span
+#include <vector>               // for vector
 
 namespace kaad {
 

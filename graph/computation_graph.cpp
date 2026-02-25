@@ -1,12 +1,17 @@
 #include "computation_graph.hpp"
 
 #include "../exceptions.hpp"    // for argument_error
-#include "../tensor/tensor.hpp" // for Tensor
-#include "node_handle.hpp"      // for Node_handle
-#include "nodes/inode.hpp"      // for INode
-#include <memory>               // for std::unique_ptr, std::make_unique
-#include <utility>              // for std::as_const
-#include <vector>               // for std::vector
+#include "../tensor/tensor.hpp" // for operator<<, Tensor
+#include "computation_graph.hpp"
+#include "node_handle.hpp" // for Node_handle, operator<<
+#include "nodes/inode.hpp" // for INode
+#include "nodes/input.hpp" // for Node_input
+#include <memory>          // for unique_ptr, make_unique, allocator_t...
+#include <ostream>         // for operator<<, basic_ostream, basic_ost...
+#include <string>          // for operator+, to_string, char_traits
+#include <type_traits>     // for add_const_t
+#include <utility>         // for as_const
+#include <vector>          // for vector
 
 namespace kaad {
 

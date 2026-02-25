@@ -1,14 +1,15 @@
-#include "operators.hpp"
-
-#include "../../exceptions.hpp"     // for shape_error, argument_error
+#include "../../exceptions.hpp"     // for make_graph_errmsg, argument_error
 #include "../../tensor/tensor.hpp"  // for Tensor
-#include "../computation_graph.hpp" // for Computation_graph
+#include "../computation_graph.hpp" // for Computation_graph, transpose
 #include "../node_handle.hpp"       // for Node_handle
 #include "../nodes/inode.hpp"       // for INode
 #include "../nodes/transp.hpp"      // for Node_transp
-#include <algorithm>                // for std::reverse_copy
-#include <initializer_list>         // for std::initializer_list
-#include <memory>                   // for std::make_unique
+#include "operators.hpp"            // for transpose
+#include <algorithm>                // for reverse_copy, fill
+#include <initializer_list>         // for initializer_list
+#include <memory>                   // for unique_ptr, __unique_ptr_t, make...
+#include <utility>                  // for move
+#include <vector>                   // for vector
 
 namespace kaad {
 

@@ -1,6 +1,8 @@
 #include "matmul.hpp"
-
-#include <algorithm> // for std::reverse_copy
+#include "../../tensor/tensor.hpp"      // for Tensor
+#include "../../tensor/tensor_view.hpp" // for Tensor_view
+#include <algorithm>                    // for reverse_copy
+#include <vector>                       // for vector
 
 namespace kaad {
 

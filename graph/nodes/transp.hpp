@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/adjoint_ops.hpp" // for pointwise, pointwise_fn
 #include "../../functions/kernels.hpp"     // for NoOp
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "inode.hpp"                         // for INode
+#include "../../functions/primal_ops.hpp"  // for pointwise, pointwise_fn
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
+#include <span>                            // for span
 
 namespace kaad {
 
@@ -20,12 +22,12 @@ class Node_transp : public INode {
 
     functions::primal::unary::pointwise_fn<Kernel> forward_op =
         functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
-                                                       ///< the value operation.
+                                                     ///< the value operation.
 
     functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
         functions::adjoint::unary::pointwise<Kernel>; ///< Function pointer to
-                                                        ///< the gradient
-                                                        ///< operation.
+                                                      ///< the gradient
+                                                      ///< operation.
 
     const Scalar *input_end =
         nullptr; ///< Pointer to the end of the input buffer.

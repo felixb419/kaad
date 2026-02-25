@@ -1,11 +1,10 @@
 #pragma once
 
-#include "../tensor/tensor.hpp"           // for Tensor::value_type
-#include "../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../functions/primal_ops.hpp"  // for functions::primal
-#include <array>                          // for std::array
-#include <cstddef>                        // for std::size_t
-#include <utility> // for std::index_sequence, std::make_index_sequence
+#include "../functions/adjoint_ops.hpp" // for batch_matmul_fn, flexible_fn
+#include "../functions/primal_ops.hpp"  // for batch_matmul_fn, flexible_fn
+#include <array>                        // for array
+#include <bits/utility.h>               // for index_sequence, make_index_s...
+#include <cstddef>                      // for size_t
 
 namespace kaad {
 
@@ -38,8 +37,7 @@ get_flexOp_impl(std::index_sequence<Is...>) {
 }
 
 template <class Kernel>
-constexpr std::array<functions::primal::binary::flexible_fn<Kernel>,
-                     MAX_NDIMS>
+constexpr std::array<functions::primal::binary::flexible_fn<Kernel>, MAX_NDIMS>
 get_flexOp() {
     return get_flexOp_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
 }
@@ -53,8 +51,7 @@ get_flexGrad_impl(std::index_sequence<Is...>) {
 }
 
 template <class Kernel>
-constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>,
-                     MAX_NDIMS>
+constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>, MAX_NDIMS>
 get_flexGrad() {
     return get_flexGrad_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
 }
@@ -82,8 +79,7 @@ get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>,
-                     MAX_NDIMS>
+constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>, MAX_NDIMS>
 get_batch_matmul_grad() {
     return get_batch_matmul_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }

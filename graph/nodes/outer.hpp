@@ -1,10 +1,13 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/kernels.hpp"
-#include "../../functions/primal_ops.hpp" // for functions::primal
-#include "inode.hpp"                        // for INode, Node_ptr
-#include <vector>                           // for std::vector
+#include "../../functions/adjoint_ops.hpp" // for flexible, flexible_fn
+#include "../../functions/kernels.hpp"     // for Mul
+#include "../../functions/primal_ops.hpp"  // for flexible, flexible_fn
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
+#include <cstddef>                         // for size_t
+#include <span>                            // for span
+#include <vector>                          // for vector
 
 namespace kaad {
 
@@ -22,7 +25,7 @@ class Node_outer : public INode {
 
     functions::primal::binary::flexible_fn<Kernel> forward_op =
         functions::primal::binary::flexible<Kernel>; ///< Function pointer to
-                                                       ///< the value operation.
+                                                     ///< the value operation.
 
     functions::adjoint::binary::flexible_fn<Kernel> backward_op =
         functions::adjoint::binary::flexible<

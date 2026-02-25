@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "inode.hpp"                         // for INode
+#include "../../functions/adjoint_ops.hpp" // for matmul, matmul_fn
+#include "../../functions/primal_ops.hpp"  // for matmul, matmul_fn
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
+#include <span>                            // for span
 
 namespace kaad {
 
@@ -18,10 +20,10 @@ class Node_matmul : public INode {
 
     functions::primal::binary::matmul_fn<Scalar> forward_op =
         functions::primal::binary::matmul; ///< Function pointer to the matmul
-                                             ///< operation.
+                                           ///< operation.
     functions::adjoint::binary::matmul_fn<Scalar> backward_op =
         functions::adjoint::binary::matmul; ///< Function pointer to the
-                                              ///< matmul gradient.
+                                            ///< matmul gradient.
 
     /**
      * @brief Stride arrays for tensors A, B, and C for all computation stages.

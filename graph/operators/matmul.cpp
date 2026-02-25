@@ -1,13 +1,17 @@
-#include "operators.hpp"
-
-#include "../../exceptions.hpp"      // for shape_error
-#include "../../tensor/tensor.hpp"   // for Tensor
-#include "../common.hpp"             // for combine_matrix
-#include "../computation_graph.hpp"  // for Computation_graph
-#include "../node_handle.hpp"        // for Node_handle
-#include "../nodes/batch_matmul.hpp" // for Node_batch_matmul
-#include "../nodes/matmul.hpp"       // for Node_matmul
-#include <memory>                    // for std::make_unique
+#include "../nodes/matmul.hpp"         // for Node_matmul
+#include "../../exceptions.hpp"        // for make_graph_errmsg
+#include "../../graph/nodes/inode.hpp" // for INode
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../common.hpp"               // for combine_matrix
+#include "../computation_graph.hpp"    // for Computation_graph
+#include "../node_handle.hpp"          // for Node_handle
+#include "../nodes/batch_matmul.hpp"   // for Node_batch_matmul
+#include "operators.hpp"               // for matmul
+#include <algorithm>                   // for max
+#include <cstddef>                     // for size_t
+#include <memory>                      // for unique_ptr, __u...
+#include <utility>                     // for move
+#include <vector>                      // for vector
 
 namespace kaad {
 

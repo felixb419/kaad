@@ -1,8 +1,11 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "inode.hpp"                         // for INode
+#include "../../functions/adjoint_ops.hpp" // for pointwise_fn
+#include "../../functions/primal_ops.hpp"  // for pointwise, pointwis...
+#include "../../scalar.hpp"                // for Scalar
+#include "../../tensor/tensor.hpp"         // for Tensor
+#include "inode.hpp"                       // for INode
+#include <span>                            // for span
 
 namespace kaad {
 
@@ -19,8 +22,8 @@ template <class Kernel> class Node_binary : public INode {
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     functions::primal::binary::pointwise_fn<Kernel> forward_op =
-        functions::primal::binary::pointwise<
-            Kernel>; ///< Function pointer to the value operation.
+        functions::primal::binary::pointwise<Kernel>; ///< Function pointer to
+                                                      ///< the value operation.
 
     functions::adjoint::binary::pointwise_fn<Kernel> backward_op =
         functions::primal::binary::pointwise<

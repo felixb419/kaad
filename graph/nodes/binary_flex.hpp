@@ -1,10 +1,13 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "../dispatchers.hpp"                // for get_flexOp, get_flexGrad
-#include "inode.hpp"                         // for INode, Node_ptr
-#include <vector>                            // for std::vector
+#include "../../functions/adjoint_ops.hpp" // for flexible, flexible_fn
+#include "../../functions/primal_ops.hpp"  // for flexible, flexible_fn
+#include "../../tensor/tensor.hpp"         // for Tensor
+#include "../dispatchers.hpp"              // for MAX_NDIMS, get_flex...
+#include "inode.hpp"                       // for INode
+#include <cstddef>                         // for size_t
+#include <span>                            // for span
+#include <vector>                          // for vector
 
 namespace kaad {
 
@@ -24,7 +27,7 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     functions::primal::binary::flexible_fn<Kernel> forward_op =
         functions::primal::binary::flexible<Kernel>; ///< Function pointer to
-                                                       ///< the value operation.
+                                                     ///< the value operation.
 
     functions::adjoint::binary::flexible_fn<Kernel> backward_op =
         functions::adjoint::binary::flexible<

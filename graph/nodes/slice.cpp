@@ -1,6 +1,10 @@
 #include "slice.hpp"
-
-#include "../dispatchers.hpp" // for get_slice, get_slice_grad
+#include "../../functions/adjoint_ops.hpp" // for slice_fn
+#include "../../functions/primal_ops.hpp"  // for slice_fn
+#include "../../tensor/tensor.hpp"         // for Tensor
+#include "../dispatchers.hpp"              // for get_slice
+#include <algorithm>                       // for copy
+#include <array>                           // for array
 
 namespace kaad {
 

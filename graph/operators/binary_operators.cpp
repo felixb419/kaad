@@ -1,19 +1,21 @@
-#include "operators.hpp"
-
-#include "../../exceptions.hpp"               // for shape_error
-#include "../../scalar.hpp"                   // for Scalar
-#include "../../tensor/tensor.hpp"            // for Tensor
-#include "../../functions/adjoint_ops.hpp"  // for functions::adjoint
-#include "../../functions/kernels.hpp"      // for Kernels
-#include "../../functions/primal_ops.hpp"   // for functions::primal
-#include "../../functions/safe_kernels.hpp" // for Kernels
-#include "../computation_graph.hpp"           // for Computation_graph
-#include "../node_handle.hpp"                 // for Node_handle
-#include "../nodes/binary.hpp"                // for Node_binary
-#include "../nodes/binary_flex.hpp"           // for Node_binary_flex
-#include "../nodes/inode.hpp"                 // for INode
-#include <cstddef>                            // for std::size_t
-#include <memory>                             // for std::make_unique
+#include "../../exceptions.hpp"             // for make_graph_errmsg
+#include "../../functions/adjoint_ops.hpp"  // for pointwise_fn, flexible
+#include "../../functions/kernels.hpp"      // for Add, Max, Min, Mul
+#include "../../functions/primal_ops.hpp"   // for pointwise_fn, flexible
+#include "../../functions/safe_kernels.hpp" // for safe_Div, safe_Pow
+#include "../../scalar.hpp"                 // for Scalar
+#include "../../tensor/tensor.hpp"          // for Tensor
+#include "../computation_graph.hpp"         // for Computation_graph
+#include "../node_handle.hpp"               // for Node_handle
+#include "../nodes/binary.hpp"              // for Node_binary
+#include "../nodes/binary_flex.hpp"         // for Node_binary_flex
+#include "../nodes/inode.hpp"               // for INode
+#include "operators.hpp"                    // for add, div, max, min
+#include <algorithm>                        // for equal, max
+#include <cstddef>                          // for size_t
+#include <memory>                           // for make_unique
+#include <utility>                          // for move
+#include <vector>                           // for vector
 
 namespace kaad {
 

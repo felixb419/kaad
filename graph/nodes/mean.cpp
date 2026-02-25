@@ -1,4 +1,6 @@
 #include "mean.hpp"
+#include "../../tensor/tensor.hpp" // for Tensor
+#include <vector>                  // for vector
 
 namespace kaad {
 

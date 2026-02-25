@@ -1,12 +1,17 @@
-#include "operators.hpp"
-
-#include "../../exceptions.hpp"     // for param_error
-#include "../../tensor/tensor.hpp"  // for Tensor
-#include "../computation_graph.hpp" // for Computation_graph
-#include "../node_handle.hpp"       // for Node_handle
-#include "../nodes/mean.hpp"        // for Node_mean
-#include "../nodes/mean_dim.hpp"    // for Node_mean_dim
-#include <memory>                   // for std::make_unique
+#include "../nodes/mean.hpp"           // for Node_mean
+#include "../../exceptions.hpp"        // for make_graph_errmsg
+#include "../../graph/nodes/inode.hpp" // for INode
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../computation_graph.hpp"    // for Computation_graph
+#include "../node_handle.hpp"          // for Node_handle
+#include "../nodes/mean_dim.hpp"       // for Node_mean_dim
+#include "operators.hpp"               // for mean
+#include <algorithm>                   // for copy
+#include <array>                       // for array
+#include <cstddef>                     // for size_t
+#include <memory>                      // for unique_ptr, __u...
+#include <utility>                     // for move
+#include <vector>                      // for vector
 
 namespace kaad {
 

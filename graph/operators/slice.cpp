@@ -1,13 +1,18 @@
-#include "operators.hpp"
-
-#include "../../exceptions.hpp"     // for argument_error
-#include "../../tensor/tensor.hpp"  // for Tensor
-#include "../computation_graph.hpp" // for Computation_graph
-#include "../node_handle.hpp"       // for Node_handle
-#include "../nodes/slice.hpp"       // for Node_slice
-#include <memory>                   // for std::make_unique
-#include <span>                     // for  std::span
-#include <string>                   // for  std::string
+#include "../nodes/slice.hpp"          // for Node_slice
+#include "../../exceptions.hpp"        // for make_graph_errmsg
+#include "../../graph/nodes/inode.hpp" // for INode
+#include "../../tensor/tensor.hpp"     // for Tensor
+#include "../computation_graph.hpp"    // for Computation_graph
+#include "../node_handle.hpp"          // for Node_handle
+#include "operators.hpp"               // for slice
+#include <algorithm>                   // for copy, fill
+#include <cstddef>                     // for size_t
+#include <initializer_list>            // for initializer_list
+#include <memory>                      // for allocator, uniq...
+#include <span>                        // for span
+#include <string>                      // for char_traits
+#include <utility>                     // for move
+#include <vector>                      // for vector
 
 namespace kaad {
 

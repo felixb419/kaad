@@ -1,8 +1,9 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "inode.hpp"                         // for INode
+#include "../../functions/adjoint_ops.hpp" // for dot, dot_fn
+#include "../../functions/primal_ops.hpp"  // for dot, dot_fn
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
 
 namespace kaad {
 
@@ -22,12 +23,12 @@ class Node_dot : public INode {
 
     functions::primal::binary::dot_fn<Scalar> forward_op =
         functions::primal::binary::dot<Scalar>; ///< Function pointer to
-                                                  ///< the value
-                                                  ///< operation.
+                                                ///< the value
+                                                ///< operation.
 
     functions::adjoint::binary::dot_fn<Scalar> backward_op =
         functions::adjoint::binary::dot<Scalar>; ///< Function pointer to the
-                                                   ///< gradient operation.
+                                                 ///< gradient operation.
 
     const Scalar *lhs_end =
         nullptr; ///< Pointer to the end of the A buffer (used for iteration).

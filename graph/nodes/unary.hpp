@@ -1,8 +1,10 @@
 #pragma once
 
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "inode.hpp"                         // for INode
+#include "../../functions/adjoint_ops.hpp" // for pointwise_fn, pointwise
+#include "../../functions/primal_ops.hpp"  // for pointwise_fn, pointwise
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
+#include <span>                            // for span
 
 namespace kaad {
 
@@ -23,7 +25,7 @@ template <class Kernel> class Node_unary : public INode {
 
     functions::primal::unary::pointwise_fn<Kernel> forward_op =
         functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
-                                                       ///< the value operation.
+                                                     ///< the value operation.
 
     functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
         functions::adjoint::unary::pointwise<

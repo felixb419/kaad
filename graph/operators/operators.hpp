@@ -1,6 +1,11 @@
+#pragma once
+
 #include "../node_handle.hpp" // for Node_handle
+#include <initializer_list>   // for initializer_list
 
 namespace kaad {
+
+class Computation_graph;
 
 /**
  * @defgroup ops Operators applied to Nodes on a computation graph.

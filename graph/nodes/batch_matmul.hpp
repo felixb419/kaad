@@ -1,9 +1,11 @@
 #pragma once
 
-#include "../../scalar.hpp"                  // for Scalar
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "inode.hpp"                         // for INode
+#include "../../functions/adjoint_ops.hpp" // for batch_matmul, batch_matmu...
+#include "../../functions/primal_ops.hpp"  // for batch_matmul, batch_matmu...
+#include "../../scalar.hpp"                // for Scalar
+#include "inode.hpp"                       // for INode
+#include <cstddef>                         // for size_t
+#include <span>                            // for span
 
 namespace kaad {
 
@@ -21,12 +23,12 @@ class Node_batch_matmul : public INode {
 
     functions::primal::binary::batch_matmul_fn<Scalar> forward_op =
         functions::primal::binary::batch_matmul; ///< Function pointer to
-                                                   ///< the batch_matmul
-                                                   ///< operation.
+                                                 ///< the batch_matmul
+                                                 ///< operation.
     functions::adjoint::binary::batch_matmul_fn<Scalar> backward_op =
         functions::adjoint::binary::batch_matmul; ///< Function pointer to
-                                                    ///< the batch_matmul
-                                                    ///< gradient.
+                                                  ///< the batch_matmul
+                                                  ///< gradient.
 
     /**
      * @brief Stride arrays for A, B, and C for each stage of computation.

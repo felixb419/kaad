@@ -1,13 +1,16 @@
-#include "operators.hpp"
-
-#include "../../exceptions.hpp"              // for shape_error
-#include "../../tensor/tensor.hpp"           // for Tensor
-#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
-#include "../../functions/primal_ops.hpp"  // for functions::primal
-#include "../computation_graph.hpp"          // for Computation_graph
-#include "../node_handle.hpp"                // for Node_handle
-#include "../nodes/dot.hpp"                  // for Node_dot
-#include <memory>                            // for std::make_unique
+#include "../nodes/dot.hpp"                // for Node_dot, dot
+#include "../../exceptions.hpp"            // for make_graph_errmsg
+#include "../../functions/adjoint_ops.hpp" // for scalarDot
+#include "../../functions/primal_ops.hpp"  // for scalarDot
+#include "../../graph/nodes/inode.hpp"     // for INode
+#include "../../tensor/tensor.hpp"         // for Tensor
+#include "../computation_graph.hpp"        // for Computation_graph
+#include "../node_handle.hpp"              // for Node_handle
+#include "operators.hpp"                   // for dot
+#include <algorithm>                       // for equal
+#include <memory>                          // for unique_ptr, mak...
+#include <utility>                         // for move
+#include <vector>                          // for vector
 
 namespace kaad {
 
