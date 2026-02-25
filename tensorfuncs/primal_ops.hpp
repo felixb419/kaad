@@ -58,120 +58,123 @@ template <kernel_class Kernel> constexpr bool kernel_noexcept() {
 }
 
 template <kernel_class Kernel>
-using pointwise_fn = void (*)(const typename Kernel::value_type *A,
-                              const typename Kernel::value_type *B,
-                              typename Kernel::value_type *C,
-                              const typename Kernel::value_type *C_end);
+using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
+                              const typename Kernel::value_type *rhs,
+                              typename Kernel::value_type *res,
+                              const typename Kernel::value_type *res_end);
 
 template <kernel_class Kernel>
-using flexible_fn = void (*)(const typename Kernel::value_type *A,
-                             const typename Kernel::value_type *B,
-                             typename Kernel::value_type *C, int *strideA,
-                             int *strideB, int *strideC, std::size_t *c_dim_offset,
-                             int c_rank);
+using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
+                             const typename Kernel::value_type *rhs,
+                             typename Kernel::value_type *res, int *stride_lhs,
+                             int *stride_rhs, int *stride_res,
+                             std::size_t *res_dim_offset, int res_rank);
 
 template <typename T>
-using dot_fn = void (*)(const T *A, const T *B, T *C, const T *A_end);
+using dot_fn = void (*)(const T *lhs, const T *rhs, T *res, const T *lhs_end);
 
 template <typename T>
-using matmul_fn = void (*)(const T *A, const T *B, T *C, int a_rows, int b_cols,
-                           int shared_dim, int *strideA, int *strideB,
-                           int *strideC);
+using matmul_fn = void (*)(const T *lhs, const T *rhs, T *res, int lhs_rows,
+                           int rhs_cols, int shared_dim, int *stride_lhs,
+                           int *stride_rhs, int *stride_res);
 
 template <typename T>
-using batch_matmul_fn = void (*)(const T *A, const T *B, T *C, int *strideA,
-                                 int *strideB, int *strideC, int *c_shape,
-                                 int a_dim_offset, int b_dim_offset,
-                                 int shared_dim, int c_rank);
+using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
+                                 int *stride_lhs, int *stride_rhs,
+                                 int *stride_res, int *res_shape,
+                                 int lhs_dim_offset, int rhs_dim_offset,
+                                 int shared_dim, int res_rank);
 
 /**
- * @brief Applies Op(A,B) to A(tensor) and B(scalar).
- * @pre @p A and @p C have the same shape and @p B is scalar.
+ * @brief Applies Op(lhs,rhs) to lhs(tensor) and rhs(scalar).
+ * @pre @p lhs and @p res have the same shape and @p rhs is scalar.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] A Pointer to the start of A(tensor).
- * @param[in] B Pointer to B(scalar).
- * @param[out] C Pointer to the start of C(tensor).
- * @param C_end Pointer to the end of @p C.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[in] rhs Pointer to rhs(scalar).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param res_end Pointer to the end of @p res.
  */
 template <kernel_class Kernel>
-void scalarRhs(const typename Kernel::value_type *A,
-               const typename Kernel::value_type *B,
-               typename Kernel::value_type *C,
+void scalarRhs(const typename Kernel::value_type *lhs,
+               const typename Kernel::value_type *rhs,
+               typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
-    for (; C != C_end; A++, C++) {
-        Kernel::Op(*A, *B, *C);
+                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+    for (; res != res_end; lhs++, res++) {
+        Kernel::Op(*lhs, *rhs, *res);
     }
 }
 
 /**
- * @brief Applies Op(A,B) to A(scalar) and B(tensor).
- * @pre @p B and @p C have the same shape and @p A is scalar.
+ * @brief Applies Op(lhs,rhs) to lhs(scalar) and rhs(tensor).
+ * @pre @p rhs and @p res have the same shape and @p lhs is scalar.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] A Pointer to A(scalar).
- * @param[in] B Pointer to the start of B(tensor).
- * @param[out] C Pointer to the start of C(tensor).
- * @param C_end Pointer to the end of @p C.
+ * @param[in] lhs Pointer to lhs(scalar).
+ * @param[in] rhs Pointer to the start of rhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param res_end Pointer to the end of @p res.
  */
 template <kernel_class Kernel>
-void scalarLhs(const typename Kernel::value_type *A,
-               const typename Kernel::value_type *B,
-               typename Kernel::value_type *C,
+void scalarLhs(const typename Kernel::value_type *lhs,
+               const typename Kernel::value_type *rhs,
+               typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
-    for (; C != C_end; B++, C++) {
-        Kernel::Op(*A, *B, *C);
+                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+    for (; res != res_end; rhs++, res++) {
+        Kernel::Op(*lhs, *rhs, *res);
     }
 }
 
 /**
- * @brief Applies Op(A,B) to A(tensor) and B(tensor).
- * @pre @p A, @p B and @p C have the same shape.
+ * @brief Applies Op(lhs,rhs) to lhs(tensor) and rhs(tensor).
+ * @pre @p lhs, @p rhs and @p res have the same shape.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] A Pointer to the start of A(tensor).
- * @param[in] B Pointer to the start of B(tensor).
- * @param[out] C Pointer to the start of C(tensor).
- * @param C_end Pointer to the end of @p C.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[in] rhs Pointer to the start of rhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param res_end Pointer to the end of @p res.
  */
 template <kernel_class Kernel>
-void pointwise(const typename Kernel::value_type *A,
-               const typename Kernel::value_type *B,
-               typename Kernel::value_type *C,
+void pointwise(const typename Kernel::value_type *lhs,
+               const typename Kernel::value_type *rhs,
+               typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
-    for (; C != C_end; A++, B++, C++) {
-        Kernel::Op(*A, *B, *C);
+                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+    for (; res != res_end; lhs++, rhs++, res++) {
+        Kernel::Op(*lhs, *rhs, *res);
     }
 }
 
 /**
- * @brief Applies Op(A,B) to A(tensor) and B(tensor).
- * @pre @p C shape is the result of broadcasting @p A and @p B.
+ * @brief Applies Op(lhs,rhs) to lhs(tensor) and rhs(tensor).
+ * @pre @p res shape is the result of broadcasting @p lhs and @p rhs.
  * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] A Pointer to the start of A(tensor).
- * @param[in] B Pointer to the start of B(tensor).
- * @param[out] C Pointer to the start of C(tensor).
- * @param strideA Stride array of A.
- * @param strideB Stride array of B.
- * @param strideC Stride array of C.
- * @param c_dim_offset Offset to the end of @p C per dimension.
- * @param c_rank Number of dimensions of C.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[in] rhs Pointer to the start of rhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param stride_lhs Stride array of lhs.
+ * @param stride_rhs Stride array of rhs.
+ * @param stride_res Stride array of res.
+ * @param res_dim_offset Offset to the end of @p res per dimension.
+ * @param res_rank Number of dimensions of res.
  */
 template <kernel_class Kernel>
-void flexible(const typename Kernel::value_type *A,
-              const typename Kernel::value_type *B,
-              typename Kernel::value_type *C, int *strideA, int *strideB,
-              int *strideC, std::size_t *c_dim_offset,
+void flexible(const typename Kernel::value_type *lhs,
+              const typename Kernel::value_type *rhs,
+              typename Kernel::value_type *res, int *stride_lhs,
+              int *stride_rhs, int *stride_res, std::size_t *res_dim_offset,
               int rank) noexcept(kernel_noexcept<Kernel>()) {
-    const typename Kernel::value_type *end = C + *c_dim_offset;
+    const typename Kernel::value_type *end = res + *res_dim_offset;
     if (rank <= 1) {
-        for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
-            Kernel::Op(*A, *B, *C);
+        for (; res != end;
+             lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            Kernel::Op(*lhs, *rhs, *res);
         }
     } else {
-        for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
-            flexible<Kernel>(A, B, C, strideA + 1, strideB + 1, strideC + 1,
-                             c_dim_offset + 1, rank - 1);
+        for (; res < end;
+             lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            flexible<Kernel>(lhs, rhs, res, stride_lhs + 1, stride_rhs + 1,
+                             stride_res + 1, res_dim_offset + 1, rank - 1);
         }
     }
 }
@@ -180,129 +183,134 @@ void flexible(const typename Kernel::value_type *A,
  * @brief Compile-time recursive version of the runtime @ref flexible().
  */
 template <kernel_class Kernel, int rank>
-void flexible(const typename Kernel::value_type *A,
-              const typename Kernel::value_type *B,
-              typename Kernel::value_type *C, int *strideA, int *strideB,
-              int *strideC, std::size_t *c_dim_offset,
+void flexible(const typename Kernel::value_type *lhs,
+              const typename Kernel::value_type *rhs,
+              typename Kernel::value_type *res, int *stride_lhs,
+              int *stride_rhs, int *stride_res, std::size_t *res_dim_offset,
               int _) noexcept(kernel_noexcept<Kernel>()) {
-    const typename Kernel::value_type *end = C + *c_dim_offset;
+    const typename Kernel::value_type *end = res + *res_dim_offset;
     if constexpr (rank <= 1) {
-        for (; C != end; A += *strideA, B += *strideB, C += *strideC) {
-            Kernel::Op(*A, *B, *C);
+        for (; res != end;
+             lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            Kernel::Op(*lhs, *rhs, *res);
         }
     } else {
-        for (; C < end; A += *strideA, B += *strideB, C += *strideC) {
-            flexible<Kernel, rank - 1>(A, B, C, strideA + 1, strideB + 1,
-                                       strideC + 1, c_dim_offset + 1, 0);
+        for (; res < end;
+             lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            flexible<Kernel, rank - 1>(lhs, rhs, res, stride_lhs + 1,
+                                       stride_rhs + 1, stride_res + 1,
+                                       res_dim_offset + 1, 0);
         }
     }
 }
 
 /**
- * @brief Computes the dot product of A and B into C.
- * @pre @p A is a vector and B and C are scalars.
+ * @brief Computes the dot product of lhs and rhs into res.
+ * @pre @p lhs is a vector and rhs and res are scalars.
  * @tparam T Element type
  * @tparam Kernel (Only needed for signature).
- * @param[in] A Pointer to the start of A(vector).
- * @param[in] B Pointer to B(scalar)
- * @param[out] C Pointer to C(scalar).
- * @param A_end Pointer to the end of @p A.
+ * @param[in] lhs Pointer to the start of lhs(vector).
+ * @param[in] rhs Pointer to rhs(scalar)
+ * @param[out] res Pointer to res(scalar).
+ * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
-void scalarDot(const T *A, const T *B, T *C, const T *A_end) noexcept {
-    for (; A != A_end; A++) {
-        *C += *A * (*B);
+void scalarDot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
+    for (; lhs != lhs_end; lhs++) {
+        *res += *lhs * (*rhs);
     }
 }
 
 /**
- * @brief Computes the dot product of A and B into C.
- * @pre @p A and @p B are vectors and C is a scalar.
+ * @brief Computes the dot product of lhs and rhs into res.
+ * @pre @p lhs and @p rhs are vectors and res is a scalar.
  * @tparam T Element type
  * @tparam Kernel (Only needed for signature).
- * @param[in] A Pointer to the start of A(vector).
- * @param[in] B Pointer to the start of B(vector)
- * @param[out] C Pointer to C(scalar).
- * @param A_end Pointer to the end of @p A.
+ * @param[in] lhs Pointer to the start of lhs(vector).
+ * @param[in] rhs Pointer to the start of rhs(vector)
+ * @param[out] res Pointer to res(scalar).
+ * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
-void dot(const T *A, const T *B, T *C, const T *A_end) noexcept {
-    for (; A != A_end; A++, B++) {
-        *C += *A * (*B);
+void dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
+    for (; lhs != lhs_end; lhs++, rhs++) {
+        *res += *lhs * (*rhs);
     }
 }
 
 /**
- * @brief Computes matrix product of A and B into C.
- * @pre @p A, @p B and @p C have compatible shapes.
+ * @brief Computes matrix product of lhs and rhs into res.
+ * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @tparam T Element type
- * @param[in] A Pointer to the start of A(matrix).
- * @param[in] B Pointer to the start of B(matrix).
- * @param[out] C Pointer to the start of C(matrix).
- * @param a_rows Number of rows in @p A.
- * @param b_cols Number of columns in @p B.
- * @param strideA Stride array of A.
- * @param strideB Stride array of B.
- * @param strideC Stride array of C.
+ * @param[in] lhs Pointer to the start of lhs(matrix).
+ * @param[in] rhs Pointer to the start of rhs(matrix).
+ * @param[out] res Pointer to the start of res(matrix).
+ * @param lhs_rows Number of rows in @p lhs.
+ * @param rhs_cols Number of columns in @p rhs.
+ * @param stride_lhs Stride array of lhs.
+ * @param stride_rhs Stride array of rhs.
+ * @param stride_res Stride array of res.
  */
 template <typename T>
-void matmul(const T *A, const T *B, T *C, int a_rows, int b_cols,
-            int shared_dim, int *strideA, int *strideB, int *strideC) noexcept {
-    const T *rowA;
-    const T *colB;
-    const T *elemB;
-    for (int a_idx = 0; a_idx < a_rows;
-         a_idx++, A += strideA[0], C += strideC[0]) {
-        colB = B;
-        for (int b_idx = 0; b_idx < b_cols;
-             b_idx++, colB += strideB[1], C += strideC[1]) {
-            rowA = A;
-            elemB = colB;
+void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
+            int shared_dim, int *stride_lhs, int *stride_rhs,
+            int *stride_res) noexcept {
+    const T *row_lhs;
+    const T *col_rhs;
+    const T *elem_rhs;
+    for (int lhs_idx = 0; lhs_idx < lhs_rows;
+         lhs_idx++, lhs += stride_lhs[0], res += stride_res[0]) {
+        col_rhs = rhs;
+        for (int rhs_idx = 0; rhs_idx < rhs_cols;
+             rhs_idx++, col_rhs += stride_rhs[1], res += stride_res[1]) {
+            row_lhs = lhs;
+            elem_rhs = col_rhs;
             for (int i = 0; i < shared_dim;
-                 i++, rowA += strideA[1], elemB += strideB[0]) {
-                *C += (*rowA) * (*elemB);
+                 i++, row_lhs += stride_lhs[1], elem_rhs += stride_rhs[0]) {
+                *res += (*row_lhs) * (*elem_rhs);
             }
         }
     }
 }
 
 /**
- * @brief Computes Matrix product of A and B into C (treats additional
+ * @brief Computes Matrix product of lhs and rhs into res (treats additional
  * dimensions as batch dimensions).
- * @pre @p A, @p B and @p C have compatible shapes.
+ * @pre @p lhs, @p rhs and @p res have compatible shapes.
  * @tparam T Element type
- * @param[in] A Pointer to the start of A(tensor).
- * @param[in] B Pointer to the start of B(tensor).
- * @param[out] C Pointer to the start of C(tensor).
- * @param strideA Stride array of A.
- * @param strideB Stride array of B.
- * @param strideC Stride array of C.
- * @param Pointer to shape array of C.
- * @param a_dim_offset Step size for A.
- * @param b_dim_offset Step size for B.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[in] rhs Pointer to the start of rhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param stride_lhs Stride array of lhs.
+ * @param stride_rhs Stride array of rhs.
+ * @param stride_res Stride array of res.
+ * @param Pointer to shape array of res.
+ * @param lhs_dim_offset Step size for lhs.
+ * @param rhs_dim_offset Step size for rhs.
  * @param shared_dim Shared inner dimension.
- * @param c_rank Number of dimension of C.
+ * @param res_rank Number of dimension of res.
  */
 template <typename T>
-void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
-                  int *strideC, int *c_shape, int a_dim_offset,
-                  int b_dim_offset, int shared_dim, int c_rank) noexcept {
-    const T *end = C + (*c_shape) * (*strideC);
-    if (c_rank <= 1) {
-        for (int i = 0; i < *c_shape;
-             i++, A += *strideA, B += *strideB, C += *strideC) {
-            const T *rowA = A, *colB = B;
+void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
+                  int *stride_rhs, int *stride_res, int *res_shape,
+                  int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
+                  int res_rank) noexcept {
+    const T *end = res + (*res_shape) * (*stride_res);
+    if (res_rank <= 1) {
+        for (int i = 0; i < *res_shape;
+             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            const T *row_lhs = lhs, *col_rhs = rhs;
             for (int j = 0; j < shared_dim;
-                 j++, rowA += a_dim_offset, colB += b_dim_offset) {
-                *C += (*rowA) * (*colB);
+                 j++, row_lhs += lhs_dim_offset, col_rhs += rhs_dim_offset) {
+                *res += (*row_lhs) * (*col_rhs);
             }
         }
     } else {
-        for (int i = 0; i < *c_shape;
-             i++, A += *strideA, B += *strideB, C += *strideC) {
-            batch_matmul(A, B, C, strideA + 1, strideB + 1, strideC + 1,
-                         c_shape + 1, a_dim_offset, b_dim_offset, shared_dim,
-                         c_rank - 1);
+        for (int i = 0; i < *res_shape;
+             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            batch_matmul(lhs, rhs, res, stride_lhs + 1, stride_rhs + 1,
+                         stride_res + 1, res_shape + 1, lhs_dim_offset,
+                         rhs_dim_offset, shared_dim, res_rank - 1);
         }
     }
 }
@@ -310,26 +318,27 @@ void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
 /**
  * @brief Compile-time recursive version of runtime @ref batch_matmul().
  */
-template <typename T, int c_rank>
-void batch_matmul(const T *A, const T *B, T *C, int *strideA, int *strideB,
-                  int *strideC, int *c_shape, int a_dim_offset,
-                  int b_dim_offset, int shared_dim, int _) noexcept {
-    const T *end = C + (*c_shape) * (*strideC);
-    if constexpr (c_rank <= 1) {
-        for (int i = 0; i < *c_shape;
-             i++, A += *strideA, B += *strideB, C += *strideC) {
-            const T *rowA = A, *colB = B;
+template <typename T, int res_rank>
+void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
+                  int *stride_rhs, int *stride_res, int *res_shape,
+                  int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
+                  int _) noexcept {
+    const T *end = res + (*res_shape) * (*stride_res);
+    if constexpr (res_rank <= 1) {
+        for (int i = 0; i < *res_shape;
+             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            const T *row_lhs = lhs, *col_rhs = rhs;
             for (int j = 0; j < shared_dim;
-                 j++, rowA += a_dim_offset, colB += b_dim_offset) {
-                *C += (*rowA) * (*colB);
+                 j++, row_lhs += lhs_dim_offset, col_rhs += rhs_dim_offset) {
+                *res += (*row_lhs) * (*col_rhs);
             }
         }
     } else {
-        for (int i = 0; i < *c_shape;
-             i++, A += *strideA, B += *strideB, C += *strideC) {
-            batch_matmul<T, c_rank - 1>(A, B, C, strideA + 1, strideB + 1,
-                                        strideC + 1, c_shape + 1, a_dim_offset,
-                                        b_dim_offset, shared_dim, 0);
+        for (int i = 0; i < *res_shape;
+             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
+            batch_matmul<T, res_rank - 1>(
+                lhs, rhs, res, stride_lhs + 1, stride_rhs + 1, stride_res + 1,
+                res_shape + 1, lhs_dim_offset, rhs_dim_offset, shared_dim, 0);
         }
     }
 }
@@ -361,85 +370,87 @@ template <kernel_class Kernel> constexpr bool kernel_noexcept() {
 }
 
 template <kernel_class Kernel>
-using pointwise_fn = void (*)(const typename Kernel::value_type *A,
-                              typename Kernel::value_type *C,
-                              const typename Kernel::value_type *C_end);
+using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
+                              typename Kernel::value_type *res,
+                              const typename Kernel::value_type *res_end);
 
 template <typename T>
-using sum_dim_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                            std::size_t *A_offset, int c_rank);
+using sum_dim_fn = void (*)(const T *lhs, T *res, int *stride_lhs,
+                            int *stride_res, std::size_t *lhs_offset,
+                            int res_rank);
 
 template <typename T>
-using mean_fn = void (*)(const T *A, T *C, const T *A_end, T divisor);
+using mean_fn = void (*)(const T *lhs, T *res, const T *lhs_end, T divisor);
 
 template <typename T>
-using mean_dim_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                             std::size_t *A_offset, int c_rank, T divisor,
-                             const T *C_end);
+using mean_dim_fn = void (*)(const T *lhs, T *res, int *stride_lhs,
+                             int *stride_res, std::size_t *lhs_offset,
+                             int res_rank, T divisor, const T *res_end);
 
 template <typename T>
-using slice_fn = void (*)(const T *A, T *C, int *strideA, int *strideC,
-                          std::size_t *start_offset_a, std::size_t *c_dim_offset,
-                          int c_rank);
+using slice_fn = void (*)(const T *lhs, T *res, int *stride_lhs,
+                          int *stride_res, std::size_t *start_offset_a,
+                          std::size_t *res_dim_offset, int res_rank);
 
 /**
- * @brief Applies a unary operation to A(tensor).
+ * @brief Applies a unary operation to lhs(tensor).
  * @tparam Kernel A struct containing a static unary function ('Op').
- * @param[in] A Pointer to the start of A(tensor).
- * @param[out] C Pointer to C(scalar).
- * @param A_end Pointer to the end of A.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[out] res Pointer to res(scalar).
+ * @param lhs_end Pointer to the end of lhs.
  */
 template <kernel_class Kernel>
-void scalarOut(const typename Kernel::value_type *A,
-               typename Kernel::value_type *C,
+void scalarOut(const typename Kernel::value_type *lhs,
+               typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *A_end) noexcept(kernel_noexcept<Kernel>()) {
-    for (; A != A_end; A++) {
-        Kernel::Op(*A, *C);
+                   *lhs_end) noexcept(kernel_noexcept<Kernel>()) {
+    for (; lhs != lhs_end; lhs++) {
+        Kernel::Op(*lhs, *res);
     }
 }
 
 /**
- * @brief Applies a unary operation to A(tensor).
+ * @brief Applies a unary operation to lhs(tensor).
  * @tparam Kernel A struct containing a static unary function ('Op').
- * @param[in] A Pointer to the start of A(tensor).
- * @param[out] C Pointer to the start of C(tensor)
- * @param A_end Pointer to the end of C.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor)
+ * @param lhs_end Pointer to the end of res.
  * @param op Instance of the callable class.
  */
 template <kernel_class Kernel>
-void pointwise(const typename Kernel::value_type *A,
-               typename Kernel::value_type *C,
+void pointwise(const typename Kernel::value_type *lhs,
+               typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *C_end) noexcept(kernel_noexcept<Kernel>()) {
-    for (; C != C_end; A++, C++) {
-        Kernel::Op(*A, *C);
+                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+    for (; res != res_end; lhs++, res++) {
+        Kernel::Op(*lhs, *res);
     }
 }
 
 /**
- * @brief Sums A(Tensor) along a dimension into C(Tensor).
- * @pre Shape of C needs to be same as A with relevant dimension removed.
+ * @brief Sums lhs(Tensor) along a dimension into res(Tensor).
+ * @pre Shape of res needs to be same as lhs with relevant dimension removed.
  * @tparam T Element type
- * @param A Pointer to the start of A(Tensor).
- * @param C Pointer to the start of C(Tensor).
- * @param strideA Stride array of A.
+ * @param lhs Pointer to the start of lhs(Tensor).
+ * @param res Pointer to the start of res(Tensor).
+ * @param stride_lhs Stride array of lhs.
  * @param strideB Stride array of B.
- * @param strideC Stride array of C.
- * @param A_offset Offset to the end of @p A per dimension.
- * @param a_rank Number of dimensions of A.
+ * @param stride_res Stride array of res.
+ * @param lhs_offset Offset to the end of @p lhs per dimension.
+ * @param lhs_rank Number of dimensions of lhs.
  */
 template <typename T>
-void sum_dim(const T *A, T *C, int *strideA, int *strideC, std::size_t *A_offset,
-             int a_rank) noexcept {
-    const T *end = A + *A_offset;
-    if (a_rank <= 1) {
-        for (; A != end; A += *strideA, C += *strideC) {
-            *C += *A;
+void sum_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
+             std::size_t *lhs_offset, int lhs_rank) noexcept {
+    const T *end = lhs + *lhs_offset;
+    if (lhs_rank <= 1) {
+        for (; lhs != end; lhs += *stride_lhs, res += *stride_res) {
+            *res += *lhs;
         }
     } else {
-        for (; A != end; A += *strideA, C += *strideC) {
-            sum_dim(A, C, strideA + 1, strideC + 1, A_offset + 1, a_rank - 1);
+        for (; lhs != end; lhs += *stride_lhs, res += *stride_res) {
+            sum_dim(lhs, res, stride_lhs + 1, stride_res + 1, lhs_offset + 1,
+                    lhs_rank - 1);
         }
     }
 }
@@ -447,56 +458,58 @@ void sum_dim(const T *A, T *C, int *strideA, int *strideC, std::size_t *A_offset
 /**
  * @brief Compile-time recursive version of runtime @ref sum_dim().
  */
-template <typename T, int a_rank>
-void sum_dim(const T *A, T *C, int *strideA, int *strideC, std::size_t *A_offset,
-             int _) noexcept {
-    const T *end = A + *A_offset;
-    if constexpr (a_rank <= 1) {
-        for (; A != end; A += *strideA, C += *strideC) {
-            *C += *A;
+template <typename T, int lhs_rank>
+void sum_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
+             std::size_t *lhs_offset, int _) noexcept {
+    const T *end = lhs + *lhs_offset;
+    if constexpr (lhs_rank <= 1) {
+        for (; lhs != end; lhs += *stride_lhs, res += *stride_res) {
+            *res += *lhs;
         }
     } else {
-        for (; A != end; A += *strideA, C += *strideC) {
-            sum_dim<T, a_rank - 1>(A, C, strideA + 1, strideC + 1, A_offset + 1,
-                                   0);
+        for (; lhs != end; lhs += *stride_lhs, res += *stride_res) {
+            sum_dim<T, lhs_rank - 1>(lhs, res, stride_lhs + 1, stride_res + 1,
+                                     lhs_offset + 1, 0);
         }
     }
 }
 
 /**
- * @brief Computes the mean of all elements in A(tensor).
+ * @brief Computes the mean of all elements in lhs(tensor).
  * @tparam T Element type
- * @param[in] A Pointer to the start of A(tensor).
- * @param[out] A Pointer to the start of C(tensor).
- * @param A_end Pointer to the end A.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[out] lhs Pointer to the start of res(tensor).
+ * @param lhs_end Pointer to the end of lhs.
  * @param divisor Number of elements
  */
 template <typename T>
-void mean(const T *A, T *C, const T *A_end, T divisor) noexcept {
-    for (; A != A_end; A++) {
-        *C += *A;
+void mean(const T *lhs, T *res, const T *lhs_end, T divisor) noexcept {
+    for (; lhs != lhs_end; lhs++) {
+        *res += *lhs;
     }
-    *C /= divisor;
+    *res /= divisor;
 }
 
 /**
- * @brief Computes mean of A(tensor) along a given dimension.
+ * @brief Computes mean of lhs(tensor) along a given dimension.
  * @tparam T Element type
- * @param[in] A Pointer to the start of A(tensor).
- * @param[out] C Pointer to the start of C(tensor).
- * @param strideA Stride array for A.
- * @param strideC Stride array for C.
- * @param A_offset Offset array per dimension
- * @param a_rank Number of dimensions in A.
- * @param divisor divisor to compute mean of A (length of dimension summed over)
- * @param C_end Pointer to the end of output tensor C.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param stride_lhs Stride array for lhs.
+ * @param stride_res Stride array for res.
+ * @param lhs_offset Offset array per dimension
+ * @param lhs_rank Number of dimensions in lhs.
+ * @param divisor divisor to compute mean of lhs (length of dimension summed
+ * over)
+ * @param res_end Pointer to the end of output tensor res.
  */
 template <typename T>
-void mean_dim(const T *A, T *C, int *strideA, int *strideC, std::size_t *A_offset,
-              int a_rank, T divisor, const T *C_end) noexcept {
-    sum_dim(A, C, strideA, strideC, A_offset, a_rank);
-    for (; C != C_end; C++) {
-        *C /= divisor;
+void mean_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
+              std::size_t *lhs_offset, int lhs_rank, T divisor,
+              const T *res_end) noexcept {
+    sum_dim(lhs, res, stride_lhs, stride_res, lhs_offset, lhs_rank);
+    for (; res != res_end; res++) {
+        *res /= divisor;
     }
 }
 
@@ -504,38 +517,40 @@ void mean_dim(const T *A, T *C, int *strideA, int *strideC, std::size_t *A_offse
  * @brief Compile-time recursive version of runtime @ref mean_dim().
  */
 template <typename T, int N>
-void mean_dim(const T *A, T *C, int *strideA, int *strideC, std::size_t *A_offset,
-              int _, T divisor, const T *C_end) noexcept {
-    sum_dim<T, N>(A, C, strideA, strideC, A_offset, 0);
-    for (; C != C_end; C++) {
-        *C /= divisor;
+void mean_dim(const T *lhs, T *res, int *stride_lhs, int *stride_res,
+              std::size_t *lhs_offset, int _, T divisor,
+              const T *res_end) noexcept {
+    sum_dim<T, N>(lhs, res, stride_lhs, stride_res, lhs_offset, 0);
+    for (; res != res_end; res++) {
+        *res /= divisor;
     }
 }
 
 /**
- * @brief Copies a sliced view of A into C based on offset and stride.
+ * @brief Copies a sliced view of lhs into res based on offset and stride.
  * @tparam T Element type
- * @param[in] A Pointer to the start of A(tensor).
- * @param[out] C Pointer to the start of C(tensor).
- * @param strideA Stride array for A.
- * @param strideC Stride array for C.
- * @param start_offset_a Offset to apply to A.
- * @param c_dim_offset Size of output slice.
- * @param rank Number of dimensions in A and C.
+ * @param[in] lhs Pointer to the start of lhs(tensor).
+ * @param[out] res Pointer to the start of res(tensor).
+ * @param stride_lhs Stride array for lhs.
+ * @param stride_res Stride array for res.
+ * @param start_offset_a Offset to apply to lhs.
+ * @param res_dim_offset Size of output slice.
+ * @param rank Number of dimensions in lhs and res.
  */
 template <typename T>
-void slice(const T *A, T *C, int *strideA, int *strideC, std::size_t *start_offset_a,
-           std::size_t *c_dim_offset, int rank) noexcept {
-    A += *start_offset_a;
-    const T *end = C + *c_dim_offset;
+void slice(const T *lhs, T *res, int *stride_lhs, int *stride_res,
+           std::size_t *start_offset_a, std::size_t *res_dim_offset,
+           int rank) noexcept {
+    lhs += *start_offset_a;
+    const T *end = res + *res_dim_offset;
     if (rank <= 1) {
-        for (; C != end; A += *strideA, C += *strideC) {
-            *C = *A;
+        for (; res != end; lhs += *stride_lhs, res += *stride_res) {
+            *res = *lhs;
         }
     } else {
-        for (; C < end; A += *strideA, C += *strideC) {
-            slice(A, C, strideA + 1, strideC + 1, start_offset_a + 1,
-                  c_dim_offset + 1, rank - 1);
+        for (; res < end; lhs += *stride_lhs, res += *stride_res) {
+            slice(lhs, res, stride_lhs + 1, stride_res + 1, start_offset_a + 1,
+                  res_dim_offset + 1, rank - 1);
         }
     }
 }
@@ -544,18 +559,19 @@ void slice(const T *A, T *C, int *strideA, int *strideC, std::size_t *start_offs
  * @brief Compile-time recursive version of runtime @ref slice().
  */
 template <typename T, int rank>
-void slice(const T *A, T *C, int *strideA, int *strideC, std::size_t *start_offset_a,
-           std::size_t *c_dim_offset, int _) noexcept {
-    A += *start_offset_a;
-    const T *end = C + *c_dim_offset;
+void slice(const T *lhs, T *res, int *stride_lhs, int *stride_res,
+           std::size_t *start_offset_a, std::size_t *res_dim_offset,
+           int _) noexcept {
+    lhs += *start_offset_a;
+    const T *end = res + *res_dim_offset;
     if constexpr (rank <= 1) {
-        for (; C != end; A += *strideA, C += *strideC) {
-            *C = *A;
+        for (; res != end; lhs += *stride_lhs, res += *stride_res) {
+            *res = *lhs;
         }
     } else {
-        for (; C < end; A += *strideA, C += *strideC) {
-            slice<T, rank - 1>(A, C, strideA + 1, strideC + 1,
-                               start_offset_a + 1, c_dim_offset + 1, 0);
+        for (; res < end; lhs += *stride_lhs, res += *stride_res) {
+            slice<T, rank - 1>(lhs, res, stride_lhs + 1, stride_res + 1,
+                               start_offset_a + 1, res_dim_offset + 1, 0);
         }
     }
 }
