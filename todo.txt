@@ -3,51 +3,22 @@
 FIX:
 
 REFACTOR:
+    Add impl files for succifciently large header functions (~50-100 LOC)
+    (?) put reset, evaluate and getGradient into single function
 
 FEAT:
-
+    (?) label member for nodes
+    (?) add debug input checking in kernels
 
 PERF:
-
-DOC:
-
-LATER:
-
-Repo Layout:
-kaad/
-├─ CMakeLists.txt
-├─ include/
-│  └─ kaad/
-│     ├─ tensor/
-│     │  ├─ tensor.hpp              # public API
-│     │  └─ ...                     # other public headers
-│     ├─ computation_graph/
-│     │  ├─ graph.hpp               # public API
-│     │  └─ node_handle.hpp
-│     └─ tensorfuncs/
-│        ├─ adjoint_ops.hpp         # template-heavy, stays in headers
-│        └─ ...                     # more .hpp/.inl templates
-├─ src/
-│  ├─ tensor/
-│  │  ├─ tensor.cpp                 # non-template definitions moved here
-│  │  └─ ...
-│  └─ computation_graph/
-│     ├─ graph.cpp
-│     └─ ...
-├─ examples/
-│  └─ outer_product.cpp
-├─ tests/
-│  └─ ...
-└─ cmake/
-   └─ kaadConfig.cmake.in           # optional, for install/package
-
-    Add impl files for succifciently large header functions (~50-100 LOC)
-
-
-    add clang-tidy
-    adjust getting started
     make Tensor variant with compile time shape
     make stride function transpose dimensions so biggest is highest
-    (?) label member for nodes
-    (?) put reset, evaluate and getGradient into single function
-    (?) add debug input checking in kernels
+
+DOC:
+    adjust getting started
+
+CHORE:
+    add clang-tidy
+    rework tests
+    (?) add examples
+    (?) kaadConfig.cmake.in

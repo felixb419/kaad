@@ -1,11 +1,11 @@
-#include "../../include/kaad/graph/nodes/sum_dim.hpp"
-#include "../../include/kaad/functions/adjoint.hpp" // for sum_dim_fn
-#include "../../include/kaad/functions/primal.hpp"  // for sum_dim_fn
-#include "../../include/kaad/graph/common.hpp"      // for along_dim_m...
-#include "../../include/kaad/graph/dispatchers.hpp" // for get_sumDim
-#include "../../include/kaad/scalar.hpp"            // for Scalar
-#include "../../include/kaad/tensor/tensor.hpp"     // for Tensor
-#include <array>                                    // for array
+#include "../../../include/kaad/graph/nodes/sum_dim.hpp"
+#include "../../../include/kaad/functions/adjoint.hpp" // for sum_dim_fn
+#include "../../../include/kaad/functions/primal.hpp"  // for sum_dim_fn
+#include "../../../include/kaad/graph/common.hpp"      // for along_dim_m...
+#include "../../../include/kaad/graph/dispatchers.hpp" // for get_sumDim
+#include "../../../include/kaad/scalar.hpp"            // for Scalar
+#include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
+#include <array>                                       // for array
 
 namespace kaad {
 
