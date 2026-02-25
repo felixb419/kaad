@@ -1,8 +1,8 @@
-#include "matmul.hpp"
-#include "../../tensor/tensor.hpp"      // for Tensor
-#include "../../tensor/tensor_view.hpp" // for Tensor_view
-#include <algorithm>                    // for reverse_copy
-#include <vector>                       // for vector
+#include "../../include/kaad/graph/nodes/matmul.hpp"
+#include "../../include/kaad/tensor/tensor.hpp"      // for Tensor
+#include "../../include/kaad/tensor/tensor_view.hpp" // for Tensor_view
+#include <algorithm>                                 // for reverse_copy
+#include <vector>                                    // for vector
 
 namespace kaad {
 

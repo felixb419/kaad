@@ -1,10 +1,10 @@
-#include "slice.hpp"
-#include "../../functions/adjoint.hpp" // for slice_fn
-#include "../../functions/primal.hpp"  // for slice_fn
-#include "../../tensor/tensor.hpp"     // for Tensor
-#include "../dispatchers.hpp"          // for get_slice
-#include <algorithm>                   // for copy
-#include <array>                       // for array
+#include "../../include/kaad/graph/nodes/slice.hpp"
+#include "../../include/kaad/functions/adjoint.hpp" // for slice_fn
+#include "../../include/kaad/functions/primal.hpp"  // for slice_fn
+#include "../../include/kaad/graph/dispatchers.hpp" // for get_slice
+#include "../../include/kaad/tensor/tensor.hpp"     // for Tensor
+#include <algorithm>                                // for copy
+#include <array>                                    // for array
 
 namespace kaad {
 

@@ -1,8 +1,8 @@
-#include "inode.hpp"
-#include "../../exceptions.hpp"    // for argument_error
-#include "../../tensor/tensor.hpp" // for Tensor
-#include <algorithm>               // for fill
-#include <vector>                  // for vector<>::iterator
+#include "../../include/kaad/graph/nodes/inode.hpp"
+#include "../../include/kaad/exceptions.hpp"    // for argument_error
+#include "../../include/kaad/tensor/tensor.hpp" // for Tensor
+#include <algorithm>                            // for fill
+#include <vector>                               // for vector<>::iterator
 
 namespace kaad {
 

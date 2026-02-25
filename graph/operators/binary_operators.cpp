@@ -1,21 +1,21 @@
-#include "../../exceptions.hpp"             // for make_graph_errmsg
-#include "../../functions/adjoint.hpp"      // for pointwise_fn, flexible
-#include "../../functions/kernels.hpp"      // for Add, Max, Min, Mul
-#include "../../functions/primal.hpp"       // for pointwise_fn, flexible
-#include "../../functions/safe_kernels.hpp" // for safe_Div, safe_Pow
-#include "../../scalar.hpp"                 // for Scalar
-#include "../../tensor/tensor.hpp"          // for Tensor
-#include "../computation_graph.hpp"         // for Computation_graph
-#include "../node_handle.hpp"               // for Node_handle
-#include "../nodes/binary.hpp"              // for Node_binary
-#include "../nodes/binary_flex.hpp"         // for Node_binary_flex
-#include "../nodes/inode.hpp"               // for INode
-#include "operators.hpp"                    // for add, div, max, min
-#include <algorithm>                        // for equal, max
-#include <cstddef>                          // for size_t
-#include <memory>                           // for make_unique
-#include <utility>                          // for move
-#include <vector>                           // for vector
+#include "../../include/kaad/exceptions.hpp"        // for make_graph_errmsg
+#include "../../include/kaad/functions/adjoint.hpp" // for pointwise_fn, flexible
+#include "../../include/kaad/functions/kernels.hpp" // for Add, Max, Min, Mul
+#include "../../include/kaad/functions/primal.hpp" // for pointwise_fn, flexible
+#include "../../include/kaad/functions/safe_kernels.hpp" // for safe_Div, safe_Pow
+#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
+#include "../../include/kaad/graph/node_handle.hpp"       // for Node_handle
+#include "../../include/kaad/graph/nodes/binary.hpp"      // for Node_binary
+#include "../../include/kaad/graph/nodes/binary_flex.hpp" // for Node_binary_flex
+#include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
+#include "../../include/kaad/graph/operators/operators.hpp" // for add, div, max, min
+#include "../../include/kaad/scalar.hpp"                    // for Scalar
+#include "../../include/kaad/tensor/tensor.hpp"             // for Tensor
+#include <algorithm>                                        // for equal, max
+#include <cstddef>                                          // for size_t
+#include <memory>                                           // for make_unique
+#include <utility>                                          // for move
+#include <vector>                                           // for vector
 
 namespace kaad {
 

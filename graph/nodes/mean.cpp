@@ -1,6 +1,6 @@
-#include "mean.hpp"
-#include "../../tensor/tensor.hpp" // for Tensor
-#include <vector>                  // for vector
+#include "../../include/kaad/graph/nodes/mean.hpp"
+#include "../../include/kaad/tensor/tensor.hpp" // for Tensor
+#include <vector>                               // for vector
 
 namespace kaad {
 

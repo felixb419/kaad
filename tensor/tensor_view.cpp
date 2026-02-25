@@ -1,6 +1,6 @@
-#include "tensor_view.hpp"
-#include "common.hpp" // for print_tensor
-#include <vector>     // for vector
+#include "../include/kaad/tensor/tensor_view.hpp"
+#include "../include/kaad/tensor/common.hpp" // for print_tensor
+#include <vector>                            // for vector
 
 namespace kaad {
 

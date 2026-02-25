@@ -1,4 +1,4 @@
-#include "../kaad.hpp"
+#include "../include/kaad/kaad.hpp"
 #include <array>    // for array
 #include <iostream> // for operator<<
 #include <numeric>  // for iota

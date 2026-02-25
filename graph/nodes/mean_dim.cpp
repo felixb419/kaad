@@ -1,10 +1,10 @@
-#include "mean_dim.hpp"
-#include "../../functions/adjoint.hpp" // for mean_dim_fn
-#include "../../functions/primal.hpp"  // for mean_dim_fn
-#include "../../tensor/tensor.hpp"     // for Tensor
-#include "../common.hpp"               // for along_dim_m...
-#include "../dispatchers.hpp"          // for get_meanDim
-#include <array>                       // for array
+#include "../../include/kaad/graph/nodes/mean_dim.hpp"
+#include "../../include/kaad/functions/adjoint.hpp" // for mean_dim_fn
+#include "../../include/kaad/functions/primal.hpp"  // for mean_dim_fn
+#include "../../include/kaad/graph/common.hpp"      // for along_dim_m...
+#include "../../include/kaad/graph/dispatchers.hpp" // for get_meanDim
+#include "../../include/kaad/tensor/tensor.hpp"     // for Tensor
+#include <array>                                    // for array
 
 namespace kaad {
 

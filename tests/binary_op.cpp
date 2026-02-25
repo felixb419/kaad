@@ -1,4 +1,4 @@
-#include "../kaad.hpp"
+#include "../include/kaad/kaad.hpp"
 #include <algorithm> // for fill
 #include <array>     // for array
 #include <iostream>  // for operator<<

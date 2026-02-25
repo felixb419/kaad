@@ -1,17 +1,16 @@
-#include "computation_graph.hpp"
-
-#include "../exceptions.hpp"    // for argument_error
-#include "../tensor/tensor.hpp" // for operator<<, Tensor
-#include "computation_graph.hpp"
-#include "node_handle.hpp" // for Node_handle, operator<<
-#include "nodes/inode.hpp" // for INode
-#include "nodes/input.hpp" // for Node_input
-#include <memory>          // for unique_ptr, make_unique, allocator_t...
-#include <ostream>         // for operator<<, basic_ostream, basic_ost...
-#include <string>          // for operator+, to_string, char_traits
-#include <type_traits>     // for add_const_t
-#include <utility>         // for as_const
-#include <vector>          // for vector
+#include "../include/kaad/graph/computation_graph.hpp"
+#include "../include/kaad/exceptions.hpp" // for argument_error
+#include "../include/kaad/graph/computation_graph.hpp"
+#include "../include/kaad/graph/node_handle.hpp" // for Node_handle, operator<<
+#include "../include/kaad/graph/nodes/inode.hpp" // for INode
+#include "../include/kaad/graph/nodes/input.hpp" // for Node_input
+#include "../include/kaad/tensor/tensor.hpp"     // for operator<<, Tensor
+#include <memory>      // for unique_ptr, make_unique, allocator_t...
+#include <ostream>     // for operator<<, basic_ostream, basic_ost...
+#include <string>      // for operator+, to_string, char_traits
+#include <type_traits> // for add_const_t
+#include <utility>     // for as_const
+#include <vector>      // for vector
 
 namespace kaad {
 
