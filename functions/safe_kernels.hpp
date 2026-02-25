@@ -45,13 +45,13 @@ template <typename T> struct safe_Div {
      * @brief Computes the gradient of a division.
      */
     constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-        T B_inv;
-        Op(T(1), B, B_inv);
+        T B_safe =
+            (std::abs(B) < epsilon<T>) ? std::copysign(epsilon<T>, B) : B;
+
+        T B_inv = T(1) / B_safe;
         dA += dC * B_inv;
 
-        T A_ovr_Bsqr;
-        Op(A, (B * B), A_ovr_Bsqr);
-        dB -= dC * A_ovr_Bsqr;
+        dB -= dC * A * B_inv * B_inv;
     }
 };
 

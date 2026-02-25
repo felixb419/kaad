@@ -3,7 +3,6 @@
 FIX:
 
 REFACTOR:
-    add input checking in kernels
 
 FEAT:
 
@@ -51,3 +50,4 @@ kaad/
     make stride function transpose dimensions so biggest is highest
     (?) label member for nodes
     (?) put reset, evaluate and getGradient into single function
+    (?) add debug input checking in kernels
