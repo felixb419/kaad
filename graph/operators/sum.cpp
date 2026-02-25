@@ -2,8 +2,8 @@
 
 #include "../../exceptions.hpp"              // for argument_error
 #include "../../tensor/tensor.hpp"           // for Tensor
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for Kernels::Sum
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/kernels.hpp"     // for Kernels::Sum
 #include "../computation_graph.hpp"          // for Computation_graph
 #include "../node_handle.hpp"                // for Node_handle
 #include "../nodes/inode.hpp"                // for INode
@@ -20,10 +20,10 @@ Node_handle sum(Computation_graph &rec, Node_handle A) {
     Tensor &A_val = A_ptr->value();
 
     using Kernel = class Kernels::Sum<Scalar>;
-    tensorfuncs::primal::unary::pointwise_fn<Kernel> op =
-        tensorfuncs::primal::unary::scalarOut<Kernel>;
-    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> grad =
-        tensorfuncs::adjoint::unary::scalarOut<Kernel>;
+    functions::primal::unary::pointwise_fn<Kernel> op =
+        functions::primal::unary::scalarOut<Kernel>;
+    functions::adjoint::unary::pointwise_fn<Kernel> grad =
+        functions::adjoint::unary::scalarOut<Kernel>;
 
     rec.nodes.push_back(std::move(
         std::make_unique<Node_unary<Kernel>>(op, grad, A_ptr, std::array{1})));

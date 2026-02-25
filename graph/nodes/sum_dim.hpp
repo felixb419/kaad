@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "../common.hpp"                     // for along_dim_metadata_impl
 #include "../dispatchers.hpp"                // for get_sumDim, get_sumDim_grad
 #include "inode.hpp"                         // for INode
@@ -10,18 +10,18 @@ namespace kaad {
 
 /**
  * @brief A sum_dim operation node in a computation graph.
- * @see tensorfuncs::primal::unary::sum_dim
- * @see tensorfuncs::adjoint::unary::sum_dim
+ * @see functions::primal::unary::sum_dim
+ * @see functions::adjoint::unary::sum_dim
  */
 class Node_sum_dim : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
-    tensorfuncs::primal::unary::sum_dim_fn<Scalar> val_func =
-        tensorfuncs::primal::unary::sum_dim; ///< Function pointer to the
+    functions::primal::unary::sum_dim_fn<Scalar> val_func =
+        functions::primal::unary::sum_dim; ///< Function pointer to the
                                              ///< sum_dim operation.
-    tensorfuncs::adjoint::unary::sum_dim_fn<Scalar> grad_func =
-        tensorfuncs::adjoint::unary::sum_dim; ///< Function pointer to the
+    functions::adjoint::unary::sum_dim_fn<Scalar> grad_func =
+        functions::adjoint::unary::sum_dim; ///< Function pointer to the
                                               ///< sum_dim gradient.
 
     std::vector<int> input_stride; ///< stride Array for input.

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"     // for NoOp
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/kernels.hpp"     // for NoOp
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A transpose operation node in a computation graph.
- * @see tensorfuncs::primal::unary::noop
- * @see tensorfuncs::adjoint::unary::pointwise
+ * @see functions::primal::unary::noop
+ * @see functions::adjoint::unary::pointwise
  */
 class Node_transp : public INode {
   private:
@@ -18,12 +18,12 @@ class Node_transp : public INode {
 
     using Kernel = Kernels::NoOp<Scalar>;
 
-    tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =
-        tensorfuncs::primal::unary::pointwise<Kernel>; ///< Function pointer to
+    functions::primal::unary::pointwise_fn<Kernel> forward_op =
+        functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
 
-    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> backward_op =
-        tensorfuncs::adjoint::unary::pointwise<Kernel>; ///< Function pointer to
+    functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
+        functions::adjoint::unary::pointwise<Kernel>; ///< Function pointer to
                                                         ///< the gradient
                                                         ///< operation.
 

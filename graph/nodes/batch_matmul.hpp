@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../scalar.hpp"                  // for Scalar
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -11,20 +11,20 @@ class Node_batch_matmul;
 
 /**
  * @brief A batch_matmul operation node in a computation graph.
- * @see tensorfuncs::primal::binary::batch_matmul
- * @see tensorfuncs::adjoint::binary::batch_matmul
+ * @see functions::primal::binary::batch_matmul
+ * @see functions::adjoint::binary::batch_matmul
  */
 class Node_batch_matmul : public INode {
   private:
     INode *rhs = nullptr; ///< Pointer to the first input Node.
     INode *lhs = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::batch_matmul_fn<Scalar> forward_op =
-        tensorfuncs::primal::binary::batch_matmul; ///< Function pointer to
+    functions::primal::binary::batch_matmul_fn<Scalar> forward_op =
+        functions::primal::binary::batch_matmul; ///< Function pointer to
                                                    ///< the batch_matmul
                                                    ///< operation.
-    tensorfuncs::adjoint::binary::batch_matmul_fn<Scalar> backward_op =
-        tensorfuncs::adjoint::binary::batch_matmul; ///< Function pointer to
+    functions::adjoint::binary::batch_matmul_fn<Scalar> backward_op =
+        functions::adjoint::binary::batch_matmul; ///< Function pointer to
                                                     ///< the batch_matmul
                                                     ///< gradient.
 

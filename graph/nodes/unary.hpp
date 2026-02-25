@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -12,8 +12,8 @@ class Node_handle;
 
 /**
  * @brief A unary operation node in a computation graph.
- * @see tensorfuncs::primal::unary::pointwise
- * @see tensorfuncs::adjoint::unary::pointwise
+ * @see functions::primal::unary::pointwise
+ * @see functions::adjoint::unary::pointwise
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
@@ -21,12 +21,12 @@ template <class Kernel> class Node_unary : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
-    tensorfuncs::primal::unary::pointwise_fn<Kernel> forward_op =
-        tensorfuncs::primal::unary::pointwise<Kernel>; ///< Function pointer to
+    functions::primal::unary::pointwise_fn<Kernel> forward_op =
+        functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
 
-    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> backward_op =
-        tensorfuncs::adjoint::unary::pointwise<
+    functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
+        functions::adjoint::unary::pointwise<
             Kernel>; ///< Function pointer to the gradient operation.
 
     const Scalar *end =
@@ -41,8 +41,8 @@ template <class Kernel> class Node_unary : public INode {
      * @param input_ptr    Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_unary(tensorfuncs::primal::unary::pointwise_fn<Kernel> operation,
-               tensorfuncs::adjoint::unary::pointwise_fn<Kernel> derivative,
+    Node_unary(functions::primal::unary::pointwise_fn<Kernel> operation,
+               functions::adjoint::unary::pointwise_fn<Kernel> derivative,
                INode *input_ptr, std::span<const int> value_shape)
         : forward_op(operation), backward_op(derivative), input(input_ptr),
           INode(value_shape, false) {

@@ -3,10 +3,10 @@
 #include "../../exceptions.hpp"               // for shape_error
 #include "../../scalar.hpp"                   // for Scalar
 #include "../../tensor/tensor.hpp"            // for Tensor
-#include "../../tensorfuncs/adjoint_ops.hpp"  // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"      // for Kernels
-#include "../../tensorfuncs/primal_ops.hpp"   // for tensorfuncs::primal
-#include "../../tensorfuncs/safe_kernels.hpp" // for Kernels
+#include "../../functions/adjoint_ops.hpp"  // for functions::adjoint
+#include "../../functions/kernels.hpp"      // for Kernels
+#include "../../functions/primal_ops.hpp"   // for functions::primal
+#include "../../functions/safe_kernels.hpp" // for Kernels
 #include "../computation_graph.hpp"           // for Computation_graph
 #include "../node_handle.hpp"                 // for Node_handle
 #include "../nodes/binary.hpp"                // for Node_binary
@@ -60,23 +60,23 @@ static inline bool combine_flexible(const int *shape1, std::size_t rank1,
  * @tparam Kernel Kernel the functions should be using.
  */
 template <class Kernel> struct BinaryKernels {
-    tensorfuncs::primal::binary::pointwise_fn<Kernel> scalarOpRhs =
-        tensorfuncs::primal::binary::scalarRhs<Kernel>;
-    tensorfuncs::primal::binary::pointwise_fn<Kernel> scalarOpLhs =
-        tensorfuncs::primal::binary::scalarLhs<Kernel>;
-    tensorfuncs::primal::binary::pointwise_fn<Kernel> pointOp =
-        tensorfuncs::primal::binary::pointwise<Kernel>;
-    tensorfuncs::primal::binary::flexible_fn<Kernel> flexOp =
-        tensorfuncs::primal::binary::flexible<Kernel>;
+    functions::primal::binary::pointwise_fn<Kernel> scalarOpRhs =
+        functions::primal::binary::scalarRhs<Kernel>;
+    functions::primal::binary::pointwise_fn<Kernel> scalarOpLhs =
+        functions::primal::binary::scalarLhs<Kernel>;
+    functions::primal::binary::pointwise_fn<Kernel> pointOp =
+        functions::primal::binary::pointwise<Kernel>;
+    functions::primal::binary::flexible_fn<Kernel> flexOp =
+        functions::primal::binary::flexible<Kernel>;
 
-    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> scalarGradRhs =
-        tensorfuncs::adjoint::binary::scalarRhs<Kernel>;
-    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> scalarGradLhs =
-        tensorfuncs::adjoint::binary::scalarLhs<Kernel>;
-    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> pointGrad =
-        tensorfuncs::adjoint::binary::pointwise<Kernel>;
-    tensorfuncs::adjoint::binary::flexible_fn<Kernel> flexGrad =
-        tensorfuncs::adjoint::binary::flexible<Kernel>;
+    functions::adjoint::binary::pointwise_fn<Kernel> scalarGradRhs =
+        functions::adjoint::binary::scalarRhs<Kernel>;
+    functions::adjoint::binary::pointwise_fn<Kernel> scalarGradLhs =
+        functions::adjoint::binary::scalarLhs<Kernel>;
+    functions::adjoint::binary::pointwise_fn<Kernel> pointGrad =
+        functions::adjoint::binary::pointwise<Kernel>;
+    functions::adjoint::binary::flexible_fn<Kernel> flexGrad =
+        functions::adjoint::binary::flexible<Kernel>;
 };
 
 /**

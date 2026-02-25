@@ -1,24 +1,24 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A mean operation node in a computation graph.
- * @see tensorfuncs::primal::unary::mean
- * @see tensorfuncs::adjoint::unary::mean
+ * @see functions::primal::unary::mean
+ * @see functions::adjoint::unary::mean
  */
 class Node_mean : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
-    tensorfuncs::primal::unary::mean_fn<Scalar> forward_op =
-        tensorfuncs::primal::unary::mean;
-    tensorfuncs::adjoint::unary::mean_fn<Scalar> backward_op =
-        tensorfuncs::adjoint::unary::mean;
+    functions::primal::unary::mean_fn<Scalar> forward_op =
+        functions::primal::unary::mean;
+    functions::adjoint::unary::mean_fn<Scalar> backward_op =
+        functions::adjoint::unary::mean;
 
     const Scalar *input_end = nullptr; ///< Pointer to the end of the input
                                        ///< buffer (used for iteration).

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"
-#include "../../tensorfuncs/primal_ops.hpp" // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/kernels.hpp"
+#include "../../functions/primal_ops.hpp" // for functions::primal
 #include "inode.hpp"                        // for INode, Node_ptr
 #include <vector>                           // for std::vector
 
@@ -10,8 +10,8 @@ namespace kaad {
 
 /**
  * @brief A outer prodcut operation node in a computation graph.
- * @see tensorfuncs::primal::binary::flexible
- * @see tensorfuncs::adjoint::binary::flexible
+ * @see functions::primal::binary::flexible
+ * @see functions::adjoint::binary::flexible
  */
 class Node_outer : public INode {
   private:
@@ -20,12 +20,12 @@ class Node_outer : public INode {
 
     using Kernel = typename Kernels::Mul<Scalar>;
 
-    tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =
-        tensorfuncs::primal::binary::flexible<Kernel>; ///< Function pointer to
+    functions::primal::binary::flexible_fn<Kernel> forward_op =
+        functions::primal::binary::flexible<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
 
-    tensorfuncs::adjoint::binary::flexible_fn<Kernel> backward_op =
-        tensorfuncs::adjoint::binary::flexible<
+    functions::adjoint::binary::flexible_fn<Kernel> backward_op =
+        functions::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
 
     std::vector<int> lhs_stride; ///< stride Array for lhs.

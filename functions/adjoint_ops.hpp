@@ -6,11 +6,11 @@
 namespace kaad {
 
 /**
- * @namespace tensorfuncs::adjoint
+ * @namespace functions::adjoint
  * @brief Contains adjoint (e.g. used for backward computation) tensor
  * operations.
  */
-namespace tensorfuncs::adjoint {
+namespace functions::adjoint {
 
 /**
  * @namespace kaad::tensoruncs::adjoint
@@ -307,11 +307,11 @@ void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
             const T *d_res, int *lhs_rows, int *rhs_cols, int *shared_dim,
             int *stride_lhs, int *stride_rhs, int *stride_res) noexcept {
     // d_lhs = d_res * rhs^T
-    tensorfuncs::primal::binary::matmul(d_res, rhs, d_lhs, lhs_rows[0],
+    functions::primal::binary::matmul(d_res, rhs, d_lhs, lhs_rows[0],
                                         rhs_cols[0], shared_dim[0], stride_res,
                                         stride_rhs, stride_lhs);
     // d_rhs = lhs^T * d_res
-    tensorfuncs::primal::binary::matmul(
+    functions::primal::binary::matmul(
         lhs, d_res, d_rhs, lhs_rows[1], rhs_cols[1], shared_dim[1],
         stride_lhs + 2, stride_res + 2, stride_rhs + 2);
 }
@@ -342,12 +342,12 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
                   int **stride_res, int **res_shape, int *lhs_dim_offset,
                   int *rhs_dim_offset, int *shared_dim, int res_rank) noexcept {
     // d_lhs = d_res * rhs^T
-    tensorfuncs::primal::binary::batch_matmul<T>(
+    functions::primal::binary::batch_matmul<T>(
         d_res, rhs, d_lhs, stride_res[0], stride_rhs[0], stride_lhs[0],
         res_shape[0], lhs_dim_offset[0], rhs_dim_offset[0], shared_dim[0],
         res_rank);
     // d_rhs = lhs^T * d_res
-    tensorfuncs::primal::binary::batch_matmul<T>(
+    functions::primal::binary::batch_matmul<T>(
         lhs, d_res, d_rhs, stride_lhs[1], stride_res[1], stride_rhs[1],
         res_shape[1], lhs_dim_offset[1], rhs_dim_offset[1], shared_dim[1],
         res_rank);
@@ -362,11 +362,11 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
                   int **stride_res, int **res_shape, int *lhs_dim_offset,
                   int *rhs_dim_offset, int *shared_dim, int _) noexcept {
     // d_lhs = d_res * rhs^T
-    tensorfuncs::primal::binary::batch_matmul<T, res_rank>(
+    functions::primal::binary::batch_matmul<T, res_rank>(
         d_res, rhs, d_lhs, stride_res[0], stride_rhs[0], stride_lhs[0],
         res_shape[0], lhs_dim_offset[0], rhs_dim_offset[0], shared_dim[0], 0);
     // d_rhs = lhs^T * d_res
-    tensorfuncs::primal::binary::batch_matmul<T, res_rank>(
+    functions::primal::binary::batch_matmul<T, res_rank>(
         lhs, d_res, d_rhs, stride_lhs[1], stride_res[1], stride_rhs[1],
         res_shape[1], lhs_dim_offset[1], rhs_dim_offset[1], shared_dim[1], 0);
 }
@@ -374,7 +374,7 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
 } // namespace binary
 
 /**
- * @namespace kaad::tensorfuncs::adjoint::unary
+ * @namespace kaad::functions::adjoint::unary
  */
 namespace unary {
 
@@ -623,5 +623,5 @@ void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 }
 
 } // namespace unary
-} // namespace tensorfuncs::adjoint
+} // namespace functions::adjoint
 } // namespace kaad

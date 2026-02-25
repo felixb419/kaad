@@ -1,24 +1,24 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A mean_dim operation node in a computation graph.
- * @see tensorfuncs::primal::unary::mean_dim
- * @see tensorfuncs::adjoint::unary::mean_dim
+ * @see functions::primal::unary::mean_dim
+ * @see functions::adjoint::unary::mean_dim
  */
 class Node_mean_dim : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
-    tensorfuncs::primal::unary::mean_dim_fn<Scalar> forward_op =
-        tensorfuncs::primal::unary::mean_dim;
-    tensorfuncs::adjoint::unary::mean_dim_fn<Scalar> backward_op =
-        tensorfuncs::adjoint::unary::mean_dim;
+    functions::primal::unary::mean_dim_fn<Scalar> forward_op =
+        functions::primal::unary::mean_dim;
+    functions::adjoint::unary::mean_dim_fn<Scalar> backward_op =
+        functions::adjoint::unary::mean_dim;
 
     std::vector<int> input_stride; ///< stride Array for input tensor.
     std::vector<int> value_stride; ///< stride Array for value tensor.

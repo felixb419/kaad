@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../tensor/tensor.hpp"           // for Tensor::value_type
-#include "../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../functions/primal_ops.hpp"  // for functions::primal
 #include <array>                          // for std::array
 #include <cstddef>                        // for std::size_t
 #include <utility> // for std::index_sequence, std::make_index_sequence
@@ -31,14 +31,14 @@ constexpr static int MAX_NDIMS = 10;
 
 /// @brief Returns full table of flexible binary operation implementations.
 template <class Kernel, std::size_t... Is>
-constexpr std::array<tensorfuncs::primal::binary::flexible_fn<Kernel>,
+constexpr std::array<functions::primal::binary::flexible_fn<Kernel>,
                      sizeof...(Is)>
 get_flexOp_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::primal::binary::flexible<Kernel, Is>...};
+    return {&functions::primal::binary::flexible<Kernel, Is>...};
 }
 
 template <class Kernel>
-constexpr std::array<tensorfuncs::primal::binary::flexible_fn<Kernel>,
+constexpr std::array<functions::primal::binary::flexible_fn<Kernel>,
                      MAX_NDIMS>
 get_flexOp() {
     return get_flexOp_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
@@ -46,14 +46,14 @@ get_flexOp() {
 
 /// @brief Returns full table of flexible binary gradient implementations.
 template <class Kernel, std::size_t... Is>
-constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<Kernel>,
+constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>,
                      sizeof...(Is)>
 get_flexGrad_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::adjoint::binary::flexible<Kernel, Is>...};
+    return {&functions::adjoint::binary::flexible<Kernel, Is>...};
 }
 
 template <class Kernel>
-constexpr std::array<tensorfuncs::adjoint::binary::flexible_fn<Kernel>,
+constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>,
                      MAX_NDIMS>
 get_flexGrad() {
     return get_flexGrad_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
@@ -61,28 +61,28 @@ get_flexGrad() {
 
 /// @brief Returns full table of batch matmul operation implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::primal::binary::batch_matmul_fn<T>,
+constexpr std::array<functions::primal::binary::batch_matmul_fn<T>,
                      sizeof...(Is)>
 get_batch_matmul_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::primal::binary::batch_matmul<T, Is>...};
+    return {&functions::primal::binary::batch_matmul<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::primal::binary::batch_matmul_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::binary::batch_matmul_fn<T>, MAX_NDIMS>
 get_batch_matmul() {
     return get_batch_matmul_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of batch matmul gradient implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::adjoint::binary::batch_matmul_fn<T>,
+constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>,
                      sizeof...(Is)>
 get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::adjoint::binary::batch_matmul<T, Is>...};
+    return {&functions::adjoint::binary::batch_matmul<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::adjoint::binary::batch_matmul_fn<T>,
+constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>,
                      MAX_NDIMS>
 get_batch_matmul_grad() {
     return get_batch_matmul_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
@@ -90,78 +90,78 @@ get_batch_matmul_grad() {
 
 /// @brief Returns full table of sum_dim operation implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::primal::unary::sum_dim_fn<T>, sizeof...(Is)>
+constexpr std::array<functions::primal::unary::sum_dim_fn<T>, sizeof...(Is)>
 get_sumDim_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::primal::unary::sum_dim<T, Is>...};
+    return {&functions::primal::unary::sum_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::primal::unary::sum_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::unary::sum_dim_fn<T>, MAX_NDIMS>
 get_sumDim() {
     return get_sumDim_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of sum_dim gradient implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::adjoint::unary::sum_dim_fn<T>, sizeof...(Is)>
+constexpr std::array<functions::adjoint::unary::sum_dim_fn<T>, sizeof...(Is)>
 get_sumDim_grad_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::adjoint::unary::sum_dim<T, Is>...};
+    return {&functions::adjoint::unary::sum_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::adjoint::unary::sum_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::unary::sum_dim_fn<T>, MAX_NDIMS>
 get_sumDim_grad() {
     return get_sumDim_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of mean_dim operation implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::primal::unary::mean_dim_fn<T>, sizeof...(Is)>
+constexpr std::array<functions::primal::unary::mean_dim_fn<T>, sizeof...(Is)>
 get_meanDim_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::primal::unary::mean_dim<T, Is>...};
+    return {&functions::primal::unary::mean_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::primal::unary::mean_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::unary::mean_dim_fn<T>, MAX_NDIMS>
 get_meanDim() {
     return get_meanDim_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of mean_dim gradient implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::adjoint::unary::mean_dim_fn<T>, sizeof...(Is)>
+constexpr std::array<functions::adjoint::unary::mean_dim_fn<T>, sizeof...(Is)>
 get_meanDim_grad_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::adjoint::unary::mean_dim<T, Is>...};
+    return {&functions::adjoint::unary::mean_dim<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::adjoint::unary::mean_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::unary::mean_dim_fn<T>, MAX_NDIMS>
 get_meanDim_grad() {
     return get_meanDim_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of slice operation implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::primal::unary::slice_fn<T>, sizeof...(Is)>
+constexpr std::array<functions::primal::unary::slice_fn<T>, sizeof...(Is)>
 get_slice_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::primal::unary::slice<T, Is>...};
+    return {&functions::primal::unary::slice<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::primal::unary::slice_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::unary::slice_fn<T>, MAX_NDIMS>
 get_slice() {
     return get_slice_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
 /// @brief Returns full table of slice gradient implementations.
 template <typename T, std::size_t... Is>
-constexpr std::array<tensorfuncs::adjoint::unary::slice_fn<T>, sizeof...(Is)>
+constexpr std::array<functions::adjoint::unary::slice_fn<T>, sizeof...(Is)>
 get_slice_grad_impl(std::index_sequence<Is...>) {
-    return {&tensorfuncs::adjoint::unary::slice<T, Is>...};
+    return {&functions::adjoint::unary::slice<T, Is>...};
 }
 
 template <typename T>
-constexpr std::array<tensorfuncs::adjoint::unary::slice_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::unary::slice_fn<T>, MAX_NDIMS>
 get_slice_grad() {
     return get_slice_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }

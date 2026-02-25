@@ -6,7 +6,7 @@
 namespace kaad {
 
 /**
- * @file tensorfuncs.hpp
+ * @file functions.hpp
  * @brief Tensor operations with NumPy-style broadcasting.
  *
  * Broadcasting rules:
@@ -26,13 +26,13 @@ namespace kaad {
  */
 
 /**
- * @namespace tensorfuncs::primal
+ * @namespace functions::primal
  * @brief Contains primal (e.g. used for forward computation) tensor operations.
  */
-namespace tensorfuncs::primal {
+namespace functions::primal {
 
 /**
- * @namespace kaad::tensorfuncs::adjoint::binary
+ * @namespace kaad::functions::adjoint::binary
  */
 namespace binary {
 
@@ -578,5 +578,5 @@ void slice(const T *inp, T *res, int *stride_inp, int *stride_res,
 }
 
 } // namespace unary
-} // namespace tensorfuncs::primal
+} // namespace functions::primal
 } // namespace kaad

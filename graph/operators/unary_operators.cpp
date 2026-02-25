@@ -1,10 +1,10 @@
 #include "operators.hpp"
 
 #include "../../tensor/tensor.hpp"            // for Tensor
-#include "../../tensorfuncs/adjoint_ops.hpp"  // for tensorfuncs::adjoint
-#include "../../tensorfuncs/kernels.hpp"      // for Kernels
-#include "../../tensorfuncs/primal_ops.hpp"   // for tensorfuncs::primal
-#include "../../tensorfuncs/safe_kernels.hpp" // for Kernels
+#include "../../functions/adjoint_ops.hpp"  // for functions::adjoint
+#include "../../functions/kernels.hpp"      // for Kernels
+#include "../../functions/primal_ops.hpp"   // for functions::primal
+#include "../../functions/safe_kernels.hpp" // for Kernels
 #include "../computation_graph.hpp"           // for Computation_graph
 #include "../node_handle.hpp"                 // for Node_handle
 #include "../nodes/unary.hpp"                 // for Node_unarysewfease
@@ -21,10 +21,10 @@ namespace kaad {
  * @tparam Kernel Kernel the functions should be using.
  */
 template <class Kernel> struct UnaryKernels {
-    tensorfuncs::primal::unary::pointwise_fn<Kernel> op =
-        tensorfuncs::primal::unary::pointwise<Kernel>;
-    tensorfuncs::adjoint::unary::pointwise_fn<Kernel> grad =
-        tensorfuncs::adjoint::unary::pointwise<Kernel>;
+    functions::primal::unary::pointwise_fn<Kernel> op =
+        functions::primal::unary::pointwise<Kernel>;
+    functions::adjoint::unary::pointwise_fn<Kernel> grad =
+        functions::adjoint::unary::pointwise<Kernel>;
 };
 
 /**

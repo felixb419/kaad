@@ -1,24 +1,24 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A slice operation node in a computation graph.
- * @see tensorfuncs::primal::unary::slice
- * @see tensorfuncs::adjoint::unary::slice
+ * @see functions::primal::unary::slice
+ * @see functions::adjoint::unary::slice
  */
 class Node_slice : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
-    tensorfuncs::primal::unary::slice_fn<Scalar> forward_op =
-        tensorfuncs::primal::unary::slice;
-    tensorfuncs::adjoint::unary::slice_fn<Scalar> backward_op =
-        tensorfuncs::adjoint::unary::slice;
+    functions::primal::unary::slice_fn<Scalar> forward_op =
+        functions::primal::unary::slice;
+    functions::adjoint::unary::slice_fn<Scalar> backward_op =
+        functions::adjoint::unary::slice;
 
     std::vector<int> input_stride;           ///< Stride array for tensor input.
     std::vector<int> value_stride;           ///< Stride array for tensor value.

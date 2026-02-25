@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "../dispatchers.hpp"                // for get_flexOp, get_flexGrad
 #include "inode.hpp"                         // for INode, Node_ptr
 #include <vector>                            // for std::vector
@@ -12,8 +12,8 @@ template <class Kernel> class Node_binary_flex;
 
 /**
  * @brief A binary_flex operation node in a computation graph.
- * @see tensorfuncs::primal::binary::flexible
- * @see tensorfuncs::adjoint::binary::flexible
+ * @see functions::primal::binary::flexible
+ * @see functions::adjoint::binary::flexible
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
@@ -22,12 +22,12 @@ template <class Kernel> class Node_binary_flex : public INode {
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::flexible_fn<Kernel> forward_op =
-        tensorfuncs::primal::binary::flexible<Kernel>; ///< Function pointer to
+    functions::primal::binary::flexible_fn<Kernel> forward_op =
+        functions::primal::binary::flexible<Kernel>; ///< Function pointer to
                                                        ///< the value operation.
 
-    tensorfuncs::adjoint::binary::flexible_fn<Kernel> backward_op =
-        tensorfuncs::adjoint::binary::flexible<
+    functions::adjoint::binary::flexible_fn<Kernel> backward_op =
+        functions::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
 
     std::vector<int> lhs_stride;   ///< stride Array for A.

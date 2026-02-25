@@ -2,8 +2,8 @@
 
 #include "../../exceptions.hpp"              // for shape_error
 #include "../../tensor/tensor.hpp"           // for Tensor
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "../computation_graph.hpp"          // for Computation_graph
 #include "../node_handle.hpp"                // for Node_handle
 #include "../nodes/dot.hpp"                  // for Node_dot
@@ -38,9 +38,9 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B) {
 
         // override functions to ScalarDot
         static_cast<Node_dot *>(rec.nodes.back().get())->forward_op =
-            tensorfuncs::primal::binary::scalarDot;
+            functions::primal::binary::scalarDot;
         static_cast<Node_dot *>(rec.nodes.back().get())->backward_op =
-            tensorfuncs::adjoint::binary::scalarDot;
+            functions::adjoint::binary::scalarDot;
 
     } else if (A_val.rank() == 1 && B_val.rank() == 1 &&
                std::equal(A_val.shape().begin(), A_val.shape().end(),

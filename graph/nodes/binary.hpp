@@ -1,15 +1,15 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
 
 /**
  * @brief A binary operation node in a computation graph.
- * @see tensorfuncs::primal::binary::pointwise
- * @see tensorfuncs::adjoint::binary::pointwise
+ * @see functions::primal::binary::pointwise
+ * @see functions::adjoint::binary::pointwise
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
@@ -18,12 +18,12 @@ template <class Kernel> class Node_binary : public INode {
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::pointwise_fn<Kernel> forward_op =
-        tensorfuncs::primal::binary::pointwise<
+    functions::primal::binary::pointwise_fn<Kernel> forward_op =
+        functions::primal::binary::pointwise<
             Kernel>; ///< Function pointer to the value operation.
 
-    tensorfuncs::adjoint::binary::pointwise_fn<Kernel> backward_op =
-        tensorfuncs::primal::binary::pointwise<
+    functions::adjoint::binary::pointwise_fn<Kernel> backward_op =
+        functions::primal::binary::pointwise<
             Kernel>; ///< Function pointer to the gradient operation.
 
     const Scalar *end =
@@ -40,8 +40,8 @@ template <class Kernel> class Node_binary : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_binary(tensorfuncs::primal::binary::pointwise_fn<Kernel> operation,
-                tensorfuncs::adjoint::binary::pointwise_fn<Kernel> derivative,
+    Node_binary(functions::primal::binary::pointwise_fn<Kernel> operation,
+                functions::adjoint::binary::pointwise_fn<Kernel> derivative,
                 INode *lhs_ptr, INode *rhs_ptr,
                 std::span<const int> value_shape)
         : lhs(lhs_ptr), rhs(rhs_ptr), forward_op(operation),

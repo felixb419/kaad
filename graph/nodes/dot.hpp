@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../tensorfuncs/adjoint_ops.hpp" // for tensorfuncs::adjoint
-#include "../../tensorfuncs/primal_ops.hpp"  // for tensorfuncs::primal
+#include "../../functions/adjoint_ops.hpp" // for functions::adjoint
+#include "../../functions/primal_ops.hpp"  // for functions::primal
 #include "inode.hpp"                         // for INode
 
 namespace kaad {
@@ -12,21 +12,21 @@ class Node_handle;
 
 /**
  * @brief A binary operation node in a computation graph.
- * @see tensorfuncs::primal::binary::pointwise
- * @see tensorfuncs::adjoint::binary::pointwise
+ * @see functions::primal::binary::pointwise
+ * @see functions::adjoint::binary::pointwise
  */
 class Node_dot : public INode {
   private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
-    tensorfuncs::primal::binary::dot_fn<Scalar> forward_op =
-        tensorfuncs::primal::binary::dot<Scalar>; ///< Function pointer to
+    functions::primal::binary::dot_fn<Scalar> forward_op =
+        functions::primal::binary::dot<Scalar>; ///< Function pointer to
                                                   ///< the value
                                                   ///< operation.
 
-    tensorfuncs::adjoint::binary::dot_fn<Scalar> backward_op =
-        tensorfuncs::adjoint::binary::dot<Scalar>; ///< Function pointer to the
+    functions::adjoint::binary::dot_fn<Scalar> backward_op =
+        functions::adjoint::binary::dot<Scalar>; ///< Function pointer to the
                                                    ///< gradient operation.
 
     const Scalar *lhs_end =
