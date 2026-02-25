@@ -1,7 +1,10 @@
 #pragma once
 
-#include <span>
-#include <stdexcept>
+#include <initializer_list> // for initializer_list
+#include <span>             // for span
+#include <stdexcept>        // for runtime_error
+#include <string>           // for string
+#include <utility>          // for pair
 
 namespace kaad {
 

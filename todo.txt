@@ -48,6 +48,7 @@ kaad/
     Add impl files for succifciently large header functions (~50-100 LOC)
 
 
+    add clang-tidy
     adjust getting started
     make Tensor variant with compile time shape
     make stride function transpose dimensions so biggest is highest
