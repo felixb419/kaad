@@ -7,6 +7,7 @@ namespace kaad {
 
 /**
  * @brief A leaf node that holds a fixed tensor value with no computation.
+ * @ingroup nodes
  */
 class Node_input : public INode {
   private:
@@ -19,12 +20,14 @@ class Node_input : public INode {
   public:
     /**
      * @brief Constructs a leaf node holding a constant value.
+     * @ingroup nodes
      * @param tensor The tensor value to store.
      */
     Node_input(std::span<const int> value_shape) : INode(value_shape, true) {}
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override { return "Node_input"; }
 };

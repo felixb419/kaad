@@ -6,7 +6,12 @@
 namespace kaad {
 
 /**
+ * @defgroup nodes Nodes that can be added to a @ref Computation_graph.
+ */
+
+/**
  * @brief Abstract base class representing a node in a computation graph.
+ * @ingroup nodes
  *
  * Each node holds a value tensor and a corresponding gradient tensor.
  * Nodes can be evaluated to compute their output, and gradients can be
@@ -25,6 +30,7 @@ class INode {
 
     /**
      * @brief Initializes the first input, flags, value and gradient tensors for
+     * @ingroup nodes
      * a node.
      *
      * @param A_ptr Pointer to the input node.
@@ -39,47 +45,55 @@ class INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     virtual const char *node_type() const noexcept = 0;
 
     /**
      * @brief Get a refernce to the value tensor.
+     * @ingroup nodes
      * @return Reference to the value tensor.
      */
     Tensor &value() noexcept;
 
     /**
      * @brief Get a refernce to the value tensor.
+     * @ingroup nodes
      * @return Immutable reference to the value tensor.
      */
     const Tensor &value() const noexcept;
 
     /**
      * @brief Get a refernce to the gradient tensor.
+     * @ingroup nodes
      * @return Immutable reference to the gradient tensor.
      */
     Tensor &gradient() noexcept;
 
     /**
      * @brief Get a refernce to the gradient tensor.
+     * @ingroup nodes
      * @return Reference to the gradient tensor.
      */
     const Tensor &gradient() const noexcept;
 
     /**
      * @brief Tells wether the node has been evaluated.
+     * @ingroup nodes
      * @return True if the node was already evaluated, False otherwise.
      */
     bool evaluated() const noexcept;
 
     /**
      * @brief Tells wether the node has inputs.
+     * @ingroup nodes
      * @return True if the node has inputs, False otherwise.
      */
     bool hasInputs() const noexcept;
 
     /**
      * @brief Resets the value and gradient of the node.
+     * @ingroup nodes
      *
      * Clears the value tensor and sets the `evaluated` flag to false if the
      * node has inputs. Clears the gradient tensor in all cases.
@@ -88,11 +102,13 @@ class INode {
 
     /**
      * @brief Evaluates the node's value. Must be implemented by derived
+     * @ingroup nodes
      * classes.
      */
     inline virtual void eval() = 0;
     /**
      * @brief Computes the gradient for this node. Must be implemented by
+     * @ingroup nodes
      * derived classes.
      */
     inline virtual void getGrad() = 0;

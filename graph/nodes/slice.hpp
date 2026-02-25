@@ -12,6 +12,7 @@ namespace kaad {
 
 /**
  * @brief A slice operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::unary::slice
  * @see functions::adjoint::unary::slice
  */
@@ -37,6 +38,7 @@ class Node_slice : public INode {
   public:
     /**
      * @brief Constructs a slice node.
+     * @ingroup nodes
      * @param input_ptr    Pointer to the input node.
      * @param offset_arr Array with the per-dim offsets of the slice.
      * @param value_shape Shape of the value and gradient tensors.
@@ -46,17 +48,20 @@ class Node_slice : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the slice operation by applying forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through the slice operation by applying
+     * @ingroup nodes
      * backward_op.
      */
     void getGrad() override;

@@ -13,6 +13,7 @@ class Node_batch_matmul;
 
 /**
  * @brief A batch_matmul operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::binary::batch_matmul
  * @see functions::adjoint::binary::batch_matmul
  */
@@ -32,6 +33,7 @@ class Node_batch_matmul : public INode {
 
     /**
      * @brief Stride arrays for A, B, and C for each stage of computation.
+     * @ingroup nodes
      * Index convention:
      * - [0] Forward pass (C = A * B)
      * - [1] Gradient w.r.t. A (dA = dC * B^t)
@@ -53,11 +55,13 @@ class Node_batch_matmul : public INode {
   public:
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Constructs a batch_matmul node.
+     * @ingroup nodes
      * @param A_ptr Pointer to the first input node.
      * @param B_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
@@ -67,17 +71,20 @@ class Node_batch_matmul : public INode {
 
     /**
      * @brief Destructor for Node_batch_matmul.
+     * @ingroup nodes
      */
     ~Node_batch_matmul() noexcept;
 
     /**
      * @brief Evaluates the batch_matmul operation by calling forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through batch batch_matmul operation by
+     * @ingroup nodes
      * calling backward_func.
      */
     void getGrad() override;

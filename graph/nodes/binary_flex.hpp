@@ -15,6 +15,7 @@ template <class Kernel> class Node_binary_flex;
 
 /**
  * @brief A binary_flex operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::binary::flexible
  * @see functions::adjoint::binary::flexible
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
@@ -84,6 +85,7 @@ template <class Kernel> class Node_binary_flex : public INode {
   public:
     /**
      * @brief Constructs a binary_flex operation node with binary_flex operation
+     * @ingroup nodes
      * and gradient.
      * @param A_ptr Pointer to the first input node.
      * @param B_ptr Pointer to the second input node.
@@ -98,6 +100,7 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override {
         return "Node_binary_flex";
@@ -105,6 +108,7 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     /**
      * @brief Evaluates the binary_flex operation by calling forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     inline void eval() override {
@@ -122,6 +126,7 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     /**
      * @brief Propagates gradients back through the binary_flex operation, by
+     * @ingroup nodes
      * calling backward_op.
      */
     inline void getGrad() override {

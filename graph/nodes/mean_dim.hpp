@@ -12,6 +12,7 @@ namespace kaad {
 
 /**
  * @brief A mean_dim operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::unary::mean_dim
  * @see functions::adjoint::unary::mean_dim
  */
@@ -43,6 +44,7 @@ class Node_mean_dim : public INode {
   public:
     /**
      * @brief Constructs a mean_dim node with the given operation and gradient.
+     * @ingroup nodes
      * @param lhs_ptr Pointer to the input node.
      * @param dim Index of the relevant dimension.
      * @param value_shape Shape of the value and gradient tensors.
@@ -51,17 +53,20 @@ class Node_mean_dim : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the mean_dim operation by applying forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through the mean_dim operation by
+     * @ingroup nodes
      * applying backward_op.
      */
     void getGrad() override;

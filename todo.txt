@@ -11,10 +11,6 @@ FEAT:
 PERF:
 
 DOC:
-    add doxygen groups:
-        nodes
-            binary_nodes
-            unary_nodes
 
 LATER:
 

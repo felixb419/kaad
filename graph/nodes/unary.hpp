@@ -14,6 +14,7 @@ class Node_handle;
 
 /**
  * @brief A unary operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::unary::pointwise
  * @see functions::adjoint::unary::pointwise
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
@@ -38,6 +39,7 @@ template <class Kernel> class Node_unary : public INode {
   public:
     /**
      * @brief Constructs a unary node with the given operation and gradient.
+     * @ingroup nodes
      * @param operation  Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
      * @param input_ptr    Pointer to the input node.
@@ -56,11 +58,13 @@ template <class Kernel> class Node_unary : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override { return "Node_unary"; }
 
     /**
      * @brief Evaluates the unary operation by applying forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     inline void eval() override {
@@ -75,6 +79,7 @@ template <class Kernel> class Node_unary : public INode {
 
     /**
      * @brief Propagates gradients back through the unary operation, by applying
+     * @ingroup nodes
      * backward_op.
      */
     inline void getGrad() override {

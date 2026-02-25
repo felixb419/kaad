@@ -11,6 +11,7 @@ namespace kaad {
 
 /**
  * @brief A binary operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::binary::pointwise
  * @see functions::adjoint::binary::pointwise
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
@@ -36,6 +37,7 @@ template <class Kernel> class Node_binary : public INode {
   public:
     /**
      * @brief Constructs a binary operation node with the given operation and
+     * @ingroup nodes
      * gradient.
      * @param operation Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
@@ -55,11 +57,13 @@ template <class Kernel> class Node_binary : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override { return "Node_binary"; }
 
     /**
      * @brief Evaluates the binary operation by applying forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     inline void eval() override {
@@ -75,6 +79,7 @@ template <class Kernel> class Node_binary : public INode {
 
     /**
      * @brief Propagates gradients back through the binary operation by applying
+     * @ingroup nodes
      * backward_op.
      */
     inline void getGrad() override {

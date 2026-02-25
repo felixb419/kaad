@@ -13,6 +13,7 @@ namespace kaad {
 
 /**
  * @brief A outer prodcut operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::binary::flexible
  * @see functions::adjoint::binary::flexible
  */
@@ -43,6 +44,7 @@ class Node_outer : public INode {
   public:
     /**
      * @brief Constructs a outer prodcut operation node with outer prodcut
+     * @ingroup nodes
      * operation and gradient.
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
@@ -53,17 +55,20 @@ class Node_outer : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the outer prodcut operation by calling forward_op, if
+     * @ingroup nodes
      * not already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through the outer prodcut operation, by
+     * @ingroup nodes
      * calling backward_op.
      */
     void getGrad() override;

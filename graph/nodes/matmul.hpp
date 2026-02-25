@@ -10,6 +10,7 @@ namespace kaad {
 
 /**
  * @brief A matmul node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::binary::matmul
  * @see functions::adjoint::binary::matmul
  */
@@ -27,6 +28,7 @@ class Node_matmul : public INode {
 
     /**
      * @brief Stride arrays for tensors A, B, and C for all computation stages.
+     * @ingroup nodes
      * Each stride array is a flattened array of size 6, containing strides for
      * all 3 passes (forward and both backward gradients).
      * Index layout for each stride array:
@@ -50,6 +52,7 @@ class Node_matmul : public INode {
   public:
     /**
      * @brief Constructs a matmul node.
+     * @ingroup nodes
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Shape of the value and gradient tensors.
@@ -59,17 +62,20 @@ class Node_matmul : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the matmul operation by apllying forward_op,if not
+     * @ingroup nodes
      * already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through the matmul operation, by
+     * @ingroup nodes
      * applying backward_op.
      */
     inline void getGrad() override;

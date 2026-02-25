@@ -13,6 +13,7 @@ class Node_handle;
 
 /**
  * @brief A binary operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::binary::pointwise
  * @see functions::adjoint::binary::pointwise
  */
@@ -36,6 +37,7 @@ class Node_dot : public INode {
   public:
     /**
      * @brief Constructs a binary operation node with the given operation and
+     * @ingroup nodes
      * gradient.
      * @param operation Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
@@ -47,17 +49,20 @@ class Node_dot : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the binary operation by applying forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through the binary operation by applying
+     * @ingroup nodes
      * backward_op.
      */
     void getGrad() override;

@@ -11,6 +11,7 @@ namespace kaad {
 
 /**
  * @brief A transpose operation node in a computation graph.
+ * @ingroup nodes
  * @see functions::primal::unary::noop
  * @see functions::adjoint::unary::pointwise
  */
@@ -37,6 +38,7 @@ class Node_transp : public INode {
   public:
     /**
      * @brief Constructs a transpose node with the given operation and gradient.
+     * @ingroup nodes
      *
      * @param input_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensors.
@@ -47,17 +49,20 @@ class Node_transp : public INode {
 
     /**
      * @brief Returns the type of the node as a string.
+     * @ingroup nodes
      */
     const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the transpose operation by applying forward_op, if not
+     * @ingroup nodes
      * already evaluated.
      */
     void eval() override;
 
     /**
      * @brief Propagates gradients back through the transpose operation, by
+     * @ingroup nodes
      * applying backward_op.
      */
     void getGrad() override;
