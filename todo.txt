@@ -11,8 +11,6 @@ FEAT:
 PERF:
 
 DOC:
-    roughly comment metadata functions
-    improve comments for shape(), stride()
     replace all "value array" with "element array" (make clear which arguments are copied and which are owned)
     fix all include lists
     get rid of non-ascii chars

@@ -257,8 +257,10 @@ class Tensor {
     const std::vector<int> &shape() const noexcept;
 
     /**
-     * @brief Get immutable reference to the stride array.
-     * @return Const reference to stride_.
+     * @brief Returns the tensor stride array.
+     * The stride specifies the memory offset (in elements) between
+     * consecutive entries along each dimension.
+     * @return Const reference to the stride array.
      */
     const std::vector<int> &stride() const noexcept;
 
