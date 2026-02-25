@@ -152,15 +152,15 @@ class Tensor {
     Tensor();
 
     /**
-     * @brief Constructs a tensor with given @p shape (value array stays
+     * @brief Constructs a tensor with given @p shape (element array stays
      * uninitialized).
      * @param shape Array with the shape of the tensor.
      */
     Tensor(std::span<const int> shape);
 
     /**
-     * @brief Constructs a tensor with given @p shape and @p stride (value array
-     * stays uninitialized).
+     * @brief Constructs a tensor with given @p shape and @p stride (element
+     * array stays uninitialized).
      * @param shape Array with the shape of the tensor.
      * @param stride Array with the per-dim strides of the tensor.
      */
@@ -182,7 +182,7 @@ class Tensor {
     /**
      * @brief Returns a tensor with given shape and filled with @p fill_value.
      * @param shape Shape array for the tensor.
-     * @param fill_value Value to fill the value array.
+     * @param fill_value Value to fill the element array.
      */
     static Tensor full(std::initializer_list<int> shape, Scalar fill_value);
 
@@ -265,32 +265,32 @@ class Tensor {
     const std::vector<int> &stride() const noexcept;
 
     /**
-     * @brief Get an iterator to the begin of the value array.
+     * @brief Get an iterator to the begin of the element array.
      * @return Iterator to the first element.
      */
     iterator begin();
 
     /**
-     * @brief Get a const iterator to the begin of the value array.
+     * @brief Get a const iterator to the begin of the element array.
      * @return Const iterator to the first element.
      */
     const_iterator begin() const;
 
     /**
-     * @brief Get an iterator to the end of the value array.
+     * @brief Get an iterator to the end of the element array.
      * @return Iterator to one past the last element.
      */
     iterator end();
 
     /**
-     * @brief Get a const iterator to the end of the value array.
+     * @brief Get a const iterator to the end of the element array.
      * @return Const iterator to one past the last element.
      */
     const_iterator end() const;
 
     /**
      * @brief Get number of elements in the tensor.
-     * @return Length of the value array.
+     * @return Length of the element array.
      */
     size_type size() const noexcept;
 
@@ -321,14 +321,14 @@ class Tensor {
     const_reference back() const noexcept;
 
     /**
-     * @brief Get a pointer to the value array.
-     * @return Pointer to the start of the value array.
+     * @brief Get a pointer to the element array.
+     * @return Pointer to the start of the element array.
      */
     pointer data() noexcept;
 
     /**
-     * @brief Get a const pointer to the value array.
-     * @return Const pointer to the start of the value array.
+     * @brief Get a const pointer to the element array.
+     * @return Const pointer to the start of the element array.
      */
     const_pointer data() const noexcept;
 

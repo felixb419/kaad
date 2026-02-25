@@ -24,8 +24,8 @@ struct Tensor_view {
     const int *shape = nullptr;  ///< Pointer to the shape array.
     const int *stride = nullptr; ///< Pointer to the stride array.
     size_type rank = 0;          ///< Length of the shape and stride arrays.
-    const value_type *elements = nullptr; ///< Pointer to the value array.
-    size_type len = 0;                    ///< Length of the value array.
+    const value_type *elements = nullptr; ///< Pointer to the element array.
+    size_type len = 0;                    ///< Length of the element array.
 
     /**
      * @brief Default constructor.
@@ -37,8 +37,8 @@ struct Tensor_view {
      * @param shape Pointer to the shape array.
      * @param shape Pointer to the stride array.
      * @param rank Length of the shape and stride arrays.
-     * @param elements Pointer to the value array.
-     * @param len Length of the value array.
+     * @param elements Pointer to the element array.
+     * @param len Length of the element array.
      */
     Tensor_view(const int *shape, const int *stride, size_type rank,
                 const value_type *elements, size_type len) noexcept;
@@ -72,8 +72,8 @@ struct Tensor_view_mut {
     const int *shape = nullptr;     ///< Pointer to the shape array.
     const int *stride = nullptr;    ///< Pointer to the stride array.
     size_type rank = 0;             ///< Length of the shape and stride arrays.
-    value_type *elements = nullptr; ///< Pointer to the value array.
-    size_type len = 0;              ///< Length of the value array.
+    value_type *elements = nullptr; ///< Pointer to the element array.
+    size_type len = 0;              ///< Length of the element array.
 
     /**
      * @brief Default constructor.
@@ -85,8 +85,8 @@ struct Tensor_view_mut {
      * @param shape Pointer to the shape array.
      * @param shape Pointer to the stride array.
      * @param rank Length of the shape and stride arrays.
-     * @param elements Pointer to the value array.
-     * @param len Length of the value array.
+     * @param elements Pointer to the element array.
+     * @param len Length of the element array.
      */
     Tensor_view_mut(const int *shape, const int *stride, size_type rank,
                     value_type *elements, size_type len) noexcept;
