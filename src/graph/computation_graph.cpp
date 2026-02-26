@@ -47,6 +47,20 @@ Computation_graph::add_input_node(std::span<const int> value_shape,
     return Node_handle(this->nodes.size() - 1, this);
 }
 
+std::vector<const Tensor *>
+Computation_graph::evaluate(std::span<const Node_handle> nodes) {
+
+    std::vector<const Tensor *> values(nodes.size());
+
+    for (int i = 0; i < nodes.size(); i++) {
+        INode *node_ptr = this->get_node(nodes[i]);
+        node_ptr->eval();
+        values[i] = &node_ptr->value();
+    }
+
+    return values;
+}
+
 void Computation_graph::reset() {
     for (int i = 0; i < nodes.size(); i++) {
         nodes[i]->reset();

@@ -82,22 +82,7 @@ class Computation_graph {
      * @return An array of Tensor* pointers, each corresponding to the value
      * of the evaluated node.
      */
-    template <typename... Node_handles>
-        requires(std::same_as<Node_handles, Node_handle> && ...)
-    std::array<const Tensor *, sizeof...(Node_handles)>
-    evaluate(Node_handles... nodes) {
-
-        Node_handle node_arr[] = {nodes...};
-        std::array<const Tensor *, sizeof...(nodes)> values;
-
-        for (int i = 0; i < sizeof...(nodes); i++) {
-            INode *node_ptr = this->get_node(node_arr[i]);
-            node_ptr->eval();
-            values[i] = &node_ptr->value();
-        }
-
-        return values;
-    }
+    std::vector<const Tensor *> evaluate(std::span<const Node_handle> nodes);
 
     /**
      * @brief Computes gradients of the computation graph with respect to the

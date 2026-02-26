@@ -29,7 +29,7 @@ int main() {
 
     rec.reset();
 
-    rec.evaluate(res);
+    rec.evaluate(std::array{res});
 
     rec.getGradient(res, a, b, c, d, res);
 
