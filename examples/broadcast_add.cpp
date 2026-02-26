@@ -31,7 +31,7 @@ int main() {
 
     rec.evaluate(std::array{res});
 
-    rec.getGradient(res, a, b, c, d, res);
+    rec.getGradient(res, std::array{a, b, c, d, res});
 
     std::cout << "A:\n" << a << std::endl;
     std::cout << "B:\n" << b << std::endl;

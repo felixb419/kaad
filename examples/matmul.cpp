@@ -26,7 +26,7 @@ int main() {
 
     auto e = rec.evaluate(std::array{res});
 
-    auto g = rec.getGradient(res, a, b, c);
+    auto g = rec.getGradient(res, std::array{a, b, c});
 
     std::cout << "A:\n" << a << std::endl;
     std::cout << "B:\n" << b << std::endl;

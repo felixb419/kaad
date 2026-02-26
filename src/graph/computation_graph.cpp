@@ -67,6 +67,25 @@ void Computation_graph::reset() {
     }
 }
 
+std::vector<const Tensor *>
+Computation_graph::getGradient(Node_handle output,
+                               std::span<const Node_handle> inputs) {
+
+    INode *f = this->get_node(output);
+    std::fill(f->gradient().elements_.begin(), f->gradient().elements_.end(),
+              1.0);
+
+    f->getGrad();
+
+    std::vector<const Tensor *> partials(inputs.size());
+
+    for (std::size_t i = 0; i < inputs.size(); i++) {
+        partials[i] = &this->get_node(inputs[i])->gradient();
+    }
+
+    return partials;
+}
+
 std::ostream &operator<<(std::ostream &os, Node_handle node) {
     INode *node_ptr = node.origin_->get_node(node);
     os << node_ptr->node_type() << " at idx " << node.idx()

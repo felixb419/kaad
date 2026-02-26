@@ -104,24 +104,8 @@ class Computation_graph {
      * @return An array of Tensor* pointers representing the gradients df/dx
      * for each input node.
      */
-    template <typename... Handles>
-        requires(std::same_as<Handles, Node_handle> && ...)
-    std::array<const Tensor *, sizeof...(Handles)>
-    getGradient(Node_handle output, Handles... wrt) {
-        INode *f = this->get_node(output);
-        std::fill(f->gradient().elements_.begin(),
-                  f->gradient().elements_.end(), 1.0);
-
-        f->getGrad();
-
-        std::array<Node_handle, sizeof...(wrt)> nodes = {wrt...};
-        std::array<const Tensor *, sizeof...(wrt)> partials = {};
-        for (std::size_t i = 0; i < sizeof...(wrt); i++) {
-            partials[i] = &this->get_node(nodes[i])->gradient();
-        }
-
-        return partials;
-    }
+    std::vector<const Tensor *>
+    getGradient(Node_handle output, std::span<const Node_handle> inputs);
 
     /**
      * @brief Resets all node values and gradients in the computation graph to
