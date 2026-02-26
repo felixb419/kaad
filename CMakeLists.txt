@@ -13,7 +13,7 @@ set(CMAKE_EXTENSIONS OFF)
 
 # Option flags
 # option(KAAD_BUILD_TESTS "Build tests" ON)
-# option(KAAD_BUILD_EXAMPLES "Build examples" ON)
+option(KAAD_BUILD_EXAMPLES "Build examples" ON)
 
 # Add subdirectories
 add_subdirectory(src)
@@ -23,6 +23,6 @@ add_subdirectory(src)
 #     add_subdirectory(tests)
 # endif()
 
-# if (KAAD_BUILD_EXAMPLES)
-#     add_subdirectory(examples)
-# endif()
+if (KAAD_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif()

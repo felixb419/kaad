@@ -7,7 +7,6 @@ REFACTOR:
     (?) put reset, evaluate and getGradient into single function
 
 FEAT:
-    example programs
     Install support
     test programs
     (?) label member for nodes
@@ -27,3 +26,4 @@ CHORE:
 
 LATER:
     (?) add proper test system
+    (?) add more example programs
