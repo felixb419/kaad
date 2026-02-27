@@ -79,7 +79,7 @@ using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
 
 template <typename T>
 using dot_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                        const T *res, const T *d_res, const T *lhs_end);
+                        const T *d_res, const T *lhs_end);
 
 template <typename T>
 using matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
@@ -271,8 +271,8 @@ void flexible(const typename Kernel::value_type *lhs,
  * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
-void scalarDot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
-               const T *d_res, const T *lhs_end) noexcept {
+void scalarDot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
+               const T *lhs_end) noexcept {
     for (; lhs != lhs_end; lhs++, d_lhs++) {
         *d_lhs += *d_res * (*rhs);
         *d_rhs += *d_res * (*lhs);
@@ -296,8 +296,8 @@ void scalarDot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
  * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
-void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
-         const T *d_res, const T *lhs_end) noexcept {
+void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
+         const T *lhs_end) noexcept {
     for (; lhs != lhs_end; lhs++, d_lhs++, rhs++, d_rhs++) {
         *d_lhs += *d_res * (*rhs);
         *d_rhs += *d_res * (*lhs);

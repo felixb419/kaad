@@ -29,7 +29,7 @@ void Node_dot::getGrad() {
     backward_op(
         this->lhs->value().data(), this->lhs->gradient().elements_.data(),
         this->rhs->value().data(), this->rhs->gradient().elements_.data(),
-        this->value().data(), this->gradient().data(), lhs_end);
+        this->gradient().data(), lhs_end);
 
     if (this->lhs->hasInputs()) {
         this->lhs->getGrad();
