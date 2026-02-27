@@ -19,9 +19,6 @@ namespace kaad {
  */
 template <class Kernel> class Node_binary : public INode {
   private:
-    INode *lhs = nullptr; ///< Pointer to the first input Node.
-    INode *rhs = nullptr; ///< Pointer to the second input Node.
-
     functions::primal::binary::pointwise_fn<Kernel> forward_op =
         functions::primal::binary::pointwise<Kernel>; ///< Function pointer to
                                                       ///< the value operation.
@@ -29,6 +26,9 @@ template <class Kernel> class Node_binary : public INode {
     functions::adjoint::binary::pointwise_fn<Kernel> backward_op =
         functions::primal::binary::pointwise<
             Kernel>; ///< Function pointer to the gradient operation.
+
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     const Scalar *end =
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
@@ -49,8 +49,8 @@ template <class Kernel> class Node_binary : public INode {
                 functions::adjoint::binary::pointwise_fn<Kernel> derivative,
                 INode *lhs_ptr, INode *rhs_ptr,
                 std::span<const int> value_shape)
-        : lhs(lhs_ptr), rhs(rhs_ptr), forward_op(operation),
-          backward_op(derivative), INode(value_shape, false) {
+        : INode(value_shape, false), forward_op(operation),
+          backward_op(derivative), lhs(lhs_ptr), rhs(rhs_ptr) {
         INode *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value().data() + base_ptr->value().size();
     }

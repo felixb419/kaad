@@ -22,8 +22,6 @@ class Node_handle;
  */
 template <class Kernel> class Node_unary : public INode {
   private:
-    INode *input = nullptr; ///< Pointer to the input Node.
-
     functions::primal::unary::pointwise_fn<Kernel> forward_op =
         functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
                                                      ///< the value operation.
@@ -31,6 +29,8 @@ template <class Kernel> class Node_unary : public INode {
     functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
         functions::adjoint::unary::pointwise<
             Kernel>; ///< Function pointer to the gradient operation.
+
+    INode *input = nullptr; ///< Pointer to the input Node.
 
     const Scalar *end =
         nullptr; ///< Pointer to the end of longest buffer (used for iteration,
@@ -48,8 +48,8 @@ template <class Kernel> class Node_unary : public INode {
     Node_unary(functions::primal::unary::pointwise_fn<Kernel> operation,
                functions::adjoint::unary::pointwise_fn<Kernel> derivative,
                INode *input_ptr, std::span<const int> value_shape)
-        : forward_op(operation), backward_op(derivative), input(input_ptr),
-          INode(value_shape, false) {
+        : INode(value_shape, false), forward_op(operation),
+          backward_op(derivative), input(input_ptr) {
         this->end =
             this->value().data() +
             this->value()

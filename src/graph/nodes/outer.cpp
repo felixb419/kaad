@@ -42,7 +42,7 @@ void Node_outer::metadata() {
 
 Node_outer::Node_outer(INode *lhs_ptr, INode *rhs_ptr,
                        std::span<const int> value_shape)
-    : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
+    : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->metadata();
 }

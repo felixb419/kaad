@@ -23,9 +23,6 @@ template <class Kernel> class Node_binary_flex;
  */
 template <class Kernel> class Node_binary_flex : public INode {
   private:
-    INode *lhs = nullptr; ///< Pointer to the first input Node.
-    INode *rhs = nullptr; ///< Pointer to the second input Node.
-
     functions::primal::binary::flexible_fn<Kernel> forward_op =
         functions::primal::binary::flexible<Kernel>; ///< Function pointer to
                                                      ///< the value operation.
@@ -33,6 +30,9 @@ template <class Kernel> class Node_binary_flex : public INode {
     functions::adjoint::binary::flexible_fn<Kernel> backward_op =
         functions::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
+
+    INode *lhs = nullptr; ///< Pointer to the first input Node.
+    INode *rhs = nullptr; ///< Pointer to the second input Node.
 
     std::vector<int> lhs_stride;   ///< stride Array for A.
     std::vector<int> rhs_stride;   ///< stride Array for B.
@@ -93,7 +93,7 @@ template <class Kernel> class Node_binary_flex : public INode {
      */
     Node_binary_flex(INode *lhs_ptr, INode *rhs_ptr,
                      std::span<const int> value_shape)
-        : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
+        : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
         this->metadata();
     }

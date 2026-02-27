@@ -100,7 +100,7 @@ void Node_batch_matmul::metadata() {
 
 Node_batch_matmul::Node_batch_matmul(INode *lhs_ptr, INode *rhs_ptr,
                                      std::span<const int> value_shape)
-    : lhs(lhs_ptr), rhs(rhs_ptr), INode(value_shape, false) {
+    : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->metadata();
 }

@@ -55,7 +55,7 @@ void Node_slice::metadata(const int *offset_arr) {
 
 Node_slice::Node_slice(INode *input_ptr, const int *offset_arr,
                        std::span<const int> value_shape)
-    : input(input_ptr), INode(value_shape, false) {
+    : INode(value_shape, false), input(input_ptr) {
     this->metadata(offset_arr);
 }
 

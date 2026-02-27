@@ -19,8 +19,8 @@ class Node_batch_matmul;
  */
 class Node_batch_matmul : public INode {
   private:
-    INode *rhs = nullptr; ///< Pointer to the first input Node.
     INode *lhs = nullptr; ///< Pointer to the second input Node.
+    INode *rhs = nullptr; ///< Pointer to the first input Node.
 
     functions::primal::binary::batch_matmul_fn<Scalar> forward_op =
         functions::primal::binary::batch_matmul; ///< Function pointer to

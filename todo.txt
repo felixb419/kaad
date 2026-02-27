@@ -2,7 +2,6 @@
 FIX:
 REFACTOR:
     (?) Unify git domains and doxygen namespaces and/or normal namepsaces
-    Add impl files for succifciently large header functions (~50-100 LOC)
 FEAT:
     Install support
 PERF:
@@ -54,7 +53,6 @@ LATER:
 FIX:
 REFACTOR:
     make test values less uniform
-    comment examples
 FEAT:
     unary ops test
     make python code doxygen inline

@@ -28,7 +28,7 @@ void Node_sum_dim::metadata(int dim) {
 
 Node_sum_dim::Node_sum_dim(INode *input_ptr, int dim,
                            std::span<const int> value_shape)
-    : input(input_ptr), INode(value_shape, false) {
+    : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);
 }

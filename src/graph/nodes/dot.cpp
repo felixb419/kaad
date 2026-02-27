@@ -7,7 +7,7 @@
 namespace kaad {
 
 Node_dot::Node_dot(INode *lhs_ptr, INode *rhs_ptr)
-    : lhs(lhs_ptr), rhs(rhs_ptr), INode(std::array{1}, false) {
+    : INode(std::array{1}, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->lhs_end = this->lhs->value().data() + this->lhs->value().size();
 }
