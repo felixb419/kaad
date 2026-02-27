@@ -38,6 +38,7 @@ class Tensor {
         const std::vector<int> &stride_; ///< Stride array of the tensor.
 
       public:
+        using iterator_concept = std::bidirectional_iterator_tag;
         using iterator_category = std::bidirectional_iterator_tag;
         using value_type = Tensor::value_type;
         using difference_type = Tensor::difference_type;
