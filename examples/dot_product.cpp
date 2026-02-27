@@ -5,9 +5,11 @@
 #include <span>      // for span
 
 int main() {
+    // Create computation graph.
     kaad::Computation_graph rec;
 
-    std::span<float> a_vals;
+    // Add input nodes to the graph.
+    std::span<float> a_vals; // Add input nodes to the graph
     auto a = rec.add_input_node(std::array{5}, a_vals);
     std::fill(a_vals.begin(), a_vals.end(), 10);
 
@@ -19,15 +21,20 @@ int main() {
     auto c = rec.add_input_node(std::array{5}, c_vals);
     std::fill(c_vals.begin(), c_vals.end(), 20);
 
-    kaad::Node_handle ab = dot(rec, a, b);
-    kaad::Node_handle res = dot(rec, ab, c);
+    // Add computation nodes to graph via operators.
+    kaad::Node_handle ab = dot(rec, a, b);   // [5] * [5] -> [1]
+    kaad::Node_handle res = dot(rec, ab, c); // [1] * [5] -> [1]
 
+    // Reset the graph.
     rec.reset();
 
-    auto e = rec.evaluate(std::array{res});
+    // Evaluate 'res'.
+    rec.evaluate(std::array{res});
 
-    auto g = rec.getGradient(res, std::array{a, b, c});
+    // Compute the gradient of res w.r.t. to a, b and c.
+    rec.getGradient(res, std::array{a, b, c});
 
+    // Print values of nodes.
     std::cout << "A:\n" << a << std::endl;
     std::cout << "B:\n" << b << std::endl;
     std::cout << "C:\n" << c << std::endl;
