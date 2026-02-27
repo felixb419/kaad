@@ -53,6 +53,18 @@ class Node_handle {
         return this->origin_->nodes[this->idx()].get()->value();
     }
 
+    /**
+     * @brief Get gradient of the node.
+     * @return Reference to the gradient tensor of the node.
+     */
+    const Tensor &gradient() {
+        if (this->idx() >= this->origin_->nodes.size()) {
+            throw argument_error("idx_ of this handle is invalid");
+        }
+
+        return this->origin_->nodes[this->idx()].get()->gradient();
+    }
+
     friend constexpr auto operator<=>(Node_handle, Node_handle) = default;
     friend std::ostream &operator<<(std::ostream &os, Node_handle node);
 };
