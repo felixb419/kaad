@@ -269,24 +269,32 @@ class Tensor {
 
     /**
      * @brief Get an iterator to the begin of the element array.
+     * @warning Tensor::iterator is not a contignous iterator (use
+     * Tensor::data() for that).
      * @return Iterator to the first element.
      */
     iterator begin();
 
     /**
      * @brief Get a const iterator to the begin of the element array.
+     * @warning Tensor::iterator is not a contignous iterator (use
+     * Tensor::data() for that).
      * @return Const iterator to the first element.
      */
     const_iterator begin() const;
 
     /**
      * @brief Get an iterator to the end of the element array.
+     * @warning Tensor::iterator is not a contignous iterator (use
+     * Tensor::data() for that).
      * @return Iterator to one past the last element.
      */
     iterator end();
 
     /**
      * @brief Get a const iterator to the end of the element array.
+     * @warning Tensor::iterator is not a contignous iterator (use
+     * Tensor::data() for that).
      * @return Const iterator to one past the last element.
      */
     const_iterator end() const;

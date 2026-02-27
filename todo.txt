@@ -13,6 +13,7 @@ CHORE:
     (?) kaadConfig.cmake.in
 LATER:
     (?) add proper test system
+    (?) Add system for inference
 
 
 [ TENSOR ]
@@ -22,7 +23,6 @@ FEAT:
 PERF:
     make Tensor variant with compile time shape
 DOC:
-    add warning to begin end to not be used as contiguous iterator 
 CHORE:
 LATER:
 
