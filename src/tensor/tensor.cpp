@@ -15,7 +15,7 @@ namespace kaad {
 template class Tensor::iterator_impl<false>;
 template class Tensor::iterator_impl<true>;
 
-static void compute_stride(std::vector<int> &stride, int &len,
+static void compute_stride(std::vector<int> &stride, size_t &len,
                            const std::vector<int> &shape) {
     stride.resize(shape.size());
 
@@ -43,7 +43,7 @@ Tensor::Tensor() : shape_({0}), stride_({0}), elements_({}) {}
 Tensor::Tensor(std::span<const int> shape)
     : shape_(shape.begin(), shape.end()), stride_(shape.size()) {
 
-    int len = 1;
+    size_t len = 1;
     compute_stride(this->stride_, len, this->shape_);
 
     this->elements_.resize(len);
@@ -63,7 +63,7 @@ Tensor::Tensor(std::span<const int> shape, std::span<const int> stride)
 Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
     : shape_(shape.begin(), shape.end()),
       elements_(elements.begin(), elements.end()) {
-    int len;
+    size_t len;
     compute_stride(this->stride_, len, this->shape_);
 
     if (len != elements.size()) {
@@ -129,7 +129,7 @@ Tensor Tensor::rand(std::initializer_list<int> shape, Scalar min, Scalar max) {
     std::uniform_real_distribution<Scalar> dist{min, max};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    for (int i = 0; i < out.size(); i++) {
+    for (size_t i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::gen_);
     }
 
@@ -146,7 +146,7 @@ Tensor Tensor::randn(std::initializer_list<int> shape, Scalar mean,
     std::normal_distribution<Scalar> dist{mean, std};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    for (int i = 0; i < out.size(); i++) {
+    for (size_t i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::gen_);
     }
 
@@ -162,7 +162,7 @@ void Tensor::reshape(std::span<const int> shape) {
 
     std::copy(shape.begin(), shape.end(), this->shape_.begin());
 
-    int suggested_len;
+    size_t suggested_len;
     compute_stride(this->stride_, suggested_len, this->shape_);
 
     if (suggested_len != this->size()) {

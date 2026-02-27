@@ -9,11 +9,11 @@ namespace kaad::detail {
 
 inline void print_tensor(std::ostream &os, std::vector<int> &cords,
                          const int *shape, const int *stride, std::size_t rank,
-                         const Scalar *elements, std::size_t nElems, int ind,
-                         int &indent) {
+                         const Scalar *elements, std::size_t nElems,
+                         std::size_t ind, int &indent) {
     if (ind == rank) {
         int idx = 0;
-        for (int i = 0; i < rank; i++) {
+        for (size_t i = 0; i < rank; i++) {
             idx += (cords[i] % shape[i]) * stride[i];
         }
         os << elements[idx];
@@ -28,7 +28,7 @@ inline void print_tensor(std::ostream &os, std::vector<int> &cords,
                          ind + 1, indent);
             os << ", ";
             bool indent_here = false;
-            for (int j = 0; j < rank - ind - 1; j++) {
+            for (size_t j = 0; j < rank - ind - 1; j++) {
                 os << std::endl;
                 indent_here = true;
             }

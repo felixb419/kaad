@@ -55,7 +55,7 @@ class Tensor {
 
         reference operator*() const {
             size_t idx = 0;
-            for (int i = 0; i < this->origin_.rank(); i++) {
+            for (size_t i = 0; i < this->origin_.rank(); i++) {
                 idx += this->cords_[i] * this->stride_[i];
             }
             return this->origin_.data()[idx];
@@ -78,7 +78,7 @@ class Tensor {
                     // past end and return.
                     std::copy(this->shape_.begin(), this->shape_.end(),
                               this->cords_.begin());
-                    for (int i = 0; i < this->origin_.rank() - 1; i++) {
+                    for (size_t i = 0; i < this->origin_.rank() - 1; i++) {
                         this->cords_[i]--;
                     }
                     break;

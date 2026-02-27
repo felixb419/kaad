@@ -17,6 +17,7 @@ LATER:
 
 [ TENSOR ]
 FIX:
+    make sure tensor with rank 0 either cant be created or can be handled
 REFACTOR:
 FEAT:
 PERF:
