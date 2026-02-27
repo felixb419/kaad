@@ -39,14 +39,14 @@ class Node_batch_matmul : public INode {
      * - [1] Gradient w.r.t. A (dA = dC * B^t)
      * - [2] Gradient w.r.t. B (dB = A^t * dC)
      */
-    int *(lhs_stride[3]);            ///< Stride array for tensor A.
-    int *(rhs_stride[3]);            ///< Stride array for tensor B.
-    int *(value_stride[3]);          ///< Stride array for tensor C.
-    int *(value_shape_broadcast[3]); ///< shape of C (without summing over batch
-                                     ///< dimensions).
-    int lhs_colStride[3];            ///< Gap between columns of the A matrix.
-    int rhs_rowStride[3];            ///< Gap between rows of the B matrix.
-    int shared_dim[3];               ///< Shared inner dimension of the tensors.
+    int *lhs_stride[3];            ///< Stride array for tensor A.
+    int *rhs_stride[3];            ///< Stride array for tensor B.
+    int *value_stride[3];          ///< Stride array for tensor C.
+    int *value_shape_broadcast[3]; ///< shape of C (without summing over batch
+                                   ///< dimensions).
+    int lhs_colStride[3];          ///< Gap between columns of the A matrix.
+    int rhs_rowStride[3];          ///< Gap between rows of the B matrix.
+    int shared_dim[3];             ///< Shared inner dimension of the tensors.
     std::size_t value_rank =
         0; ///< Number of the dimensions of the value tensor.
 
