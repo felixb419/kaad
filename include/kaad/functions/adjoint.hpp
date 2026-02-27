@@ -89,7 +89,7 @@ using matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
 
 template <typename T>
 using batch_matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                                 const T *res, const T *d_res, int **stride_lhs,
+                                 const T *d_res, int **stride_lhs,
                                  int **stride_rhs, int **stride_res,
                                  int **res_shape, int *lhs_dim_offset,
                                  int *rhs_dim_offset, int *shared_dim,
@@ -359,7 +359,7 @@ void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
  * @param res_rank Number of dimensions of @p res.
  */
 template <typename T>
-void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
+void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                   const T *d_res, int **stride_lhs, int **stride_rhs,
                   int **stride_res, int **res_shape, int *lhs_dim_offset,
                   int *rhs_dim_offset, int *shared_dim, int res_rank) noexcept {
@@ -380,7 +380,7 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
  * @ingroup binary_adjoint_functions
  */
 template <typename T, int res_rank>
-void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
+void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                   const T *d_res, int **stride_lhs, int **stride_rhs,
                   int **stride_res, int **res_shape, int *lhs_dim_offset,
                   int *rhs_dim_offset, int *shared_dim,
