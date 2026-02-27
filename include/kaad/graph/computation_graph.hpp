@@ -2,7 +2,6 @@
 
 #include "../scalar.hpp"        // for Scalar
 #include "../tensor/tensor.hpp" // for Tensor
-#include "node_handle.hpp"      // for Node_handle
 #include "nodes/inode.hpp"      // for INode
 #include <algorithm>            // for fill
 #include <array>                // for array
@@ -14,6 +13,8 @@
 #include <vector>               // for vector
 
 namespace kaad {
+
+class Node_handle;
 
 /**
  * @brief Represents a computation graph for automatic differentiation.
