@@ -120,6 +120,8 @@ class Computation_graph {
 
     friend std::ostream &operator<<(std::ostream &os, Node_handle node);
 
+    friend class Node_handle;
+
     template <class Kernel>
     friend Node_handle binOperator(Computation_graph &rec, Node_handle A,
                                    Node_handle B, const char *opName);

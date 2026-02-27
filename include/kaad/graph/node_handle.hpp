@@ -1,7 +1,9 @@
 #pragma once
 
-#include <iostream> // for ostream
-#include <stdint.h> // for uint32_t
+#include "../../../include/kaad/exceptions.hpp" // for argument_error
+#include "../../../include/kaad/graph/computation_graph.hpp" // for computation_graph
+#include <iostream>                                          // for ostream
+#include <stdint.h>                                          // for uint32_t
 
 namespace kaad {
 class Computation_graph;
@@ -37,6 +39,18 @@ class Node_handle {
      */
     constexpr const Computation_graph *origin() const noexcept {
         return this->origin_;
+    }
+
+    /**
+     * @brief Get value of the node.
+     * @return Reference to the value tensor of the node.
+     */
+    const Tensor &value() {
+        if (this->idx() >= this->origin_->nodes.size()) {
+            throw argument_error("idx_ of this handle is invalid");
+        }
+
+        return this->origin_->nodes[this->idx()].get()->value();
     }
 
     friend constexpr auto operator<=>(Node_handle, Node_handle) = default;
