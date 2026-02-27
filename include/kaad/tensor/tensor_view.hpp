@@ -51,8 +51,7 @@ struct Tensor_view {
  * @param view The tensor view to print.
  * @return std::ostream& The updated output stream.
  */
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const Tensor_view &view);
+std::ostream &operator<<(std::ostream &os, const Tensor_view &view);
 
 /**
  * @brief Lightweight mutable view into a tensor's shape, stride, and data.
@@ -104,7 +103,6 @@ struct Tensor_view_mut {
  * @param view The tensor view to print.
  * @return std::ostream& The updated output stream.
  */
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const Tensor_view_mut &view);
+std::ostream &operator<<(std::ostream &os, const Tensor_view_mut &view);
 
 } // namespace kaad

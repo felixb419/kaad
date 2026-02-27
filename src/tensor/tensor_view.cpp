@@ -10,8 +10,7 @@ Tensor_view::Tensor_view(const int *shape, const int *stride, size_type rank,
                          const value_type *elements, size_type len) noexcept
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const Tensor_view &view) {
+std::ostream &operator<<(std::ostream &os, const Tensor_view &view) {
     if (view.rank == 0) {
         std::cout << "[]";
     } else {
@@ -36,8 +35,7 @@ Tensor_view Tensor_view_mut::make_immutable() noexcept {
                        this->len);
 }
 
-static inline std::ostream &operator<<(std::ostream &os,
-                                       const Tensor_view_mut &view) {
+std::ostream &operator<<(std::ostream &os, const Tensor_view_mut &view) {
     if (view.rank == 0) {
         std::cout << "[]";
     } else {
