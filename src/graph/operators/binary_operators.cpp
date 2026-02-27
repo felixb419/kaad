@@ -37,7 +37,7 @@ static inline bool combine_flexible(const int *shape1, std::size_t rank1,
                                     int *newShape,
                                     std::size_t newLen) noexcept {
     int ind = newLen - 1;
-    for (int i = 1; i <= newLen; i++, ind--) {
+    for (size_t i = 1; i <= newLen; i++, ind--) {
         int ind1 = rank1 - i;
         int ind2 = rank2 - i;
         if (ind1 >= 0 && ind2 >= 0) {

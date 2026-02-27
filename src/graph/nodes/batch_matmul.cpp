@@ -32,7 +32,7 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
     res_stride = new int[D];
 
     int idx, idxA, idxB, idxC;
-    for (int i = 1; i <= D; i++) {
+    for (size_t i = 1; i <= D; i++) {
         idx = D - i;
         idxA = lhs.rank - i;
         lhs_stride[idx] = idxA >= 0 ? lhs.stride[idxA] : 0;

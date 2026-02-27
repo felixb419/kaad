@@ -52,7 +52,7 @@ Computation_graph::evaluate(std::span<const Node_handle> nodes) {
 
     std::vector<const Tensor *> values(nodes.size());
 
-    for (int i = 0; i < nodes.size(); i++) {
+    for (size_t i = 0; i < nodes.size(); i++) {
         INode *node_ptr = this->get_node(nodes[i]);
         node_ptr->eval();
         values[i] = &node_ptr->value();
@@ -62,7 +62,7 @@ Computation_graph::evaluate(std::span<const Node_handle> nodes) {
 }
 
 void Computation_graph::reset() {
-    for (int i = 0; i < nodes.size(); i++) {
+    for (size_t i = 0; i < nodes.size(); i++) {
         nodes[i]->reset();
     }
 }

@@ -32,7 +32,7 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
     newShape[newLen - 2] = shape1[rank1 - 2];
 
     int ind = newLen - 3;
-    for (int i = 3; i <= newLen; i++, ind--) {
+    for (int i = 3; i <= static_cast<int>(newLen); i++, ind--) {
         int ind1 = rank1 - i;
         int ind2 = rank2 - i;
         if (ind1 >= 0 && ind2 >= 0) {
@@ -72,7 +72,7 @@ static void along_dim_metadata_impl(Tensor &A, int dim, std::size_t &D,
     std::copy(A.stride().begin(), A.stride().end(), strideC.data());
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
-    for (int i = 0; i < D; i++) {
+    for (size_t i = 0; i < D; i++) {
         if (strideA[i] == 0 && A.shape()[i] == 1) {
             strideA[i] = 1;
         }
@@ -84,7 +84,7 @@ static void along_dim_metadata_impl(Tensor &A, int dim, std::size_t &D,
     }
 
     A_offset.resize(D);
-    for (int i = 0; i < D; i++) {
+    for (size_t i = 0; i < D; i++) {
         A_offset[i] = A.shape()[i] * strideA[i];
     }
 }

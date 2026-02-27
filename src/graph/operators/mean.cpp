@@ -30,7 +30,7 @@ Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();
 
-    if (dim < 0 || dim >= A_val.rank()) {
+    if (dim < 0 || dim >= static_cast<int>(A_val.rank())) {
         throw argument_error(
             make_graph_errmsg("argument error", recLen, "mean",
                               "dim has to be a valid index of A.shape",
