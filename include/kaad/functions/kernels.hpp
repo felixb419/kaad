@@ -67,7 +67,8 @@ template <typename T> struct Mul {
     /**
      * @brief Computes the gradient a multiplication.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
+                               T dC) noexcept {
         dA += dC * B;
         dB += dC * A;
     }

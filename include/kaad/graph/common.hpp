@@ -60,8 +60,7 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
-static void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim,
-                                    std::size_t &D,
+static void along_dim_metadata_impl(Tensor &A, int dim, std::size_t &D,
                                     std::vector<std::size_t> &A_offset,
                                     std::vector<int> &strideA,
                                     std::vector<int> &strideC) {

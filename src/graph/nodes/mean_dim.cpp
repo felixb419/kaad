@@ -19,7 +19,7 @@ void Node_mean_dim::metadata(int dim) {
     this->value_end = value.data() + value.size();
     this->input_grad_end = input_grad.data() + input_grad.size();
 
-    detail::along_dim_metadata_impl(input, value, dim, this->input_rank,
+    detail::along_dim_metadata_impl(input, dim, this->input_rank,
                                     this->input_offset, this->input_stride,
                                     this->value_stride);
 

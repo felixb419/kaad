@@ -14,7 +14,7 @@ void Node_sum_dim::metadata(int dim) {
     Tensor &input = this->input->value();
     Tensor &value = this->value();
 
-    detail::along_dim_metadata_impl(input, value, dim, this->value_rank,
+    detail::along_dim_metadata_impl(input, dim, this->value_rank,
                                     this->input_offset, this->input_stride,
                                     this->value_stride);
 
