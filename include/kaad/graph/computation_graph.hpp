@@ -109,8 +109,7 @@ class Computation_graph {
     getGradient(Node_handle output, std::span<const Node_handle> inputs);
 
     /**
-     * @brief Resets all node values and gradients in the computation graph to
-     * zero.
+     * @brief Resets all node values and gradients in the computation graph.
      *
      * Calls the `reset()` method on each node in the graph, zeroing out their
      * associated value and gradient tensors. This is typically used before a
