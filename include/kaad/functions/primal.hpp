@@ -204,7 +204,7 @@ void flexible(const typename Kernel::value_type *lhs,
               const typename Kernel::value_type *rhs,
               typename Kernel::value_type *res, int *stride_lhs,
               int *stride_rhs, int *stride_res, std::size_t *res_dim_offset,
-              int _) noexcept(kernel_noexcept<Kernel>()) {
+              [[maybe_unused]] int _) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
     if constexpr (rank <= 1) {
         for (; res != end;
@@ -344,7 +344,7 @@ template <typename T, int res_rank>
 void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
                   int *stride_rhs, int *stride_res, int *res_shape,
                   int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
-                  int _) noexcept {
+                  [[maybe_unused]] int _) noexcept {
     const T *end = res + (*res_shape) * (*stride_res);
     if constexpr (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
@@ -492,7 +492,7 @@ void sum_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
  */
 template <typename T, int inp_rank>
 void sum_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
-             std::size_t *inp_offset, int _) noexcept {
+             std::size_t *inp_offset, [[maybe_unused]] int _) noexcept {
     const T *end = inp + *inp_offset;
     if constexpr (inp_rank <= 1) {
         for (; inp != end; inp += *stride_inp, res += *stride_res) {
@@ -551,11 +551,11 @@ void mean_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
  * @brief Compile-time recursive version of runtime @ref mean_dim().
  * @ingroup unary_primal_functions
  */
-template <typename T, int N>
+template <typename T, int inp_rank>
 void mean_dim(const T *inp, T *res, int *stride_inp, int *stride_res,
-              std::size_t *inp_offset, int _, T divisor,
+              std::size_t *inp_offset, [[maybe_unused]] int _, T divisor,
               const T *res_end) noexcept {
-    sum_dim<T, N>(inp, res, stride_inp, stride_res, inp_offset, 0);
+    sum_dim<T, inp_rank>(inp, res, stride_inp, stride_res, inp_offset, 0);
     for (; res != res_end; res++) {
         *res /= divisor;
     }
@@ -598,7 +598,7 @@ void slice(const T *inp, T *res, int *stride_inp, int *stride_res,
 template <typename T, int rank>
 void slice(const T *inp, T *res, int *stride_inp, int *stride_res,
            std::size_t *start_offset_a, std::size_t *res_dim_offset,
-           int _) noexcept {
+           [[maybe_unused]] int _) noexcept {
     inp += *start_offset_a;
     const T *end = res + *res_dim_offset;
     if constexpr (rank <= 1) {

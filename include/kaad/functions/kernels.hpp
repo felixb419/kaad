@@ -27,7 +27,9 @@ template <typename T> struct Add {
     /**
      * @brief Computes the gradient of an addition.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad([[maybe_unused]] T A, T &dA,
+                               [[maybe_unused]] T B, T &dB,
+                               [[maybe_unused]] T C, T dC) noexcept {
         dA += dC;
         dB += dC;
     }
@@ -47,7 +49,9 @@ template <typename T> struct Sub {
     /**
      * @brief Computes the gradient of a subtraction.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad([[maybe_unused]] T A, T &dA,
+                               [[maybe_unused]] T B, T &dB,
+                               [[maybe_unused]] T C, T dC) noexcept {
         dA += dC;
         dB -= dC;
     }
@@ -161,7 +165,8 @@ template <typename T> struct Min {
     /**
      * @brief Computes the gradient of the min function.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
+                               T dC) noexcept {
         int smaller = A <= B;
         dA += smaller ? dC : 0;
         dB += smaller ? 0 : dC;
@@ -182,7 +187,8 @@ template <typename T> struct Max {
     /**
      * @brief Computes the gradient of the max function.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
+                               T dC) noexcept {
         int bigger = A >= B;
         dA += bigger ? dC : 0;
         dB += bigger ? 0 : dC;
@@ -204,7 +210,10 @@ template <typename T> struct NoOp {
     /**
      * @brief dA += dC
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC; }
+    constexpr static void Grad([[maybe_unused]] T A, T &dA,
+                               [[maybe_unused]] T C, T dC) noexcept {
+        dA += dC;
+    }
 };
 
 /**
@@ -221,7 +230,10 @@ template <typename T> struct Sum {
     /**
      * @brief Computes the gradient of the summation.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC; }
+    constexpr static void Grad([[maybe_unused]] T A, T &dA,
+                               [[maybe_unused]] T C, T dC) noexcept {
+        dA += dC;
+    }
 };
 
 /**
@@ -238,7 +250,10 @@ template <typename T> struct Neg {
     /**
      * @brief Computes the gradient of the negation.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA -= dC; }
+    constexpr static void Grad([[maybe_unused]] T A, T &dA,
+                               [[maybe_unused]] T C, T dC) noexcept {
+        dA -= dC;
+    }
 };
 
 /**
@@ -255,7 +270,8 @@ template <typename T> struct Square {
     /**
      * @brief Computes the gradient of the square.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T C,
+                               T dC) noexcept {
         dA += dC * 2 * A;
     }
 };
@@ -341,7 +357,8 @@ template <typename T> struct Abs {
     /**
      * @brief Computes the gradient of the abs function.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T C,
+                               T dC) noexcept {
         dA += dC * (A > 0 ? 1 : -1);
     }
 };

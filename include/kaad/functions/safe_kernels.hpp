@@ -44,7 +44,8 @@ template <typename T> struct safe_Div {
     /**
      * @brief Computes the gradient of a division.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
+                               T dC) noexcept {
         T B_safe =
             (std::abs(B) < epsilon<T>) ? std::copysign(epsilon<T>, B) : B;
 
@@ -89,7 +90,8 @@ template <typename T> struct safe_Pow {
     /**
      * @brief Computes the gradient of an exponentiation.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T B, T &dB, T C,
+                               T dC) noexcept {
         if (A == 0 || std::abs(A) < epsilon<T>) {
             return;
         }
@@ -111,7 +113,8 @@ template <typename T> struct safe_Sqrt {
     constexpr static void Op(T A, T &C) noexcept {
         C = std::sqrt(std::max(A, T(0)));
     }
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
+    constexpr static void Grad([[maybe_unused]] T A, T &dA, T C,
+                               T dC) noexcept {
         /**
          * @brief Computes the gradient of the squareroot
          */
@@ -135,7 +138,8 @@ template <typename T> struct safe_Log {
     /**
      * @brief Computes the gradient of the logarithm
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
+    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T C,
+                               T dC) noexcept {
         dA += dC / std::max(A, epsilon<T>);
     }
 };
@@ -156,7 +160,10 @@ template <typename T> struct safe_Exp {
     /**
      * @brief Computes the gradient of the exp function.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC * C; }
+    constexpr static void Grad([[maybe_unused]] T A, T &dA, T C,
+                               T dC) noexcept {
+        dA += dC * C;
+    }
 };
 
 } // namespace Kernels
