@@ -1,29 +1,75 @@
-[ TODO ]
-
+[ GLOBAL ]
 FIX:
-
 REFACTOR:
+    (?) Unify git domains and doxygen namespaces and/or normal namepsaces
     Add impl files for succifciently large header functions (~50-100 LOC)
-    (?) put reset, evaluate and getGradient into single function
-
 FEAT:
     Install support
-    test programs
-    (?) label member for nodes
-    (?) add debug input checking in kernels
-
 PERF:
-    make Tensor variant with compile time shape
-    make stride function transpose dimensions so biggest is highest
-
 DOC:
     adjust getting started
-
 CHORE:
     add clang-tidy
-    (?) add examples
     (?) kaadConfig.cmake.in
-
 LATER:
     (?) add proper test system
-    (?) add more example programs
+
+
+[ TENSOR ]
+FIX:
+REFACTOR:
+FEAT:
+PERF:
+    make Tensor variant with compile time shape
+DOC:
+    add warning to begin end to not be used as contiguous iterator 
+CHORE:
+LATER:
+
+
+[ GRAPH ]
+FIX:
+REFACTOR:
+    (?) put reset, evaluate and getGradient into single function
+FEAT:
+    (?) label member for nodes
+PERF:
+    make stride function transpose dimensions so biggest is highest
+DOC:
+CHORE:
+LATER:
+
+
+[ FUNCTIONS ]
+FIX:
+REFACTOR:
+FEAT:
+PERF:
+DOC:
+CHORE:
+LATER:
+
+[ TESTS ]
+FIX:
+REFACTOR:
+    make test values less uniform
+    comment examples
+FEAT:
+    unary ops test
+    make python code doxygen inline
+    transposition with perms
+PERF:
+DOC:
+CHORE:
+LATER:
+
+[ EXAMPLES ]
+FIX:
+REFACTOR:
+FEAT:
+    (?) more example programs
+PERF:
+DOC:
+    comment examples
+CHORE:
+LATER:
