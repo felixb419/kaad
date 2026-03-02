@@ -69,8 +69,8 @@ class Tensor {
             while (this->cords_[rank] >= this->shape_[rank]) {
 
                 this->cords_[rank] = 0;
+                rank--;
                 if (rank >= 0) {
-                    rank--;
                     this->cords_[rank]++;
 
                 } else {
