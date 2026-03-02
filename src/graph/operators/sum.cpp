@@ -20,7 +20,6 @@
 namespace kaad {
 
 Node_handle sum(Computation_graph &rec, Node_handle A) {
-    int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();

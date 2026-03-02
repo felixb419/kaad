@@ -13,7 +13,6 @@
 namespace kaad {
 
 Node_handle outer(Computation_graph &rec, Node_handle A, Node_handle B) {
-    int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     INode *B_ptr = rec.get_node(B);

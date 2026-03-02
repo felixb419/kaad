@@ -16,7 +16,6 @@
 namespace kaad {
 
 Node_handle mean(Computation_graph &rec, Node_handle A) {
-    int recLen = rec.nodes.size();
 
     rec.nodes.push_back(
         std::move(std::make_unique<Node_mean>(rec.get_node(A), std::array{1})));
