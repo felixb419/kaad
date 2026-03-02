@@ -139,6 +139,43 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
                 bool keepNDims = false);
 
 /**
+ * @brief Adds a unary mean node to the computation graph.
+ * @ingroup unary_operators
+ *
+ * Computes the mean (average) of all elements in the input tensor node `A`,
+ * producing a scalar tensor node containing the total average.
+ *
+ * @param rec The computation graph to which the node will be added.
+ * @param A Handle of the input tensor node A.
+ * @return A handle of the new node representing the scalar mean of all
+ * elements of A.
+ */
+Node_handle mean(Computation_graph &rec, Node_handle A);
+
+/**
+ * @brief Adds a mean node to the computation graph that computes the mean along
+ * a specified dimension.
+ * @ingroup unary_operators
+ *
+ * Computes the mean of elements in the input tensor node `A` along the
+ * given dimension `dim`. The resulting tensor shape depends on the `keepNDims`
+ * flag:
+ * - If `keepNDims` is false (default), the dimension `dim` is removed from the
+ * output shape.
+ * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
+ *
+ * @param rec The computation graph to which the node will be added.
+ * @param A Handle of the input tensor node A.
+ * @param dim The dimension along which to compute the mean.
+ * @param keepNDims If true, retains the mean-reduced dimension with size 1; if
+ * false, removes it.
+ * @return A handle of the new node representing the tensor after mean
+ * reduction along the specified dimension.
+ */
+Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
+                 bool keepNDims = 0);
+
+/**
  * @brief Adds a unary transpose node to the computation graph.
  * @ingroup unary_operators
  *
@@ -303,43 +340,6 @@ Node_handle dot(Computation_graph &rec, Node_handle A, Node_handle B);
  * product of A and B.
  */
 Node_handle matmul(Computation_graph &rec, Node_handle A, Node_handle B);
-
-/**
- * @brief Adds a unary mean node to the computation graph.
- * @ingroup binary_operators
- *
- * Computes the mean (average) of all elements in the input tensor node `A`,
- * producing a scalar tensor node containing the total average.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @return A handle of the new node representing the scalar mean of all
- * elements of A.
- */
-Node_handle mean(Computation_graph &rec, Node_handle A);
-
-/**
- * @brief Adds a mean node to the computation graph that computes the mean along
- * a specified dimension.
- * @ingroup binary_operators
- *
- * Computes the mean of elements in the input tensor node `A` along the
- * given dimension `dim`. The resulting tensor shape depends on the `keepNDims`
- * flag:
- * - If `keepNDims` is false (default), the dimension `dim` is removed from the
- * output shape.
- * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
- *
- * @param rec The computation graph to which the node will be added.
- * @param A Handle of the input tensor node A.
- * @param dim The dimension along which to compute the mean.
- * @param keepNDims If true, retains the mean-reduced dimension with size 1; if
- * false, removes it.
- * @return A handle of the new node representing the tensor after mean
- * reduction along the specified dimension.
- */
-Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
-                 bool keepNDims = 0);
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
