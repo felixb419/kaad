@@ -2,7 +2,7 @@
 #include "check_tensor.hpp" // for check_tensor
 #include <algorithm>        // for fill
 #include <array>            // for array
-#include <cassert>         // for assert
+#include <cassert>          // for assert
 #include <iostream>         // for operator<<
 #include <span>             // for span
 

@@ -37,7 +37,10 @@ namespace binary {
  *                   value_type&, const value_type&, const value_type&);
  */
 template <class Kernel>
-concept kernel_class = requires { typename Kernel::value_type; } && requires {
+concept kernel_class = requires {
+    typename Kernel::value_type;
+}
+&&requires {
     {
         Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
@@ -45,7 +48,7 @@ concept kernel_class = requires { typename Kernel::value_type; } && requires {
                      std::declval<typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>())
-    } -> std::same_as<void>;
+        } -> std::same_as<void>;
 };
 
 template <kernel_class Kernel> constexpr bool kernel_noexcept() {
@@ -414,13 +417,16 @@ namespace unary {
  * value_type&);
  */
 template <class Kernel>
-concept kernel_class = requires { typename Kernel::value_type; } && requires {
+concept kernel_class = requires {
+    typename Kernel::value_type;
+}
+&&requires {
     {
         Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>())
-    } -> std::same_as<void>;
+        } -> std::same_as<void>;
 };
 
 template <kernel_class Kernel> constexpr bool kernel_noexcept() {
