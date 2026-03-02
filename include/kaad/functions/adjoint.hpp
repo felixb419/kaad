@@ -448,10 +448,9 @@ using mean_fn = void (*)(T *d_inp, const T *d_res, const T *d_inp_end,
                          T divisor);
 
 template <typename T>
-using mean_dim_fn = void (*)(const T *inp, T *d_inp, const T *res,
-                             const T *d_res, int *stride_inp, int *stride_res,
-                             std::size_t *inp_dim_offset, int inp_rank,
-                             T divisor, const T *res_end);
+using mean_dim_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
+                             int *stride_res, std::size_t *inp_dim_offset,
+                             int inp_rank, T divisor, const T *res_end);
 
 template <typename T>
 using slice_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
@@ -584,9 +583,9 @@ void mean(T *d_inp, const T *d_res, const T *d_inp_end, T divisor) noexcept {
  * @param d_inp_end Pointer to the end of @p d_inp.
  */
 template <typename T>
-void mean_dim(const T *inp, T *d_inp, const T *res, const T *d_res,
-              int *stride_inp, int *stride_res, std::size_t *inp_dim_offset,
-              int inp_rank, T divisor, const T *d_inp_end) noexcept {
+void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
+              std::size_t *inp_dim_offset, int inp_rank, T divisor,
+              const T *d_inp_end) noexcept {
     sum_dim(d_inp, d_res, stride_inp, stride_res, inp_dim_offset, inp_rank);
     for (; d_inp != d_inp_end; d_inp++) {
         *d_inp /= divisor;
@@ -598,9 +597,9 @@ void mean_dim(const T *inp, T *d_inp, const T *res, const T *d_res,
  * @ingroup unary_adjoint_functions
  */
 template <typename T, int inp_rank>
-void mean_dim(const T *inp, T *d_inp, const T *res, const T *d_res,
-              int *stride_inp, int *stride_res, std::size_t *inp_dim_offset,
-              [[maybe_unused]] int _, T divisor, const T *d_inp_end) noexcept {
+void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
+              std::size_t *inp_dim_offset, [[maybe_unused]] int _, T divisor,
+              const T *d_inp_end) noexcept {
     sum_dim<T, inp_rank>(d_inp, d_res, stride_inp, stride_res, inp_dim_offset,
                          0);
     for (; d_inp != d_inp_end; d_inp++) {

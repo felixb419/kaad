@@ -54,8 +54,7 @@ void Node_mean_dim::eval() {
 }
 
 void Node_mean_dim::getGrad() {
-    backward_op(this->input->value().data(),
-                this->input->gradient().elements_.data(), this->value().data(),
+    backward_op(this->input->gradient().elements_.data(),
                 this->gradient().data(), input_stride.data(),
                 value_stride.data(), input_offset.data(), input_rank, divisor,
                 input_grad_end);
