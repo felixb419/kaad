@@ -90,9 +90,8 @@ void Node_matmul::getGrad() {
     backward_op(
         this->lhs->value().data(), this->lhs->gradient().elements_.data(),
         this->rhs->value().data(), this->rhs->gradient().elements_.data(),
-        this->value().data(), this->gradient().data(), lhs_rows + 1,
-        rhs_cols + 1, shared_dim + 1, lhs_stride + 2, rhs_stride + 2,
-        value_stride + 2);
+        this->gradient().data(), lhs_rows + 1, rhs_cols + 1, shared_dim + 1,
+        lhs_stride + 2, rhs_stride + 2, value_stride + 2);
 
     if (this->lhs->hasInputs()) {
         this->lhs->getGrad();

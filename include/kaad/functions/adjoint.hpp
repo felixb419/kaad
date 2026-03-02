@@ -83,9 +83,9 @@ using dot_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
 
 template <typename T>
 using matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                           const T *res, const T *d_res, int *lhs_rows,
-                           int *rhs_cols, int *shared_dim, int *stride_lhs,
-                           int *stride_rhs, int *stride_res);
+                           const T *d_res, int *lhs_rows, int *rhs_cols,
+                           int *shared_dim, int *stride_lhs, int *stride_rhs,
+                           int *stride_res);
 
 template <typename T>
 using batch_matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
@@ -314,7 +314,6 @@ void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
  * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
  * @param[in] rhs Pointer to the start of 2-rank tensor.
  * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
- * @param[in] res Pointer to the start of 2-rank tensor.
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
  * @param lhs_rows Number of rows in @p lhs.
  * @param rhs_cols Number of columns in @p rhs.
@@ -324,9 +323,9 @@ void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
  * @param stride_res Stride array of @p res.
  */
 template <typename T>
-void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *res,
-            const T *d_res, int *lhs_rows, int *rhs_cols, int *shared_dim,
-            int *stride_lhs, int *stride_rhs, int *stride_res) noexcept {
+void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
+            int *lhs_rows, int *rhs_cols, int *shared_dim, int *stride_lhs,
+            int *stride_rhs, int *stride_res) noexcept {
     // d_lhs = d_res * rhs^T
     functions::primal::binary::matmul(d_res, rhs, d_lhs, lhs_rows[0],
                                       rhs_cols[0], shared_dim[0], stride_res,
