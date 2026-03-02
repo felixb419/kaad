@@ -458,7 +458,7 @@ using slice_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
                           std::size_t *res_dim_offset, int rank);
 
 /**
- * @brief Accumulates the gradient of Op, @p inp .
+ * @brief Accumulates the gradient of Op in @p inp .
  * @ingroup unary_adjoint_functions
  * @pre @p res is 0-rank.
  * @pre Every operand must have the same shape as their gradient.
@@ -482,7 +482,7 @@ void scalarOut(const typename Kernel::value_type *inp,
 }
 
 /**
- * @brief Accumulates the gradient of Op, @p inp .
+ * @brief Accumulates the gradient of Op in @p inp .
  * @ingroup unary_adjoint_functions
  * @pre @p inp and @p res have the same shape.
  * @pre Every operand must have the same shape as their gradient.
@@ -506,7 +506,7 @@ void pointwise(const typename Kernel::value_type *inp,
 }
 
 /**
- * @brief Accumulates the gradient of sum_dim, @p inp .
+ * @brief Accumulates the gradient of sum_dim in @p inp .
  * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
@@ -553,7 +553,7 @@ void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 }
 
 /**
- * @brief Accumulates the gradient of mean_dim, @p inp .
+ * @brief Accumulates the gradient of mean in @p inp .
  * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
@@ -570,7 +570,7 @@ void mean(T *d_inp, const T *d_res, const T *d_inp_end, T divisor) noexcept {
 }
 
 /**
- * @brief Accumulates the gradient of mean_dim, @p inp .
+ * @brief Accumulates the gradient of mean_dim in @p inp .
  * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
@@ -608,7 +608,7 @@ void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 }
 
 /**
- * @brief Accumulates the gradient of slice, @p inp .
+ * @brief Accumulates the gradient of slice in @p inp .
  * @ingroup unary_adjoint_functions
  * @tparam T Element type
  * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
