@@ -130,7 +130,7 @@ class Computation_graph {
                               Node_handle B);
     friend Node_handle mean(Computation_graph &rec, Node_handle A);
     friend Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
-                            bool keepNDims);
+                            bool keep_rank);
     friend Node_handle outer(Computation_graph &rec, Node_handle A,
                              Node_handle B);
     friend Node_handle slice(Computation_graph &rec, Node_handle A,
@@ -138,7 +138,7 @@ class Computation_graph {
                              std::initializer_list<int> offset);
     friend Node_handle sum(Computation_graph &rec, Node_handle A);
     friend Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
-                           bool keepNDims);
+                           bool keep_rank);
     friend Node_handle transpose(Computation_graph &rec, Node_handle A,
                                  std::initializer_list<int> perm);
     template <class Kernel>

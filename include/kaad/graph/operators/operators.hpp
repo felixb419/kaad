@@ -122,21 +122,21 @@ Node_handle sum(Computation_graph &rec, Node_handle A);
  * @ingroup unary_operators
  *
  * Computes the sum of elements in the input tensor node `A` along the given
- * dimension `dim`. The resulting tensor shape depends on the `keepNDims` flag:
- * - If `keepNDims` is false (default), the dimension `dim` is removed from the
+ * dimension `dim`. The resulting tensor shape depends on the `keep_rank` flag:
+ * - If `keep_rank` is false (default), the dimension `dim` is removed from the
  * output shape.
- * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
+ * - If `keep_rank` is true, the dimension `dim` is retained with size 1.
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @param dim The dimension along which to sum.
- * @param keepNDims If true, retains the summed dimension with size 1; if false,
+ * @param keep_rank If true, retains the summed dimension with size 1; if false,
  * removes it.
  * @return A handle of the new node representing the tensor after summation
  * along the specified dimension.
  */
 Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
-                bool keepNDims = false);
+                bool keep_rank = false);
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -158,22 +158,22 @@ Node_handle mean(Computation_graph &rec, Node_handle A);
  * @ingroup unary_operators
  *
  * Computes the mean of elements in the input tensor node `A` along the
- * given dimension `dim`. The resulting tensor shape depends on the `keepNDims`
+ * given dimension `dim`. The resulting tensor shape depends on the `keep_rank`
  * flag:
- * - If `keepNDims` is false (default), the dimension `dim` is removed from the
+ * - If `keep_rank` is false (default), the dimension `dim` is removed from the
  * output shape.
- * - If `keepNDims` is true, the dimension `dim` is retained with size 1.
+ * - If `keep_rank` is true, the dimension `dim` is retained with size 1.
  *
  * @param rec The computation graph to which the node will be added.
  * @param A Handle of the input tensor node A.
  * @param dim The dimension along which to compute the mean.
- * @param keepNDims If true, retains the mean-reduced dimension with size 1; if
+ * @param keep_rank If true, retains the mean-reduced dimension with size 1; if
  * false, removes it.
  * @return A handle of the new node representing the tensor after mean
  * reduction along the specified dimension.
  */
 Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
-                 bool keepNDims = 0);
+                 bool keep_rank = 0);
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
