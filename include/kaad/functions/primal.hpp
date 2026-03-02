@@ -316,7 +316,6 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
                   int *stride_rhs, int *stride_res, int *res_shape,
                   int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
                   int res_rank) noexcept {
-    const T *end = res + (*res_shape) * (*stride_res);
     if (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
              i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
@@ -345,7 +344,6 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
                   int *stride_rhs, int *stride_res, int *res_shape,
                   int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
                   [[maybe_unused]] int _) noexcept {
-    const T *end = res + (*res_shape) * (*stride_res);
     if constexpr (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
              i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
