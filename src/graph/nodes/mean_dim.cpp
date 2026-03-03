@@ -46,7 +46,7 @@ void Node_mean_dim::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
-        forward_op(this->input->value().data(), this->value().elements_.data(),
+        forward_op(this->input->value().data(), this->value().data(),
                    input_stride.data(), value_stride.data(),
                    input_offset.data(), input_rank, divisor, value_end);
         this->evaluated_ = true;
@@ -54,10 +54,9 @@ void Node_mean_dim::eval() {
 }
 
 void Node_mean_dim::getGrad() {
-    backward_op(this->input->gradient().elements_.data(),
-                this->gradient().data(), input_stride.data(),
-                value_stride.data(), input_offset.data(), input_rank, divisor,
-                input_grad_end);
+    backward_op(this->input->gradient().data(), this->gradient().data(),
+                input_stride.data(), value_stride.data(), input_offset.data(),
+                input_rank, divisor, input_grad_end);
 
     if (this->input->hasInputs()) {
         this->input->getGrad();

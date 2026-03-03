@@ -18,15 +18,15 @@ void Node_mean::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
-        forward_op(this->input->value().data(), this->value().elements_.data(),
-                   input_end, divisor);
+        forward_op(this->input->value().data(), this->value().data(), input_end,
+                   divisor);
         this->evaluated_ = true;
     }
 }
 
 void Node_mean::getGrad() {
-    backward_op(this->input->gradient().elements_.data(),
-                this->gradient().data(), input_grad_end, divisor);
+    backward_op(this->input->gradient().data(), this->gradient().data(),
+                input_grad_end, divisor);
 
     if (this->input->hasInputs()) {
         this->input->getGrad();

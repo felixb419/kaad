@@ -38,7 +38,7 @@ void Node_sum_dim::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
-        val_func(this->input->value().data(), this->value().elements_.data(),
+        val_func(this->input->value().data(), this->value().data(),
                  input_stride.data(), value_stride.data(), input_offset.data(),
                  value_rank);
         this->evaluated_ = true;
@@ -46,7 +46,7 @@ void Node_sum_dim::eval() {
 }
 
 void Node_sum_dim::getGrad() {
-    grad_func(this->input->gradient().elements_.data(), this->gradient().data(),
+    grad_func(this->input->gradient().data(), this->gradient().data(),
               input_stride.data(), value_stride.data(), input_offset.data(),
               value_rank);
 

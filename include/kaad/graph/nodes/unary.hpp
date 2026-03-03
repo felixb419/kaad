@@ -71,8 +71,7 @@ template <class Kernel> class Node_unary : public INode {
         if (!this->evaluated()) {
             this->input->eval();
 
-            forward_op(this->input->value().data(),
-                       this->value().elements_.data(), end);
+            forward_op(this->input->value().data(), this->value().data(), end);
             this->evaluated_ = true;
         }
     }
@@ -83,8 +82,7 @@ template <class Kernel> class Node_unary : public INode {
      * backward_op.
      */
     inline void getGrad() override {
-        backward_op(this->input->value().data(),
-                    this->input->gradient().elements_.data(),
+        backward_op(this->input->value().data(), this->input->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
 
         if (this->input->hasInputs()) {

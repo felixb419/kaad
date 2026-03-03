@@ -20,16 +20,15 @@ void Node_dot::eval() {
         this->rhs->eval();
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                   this->value().elements_.data(), lhs_end);
+                   this->value().data(), lhs_end);
         this->evaluated_ = true;
     }
 }
 
 void Node_dot::getGrad() {
-    backward_op(
-        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
-        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
-        this->gradient().data(), lhs_end);
+    backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
+                this->rhs->value().data(), this->rhs->gradient().data(),
+                this->gradient().data(), lhs_end);
 
     if (this->lhs->hasInputs()) {
         this->lhs->getGrad();

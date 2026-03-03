@@ -132,12 +132,11 @@ void Node_batch_matmul::eval() {
 }
 
 void Node_batch_matmul::getGrad() {
-    backward_op(
-        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
-        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
-        this->gradient().data(), lhs_stride + 1, rhs_stride + 1,
-        value_stride + 1, value_shape_broadcast + 1, lhs_colStride + 1,
-        rhs_rowStride + 1, shared_dim + 1, value_rank);
+    backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
+                this->rhs->value().data(), this->rhs->gradient().data(),
+                this->gradient().data(), lhs_stride + 1, rhs_stride + 1,
+                value_stride + 1, value_shape_broadcast + 1, lhs_colStride + 1,
+                rhs_rowStride + 1, shared_dim + 1, value_rank);
 
     if (this->lhs->hasInputs()) {
         this->lhs->getGrad();

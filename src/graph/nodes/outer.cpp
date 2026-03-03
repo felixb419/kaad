@@ -55,18 +55,18 @@ void Node_outer::eval() {
         this->rhs->eval();
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                   this->value().elements_.data(), lhs_stride.data(),
-                   rhs_stride.data(), strideC.data(), C_offset.data(), C_rank);
+                   this->value().data(), lhs_stride.data(), rhs_stride.data(),
+                   strideC.data(), C_offset.data(), C_rank);
         this->evaluated_ = true;
     }
 }
 
 void Node_outer::getGrad() {
-    backward_op(
-        this->lhs->value().data(), this->lhs->gradient().elements_.data(),
-        this->rhs->value().data(), this->rhs->gradient().elements_.data(),
-        this->value().data(), this->gradient().data(), lhs_stride.data(),
-        rhs_stride.data(), strideC.data(), C_offset.data(), C_rank);
+    backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
+                this->rhs->value().data(), this->rhs->gradient().data(),
+                this->value().data(), this->gradient().data(),
+                lhs_stride.data(), rhs_stride.data(), strideC.data(),
+                C_offset.data(), C_rank);
 
     if (this->lhs->hasInputs()) {
         this->lhs->getGrad();

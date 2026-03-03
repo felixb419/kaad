@@ -65,7 +65,7 @@ void Node_slice::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
-        forward_op(this->input->value().data(), this->value().elements_.data(),
+        forward_op(this->input->value().data(), this->value().data(),
                    input_stride.data(), value_stride.data(),
                    start_offset_a.data(), value_offset.data(), value_rank);
         this->evaluated_ = true;
@@ -73,10 +73,9 @@ void Node_slice::eval() {
 }
 
 void Node_slice::getGrad() {
-    backward_op(this->input->gradient().elements_.data(),
-                this->gradient().data(), input_stride.data(),
-                value_stride.data(), start_offset_a.data(), value_offset.data(),
-                value_rank);
+    backward_op(this->input->gradient().data(), this->gradient().data(),
+                input_stride.data(), value_stride.data(), start_offset_a.data(),
+                value_offset.data(), value_rank);
 
     if (this->input->hasInputs()) {
         this->input->getGrad();

@@ -18,16 +18,15 @@ void Node_transp::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
-        forward_op(this->input->value().data(), this->value().elements_.data(),
+        forward_op(this->input->value().data(), this->value().data(),
                    value_end);
         this->evaluated_ = true;
     }
 }
 
 void Node_transp::getGrad() {
-    backward_op(this->input->value().data(),
-                this->input->gradient().elements_.data(), this->value().data(),
-                this->gradient().data(), value_end);
+    backward_op(this->input->value().data(), this->input->gradient().data(),
+                this->value().data(), this->gradient().data(), value_end);
 
     if (this->input->hasInputs()) {
         this->input->getGrad();
