@@ -63,7 +63,9 @@ Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
         newShape[dim] = 1;
 
     } else {
-        newLen--;
+
+        newShape.resize(newShape.size() - 1);
+
         std::copy(A_val.shape().begin(), A_val.shape().begin() + dim,
                   newShape.begin());
         std::copy(A_val.shape().begin() + dim + 1, A_val.shape().end(),
