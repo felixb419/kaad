@@ -26,7 +26,8 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
         value_prev = value_offset;
         value_offset += ((value_idx >= 0 ? value.shape[value_idx] : i) - 1) *
                         value_stride[idx];
-        value_stride[idx] -= value_prev + value_stride[idx + 1];
+        value_stride[idx] -=
+            value_prev + (value_idx + 1 < 2 ? value_stride[value_idx + 1] : 0);
     }
 }
 
