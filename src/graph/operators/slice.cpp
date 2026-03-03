@@ -39,22 +39,21 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
             {{"offset", offset_span}, {"A.shape", A_val.shape()}}));
     }
 
-    int diff = A_val.rank() - offset.size();
+    int size_diff = A_val.rank() - size.size();
     std::vector<int> size_owned(A_val.rank());
 
     // if length of size is smaller than rank of A, the left out dimensions stay
     // the same.
-    std::copy(A_val.shape().begin(), A_val.shape().begin() + diff,
+    std::copy(A_val.shape().begin(), A_val.shape().begin() + size_diff,
               size_owned.begin());
-    std::copy(size.begin(), size.begin() + size.size(),
-              size_owned.begin() + diff);
+    std::copy(size.begin(), size.end(), size_owned.begin() + size_diff);
 
     // if length of offset is smaller than rank of A, the left out offsets are
     // set to 0.
+    int offset_diff = A_val.rank() - offset.size();
     std::vector<int> offset_owned(A_val.rank());
-    std::fill(offset_owned.begin(), offset_owned.begin() + diff, 0);
-    std::copy(offset.begin(), offset.begin() + offset.size(),
-              offset_owned.begin() + diff);
+    std::fill(offset_owned.begin(), offset_owned.begin() + offset_diff, 0);
+    std::copy(offset.begin(), offset.end(), offset_owned.begin() + offset_diff);
 
     for (size_t i = 0; i < A_val.rank(); i++) {
         if (offset_owned[i] + size_owned[i] > A_val.shape()[i]) {
