@@ -22,12 +22,11 @@ INode::INode(std::span<const int> value_shape, bool is_input_node,
         this->value_ = Tensor(value_shape);
     }
 
-    this->gradient_ = Tensor(this->value_);
-
     if (this->hasInputs_) {
         std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
     }
-    std::fill(gradient_.elements_.begin(), gradient_.elements_.end(), 0);
+
+    this->gradient_ = Tensor::zeros(value_shape);
 }
 
 Tensor &INode::value() noexcept { return this->value_; }
