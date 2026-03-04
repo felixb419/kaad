@@ -6,16 +6,44 @@
 #include <span>                                        // for span
 #include <vector>                                      // for vector
 
-inline bool check_tensor(const kaad::Tensor &tensor, std::span<const int> shape,
-                         std::span<const kaad::Scalar> elements) {
+inline bool equal_tol(kaad::Scalar a, kaad::Scalar b, kaad::Scalar abs_tol,
+                      kaad::Scalar rel_tol) {
+    if (a == b) {
+        return true;
+    }
 
-    if (!(tensor.rank() == shape.size() && tensor.size() == elements.size())) {
+    const kaad::Scalar diff = std::abs(a - b);
+    const kaad::Scalar scale = std::max(std::abs(a), std::abs(b));
+
+    return diff <= abs_tol + rel_tol * scale;
+}
+
+inline bool check_tensor(const kaad::Tensor &tensor,
+                         std::span<const int> shape_correct,
+                         std::span<const kaad::Scalar> elements_correct) {
+    static kaad::Scalar abs_tol = 1e-6;
+    static kaad::Scalar rel_tol = 1e-6;
+    if constexpr (std::same_as<kaad::Scalar, double>) {
+        abs_tol = 1e-12;
+        rel_tol = 1e-12;
+    }
+
+    if (!(tensor.rank() == shape_correct.size() &&
+          tensor.size() == elements_correct.size())) {
         return false;
     }
 
-    if (!(std::equal(shape.begin(), shape.end(), tensor.shape().data()) &&
-          std::equal(elements.begin(), elements.end(), tensor.begin()))) {
+    if (!std::equal(shape_correct.begin(), shape_correct.end(),
+                    tensor.shape().data())) {
         return false;
+    }
+
+    auto tensor_it = tensor.begin();
+    auto elements_it = elements_correct.begin();
+    for (; elements_it != elements_correct.end(); tensor_it++, elements_it++) {
+        if (!equal_tol(*tensor_it, *elements_it, abs_tol, rel_tol)) {
+            return false;
+        }
     }
 
     return true;
