@@ -15,19 +15,14 @@ namespace kaad {
 template class Tensor::iterator_impl<false>;
 template class Tensor::iterator_impl<true>;
 
-std::vector<int> compute_stride(std::span<const int> shape, size_t &len) {
+std::vector<int> compute_stride(std::span<const int> shape) {
 
     std::vector<int> stride(shape.size());
-
-    len = 1;
     int i = shape.size() - 1;
 
-    len *= shape[i];
     stride[i--] = 1;
 
     for (; i >= 0; i--) {
-        len *= shape[i];
-
         stride[i] = shape[i + 1] * stride[i + 1];
     }
 
@@ -40,13 +35,21 @@ std::vector<int> compute_stride(std::span<const int> shape, size_t &len) {
     return stride;
 }
 
+std::size_t compute_size(std::span<const int> shape) {
+    std::size_t len = 1;
+    for (const int d : shape) {
+        len *= d;
+    }
+    return len;
+}
+
 Tensor::Tensor() : shape_({0}), stride_({0}), elements_({}) {}
 
 Tensor::Tensor(std::span<const int> shape)
     : shape_(shape.begin(), shape.end()), stride_(shape.size()) {
 
-    size_t len = 1;
-    this->stride_ = compute_stride(this->shape_, len);
+    size_t len = compute_size(this->shape_);
+    this->stride_ = compute_stride(this->shape_);
 
     this->elements_.resize(len);
 }
@@ -65,8 +68,8 @@ Tensor::Tensor(std::span<const int> shape, std::span<const int> stride)
 Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
     : shape_(shape.begin(), shape.end()),
       elements_(elements.begin(), elements.end()) {
-    size_t len;
-    this->stride_ = compute_stride(this->shape_, len);
+    size_t len = compute_size(this->shape_);
+    this->stride_ = compute_stride(this->shape_);
 
     if (len != elements.size()) {
         throw argument_error(
@@ -161,8 +164,8 @@ void Tensor::reshape(std::span<const int> shape) {
 
     std::copy(shape.begin(), shape.end(), this->shape_.begin());
 
-    size_t suggested_len;
-    this->stride_ = compute_stride(this->shape_, suggested_len);
+    size_t suggested_len = compute_size(this->shape_);
+    this->stride_ = compute_stride(this->shape_);
 
     if (suggested_len != this->size()) {
         throw argument_error("length suggested by shape and previous length "
