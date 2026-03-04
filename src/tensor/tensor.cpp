@@ -15,9 +15,9 @@ namespace kaad {
 template class Tensor::iterator_impl<false>;
 template class Tensor::iterator_impl<true>;
 
-static void compute_stride(std::vector<int> &stride, size_t &len,
-                           const std::vector<int> &shape) {
-    stride.resize(shape.size());
+std::vector<int> compute_stride(std::span<const int> shape, size_t &len) {
+
+    std::vector<int> stride(shape.size());
 
     len = 1;
     int i = shape.size() - 1;
@@ -36,6 +36,8 @@ static void compute_stride(std::vector<int> &stride, size_t &len,
             stride[i] = 0;
         }
     }
+
+    return stride;
 }
 
 Tensor::Tensor() : shape_({0}), stride_({0}), elements_({}) {}
@@ -44,7 +46,7 @@ Tensor::Tensor(std::span<const int> shape)
     : shape_(shape.begin(), shape.end()), stride_(shape.size()) {
 
     size_t len = 1;
-    compute_stride(this->stride_, len, this->shape_);
+    this->stride_ = compute_stride(this->shape_, len);
 
     this->elements_.resize(len);
 }
@@ -64,7 +66,7 @@ Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
     : shape_(shape.begin(), shape.end()),
       elements_(elements.begin(), elements.end()) {
     size_t len;
-    compute_stride(this->stride_, len, this->shape_);
+    this->stride_ = compute_stride(this->shape_, len);
 
     if (len != elements.size()) {
         throw argument_error(
@@ -160,7 +162,7 @@ void Tensor::reshape(std::span<const int> shape) {
     std::copy(shape.begin(), shape.end(), this->shape_.begin());
 
     size_t suggested_len;
-    compute_stride(this->stride_, suggested_len, this->shape_);
+    this->stride_ = compute_stride(this->shape_, suggested_len);
 
     if (suggested_len != this->size()) {
         throw argument_error("length suggested by shape and previous length "
