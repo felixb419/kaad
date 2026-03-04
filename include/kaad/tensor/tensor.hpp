@@ -150,6 +150,20 @@ class Tensor {
 
   public:
     /**
+     * @brief Compute per-dim stride array based on @p shape.
+     * @param shape Shape array for wich the strides are computed.
+     * @return Vector containing the strides.
+     */
+    static std::vector<int> compute_stride(std::span<const int> shape);
+
+    /**
+     * @brief Compute the size of a element array based on @p shape.
+     * @param shape Shape array for which the size is computed.
+     * @return Size of the element array suggested by @p shape.
+     */
+    static std::size_t compute_size(std::span<const int> shape);
+
+    /**
      * @brief Constructs tensor with shape: [0]
      */
     Tensor();

@@ -15,7 +15,7 @@ namespace kaad {
 template class Tensor::iterator_impl<false>;
 template class Tensor::iterator_impl<true>;
 
-std::vector<int> compute_stride(std::span<const int> shape) {
+std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
 
     std::vector<int> stride(shape.size());
     int i = shape.size() - 1;
@@ -35,7 +35,7 @@ std::vector<int> compute_stride(std::span<const int> shape) {
     return stride;
 }
 
-std::size_t compute_size(std::span<const int> shape) {
+std::size_t Tensor::compute_size(std::span<const int> shape) {
     std::size_t len = 1;
     for (const int d : shape) {
         len *= d;
