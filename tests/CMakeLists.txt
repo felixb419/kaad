@@ -2,6 +2,10 @@ add_executable(test_binary_broadcasts test_binary_broadcasts.cpp)
 target_link_libraries(test_binary_broadcasts PRIVATE kaad)
 add_test(NAME test_binary_broadcasts COMMAND test_binary_broadcasts)
 
+add_executable(test_unary_operations test_unary_operations.cpp)
+target_link_libraries(test_unary_operations PRIVATE kaad)
+add_test(NAME test_unary_operations COMMAND test_unary_operations)
+
 add_executable(test_dot_product test_dot_product.cpp)
 target_link_libraries(test_dot_product PRIVATE kaad)
 add_test(NAME test_dot_product COMMAND test_dot_product)
