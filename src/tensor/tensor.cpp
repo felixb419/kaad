@@ -72,33 +72,32 @@ Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
     }
 }
 
-Tensor Tensor::empty(std::initializer_list<int> shape) {
+Tensor Tensor::empty(std::span<const int> shape) {
     return Tensor(std::span<const int>(shape.begin(), shape.end()));
 }
 
-Tensor Tensor::full(std::initializer_list<int> shape, Scalar fill_value) {
+Tensor Tensor::full(std::span<const int> shape, Scalar fill_value) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
     std::fill(out.data(), out.data() + out.size(), fill_value);
 
     return out;
 }
 
-Tensor Tensor::zeros(std::initializer_list<int> shape) {
+Tensor Tensor::zeros(std::span<const int> shape) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
     std::fill(out.data(), out.data() + out.size(), 0);
 
     return out;
 }
 
-Tensor Tensor::ones(std::initializer_list<int> shape) {
+Tensor Tensor::ones(std::span<const int> shape) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
     std::fill(out.data(), out.data() + out.size(), 1);
 
     return out;
 }
 
-Tensor Tensor::sequential(std::initializer_list<int> shape,
-                          Scalar starting_value) {
+Tensor Tensor::sequential(std::span<const int> shape, Scalar starting_value) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
 
     for (auto it = out.begin(); it != out.end(); it++) {
@@ -108,8 +107,7 @@ Tensor Tensor::sequential(std::initializer_list<int> shape,
     return out;
 }
 
-Tensor Tensor::linspace(std::initializer_list<int> shape, Scalar start,
-                        Scalar step) {
+Tensor Tensor::linspace(std::span<const int> shape, Scalar start, Scalar step) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
 
     Scalar value = start;
@@ -121,7 +119,7 @@ Tensor Tensor::linspace(std::initializer_list<int> shape, Scalar start,
     return out;
 }
 
-Tensor Tensor::rand(std::initializer_list<int> shape, Scalar min, Scalar max) {
+Tensor Tensor::rand(std::span<const int> shape, Scalar min, Scalar max) {
     if (!Tensor::seeded_) {
         Tensor::gen_.seed(std::random_device{}());
         seeded_ = true;
@@ -136,8 +134,7 @@ Tensor Tensor::rand(std::initializer_list<int> shape, Scalar min, Scalar max) {
     return out;
 }
 
-Tensor Tensor::randn(std::initializer_list<int> shape, Scalar mean,
-                     Scalar std) {
+Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
 
     if (!Tensor::seeded_) {
         Tensor::gen_.seed(std::random_device{}());

@@ -180,26 +180,26 @@ class Tensor {
      * @brief Returns a tensor with given shape and uninitialized values.
      * @param shape Shape array for the tensor.
      */
-    static Tensor empty(std::initializer_list<int> shape);
+    static Tensor empty(std::span<const int> shape);
 
     /**
      * @brief Returns a tensor with given shape and filled with @p fill_value.
      * @param shape Shape array for the tensor.
      * @param fill_value Value to fill the element array.
      */
-    static Tensor full(std::initializer_list<int> shape, Scalar fill_value);
+    static Tensor full(std::span<const int> shape, Scalar fill_value);
 
     /**
      * @brief Returns a tensor with given shape and filled with 0.
      * @param shape Shape array for the tensor.
      */
-    static Tensor zeros(std::initializer_list<int> shape);
+    static Tensor zeros(std::span<const int> shape);
 
     /**
      * @brief Returns a tensor with given shape and filled with 1.
      * @param shape Shape array for the tensor.
      */
-    static Tensor ones(std::initializer_list<int> shape);
+    static Tensor ones(std::span<const int> shape);
 
     /**
      * @brief Returns a tensor with given shape and sequentially increasing
@@ -207,21 +207,21 @@ class Tensor {
      * @param shape Shape array for the tensor.
      * @param starting_value The value to start the sequence at.
      */
-    static Tensor sequential(std::initializer_list<int> shape,
+    static Tensor sequential(std::span<const int> shape,
                              Scalar starting_value = 1);
 
     /**
      * @brief Returns a tensor with given shape and linearly spaced values.
      * @param shape Shape array for the tensor.
      */
-    static Tensor linspace(std::initializer_list<int> shape, Scalar start,
+    static Tensor linspace(std::span<const int> shape, Scalar start,
                            Scalar step);
 
     /**
      * @brief Returns a tensor with given shape and filled with random values.
      * @param shape Shape array for the tensor.
      */
-    static Tensor rand(std::initializer_list<int> shape, Scalar min = 0,
+    static Tensor rand(std::span<const int> shape, Scalar min = 0,
                        Scalar max = 1);
 
     /**
@@ -231,7 +231,7 @@ class Tensor {
      * @param mean Mean of the produced values.
      * @param std Standard deviation of the produced values.
      */
-    static Tensor randn(std::initializer_list<int> shape, Scalar mean = 0,
+    static Tensor randn(std::span<const int> shape, Scalar mean = 0,
                         Scalar std = 1);
 
     /**
