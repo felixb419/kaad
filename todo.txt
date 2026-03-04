@@ -8,8 +8,6 @@ FIX:
         operators
     make sure release build works
 REFACTOR:
-    (?) Unify git domains and doxygen namespaces and/or normal namepsaces
-    keepnDims -> keedrank
 FEAT:
     Install support
 PERF:
@@ -64,10 +62,11 @@ FIX:
 REFACTOR:
     make test values less uniform
 FEAT:
-    mean keepnDims
-    unary ops test
     make python code doxygen inline
-    transposition with perms
+    add test_outer (with transpose)
+    add test_slice (with transpose)
+    add test_batch_matmul (with transpose)
+    add test_binary_flex (with transpose)
 PERF:
 DOC:
 CHORE:
