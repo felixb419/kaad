@@ -60,22 +60,31 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
-inline void along_dim_metadata_impl(Tensor &A, int dim, std::size_t &D,
+inline void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim,
+                                    std::size_t &D,
                                     std::vector<std::size_t> &A_offset,
                                     std::vector<int> &strideA,
                                     std::vector<int> &strideC) {
     D = A.rank();
-    strideA.resize(D);
-    strideC.resize(D);
+    strideA = std::vector<int>(A.stride());
 
-    std::copy(A.stride().begin(), A.stride().end(), strideA.data());
-    std::copy(A.stride().begin(), A.stride().end(), strideC.data());
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
     for (size_t i = 0; i < D; i++) {
         if (strideA[i] == 0 && A.shape()[i] == 1) {
             strideA[i] = 1;
         }
+    }
+
+    strideC = std::vector<int>(C.stride());
+
+    // adjust strideC if keep_rank was not set
+    if (A.rank() > C.rank()) {
+
+        strideC.push_back(0);
+
+        std::move(strideC.begin() + dim, strideC.end() - 1,
+                  strideC.begin() + dim + 1);
     }
 
     strideC[dim] = 0;
