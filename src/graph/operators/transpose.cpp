@@ -43,8 +43,7 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
                                   {{"A.shape", A_val.shape()}}));
         }
 
-        int *count = new int[A_val.rank()];
-        std::fill(count, count + A_val.rank(), 0);
+        std::vector<int> count(A_val.rank());
 
         int *sh = shape_T.data();
         int *st = stride_T.data();
@@ -55,8 +54,8 @@ Node_handle transpose(Computation_graph &rec, Node_handle A,
             *(sh++) = A_val.shape()[idx];
             *(st++) = A_val.stride()[idx];
         }
-        for (int *p = count; p != count + A_val.rank(); p++) {
-            if (*p != 1) {
+        for (int c : count) {
+            if (c != 1) {
                 throw argument_error(make_graph_errmsg(
                     "argument error", recLen, "transpose",
                     "perm has to contain index of every dimension exactly once",
