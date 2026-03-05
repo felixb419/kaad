@@ -53,7 +53,7 @@ class Tensor {
      * @param shape Shape array for which the size is computed.
      * @return Size of the element array suggested by @p shape.
      */
-    static std::size_t compute_size(std::span<const int> shape);
+    static size_type compute_size(std::span<const int> shape);
 
     /**
      * @brief Constructs tensor with shape: [0]

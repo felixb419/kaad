@@ -27,7 +27,7 @@ std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
         stride[i] = shape[i + 1] * stride[i + 1];
     }
 
-    for (std::size_t i = 0; i < stride.size(); i++) {
+    for (size_type i = 0; i < stride.size(); i++) {
         if (shape[i] <= 1) {
             stride[i] = 0;
         }
@@ -36,8 +36,8 @@ std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
     return stride;
 }
 
-std::size_t Tensor::compute_size(std::span<const int> shape) {
-    std::size_t len = 1;
+Tensor::size_type Tensor::compute_size(std::span<const int> shape) {
+    size_type len = 1;
     for (const int d : shape) {
         len *= d;
     }
@@ -60,7 +60,7 @@ std::vector<int> checked_stride(std::span<const int> stride,
 std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
                                      std::span<const int> shape) {
 
-    std::size_t implied_len = Tensor::compute_size(shape);
+    Tensor::size_type implied_len = Tensor::compute_size(shape);
     if (implied_len != elements.size()) {
         throw argument_error(
             "size of elements param: " + std::to_string(elements.size()) +
@@ -153,7 +153,7 @@ Tensor Tensor::rand(std::span<const int> shape, Scalar min, Scalar max) {
     std::uniform_real_distribution<Scalar> dist{min, max};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    for (std::size_t i = 0; i < out.size(); i++) {
+    for (size_type i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::gen_);
     }
 
@@ -169,7 +169,7 @@ Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
     std::normal_distribution<Scalar> dist{mean, std};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    for (std::size_t i = 0; i < out.size(); i++) {
+    for (size_type i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::gen_);
     }
 
@@ -185,7 +185,7 @@ void Tensor::reshape(std::span<const int> shape) {
 
     std::copy(shape.begin(), shape.end(), this->shape_.begin());
 
-    std::size_t suggested_len = compute_size(this->shape_);
+    size_type suggested_len = compute_size(this->shape_);
     this->stride_ = compute_stride(this->shape_);
 
     if (suggested_len != this->size()) {
