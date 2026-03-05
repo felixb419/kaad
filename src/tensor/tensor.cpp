@@ -98,10 +98,6 @@ Tensor::Tensor(std::span<const int> shape, std::span<const int> stride,
       stride_(checked_stride(stride, shape)),
       elements_(checked_elements(elements, shape)) {}
 
-Tensor Tensor::empty(std::span<const int> shape) {
-    return Tensor(std::span<const int>(shape.begin(), shape.end()));
-}
-
 Tensor Tensor::full(std::span<const int> shape, Scalar fill_value) {
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
     std::fill(out.data(), out.data() + out.size(), fill_value);
@@ -110,10 +106,7 @@ Tensor Tensor::full(std::span<const int> shape, Scalar fill_value) {
 }
 
 Tensor Tensor::zeros(std::span<const int> shape) {
-    Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    std::fill(out.data(), out.data() + out.size(), 0);
-
-    return out;
+    return Tensor(std::span<const int>(shape.begin(), shape.end()));
 }
 
 Tensor Tensor::ones(std::span<const int> shape) {

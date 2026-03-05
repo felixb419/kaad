@@ -97,12 +97,6 @@ class Tensor {
            std::span<const Scalar> elements);
 
     /**
-     * @brief Returns a tensor with given shape and uninitialized values.
-     * @param shape Shape array for the tensor.
-     */
-    static Tensor empty(std::span<const int> shape);
-
-    /**
      * @brief Returns a tensor with given shape and filled with @p fill_value.
      * @param shape Shape array for the tensor.
      * @param fill_value Value to fill the element array.
