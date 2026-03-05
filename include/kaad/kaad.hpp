@@ -22,16 +22,16 @@
  *
  * ## Getting Started
  * 1. Include the header file: `"kaad.hpp"`.
- * 2. Create a `kaad::CompGraph<T>` object.
- * 3. Use the `append` member function to add leaf nodes (which hold value and
- * gradient tensors).
- * 4. Apply unary or binary operations to add operation nodes to the graph.
+ * 2. Create a `kaad::Computation_graph` object.
+ * 3. Use the `add_input_node` member function to add leaf nodes (which hold
+ * value and gradient tensors).
+ * 4. Apply 'operators' to add operation nodes to the graph.
  *
  * Once the computation graph is built:
- * - Call `eval()` on a `CompGraph` object to evaluate specific nodes.
- * - Use `getGrad()` to compute gradients of one or more tensors.
- * - Use `reset()` to reset all values of non-leaf nodes to 0 and reset all
+ * 1. Use `reset()` to reset all values of non-leaf nodes to 0 and reset all
  * gradients to 0.
+ * 2. Call `eval()` on a `CompGraph` object to evaluate specific nodes.
+ * 3. Use `getGrad()` to compute gradients of one or more tensors.
  *
  * This structure allows you to easily compose and differentiate complex
  * tensor-based computations.

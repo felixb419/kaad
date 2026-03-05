@@ -12,7 +12,6 @@ FEAT:
     Install support
 PERF:
 DOC:
-    adjust getting started
 CHORE:
     add clang-tidy
     (?) kaadConfig.cmake.in
