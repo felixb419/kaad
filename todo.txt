@@ -80,6 +80,5 @@ FEAT:
     (?) more example programs
 PERF:
 DOC:
-    comment examples
 CHORE:
 LATER:

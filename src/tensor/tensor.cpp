@@ -43,39 +43,48 @@ std::size_t Tensor::compute_size(std::span<const int> shape) {
     return len;
 }
 
+std::vector<int> checked_stride(std::span<const int> stride,
+                                std::span<const int> shape) {
+
+    if (shape.size() != stride.size()) {
+        throw argument_error(
+            "size of shape param (" + std::to_string(shape.size()) +
+            ") and size of stride param (" + std::to_string(stride.size()) +
+            ") need to be equal");
+    }
+
+    return std::vector(stride.begin(), stride.end());
+}
+
+std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
+                                     std::span<const int> shape) {
+
+    std::size_t implied_len = Tensor::compute_size(shape);
+    if (implied_len != elements.size()) {
+        throw argument_error(
+            "size of elements param: " + std::to_string(elements.size()) +
+            ", size implied by shape param: " + std::to_string(implied_len));
+    }
+
+    return std::vector<Scalar>(elements.begin(), elements.end());
+}
+
 Tensor::Tensor() : shape_({0}), stride_({0}), elements_({}) {}
 
 Tensor::Tensor(std::span<const int> shape)
-    : shape_(shape.begin(), shape.end()), stride_(shape.size()) {
-
-    size_t len = compute_size(this->shape_);
-    this->stride_ = compute_stride(this->shape_);
-
-    this->elements_.resize(len);
-}
+    : shape_(shape.begin(), shape.end()),
+      stride_(Tensor::compute_stride(shape_)),
+      elements_(Tensor::compute_size(shape_)) {}
 
 Tensor::Tensor(std::span<const int> shape, std::span<const int> stride)
     : shape_(shape.begin(), shape.end()),
-      stride_(stride.begin(), stride.end()) {
-    int len = 1;
-    for (int d : this->shape_) {
-        len *= d;
-    }
+      stride_(checked_stride(stride, shape)),
+      elements_(Tensor::compute_size(shape_)) {}
 
-    this->elements_.resize(len);
-}
-
-Tensor::Tensor(std::span<const int> shape, std::span<Scalar> elements)
+Tensor::Tensor(std::span<const int> shape, std::span<const Scalar> elements)
     : shape_(shape.begin(), shape.end()),
-      elements_(elements.begin(), elements.end()) {
-    size_t len = compute_size(this->shape_);
-    this->stride_ = compute_stride(this->shape_);
-
-    if (len != elements.size()) {
-        throw argument_error(
-            "length suggested by shape and length of elements dont match");
-    }
-}
+      stride_(Tensor::compute_stride(shape_)),
+      elements_(checked_elements(elements, shape)) {}
 
 Tensor Tensor::empty(std::span<const int> shape) {
     return Tensor(std::span<const int>(shape.begin(), shape.end()));
