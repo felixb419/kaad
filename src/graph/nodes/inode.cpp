@@ -12,11 +12,6 @@ INode::INode(std::span<const int> value_shape, bool is_input_node,
 
     // if @p value_stride is given its used to construct value_
     if (value_stride.size() != 0) {
-        if (value_shape.size() != value_stride.size()) {
-            throw argument_error(
-                "sizes of shape_value and shape_stride dont match");
-        }
-
         this->value_ = Tensor(value_shape, value_stride);
     } else {
         this->value_ = Tensor(value_shape);
