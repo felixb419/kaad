@@ -16,10 +16,23 @@
 // clang-format off
 /*
 import tensorflow as tf
+import numpy as np
+from math import prod
 
-a = tf.Variable(tf.fill([5], 10.0))
-b = tf.Variable(tf.fill([5], 50.0))
-c = tf.Variable(tf.fill([5], 20.0))
+
+def get_data(shape, val_start):
+    return (np.arange(prod(shape)).reshape(shape).astype(np.float32)) + val_start
+
+
+def print_all(label, val, grad):
+    print(label + " shape:", list(val.numpy().shape))
+    print(label + " val:", val.numpy().ravel().tolist())
+    print(label + " grad:", grad.numpy().ravel().tolist())
+
+
+a = tf.Variable(get_data([5], 40))
+b = tf.Variable(get_data([5], 90))
+c = tf.Variable(get_data([5], 150))
 
 with tf.GradientTape() as tape:
     ab = tf.tensordot(a, b, axes=1)
@@ -29,68 +42,43 @@ with tf.GradientTape() as tape:
 
 grad_a, grad_b, grad_c, grad_res = tape.gradient(res, [a, b, c, res])
 
-
-def print_all(label, val, grad):
-    print(label + " shape:", val.numpy().shape)
-    print(label + " val:", val.numpy().ravel().tolist())
-    print(label + " grad:", grad.numpy().ravel().tolist())
-
-
-print_all("A", a, grad_a)
-# A shape: (5,)
-# A val: [10.0, 10.0, 10.0, 10.0, 10.0]
-# A grad: [5000.0, 5000.0, 5000.0, 5000.0, 5000.0]
-
-print_all("B", b, grad_b)
-# B shape: (5,)
-# B val: [50.0, 50.0, 50.0, 50.0, 50.0]
-# B grad: [1000.0, 1000.0, 1000.0, 1000.0, 1000.0]
-
-print_all("C", c, grad_c)
-# C shape: (5,)
-# C val: [20.0, 20.0, 20.0, 20.0, 20.0]
-# C grad: [2500.0, 2500.0, 2500.0, 2500.0, 2500.0]
-
-print_all("Res", res, grad_res)
-# Res shape: ()
-# Res val: [250000.0]
-# Res grad: [1.0]
+print_all("a", a, grad_a)
+print_all("b", b, grad_b)
+print_all("c", c, grad_c)
+print_all("res", res, grad_res)
 */
 // clang-format on
 
-static std::array a_shape{5};
-static std::array<kaad::Scalar, 5> a_val{10.0, 10.0, 10.0, 10.0, 10.0};
-static std::array<kaad::Scalar, 5> a_grad{5000.0, 5000.0, 5000.0, 5000.0,
-                                          5000.0};
+std::array a_shape{5};
+std::array<kaad::Scalar, 5> a_val{40.0, 41.0, 42.0, 43.0, 44.0};
+std::array<kaad::Scalar, 5> a_grad{68400.0, 69160.0, 69920.0, 70680.0, 71440.0};
 
-static std::array b_shape{5};
-static std::array<kaad::Scalar, 5> b_val{50.0, 50.0, 50.0, 50.0, 50.0};
-static std::array<kaad::Scalar, 5> b_grad{1000.0, 1000.0, 1000.0, 1000.0,
-                                          1000.0};
+std::array b_shape{5};
+std::array<kaad::Scalar, 5> b_val{90.0, 91.0, 92.0, 93.0, 94.0};
+std::array<kaad::Scalar, 5> b_grad{30400.0, 31160.0, 31920.0, 32680.0, 33440.0};
 
-static std::array c_shape{5};
-static std::array<kaad::Scalar, 5> c_val{20.0, 20.0, 20.0, 20.0, 20.0};
-static std::array<kaad::Scalar, 5> c_grad{2500.0, 2500.0, 2500.0, 2500.0,
-                                          2500.0};
+std::array c_shape{5};
+std::array<kaad::Scalar, 5> c_val{150.0, 151.0, 152.0, 153.0, 154.0};
+std::array<kaad::Scalar, 5> c_grad{19330.0, 19330.0, 19330.0, 19330.0, 19330.0};
 
-static std::array res_shape{1};
-static std::array<kaad::Scalar, 1> res_val{250000.0};
-static std::array<kaad::Scalar, 1> res_grad{1.0};
+std::array res_shape{1};
+std::array<kaad::Scalar, 1> res_val{14690800.0};
+std::array<kaad::Scalar, 1> res_grad{1.0};
 
 int main() {
     kaad::Computation_graph rec;
 
     std::span<float> a_vals;
     kaad::Node_handle a = rec.add_input_node(std::array{5}, a_vals);
-    std::fill(a_vals.begin(), a_vals.end(), 10);
+    std::iota(a_vals.begin(), a_vals.end(), 40);
 
     std::span<float> b_vals;
     kaad::Node_handle b = rec.add_input_node(std::array{5}, b_vals);
-    std::fill(b_vals.begin(), b_vals.end(), 50);
+    std::iota(b_vals.begin(), b_vals.end(), 90);
 
     std::span<float> c_vals;
     kaad::Node_handle c = rec.add_input_node(std::array{5}, c_vals);
-    std::fill(c_vals.begin(), c_vals.end(), 20);
+    std::iota(c_vals.begin(), c_vals.end(), 150);
 
     kaad::Node_handle ab = dot(rec, a, b);
     kaad::Node_handle res = dot(rec, ab, c);

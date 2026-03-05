@@ -14,18 +14,23 @@
  */
 
 // Tensorflow python code to verify results:
-// clang-format off
 /*
 import tensorflow as tf
 import numpy as np
+from math import prod
 
 
-def print_grad(label, val, grad):
-    print("\n", label, ":\n", "val:\n", val.numpy(), "\ngrad:\n", grad.numpy())
+def get_data(shape, val_start):
+    return np.arange(prod(shape)).reshape(shape).astype(np.float32) + val_start
 
 
-a_elements = np.arange(30).reshape(3, 5, 2).astype(np.float32)
-a = tf.Variable(a_elements)
+def print_all(label, val, grad):
+    print(label + " shape:", list(val.numpy().shape))
+    print(label + " val:", val.numpy().ravel().tolist())
+    print(label + " grad:", grad.numpy().ravel().tolist())
+
+
+a = tf.Variable(get_data([3, 5, 2], 50))
 
 with tf.GradientTape() as tape:
 
@@ -35,31 +40,16 @@ with tf.GradientTape() as tape:
 
 grad_a, grad_res = tape.gradient(res, [a, res])
 
-
-def print_all(label, val, grad):
-    print(label + " shape:", val.numpy().shape)
-    print(label + " val:", val.numpy().ravel().tolist())
-    print(label + " grad:", grad.numpy().ravel().tolist())
-
-
-print_all("A", a, grad_a)
-# A shape: (3, 5, 2)
-# A val: [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 27.0, 28.0, 29.0]
-# A grad: [0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214, 0.03333333507180214]
-
-print_all("Res", res, grad_res)
-# Res shape: ()
-# Res val: [14.5]
-# Res grad: [1.0]
+print_all("a", a, grad_a)
+print_all("res", res, grad_res)
 */
-// clang-format on
 
 std::array a_shape{3, 5, 2};
-std::array<float, 30> a_val{0.0,  1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0,
-                            8.0,  9.0,  10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
-                            16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0,
-                            24.0, 25.0, 26.0, 27.0, 28.0, 29.0};
-std::array<float, 30> a_grad{
+std::array<kaad::Scalar, 30> a_val{
+    50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0,
+    60.0, 61.0, 62.0, 63.0, 64.0, 65.0, 66.0, 67.0, 68.0, 69.0,
+    70.0, 71.0, 72.0, 73.0, 74.0, 75.0, 76.0, 77.0, 78.0, 79.0};
+std::array<kaad::Scalar, 30> a_grad{
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214,
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214,
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214,
@@ -71,16 +61,16 @@ std::array<float, 30> a_grad{
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214,
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214};
 
-std::array res_shape{1}; // actual tensorflow output is 0-rank
-std::array<float, 1> res_val{14.5};
-std::array<float, 1> res_grad{1.0};
+std::array res_shape{1}; // tensorflow actually outputs 0-rank
+std::array<kaad::Scalar, 1> res_val{64.5};
+std::array<kaad::Scalar, 1> res_grad{1.0};
 
 int main() {
     kaad::Computation_graph rec;
 
     std::span<float> a_vals;
     kaad::Node_handle a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
-    std::iota(a_vals.begin(), a_vals.end(), 0);
+    std::iota(a_vals.begin(), a_vals.end(), 50);
 
     kaad::Node_handle a_mean = mean(rec, a, 2, true);
     kaad::Node_handle a_mean2 = mean(rec, a, 1);
