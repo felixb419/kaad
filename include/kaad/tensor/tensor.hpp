@@ -175,6 +175,12 @@ class Tensor {
     explicit Tensor(std::span<const int> shape);
 
     /**
+     * @brief Constructs a rank-1 tensor with given @p elements.
+     * @param shape Array with the shape of the tensor.
+     */
+    explicit Tensor(std::span<const Scalar> elements);
+
+    /**
      * @brief Constructs a tensor with given @p shape and @p stride.
      * @param shape Array with the shape of the tensor.
      * @param stride Array with the per-dim strides of the tensor.

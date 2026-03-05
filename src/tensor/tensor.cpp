@@ -76,6 +76,11 @@ Tensor::Tensor(std::span<const int> shape)
       stride_(Tensor::compute_stride(shape_)),
       elements_(Tensor::compute_size(shape_)) {}
 
+Tensor::Tensor(std::span<const Scalar> elements)
+    : shape_{static_cast<int>(elements.size())},
+      stride_(Tensor::compute_stride(shape_)),
+      elements_(elements.begin(), elements.end()) {}
+
 Tensor::Tensor(std::span<const int> shape, std::span<const int> stride)
     : shape_(shape.begin(), shape.end()),
       stride_(checked_stride(stride, shape)),
