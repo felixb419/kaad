@@ -32,8 +32,10 @@ class INode {
      * @brief Initializes the first input, flags, value and gradient tensors for
      * a node.
      * @ingroup nodes
-     * @param A_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensor.
+     * @param is_input_node Flag indicating wheter it is an input node.
+     * @param value_stride Stride array of the value tensor (can be omitted if
+     * value is not transposed).
      */
     INode(std::span<const int> value_shape, bool is_input_node,
           std::span<const int> value_stride = {});
