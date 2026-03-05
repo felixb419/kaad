@@ -34,8 +34,8 @@ template <bool isConst> class iterator_impl {
     const Tensor &origin() { return this->origin_; }
 
     reference operator*() const {
-        size_t idx = 0;
-        for (size_t i = 0; i < this->origin_.rank(); i++) {
+        std::size_t idx = 0;
+        for (std::size_t i = 0; i < this->origin_.rank(); i++) {
             idx += this->cords_[i] * this->stride_[i];
         }
         return this->origin_.data()[idx];
@@ -58,7 +58,7 @@ template <bool isConst> class iterator_impl {
                 // past end and return.
                 std::copy(this->shape_.begin(), this->shape_.end(),
                           this->cords_.begin());
-                for (size_t i = 0; i < this->origin_.rank() - 1; i++) {
+                for (std::size_t i = 0; i < this->origin_.rank() - 1; i++) {
                     this->cords_[i]--;
                 }
                 break;

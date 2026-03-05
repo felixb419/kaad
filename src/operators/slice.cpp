@@ -55,7 +55,7 @@ Node_handle slice(Computation_graph &rec, Node_handle A,
     std::fill(offset_owned.begin(), offset_owned.begin() + offset_diff, 0);
     std::copy(offset.begin(), offset.end(), offset_owned.begin() + offset_diff);
 
-    for (size_t i = 0; i < A_val.rank(); i++) {
+    for (std::size_t i = 0; i < A_val.rank(); i++) {
         if (offset_owned[i] + size_owned[i] > A_val.shape()[i]) {
             std::span<const int> size_span(size.begin(), size.size());
             std::span<const int> offset_span(offset.begin(), offset.size());

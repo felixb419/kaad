@@ -53,7 +53,7 @@ template <class Kernel> class Node_binary_flex : public INode {
         this->value_stride.resize(this->value_rank);
 
         int idx, idxA, idxB, idxC;
-        for (size_t i = 1; i <= this->value_rank; i++) {
+        for (std::size_t i = 1; i <= this->value_rank; i++) {
             idx = this->value_rank - i;
             idxA = lhs.rank() - i;
             this->lhs_stride[idx] = idxA >= 0 ? lhs.stride()[idxA] : 0;
@@ -69,7 +69,7 @@ template <class Kernel> class Node_binary_flex : public INode {
         }
 
         this->C_offset.resize(this->value_rank);
-        for (size_t i = 0; i < this->value_rank; i++) {
+        for (std::size_t i = 0; i < this->value_rank; i++) {
             this->C_offset[i] = value.shape()[i] * this->value_stride[i];
         }
 

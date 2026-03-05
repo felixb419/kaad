@@ -153,7 +153,7 @@ Tensor Tensor::rand(std::span<const int> shape, Scalar min, Scalar max) {
     std::uniform_real_distribution<Scalar> dist{min, max};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    for (size_t i = 0; i < out.size(); i++) {
+    for (std::size_t i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::gen_);
     }
 
@@ -169,7 +169,7 @@ Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
     std::normal_distribution<Scalar> dist{mean, std};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
-    for (size_t i = 0; i < out.size(); i++) {
+    for (std::size_t i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::gen_);
     }
 
@@ -185,7 +185,7 @@ void Tensor::reshape(std::span<const int> shape) {
 
     std::copy(shape.begin(), shape.end(), this->shape_.begin());
 
-    size_t suggested_len = compute_size(this->shape_);
+    std::size_t suggested_len = compute_size(this->shape_);
     this->stride_ = compute_stride(this->shape_);
 
     if (suggested_len != this->size()) {

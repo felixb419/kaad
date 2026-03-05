@@ -18,7 +18,7 @@ void Node_slice::metadata(const int *offset_arr) {
     this->value_stride.resize(this->value_rank);
 
     int idx, input_idx, value_dix;
-    for (size_t i = 1; i <= this->value_rank; i++) {
+    for (std::size_t i = 1; i <= this->value_rank; i++) {
         idx = this->value_rank - i;
         input_idx = input.rank() - i;
         this->input_stride[idx] =
@@ -34,14 +34,14 @@ void Node_slice::metadata(const int *offset_arr) {
     }
 
     this->value_offset.resize(this->value_rank);
-    for (size_t i = 0; i < this->value_rank; i++) {
+    for (std::size_t i = 0; i < this->value_rank; i++) {
         this->value_offset[i] = value.shape()[i] * this->value_stride[i];
     }
 
     this->start_offset_a.resize(input.rank());
     std::copy(offset_arr, offset_arr + input.rank(),
               this->start_offset_a.data());
-    for (size_t i = 0; i < input.rank(); i++) {
+    for (std::size_t i = 0; i < input.rank(); i++) {
         this->start_offset_a[i] *= this->input_stride[i];
     }
 

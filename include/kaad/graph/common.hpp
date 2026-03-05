@@ -70,7 +70,7 @@ inline void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim,
 
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
-    for (size_t i = 0; i < D; i++) {
+    for (std::size_t i = 0; i < D; i++) {
         if (strideA[i] == 0 && A.shape()[i] == 1) {
             strideA[i] = 1;
         }
@@ -93,7 +93,7 @@ inline void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim,
     }
 
     A_offset.resize(D);
-    for (size_t i = 0; i < D; i++) {
+    for (std::size_t i = 0; i < D; i++) {
         A_offset[i] = A.shape()[i] * strideA[i];
     }
 }

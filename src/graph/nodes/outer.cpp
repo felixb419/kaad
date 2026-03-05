@@ -27,7 +27,7 @@ void Node_outer::metadata() {
               this->rhs_stride.data() + lhs.rank());
 
     this->C_offset.resize(this->C_rank);
-    for (size_t i = 0; i < this->C_rank; i++) {
+    for (std::size_t i = 0; i < this->C_rank; i++) {
         this->C_offset[i] = C.shape()[i] * this->strideC[i];
     }
 

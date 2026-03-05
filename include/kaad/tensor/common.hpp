@@ -13,7 +13,7 @@ inline void print_tensor(std::ostream &os, std::vector<int> &cords,
                          std::size_t ind, int &indent) {
     if (ind == rank) {
         int idx = 0;
-        for (size_t i = 0; i < rank; i++) {
+        for (std::size_t i = 0; i < rank; i++) {
             idx += (cords[i] % shape[i]) * stride[i];
         }
         os << elements[idx];
@@ -28,7 +28,7 @@ inline void print_tensor(std::ostream &os, std::vector<int> &cords,
                          ind + 1, indent);
             os << ", ";
             bool indent_here = false;
-            for (size_t j = 0; j < rank - ind - 1; j++) {
+            for (std::size_t j = 0; j < rank - ind - 1; j++) {
                 os << std::endl;
                 indent_here = true;
             }
