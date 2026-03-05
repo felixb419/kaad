@@ -18,7 +18,7 @@ inline bool equal_tol(kaad::Scalar a, kaad::Scalar b, kaad::Scalar abs_tol,
     return diff <= abs_tol + rel_tol * scale;
 }
 
-inline bool check_tensor(const kaad::Tensor &tensor,
+inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
                          std::span<const int> shape_correct,
                          std::span<const kaad::Scalar> elements_correct) {
     static kaad::Scalar abs_tol = 1e-6;
@@ -38,11 +38,16 @@ inline bool check_tensor(const kaad::Tensor &tensor,
         return false;
     }
 
+    int idx = 0;
     auto tensor_it = tensor.begin();
     auto elements_it = elements_correct.begin();
-    for (; elements_it != elements_correct.end(); tensor_it++, elements_it++) {
+    for (; elements_it != elements_correct.end();
+         tensor_it++, elements_it++, idx++) {
         if (!equal_tol(*tensor_it, *elements_it, abs_tol, rel_tol)) {
-            return false;
+            throw std::runtime_error(std::string("mismatching values in '") +
+                                     label + "' at idx " + std::to_string(idx) +
+                                     ", act=" + std::to_string(*tensor_it) +
+                                     ", corr=" + std::to_string(*elements_it));
         }
     }
 
