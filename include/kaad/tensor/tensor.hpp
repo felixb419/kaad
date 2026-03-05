@@ -195,6 +195,16 @@ class Tensor {
     Tensor(std::span<const int> shape, std::span<const Scalar> elements);
 
     /**
+     * @brief Constructs a tensor with given @p shape, @p stride and @p
+     * elements.
+     * @param shape Array with the shape of the tensor.
+     * @param stride Array with the per-dim strides of the tensor.
+     * @param elements Array with the values of the tensor.
+     */
+    Tensor(std::span<const int> shape, std::span<const int> stride,
+           std::span<const Scalar> elements);
+
+    /**
      * @brief Returns a tensor with given shape and uninitialized values.
      * @param shape Shape array for the tensor.
      */

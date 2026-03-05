@@ -91,6 +91,12 @@ Tensor::Tensor(std::span<const int> shape, std::span<const Scalar> elements)
       stride_(Tensor::compute_stride(shape_)),
       elements_(checked_elements(elements, shape)) {}
 
+Tensor::Tensor(std::span<const int> shape, std::span<const int> stride,
+               std::span<const Scalar> elements)
+    : shape_(shape.begin(), shape.end()),
+      stride_(checked_stride(stride, shape)),
+      elements_(checked_elements(elements, shape)) {}
+
 Tensor Tensor::empty(std::span<const int> shape) {
     return Tensor(std::span<const int>(shape.begin(), shape.end()));
 }
