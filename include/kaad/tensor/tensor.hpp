@@ -1,17 +1,16 @@
 #pragma once
 
-#include "../scalar.hpp"    // for Scalar
-#include "tensor_view.hpp"  // for Tensor_view, Tensor_view_mut
-#include <algorithm>        // for equal, fill
-#include <cstddef>          // for size_t
-#include <cstdint>          // for uint64_t
-#include <initializer_list> // for initializer_list
-#include <iostream>         // for ostream, ptrdiff_t
-#include <iterator>         // for bidirectional_iterator_tag
-#include <random>           // for mt19937_64
-#include <span>             // for span
-#include <type_traits>      // for conditional_t
-#include <vector>           // for vector
+#include "../scalar.hpp"   // for Scalar
+#include "tensor_view.hpp" // for Tensor_view, Tensor_view_mut
+#include <algorithm>       // for copy
+#include <cstddef>         // for size_t
+#include <cstdint>         // for uint64_t
+#include <iostream>        // for ostream, ptrdiff_t
+#include <iterator>        // for bidirectional_iterator_tag
+#include <random>          // for mt19937_64
+#include <span>            // for span
+#include <type_traits>     // for conditional_t
+#include <vector>          // for vector
 
 namespace kaad {
 
