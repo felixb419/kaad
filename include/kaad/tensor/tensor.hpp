@@ -62,6 +62,7 @@ class Tensor {
 
     /**
      * @brief Constructs a tensor with given @p shape.
+     * @note The elements array is initialized ot 0.
      * @param shape Array with the shape of the tensor.
      */
     explicit Tensor(std::span<const int> shape);
@@ -74,6 +75,7 @@ class Tensor {
 
     /**
      * @brief Constructs a tensor with given @p shape and @p stride.
+     * @note The elements array is initialized ot 0.
      * @param shape Array with the shape of the tensor.
      * @param stride Array with the per-dim strides of the tensor.
      */
