@@ -30,9 +30,8 @@ class INode {
 
     /**
      * @brief Initializes the first input, flags, value and gradient tensors for
-     * @ingroup nodes
      * a node.
-     *
+     * @ingroup nodes
      * @param A_ptr Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensor.
      */
