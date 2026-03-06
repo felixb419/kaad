@@ -1,8 +1,8 @@
-#include "../../include/kaad/exceptions.hpp" // for make_graph_errmsg
+#include "../../include/kaad/graph/nodes/slice.hpp" // for Node_slice
+#include "../../include/kaad/exceptions.hpp"        // for make_graph_errmsg
 #include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node_handle
+#include "../../include/kaad/graph/node_handle.hpp"       // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
-#include "../../include/kaad/graph/nodes/slice.hpp"       // for Node_slice
 #include "../../include/kaad/operators/operators.hpp"     // for slice
 #include "../../include/kaad/tensor/tensor.hpp"           // for Tensor
 #include <algorithm>                                      // for copy, fill
@@ -16,9 +16,8 @@
 
 namespace kaad {
 
-Node_handle slice(Computation_graph &rec, Node_handle A,
-                  std::initializer_list<int> size,
-                  std::initializer_list<int> offset) {
+Node slice(Computation_graph &rec, Node A, std::initializer_list<int> size,
+           std::initializer_list<int> offset) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

@@ -1,6 +1,6 @@
 #include "../../include/kaad/exceptions.hpp" // for make_graph_errmsg, argument_error
 #include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph, transpose
-#include "../../include/kaad/graph/node_handle.hpp"   // for Node_handle
+#include "../../include/kaad/graph/node_handle.hpp"   // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
 #include "../../include/kaad/graph/nodes/transp.hpp"  // for Node_transp
 #include "../../include/kaad/operators/operators.hpp" // for transpose
@@ -13,8 +13,8 @@
 
 namespace kaad {
 
-Node_handle transpose(Computation_graph &rec, Node_handle A,
-                      std::initializer_list<int> perm) {
+Node transpose(Computation_graph &rec, Node A,
+               std::initializer_list<int> perm) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

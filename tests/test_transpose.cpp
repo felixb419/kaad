@@ -62,10 +62,10 @@ int main() {
     kaad::Computation_graph rec;
 
     std::span<float> a_vals;
-    kaad::Node_handle a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
     std::iota(a_vals.begin(), a_vals.end(), 32);
 
-    kaad::Node_handle res = transpose(rec, a);
+    kaad::Node res = transpose(rec, a);
 
     rec.reset();
 

@@ -22,8 +22,8 @@ int main() {
     std::fill(c_vals.begin(), c_vals.end(), 20);
 
     // Add computation nodes to graph via operators.
-    kaad::Node_handle ab = dot(rec, a, b);   // [5] * [5] -> [1]
-    kaad::Node_handle res = dot(rec, ab, c); // [1] * [5] -> [1]
+    kaad::Node ab = dot(rec, a, b);   // [5] * [5] -> [1]
+    kaad::Node res = dot(rec, ab, c); // [1] * [5] -> [1]
 
     // Reset the graph.
     rec.reset();

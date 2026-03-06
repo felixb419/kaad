@@ -1,8 +1,8 @@
-#include "../../include/kaad/exceptions.hpp" // for make_graph_errmsg
+#include "../../include/kaad/graph/nodes/mean.hpp" // for Node_mean
+#include "../../include/kaad/exceptions.hpp"       // for make_graph_errmsg
 #include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node_handle
+#include "../../include/kaad/graph/node_handle.hpp"       // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
-#include "../../include/kaad/graph/nodes/mean.hpp"        // for Node_mean
 #include "../../include/kaad/graph/nodes/mean_dim.hpp"    // for Node_mean_dim
 #include "../../include/kaad/operators/operators.hpp"     // for mean
 #include "../../include/kaad/tensor/tensor.hpp"           // for Tensor
@@ -15,15 +15,14 @@
 
 namespace kaad {
 
-Node_handle mean(Computation_graph &rec, Node_handle A) {
+Node mean(Computation_graph &rec, Node A) {
 
     rec.nodes.push_back(
         std::move(std::make_unique<Node_mean>(rec.get_node(A), std::array{1})));
     return rec.back_handle();
 }
 
-Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
-                 bool keep_rank) {
+Node mean(Computation_graph &rec, Node A, int dim, bool keep_rank) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

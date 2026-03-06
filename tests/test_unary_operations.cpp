@@ -127,16 +127,16 @@ int main() {
     kaad::Computation_graph rec;
 
     std::span<float> a_vals;
-    kaad::Node_handle a = rec.add_input_node(std::array{5, 2, 5, 10}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{5, 2, 5, 10}, a_vals);
     std::iota(a_vals.begin(), a_vals.end(), 250);
 
-    kaad::Node_handle a_slice = kaad::slice(rec, a, {2, 4, 3}, {1, 5});
-    kaad::Node_handle a_sqrt = kaad::sqrt(rec, a_slice);
-    kaad::Node_handle a_full_transp = kaad::transpose(rec, a_sqrt);
-    kaad::Node_handle a_mean_dim = kaad::mean(rec, a_full_transp, 0);
-    kaad::Node_handle a_transp = kaad::transpose(rec, a_mean_dim, {2, 0, 1});
+    kaad::Node a_slice = kaad::slice(rec, a, {2, 4, 3}, {1, 5});
+    kaad::Node a_sqrt = kaad::sqrt(rec, a_slice);
+    kaad::Node a_full_transp = kaad::transpose(rec, a_sqrt);
+    kaad::Node a_mean_dim = kaad::mean(rec, a_full_transp, 0);
+    kaad::Node a_transp = kaad::transpose(rec, a_mean_dim, {2, 0, 1});
 
-    kaad::Node_handle res = a_transp;
+    kaad::Node res = a_transp;
 
     rec.reset();
 

@@ -11,7 +11,7 @@ class Computation_graph;
 /**
  * @brief Immutable handle class for a INode.
  */
-class Node_handle {
+class Node {
     uint32_t idx_;              ///< Index of the node in the Computation_graph.
     Computation_graph *origin_; ///< Pointer to the correct Computation_graph.
 
@@ -20,8 +20,7 @@ class Node_handle {
      * @param idx Index of the node in the Computation_graph.
      * @param origin Pointer to the Computation_graph.
      */
-    constexpr explicit Node_handle(uint32_t idx,
-                                   Computation_graph *origin) noexcept
+    constexpr explicit Node(uint32_t idx, Computation_graph *origin) noexcept
         : idx_(idx), origin_(origin) {}
 
     friend class Computation_graph;
@@ -65,8 +64,8 @@ class Node_handle {
         return this->origin_->nodes[this->idx()].get()->gradient();
     }
 
-    friend constexpr auto operator<=>(Node_handle, Node_handle) = default;
-    friend std::ostream &operator<<(std::ostream &os, Node_handle node);
+    friend constexpr auto operator<=>(Node, Node) = default;
+    friend std::ostream &operator<<(std::ostream &os, Node node);
 };
 
 } // namespace kaad

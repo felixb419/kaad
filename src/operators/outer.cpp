@@ -1,7 +1,7 @@
-#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node_handle
-#include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
 #include "../../include/kaad/graph/nodes/outer.hpp"       // for Node_outer
+#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
+#include "../../include/kaad/graph/node_handle.hpp"       // for Node
+#include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
 #include "../../include/kaad/operators/operators.hpp"     // for outer
 #include "../../include/kaad/tensor/tensor.hpp"           // for Tensor
 #include <algorithm>                                      // for copy
@@ -12,7 +12,7 @@
 
 namespace kaad {
 
-Node_handle outer(Computation_graph &rec, Node_handle A, Node_handle B) {
+Node outer(Computation_graph &rec, Node A, Node B) {
 
     INode *A_ptr = rec.get_node(A);
     INode *B_ptr = rec.get_node(B);

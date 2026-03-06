@@ -14,7 +14,7 @@
 
 namespace kaad {
 
-class Node_handle;
+class Node;
 
 /**
  * @brief Represents a computation graph for automatic differentiation.
@@ -31,7 +31,7 @@ class Computation_graph {
      * @brief Get the last node in the graph.
      * @return Handle of the node at the back of the node vector.
      */
-    Node_handle back_handle() noexcept;
+    Node back_handle() noexcept;
 
     /**
      * @brief Returns a pointer to a node handle.
@@ -40,7 +40,7 @@ class Computation_graph {
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.
      */
-    INode *get_node(Node_handle node);
+    INode *get_node(Node node);
 
   public:
     /**
@@ -50,7 +50,7 @@ class Computation_graph {
      * @param node Node handle of the relevant node.
      * @return Immutable pointer to the Node.
      */
-    const INode *get_node(Node_handle node) const;
+    const INode *get_node(Node node) const;
 
     /**
      * @brief Constructs an evaluated node with no inputs and adds it to the
@@ -65,8 +65,8 @@ class Computation_graph {
      * @param[out] node_value_elements Range of the value elements fo the node.
      * @return A handle of the newly created InputNode.
      */
-    Node_handle add_input_node(std::span<const int> value_shape,
-                               std::span<Scalar> &node_value_elements);
+    Node add_input_node(std::span<const int> value_shape,
+                        std::span<Scalar> &node_value_elements);
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.
@@ -76,14 +76,14 @@ class Computation_graph {
      * its `eval()` method, and returns a std::array of pointers to their
      * resulting Tensor values in the same order.
      *
-     * @tparam Node_handles Variadic template parameter pack of Node_handle
+     * @tparam Nodes Variadic template parameter pack of Node
      * types.
      *
      * @param nodes A list of handles of nodes to be evaluated.
      * @return An array of Tensor* pointers, each corresponding to the value
      * of the evaluated node.
      */
-    std::vector<const Tensor *> evaluate(std::span<const Node_handle> nodes);
+    std::vector<const Tensor *> evaluate(std::span<const Node> nodes);
 
     /**
      * @brief Computes gradients of the computation graph with respect to the
@@ -96,7 +96,7 @@ class Computation_graph {
      * backpropagation through the graph. Returns a list of pointers to the
      * gradient tensors corresponding to each input node in `wrt`.
      *
-     * @tparam ptrs Variadic template parameter pack of Node_handle types.
+     * @tparam ptrs Variadic template parameter pack of Node types.
      *
      * @param output Handle of the output node (target function) with respect
      * to which gradients are computed.
@@ -105,8 +105,8 @@ class Computation_graph {
      * @return An array of Tensor* pointers representing the gradients df/dx
      * for each input node.
      */
-    std::vector<const Tensor *>
-    getGradient(Node_handle output, std::span<const Node_handle> inputs);
+    std::vector<const Tensor *> getGradient(Node output,
+                                            std::span<const Node> inputs);
 
     /**
      * @brief Resets all node values and gradients in the computation graph.
@@ -117,32 +117,27 @@ class Computation_graph {
      */
     void reset();
 
-    friend std::ostream &operator<<(std::ostream &os, Node_handle node);
+    friend std::ostream &operator<<(std::ostream &os, Node node);
 
-    friend class Node_handle;
+    friend class Node;
 
     template <class Kernel>
-    friend Node_handle binOperator(Computation_graph &rec, Node_handle A,
-                                   Node_handle B, const char *opName);
-    friend Node_handle dot(Computation_graph &rec, Node_handle A,
-                           Node_handle B);
-    friend Node_handle matmul(Computation_graph &rec, Node_handle A,
-                              Node_handle B);
-    friend Node_handle mean(Computation_graph &rec, Node_handle A);
-    friend Node_handle mean(Computation_graph &rec, Node_handle A, int dim,
-                            bool keep_rank);
-    friend Node_handle outer(Computation_graph &rec, Node_handle A,
-                             Node_handle B);
-    friend Node_handle slice(Computation_graph &rec, Node_handle A,
-                             std::initializer_list<int> size,
-                             std::initializer_list<int> offset);
-    friend Node_handle sum(Computation_graph &rec, Node_handle A);
-    friend Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
-                           bool keep_rank);
-    friend Node_handle transpose(Computation_graph &rec, Node_handle A,
-                                 std::initializer_list<int> perm);
+    friend Node binOperator(Computation_graph &rec, Node A, Node B,
+                            const char *opName);
+    friend Node dot(Computation_graph &rec, Node A, Node B);
+    friend Node matmul(Computation_graph &rec, Node A, Node B);
+    friend Node mean(Computation_graph &rec, Node A);
+    friend Node mean(Computation_graph &rec, Node A, int dim, bool keep_rank);
+    friend Node outer(Computation_graph &rec, Node A, Node B);
+    friend Node slice(Computation_graph &rec, Node A,
+                      std::initializer_list<int> size,
+                      std::initializer_list<int> offset);
+    friend Node sum(Computation_graph &rec, Node A);
+    friend Node sum(Computation_graph &rec, Node A, int dim, bool keep_rank);
+    friend Node transpose(Computation_graph &rec, Node A,
+                          std::initializer_list<int> perm);
     template <class Kernel>
-    friend Node_handle unOperator(Computation_graph &rec, Node_handle A);
+    friend Node unOperator(Computation_graph &rec, Node A);
 };
 
 } // namespace kaad

@@ -1,7 +1,7 @@
 #include "../../include/kaad/graph/computation_graph.hpp"
 #include "../../include/kaad/exceptions.hpp" // for argument_error
 #include "../../include/kaad/graph/computation_graph.hpp"
-#include "../../include/kaad/graph/node_handle.hpp" // for Node_handle, operator<<
+#include "../../include/kaad/graph/node_handle.hpp" // for Node, operator<<
 #include "../../include/kaad/graph/nodes/inode.hpp" // for INode
 #include "../../include/kaad/graph/nodes/input.hpp" // for Node_input
 #include "../../include/kaad/tensor/tensor.hpp"     // for operator<<, Tensor
@@ -14,15 +14,15 @@
 
 namespace kaad {
 
-Node_handle Computation_graph::back_handle() noexcept {
-    return Node_handle(this->nodes.size() - 1, this);
+Node Computation_graph::back_handle() noexcept {
+    return Node(this->nodes.size() - 1, this);
 }
 
-INode *Computation_graph::get_node(Node_handle node) {
+INode *Computation_graph::get_node(Node node) {
     return const_cast<INode *>(std::as_const(*this).get_node(node));
 }
 
-const INode *Computation_graph::get_node(Node_handle node) const {
+const INode *Computation_graph::get_node(Node node) const {
     if (node.origin_ != this) {
         throw argument_error(
             "node does not belong to this instance of Computation_graph");
@@ -35,20 +35,19 @@ const INode *Computation_graph::get_node(Node_handle node) const {
     return this->nodes[node.idx_].get();
 }
 
-Node_handle
-Computation_graph::add_input_node(std::span<const int> value_shape,
-                                  std::span<Scalar> &node_value_elements) {
+Node Computation_graph::add_input_node(std::span<const int> value_shape,
+                                       std::span<Scalar> &node_value_elements) {
     this->nodes.push_back(std::make_unique<Node_input>(value_shape));
 
     Tensor &Node_value = nodes.back()->value();
     node_value_elements = std::span<Scalar>(
         Node_value.data(), Node_value.data() + Node_value.size());
 
-    return Node_handle(this->nodes.size() - 1, this);
+    return Node(this->nodes.size() - 1, this);
 }
 
 std::vector<const Tensor *>
-Computation_graph::evaluate(std::span<const Node_handle> nodes) {
+Computation_graph::evaluate(std::span<const Node> nodes) {
 
     std::vector<const Tensor *> values(nodes.size());
 
@@ -68,8 +67,7 @@ void Computation_graph::reset() {
 }
 
 std::vector<const Tensor *>
-Computation_graph::getGradient(Node_handle output,
-                               std::span<const Node_handle> inputs) {
+Computation_graph::getGradient(Node output, std::span<const Node> inputs) {
 
     INode *f = this->get_node(output);
     std::fill(f->gradient().elements_.begin(), f->gradient().elements_.end(),
@@ -86,7 +84,7 @@ Computation_graph::getGradient(Node_handle output,
     return partials;
 }
 
-std::ostream &operator<<(std::ostream &os, Node_handle node) {
+std::ostream &operator<<(std::ostream &os, Node node) {
     INode *node_ptr = node.origin_->get_node(node);
     os << node_ptr->node_type() << " at idx " << node.idx()
        << " of Computation_graph at " << node.origin() << "\n"

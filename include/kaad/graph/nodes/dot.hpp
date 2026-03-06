@@ -9,7 +9,7 @@ namespace kaad {
 
 // forward declarations for friend declaration
 class Computation_graph;
-class Node_handle;
+class Node;
 
 /**
  * @brief A binary operation node in a computation graph.
@@ -67,8 +67,7 @@ class Node_dot : public INode {
      */
     void getGrad() override;
 
-    friend Node_handle dot(Computation_graph &rec, Node_handle A,
-                           Node_handle B);
+    friend Node dot(Computation_graph &rec, Node A, Node B);
 };
 
 } // namespace kaad

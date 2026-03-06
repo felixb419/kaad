@@ -10,11 +10,11 @@ int main() {
 
     // Add input nodes to the graph.
     std::span<float> a_vals; // span to represent the element array of a
-    kaad::Node_handle a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
     std::iota(a_vals.begin(), a_vals.end(), 0);
 
     // Add computation nodes to graph via operators.
-    kaad::Node_handle c = transpose(rec, a); // [3,5,2] -> [2,5,3]
+    kaad::Node c = transpose(rec, a); // [3,5,2] -> [2,5,3]
 
     // Reset the graph.
     rec.reset();

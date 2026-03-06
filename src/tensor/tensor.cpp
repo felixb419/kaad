@@ -277,7 +277,8 @@ std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
     for (Tensor::size_type i = 1; i < tensor.rank(); i++) {
         os << ", " << tensor.shape()[i];
     }
-    os << ")" << "\n";
+    os << ")"
+       << "\n";
 
     os << "elements: ";
 

@@ -3,7 +3,7 @@
 #include "../../include/kaad/functions/kernels.hpp"       // for Sum
 #include "../../include/kaad/functions/primal.hpp"        // for scalarOut
 #include "../../include/kaad/graph/computation_graph.hpp" // for Computation_...
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node_handle
+#include "../../include/kaad/graph/node_handle.hpp"       // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
 #include "../../include/kaad/graph/nodes/sum_dim.hpp"     // for Node_sum_dim
 #include "../../include/kaad/graph/nodes/unary.hpp"       // for Node_unary
@@ -19,7 +19,7 @@
 
 namespace kaad {
 
-Node_handle sum(Computation_graph &rec, Node_handle A) {
+Node sum(Computation_graph &rec, Node A) {
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();
@@ -38,8 +38,7 @@ Node_handle sum(Computation_graph &rec, Node_handle A) {
     return rec.back_handle();
 }
 
-Node_handle sum(Computation_graph &rec, Node_handle A, int dim,
-                bool keep_rank) {
+Node sum(Computation_graph &rec, Node A, int dim, bool keep_rank) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

@@ -69,12 +69,12 @@ int main() {
     kaad::Computation_graph rec;
 
     std::span<float> a_vals;
-    kaad::Node_handle a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
     std::iota(a_vals.begin(), a_vals.end(), 50);
 
-    kaad::Node_handle a_mean = mean(rec, a, 2, true);
-    kaad::Node_handle a_mean2 = mean(rec, a, 1);
-    kaad::Node_handle res = mean(rec, a_mean2);
+    kaad::Node a_mean = mean(rec, a, 2, true);
+    kaad::Node a_mean2 = mean(rec, a, 1);
+    kaad::Node res = mean(rec, a_mean2);
 
     rec.reset();
 

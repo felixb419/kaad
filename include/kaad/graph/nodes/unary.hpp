@@ -10,7 +10,7 @@ namespace kaad {
 
 // forward declarations for friend declaration
 class Computation_graph;
-class Node_handle;
+class Node;
 
 /**
  * @brief A unary operation node in a computation graph.
@@ -90,7 +90,7 @@ template <class Kernel> class Node_unary : public INode {
         }
     }
 
-    friend Node_handle sum(Computation_graph &rec, Node_handle A);
+    friend Node sum(Computation_graph &rec, Node A);
 };
 
 } // namespace kaad

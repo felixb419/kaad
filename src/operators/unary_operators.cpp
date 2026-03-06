@@ -3,7 +3,7 @@
 #include "../../include/kaad/functions/primal.hpp"  // for pointwise, poin...
 #include "../../include/kaad/functions/safe_kernels.hpp" // for safe_Exp, safe_Log
 #include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node_handle
+#include "../../include/kaad/graph/node_handle.hpp"       // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
 #include "../../include/kaad/graph/nodes/unary.hpp"       // for Node_unary
 #include "../../include/kaad/operators/operators.hpp"     // for abs, exp, log
@@ -42,8 +42,7 @@ template <class Kernel> struct UnaryKernels {
  * @param kernels Unary operation and gradient kernels.
  * @return Handle of the newly created unary operation node.
  */
-template <class Kernel>
-Node_handle unOperator(Computation_graph &rec, Node_handle A) {
+template <class Kernel> Node unOperator(Computation_graph &rec, Node A) {
 
     static const UnaryKernels<Kernel> kernels;
 
@@ -56,27 +55,27 @@ Node_handle unOperator(Computation_graph &rec, Node_handle A) {
     return rec.back_handle();
 }
 
-Node_handle negative(Computation_graph &rec, Node_handle A) {
+Node negative(Computation_graph &rec, Node A) {
     return unOperator<Kernels::Neg<Scalar>>(rec, A);
 }
 
-Node_handle square(Computation_graph &rec, Node_handle A) {
+Node square(Computation_graph &rec, Node A) {
     return unOperator<Kernels::Square<Scalar>>(rec, A);
 }
 
-Node_handle sqrt(Computation_graph &rec, Node_handle A) {
+Node sqrt(Computation_graph &rec, Node A) {
     return unOperator<Kernels::safe_Sqrt<Scalar>>(rec, A);
 }
 
-Node_handle log(Computation_graph &rec, Node_handle A) {
+Node log(Computation_graph &rec, Node A) {
     return unOperator<Kernels::safe_Log<Scalar>>(rec, A);
 }
 
-Node_handle exp(Computation_graph &rec, Node_handle A) {
+Node exp(Computation_graph &rec, Node A) {
     return unOperator<Kernels::safe_Exp<Scalar>>(rec, A);
 }
 
-Node_handle abs(Computation_graph &rec, Node_handle A) {
+Node abs(Computation_graph &rec, Node A) {
     return unOperator<Kernels::Abs<Scalar>>(rec, A);
 }
 

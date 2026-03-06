@@ -117,8 +117,8 @@ int main() {
     auto c = rec.add_input_node(std::array{2, 2, 8, 2}, c_vals);
     std::iota(c_vals.begin(), c_vals.end(), 100);
 
-    kaad::Node_handle ab = matmul(rec, a, b);
-    kaad::Node_handle res = matmul(rec, ab, c);
+    kaad::Node ab = matmul(rec, a, b);
+    kaad::Node res = matmul(rec, ab, c);
 
     rec.reset();
 
