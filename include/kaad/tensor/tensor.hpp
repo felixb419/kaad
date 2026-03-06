@@ -248,14 +248,22 @@ class Tensor {
     const_reference back() const noexcept;
 
     /**
-     * @brief Get a pointer to the element array.
-     * @return Pointer to the start of the element array.
+     * @brief Returns a pointer to the underlying contiguous storage.
+     * @warning If the tensor is logically transposed, the logical indexing
+     * order does not match the physical memory layout (use Tensor::begin then).
+     * @return Pointer to the first element in memory.
      */
     pointer data() noexcept;
 
     /**
      * @brief Get a const pointer to the element array.
      * @return Const pointer to the start of the element array.
+     */
+    /**
+     * @brief Returns an immutable pointer to the underlying contiguous storage.
+     * @warning If the tensor is logically transposed, the logical indexing
+     * order does not match the physical memory layout (use Tensor::begin then).
+     * @return Const pointer to the first element in memory.
      */
     const_pointer data() const noexcept;
 
