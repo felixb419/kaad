@@ -44,7 +44,7 @@ class Node {
      * @brief Get immutable value tensor of the node.
      * @return Const reference to the value tensor of the node.
      */
-    const Tensor &value() {
+    const Tensor &value() const {
         if (this->idx() >= this->origin_->nodes.size()) {
             throw argument_error("idx_ of this handle is invalid");
         }
@@ -56,7 +56,7 @@ class Node {
      * @brief Get immutable gradient tensor of the node.
      * @return Const reference to the gradient tensor of the node.
      */
-    const Tensor &gradient() {
+    const Tensor &gradient() const {
         if (this->idx() >= this->origin_->nodes.size()) {
             throw argument_error("idx_ of this handle is invalid");
         }
