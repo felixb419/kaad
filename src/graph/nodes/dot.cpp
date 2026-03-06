@@ -30,10 +30,10 @@ void Node_dot::getGrad() {
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->gradient().data(), lhs_end);
 
-    if (this->lhs->hasInputs()) {
+    if (!this->lhs->isInput()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs()) {
+    if (!this->rhs->isInput()) {
         this->rhs->getGrad();
     }
 }

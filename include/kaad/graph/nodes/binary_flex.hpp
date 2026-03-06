@@ -136,10 +136,10 @@ template <class Kernel> class Node_binary_flex : public INode {
                     lhs_stride.data(), rhs_stride.data(), value_stride.data(),
                     C_offset.data(), value_rank);
 
-        if (this->lhs->hasInputs()) {
+        if (!this->lhs->isInput()) {
             this->lhs->getGrad();
         }
-        if (this->rhs->hasInputs()) {
+        if (!this->rhs->isInput()) {
             this->rhs->getGrad();
         }
     }

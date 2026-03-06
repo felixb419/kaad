@@ -51,7 +51,7 @@ void Node_sum_dim::getGrad() {
               input_stride.data(), value_stride.data(), input_offset.data(),
               value_rank);
 
-    if (this->input->hasInputs()) {
+    if (!this->input->isInput()) {
         this->input->getGrad();
     }
 }

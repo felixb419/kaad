@@ -58,7 +58,7 @@ void Node_mean_dim::getGrad() {
                 input_stride.data(), value_stride.data(), input_offset.data(),
                 input_rank, divisor, input_grad_end);
 
-    if (this->input->hasInputs()) {
+    if (!this->input->isInput()) {
         this->input->getGrad();
     }
 }

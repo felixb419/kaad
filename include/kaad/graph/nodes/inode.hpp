@@ -25,8 +25,8 @@ class INode {
     Tensor value_;    ///< Value computed by this node.
     Tensor gradient_; ///< Gradient associated with this node.
 
-    bool evaluated_ = false; ///< Whether this node is currently evaluated.
-    bool hasInputs_ = false; ///< Whether this node depends on any input nodes.
+    bool evaluated_ = false;     ///< Whether this node is currently evaluated.
+    bool is_input_node_ = false; ///< Whether this node is an input node.
 
     /**
      * @brief Initializes the first input, flags, value and gradient tensors for
@@ -90,7 +90,7 @@ class INode {
      * @ingroup nodes
      * @return True if the node has inputs, False otherwise.
      */
-    bool hasInputs() const noexcept;
+    bool isInput() const noexcept;
 
     /**
      * @brief Resets the value and gradient of the node.

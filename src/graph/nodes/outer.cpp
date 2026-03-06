@@ -68,10 +68,10 @@ void Node_outer::getGrad() {
                 lhs_stride.data(), rhs_stride.data(), strideC.data(),
                 C_offset.data(), C_rank);
 
-    if (this->lhs->hasInputs()) {
+    if (!this->lhs->isInput()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs()) {
+    if (!this->rhs->isInput()) {
         this->rhs->getGrad();
     }
 }

@@ -77,7 +77,7 @@ void Node_slice::getGrad() {
                 input_stride.data(), value_stride.data(), start_offset_a.data(),
                 value_offset.data(), value_rank);
 
-    if (this->input->hasInputs()) {
+    if (!this->input->isInput()) {
         this->input->getGrad();
     }
 }

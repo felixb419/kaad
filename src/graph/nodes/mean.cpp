@@ -28,7 +28,7 @@ void Node_mean::getGrad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_grad_end, divisor);
 
-    if (this->input->hasInputs()) {
+    if (!this->input->isInput()) {
         this->input->getGrad();
     }
 }

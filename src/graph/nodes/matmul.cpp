@@ -94,10 +94,10 @@ void Node_matmul::getGrad() {
                 shared_dim + 1, lhs_stride + 2, rhs_stride + 2,
                 value_stride + 2);
 
-    if (this->lhs->hasInputs()) {
+    if (!this->lhs->isInput()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs()) {
+    if (!this->rhs->isInput()) {
         this->rhs->getGrad();
     }
 }

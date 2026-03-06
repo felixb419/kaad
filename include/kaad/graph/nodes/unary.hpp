@@ -85,7 +85,7 @@ template <class Kernel> class Node_unary : public INode {
         backward_op(this->input->value().data(), this->input->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
 
-        if (this->input->hasInputs()) {
+        if (!this->input->isInput()) {
             this->input->getGrad();
         }
     }

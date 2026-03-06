@@ -87,10 +87,10 @@ template <class Kernel> class Node_binary : public INode {
                     this->rhs->value().data(), this->rhs->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
 
-        if (this->lhs->hasInputs()) {
+        if (!this->lhs->isInput()) {
             this->lhs->getGrad();
         }
-        if (this->rhs->hasInputs()) {
+        if (!this->rhs->isInput()) {
             this->rhs->getGrad();
         }
     }

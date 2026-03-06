@@ -138,10 +138,10 @@ void Node_batch_matmul::getGrad() {
                 value_stride + 1, value_shape_broadcast + 1, lhs_colStride + 1,
                 rhs_rowStride + 1, shared_dim + 1, value_rank);
 
-    if (this->lhs->hasInputs()) {
+    if (!this->lhs->isInput()) {
         this->lhs->getGrad();
     }
-    if (this->rhs->hasInputs()) {
+    if (!this->rhs->isInput()) {
         this->rhs->getGrad();
     }
 }
