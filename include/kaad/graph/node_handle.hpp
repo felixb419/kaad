@@ -41,8 +41,8 @@ class Node {
     }
 
     /**
-     * @brief Get value tensor of the node.
-     * @return Reference to the value tensor of the node.
+     * @brief Get immutable value tensor of the node.
+     * @return Const reference to the value tensor of the node.
      */
     const Tensor &value() {
         if (this->idx() >= this->origin_->nodes.size()) {
@@ -53,8 +53,8 @@ class Node {
     }
 
     /**
-     * @brief Get gradient tensor of the node.
-     * @return Reference to the gradient tensor of the node.
+     * @brief Get immutable gradient tensor of the node.
+     * @return Const reference to the gradient tensor of the node.
      */
     const Tensor &gradient() {
         if (this->idx() >= this->origin_->nodes.size()) {
