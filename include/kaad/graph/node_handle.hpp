@@ -42,7 +42,7 @@ class Node_handle {
     }
 
     /**
-     * @brief Get value of the node.
+     * @brief Get value tensor of the node.
      * @return Reference to the value tensor of the node.
      */
     const Tensor &value() {
@@ -54,7 +54,7 @@ class Node_handle {
     }
 
     /**
-     * @brief Get gradient of the node.
+     * @brief Get gradient tensor of the node.
      * @return Reference to the gradient tensor of the node.
      */
     const Tensor &gradient() {
