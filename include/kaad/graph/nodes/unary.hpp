@@ -9,7 +9,7 @@
 namespace kaad {
 
 // forward declarations for friend declaration
-class Computation_graph;
+class Graph;
 class Node;
 
 /**
@@ -90,7 +90,7 @@ template <class Kernel> class Node_unary : public INode {
         }
     }
 
-    friend Node sum(Computation_graph &rec, Node A);
+    friend Node sum(Graph &rec, Node A);
 };
 
 } // namespace kaad

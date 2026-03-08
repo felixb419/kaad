@@ -14,8 +14,8 @@ namespace kaad {
 namespace Kernels {
 
 template <typename T>
-static constexpr T
-    epsilon = static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
+static constexpr T epsilon =
+    static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
 
 template <typename T>
 static constexpr T max_finite = std::numeric_limits<T>::max();

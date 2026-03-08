@@ -8,7 +8,7 @@
 namespace kaad {
 
 // forward declarations for friend declaration
-class Computation_graph;
+class Graph;
 class Node;
 
 /**
@@ -67,7 +67,7 @@ class Node_dot : public INode {
      */
     void getGrad() override;
 
-    friend Node dot(Computation_graph &rec, Node A, Node B);
+    friend Node dot(Graph &rec, Node A, Node B);
 };
 
 } // namespace kaad

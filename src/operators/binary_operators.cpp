@@ -3,9 +3,9 @@
 #include "../../include/kaad/functions/kernels.hpp" // for Add, Max, Min, Mul
 #include "../../include/kaad/functions/primal.hpp" // for pointwise_fn, flexible
 #include "../../include/kaad/functions/safe_kernels.hpp" // for safe_Div, safe_Pow
-#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node
-#include "../../include/kaad/graph/nodes/binary.hpp"      // for Node_binary
+#include "../../include/kaad/graph/graph.hpp"            // for Graph
+#include "../../include/kaad/graph/node_handle.hpp"      // for Node
+#include "../../include/kaad/graph/nodes/binary.hpp"     // for Node_binary
 #include "../../include/kaad/graph/nodes/binary_flex.hpp" // for Node_binary_flex
 #include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
 #include "../../include/kaad/operators/operators.hpp" // for add, div, max, min
@@ -100,7 +100,7 @@ template <class Kernel> struct BinaryKernels {
  * @return Handle of the newly created binary operation node.
  */
 template <class Kernel>
-Node binOperator(Computation_graph &rec, Node A, Node B, const char *opName) {
+Node binOperator(Graph &rec, Node A, Node B, const char *opName) {
 
     static const BinaryKernels<Kernel> kernels;
     int recLen = rec.nodes.size();
@@ -152,31 +152,31 @@ Node binOperator(Computation_graph &rec, Node A, Node B, const char *opName) {
     return rec.back_handle();
 }
 
-Node add(Computation_graph &rec, Node A, Node B) {
+Node add(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::Add<Scalar>>(rec, A, B, "add");
 }
 
-Node sub(Computation_graph &rec, Node A, Node B) {
+Node sub(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::Sub<Scalar>>(rec, A, B, "sub");
 }
 
-Node mul(Computation_graph &rec, Node A, Node B) {
+Node mul(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::Mul<Scalar>>(rec, A, B, "mul");
 }
 
-Node div(Computation_graph &rec, Node A, Node B) {
+Node div(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::safe_Div<Scalar>>(rec, A, B, "div");
 }
 
-Node pow(Computation_graph &rec, Node A, Node B) {
+Node pow(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::safe_Pow<Scalar>>(rec, A, B, "pow");
 }
 
-Node min(Computation_graph &rec, Node A, Node B) {
+Node min(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::Min<Scalar>>(rec, A, B, "minimum");
 }
 
-Node max(Computation_graph &rec, Node A, Node B) {
+Node max(Graph &rec, Node A, Node B) {
     return binOperator<Kernels::Max<Scalar>>(rec, A, B, "minimum");
 }
 

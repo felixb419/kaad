@@ -281,7 +281,7 @@ class Tensor {
      */
     struct Tensor_view_mut view_mut() noexcept;
 
-    friend class Computation_graph;
+    friend class Graph;
     friend class INode;
 
     template <class Kernel> friend class Node_binary;

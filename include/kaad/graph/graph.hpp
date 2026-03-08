@@ -22,7 +22,7 @@ class Node;
  * This graph stores nodes derived from the INode interface. It supports
  * evaluating node values and computing gradients through backpropagation.
  */
-class Computation_graph {
+class Graph {
   private:
     std::vector<std::unique_ptr<INode>>
         nodes; ///< Holds unique pointers pointing to computation nodes
@@ -109,22 +109,18 @@ class Computation_graph {
     friend class Node;
 
     template <class Kernel>
-    friend Node binOperator(Computation_graph &rec, Node A, Node B,
-                            const char *opName);
-    friend Node dot(Computation_graph &rec, Node A, Node B);
-    friend Node matmul(Computation_graph &rec, Node A, Node B);
-    friend Node mean(Computation_graph &rec, Node A);
-    friend Node mean(Computation_graph &rec, Node A, int dim, bool keep_rank);
-    friend Node outer(Computation_graph &rec, Node A, Node B);
-    friend Node slice(Computation_graph &rec, Node A,
-                      std::initializer_list<int> size,
+    friend Node binOperator(Graph &rec, Node A, Node B, const char *opName);
+    friend Node dot(Graph &rec, Node A, Node B);
+    friend Node matmul(Graph &rec, Node A, Node B);
+    friend Node mean(Graph &rec, Node A);
+    friend Node mean(Graph &rec, Node A, int dim, bool keep_rank);
+    friend Node outer(Graph &rec, Node A, Node B);
+    friend Node slice(Graph &rec, Node A, std::initializer_list<int> size,
                       std::initializer_list<int> offset);
-    friend Node sum(Computation_graph &rec, Node A);
-    friend Node sum(Computation_graph &rec, Node A, int dim, bool keep_rank);
-    friend Node transpose(Computation_graph &rec, Node A,
-                          std::initializer_list<int> perm);
-    template <class Kernel>
-    friend Node unOperator(Computation_graph &rec, Node A);
+    friend Node sum(Graph &rec, Node A);
+    friend Node sum(Graph &rec, Node A, int dim, bool keep_rank);
+    friend Node transpose(Graph &rec, Node A, std::initializer_list<int> perm);
+    template <class Kernel> friend Node unOperator(Graph &rec, Node A);
 };
 
 } // namespace kaad

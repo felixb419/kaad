@@ -1,25 +1,25 @@
-#include "../../include/kaad/exceptions.hpp"              // for make_graph_e...
-#include "../../include/kaad/functions/adjoint.hpp"       // for scalarOut
-#include "../../include/kaad/functions/kernels.hpp"       // for Sum
-#include "../../include/kaad/functions/primal.hpp"        // for scalarOut
-#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_...
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
-#include "../../include/kaad/graph/nodes/sum_dim.hpp"     // for Node_sum_dim
-#include "../../include/kaad/graph/nodes/unary.hpp"       // for Node_unary
-#include "../../include/kaad/operators/operators.hpp"     // for sum
-#include "../../include/kaad/scalar.hpp"                  // for Scalar
-#include "../../include/kaad/tensor/tensor.hpp"           // for Tensor
-#include <algorithm>                                      // for copy
-#include <array>                                          // for array
-#include <cstddef>                                        // for size_t
-#include <memory>                                         // for unique_ptr
-#include <utility>                                        // for move
-#include <vector>                                         // for vector
+#include "../../include/kaad/exceptions.hpp"          // for make_graph_e...
+#include "../../include/kaad/functions/adjoint.hpp"   // for scalarOut
+#include "../../include/kaad/functions/kernels.hpp"   // for Sum
+#include "../../include/kaad/functions/primal.hpp"    // for scalarOut
+#include "../../include/kaad/graph/graph.hpp"         // for Computation_...
+#include "../../include/kaad/graph/node_handle.hpp"   // for Node
+#include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
+#include "../../include/kaad/graph/nodes/sum_dim.hpp" // for Node_sum_dim
+#include "../../include/kaad/graph/nodes/unary.hpp"   // for Node_unary
+#include "../../include/kaad/operators/operators.hpp" // for sum
+#include "../../include/kaad/scalar.hpp"              // for Scalar
+#include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
+#include <algorithm>                                  // for copy
+#include <array>                                      // for array
+#include <cstddef>                                    // for size_t
+#include <memory>                                     // for unique_ptr
+#include <utility>                                    // for move
+#include <vector>                                     // for vector
 
 namespace kaad {
 
-Node sum(Computation_graph &rec, Node A) {
+Node sum(Graph &rec, Node A) {
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();
@@ -38,7 +38,7 @@ Node sum(Computation_graph &rec, Node A) {
     return rec.back_handle();
 }
 
-Node sum(Computation_graph &rec, Node A, int dim, bool keep_rank) {
+Node sum(Graph &rec, Node A, int dim, bool keep_rank) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

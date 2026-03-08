@@ -1,8 +1,8 @@
 #include "../../include/kaad/graph/nodes/matmul.hpp" // for Node_matmul
 #include "../../include/kaad/exceptions.hpp"         // for make_graph_errmsg
 #include "../../include/kaad/graph/common.hpp"       // for combine_matrix
-#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node
+#include "../../include/kaad/graph/graph.hpp"        // for Graph
+#include "../../include/kaad/graph/node_handle.hpp"  // for Node
 #include "../../include/kaad/graph/nodes/batch_matmul.hpp" // for Node_batch_matmul
 #include "../../include/kaad/graph/nodes/inode.hpp"        // for INode
 #include "../../include/kaad/operators/operators.hpp"      // for matmul
@@ -15,7 +15,7 @@
 
 namespace kaad {
 
-Node matmul(Computation_graph &rec, Node A, Node B) {
+Node matmul(Graph &rec, Node A, Node B) {
     int recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);

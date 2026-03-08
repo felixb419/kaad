@@ -1,30 +1,30 @@
 #pragma once
 
-#include "../../../include/kaad/exceptions.hpp" // for argument_error
-#include "../../../include/kaad/graph/computation_graph.hpp" // for computation_graph
-#include <cassert>                                           // for assert
-#include <iostream>                                          // for ostream
-#include <stdint.h>                                          // for uint32_t
+#include "../../../include/kaad/exceptions.hpp"  // for argument_error
+#include "../../../include/kaad/graph/graph.hpp" // for computation_graph
+#include <cassert>                               // for assert
+#include <iostream>                              // for ostream
+#include <stdint.h>                              // for uint32_t
 
 namespace kaad {
-class Computation_graph;
+class Graph;
 
 /**
  * @brief Immutable handle class for a INode.
  */
 class Node {
-    uint32_t idx_;              ///< Index of the node in the Computation_graph.
-    Computation_graph *origin_; ///< Pointer to the correct Computation_graph.
+    uint32_t idx_;  ///< Index of the node in the Graph.
+    Graph *origin_; ///< Pointer to the correct Graph.
 
     /**
      * @brief private constructor
-     * @param idx Index of the node in the Computation_graph.
-     * @param origin Pointer to the Computation_graph.
+     * @param idx Index of the node in the Graph.
+     * @param origin Pointer to the Graph.
      */
-    constexpr explicit Node(uint32_t idx, Computation_graph *origin) noexcept
+    constexpr explicit Node(uint32_t idx, Graph *origin) noexcept
         : idx_(idx), origin_(origin) {}
 
-    friend class Computation_graph;
+    friend class Graph;
 
   public:
     /**
@@ -35,11 +35,9 @@ class Node {
 
     /**
      * @brief Get the origin of the Node.
-     * @return Pointer to the Computation_graph which contains the node.
+     * @return Pointer to the Graph which contains the node.
      */
-    constexpr const Computation_graph *origin() const noexcept {
-        return this->origin_;
-    }
+    constexpr const Graph *origin() const noexcept { return this->origin_; }
 
     /**
      * @brief Returns an immutable pointer to the node.

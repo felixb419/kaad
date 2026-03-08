@@ -1,4 +1,4 @@
-#include "../../include/kaad/graph/computation_graph.hpp"
+#include "../../include/kaad/graph/graph.hpp"
 #include "../../include/kaad/exceptions.hpp"        // for argument_error
 #include "../../include/kaad/graph/node_handle.hpp" // for Node, operator<<
 #include "../../include/kaad/graph/nodes/inode.hpp" // for INode
@@ -13,31 +13,29 @@
 
 namespace kaad {
 
-Node Computation_graph::back_handle() noexcept {
+Node Graph::back_handle() noexcept {
     return Node(this->nodes.size() - 1, this);
 }
 
-INode *Computation_graph::get_node(Node node) {
+INode *Graph::get_node(Node node) {
     if (node.origin_ != this) {
-        throw argument_error(
-            "node does not belong to this instance of Computation_graph");
+        throw argument_error("node does not belong to this instance of Graph");
     }
     if (node.idx_ >= this->nodes.size()) {
         throw argument_error(std::to_string(node.idx_) +
-                             "is not a valid index for this Computation_graph");
+                             "is not a valid index for this Graph");
     }
 
     return this->nodes[node.idx_].get();
 }
 
-Node Computation_graph::add_input_node(std::span<const int> value_shape) {
+Node Graph::add_input_node(std::span<const int> value_shape) {
     this->nodes.push_back(std::make_unique<Node_input>(value_shape));
 
     return Node(this->nodes.size() - 1, this);
 }
 
-std::vector<const Tensor *>
-Computation_graph::evaluate(std::span<const Node> nodes) {
+std::vector<const Tensor *> Graph::evaluate(std::span<const Node> nodes) {
 
     std::vector<const Tensor *> values(nodes.size());
 
@@ -50,14 +48,14 @@ Computation_graph::evaluate(std::span<const Node> nodes) {
     return values;
 }
 
-void Computation_graph::reset() {
+void Graph::reset() {
     for (std::size_t i = 0; i < nodes.size(); i++) {
         nodes[i]->reset();
     }
 }
 
-std::vector<const Tensor *>
-Computation_graph::getGradient(Node output, std::span<const Node> inputs) {
+std::vector<const Tensor *> Graph::getGradient(Node output,
+                                               std::span<const Node> inputs) {
 
     INode *f = this->get_node(output);
     std::fill(f->gradient().elements_.begin(), f->gradient().elements_.end(),
@@ -76,8 +74,8 @@ Computation_graph::getGradient(Node output, std::span<const Node> inputs) {
 
 std::ostream &operator<<(std::ostream &os, Node node) {
     INode *node_ptr = node.origin_->get_node(node);
-    os << node_ptr->node_type() << " at idx " << node.idx()
-       << " of Computation_graph at " << node.origin() << "\n"
+    os << node_ptr->node_type() << " at idx " << node.idx() << " of Graph at "
+       << node.origin() << "\n"
        << "value:\n"
        << node_ptr->value() << "\ngradient:\n"
        << node_ptr->gradient();

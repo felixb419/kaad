@@ -1,20 +1,20 @@
-#include "../../include/kaad/graph/nodes/dot.hpp"   // for Node_dot, dot
-#include "../../include/kaad/exceptions.hpp"        // for make_graph_errmsg
-#include "../../include/kaad/functions/adjoint.hpp" // for scalarDot
-#include "../../include/kaad/functions/primal.hpp"  // for scalarDot
-#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
-#include "../../include/kaad/operators/operators.hpp"     // for dot
-#include "../../include/kaad/tensor/tensor.hpp"           // for Tensor
-#include <algorithm>                                      // for equal
-#include <memory>  // for unique_ptr, mak...
-#include <utility> // for move
-#include <vector>  // for vector
+#include "../../include/kaad/graph/nodes/dot.hpp"     // for Node_dot, dot
+#include "../../include/kaad/exceptions.hpp"          // for make_graph_errmsg
+#include "../../include/kaad/functions/adjoint.hpp"   // for scalarDot
+#include "../../include/kaad/functions/primal.hpp"    // for scalarDot
+#include "../../include/kaad/graph/graph.hpp"         // for Graph
+#include "../../include/kaad/graph/node_handle.hpp"   // for Node
+#include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
+#include "../../include/kaad/operators/operators.hpp" // for dot
+#include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
+#include <algorithm>                                  // for equal
+#include <memory>                                     // for unique_ptr, mak...
+#include <utility>                                    // for move
+#include <vector>                                     // for vector
 
 namespace kaad {
 
-Node dot(Computation_graph &rec, Node A, Node B) {
+Node dot(Graph &rec, Node A, Node B) {
 
     int recLen = rec.nodes.size();
 

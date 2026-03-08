@@ -6,7 +6,7 @@
 
 int main() {
     // Create computation graph.
-    kaad::Computation_graph rec;
+    kaad::Graph rec;
 
     // Add input nodes to the graph.
     auto a = rec.add_input_node(std::array{3, 5});

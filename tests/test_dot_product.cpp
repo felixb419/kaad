@@ -66,7 +66,7 @@ std::array<kaad::Scalar, 1> res_val{14690800.0};
 std::array<kaad::Scalar, 1> res_grad{1.0};
 
 int main() {
-    kaad::Computation_graph rec;
+    kaad::Graph rec;
 
     kaad::Node a = rec.add_input_node(std::array{5});
     std::span<float> a_vals = a.value_elements();

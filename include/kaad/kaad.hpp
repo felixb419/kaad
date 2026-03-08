@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graph/computation_graph.hpp"
+#include "graph/graph.hpp"
 #include "operators/operators.hpp"
 #include "scalar.hpp"
 #include "tensor/tensor.hpp"
@@ -22,7 +22,7 @@
  *
  * ## Getting Started
  * 1. Include the header file: `"kaad.hpp"`.
- * 2. Create a `kaad::Computation_graph` object.
+ * 2. Create a `kaad::Graph` object.
  * 3. Use the `add_input_node` member function to add leaf nodes (which hold
  * value and gradient tensors).
  * 4. Apply 'operators' to add operation nodes to the graph.

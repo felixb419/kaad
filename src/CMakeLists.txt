@@ -18,7 +18,7 @@ add_library(kaad
     ./operators/matmul.cpp
     ./operators/slice.cpp
     ./operators/binary_operators.cpp
-    ./graph/computation_graph.cpp
+    ./graph/graph.cpp
     ./tensor/tensor_view.cpp
     ./tensor/tensor.cpp
     ./exceptions.cpp

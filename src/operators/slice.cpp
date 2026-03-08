@@ -1,22 +1,22 @@
-#include "../../include/kaad/graph/nodes/slice.hpp" // for Node_slice
-#include "../../include/kaad/exceptions.hpp"        // for make_graph_errmsg
-#include "../../include/kaad/graph/computation_graph.hpp" // for Computation_graph
-#include "../../include/kaad/graph/node_handle.hpp"       // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"       // for INode
-#include "../../include/kaad/operators/operators.hpp"     // for slice
-#include "../../include/kaad/tensor/tensor.hpp"           // for Tensor
-#include <algorithm>                                      // for copy, fill
-#include <cstddef>                                        // for size_t
-#include <initializer_list> // for initializer_list
-#include <memory>           // for allocator, uniq...
-#include <span>             // for span
-#include <string>           // for char_traits
-#include <utility>          // for move
-#include <vector>           // for vector
+#include "../../include/kaad/graph/nodes/slice.hpp"   // for Node_slice
+#include "../../include/kaad/exceptions.hpp"          // for make_graph_errmsg
+#include "../../include/kaad/graph/graph.hpp"         // for Graph
+#include "../../include/kaad/graph/node_handle.hpp"   // for Node
+#include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
+#include "../../include/kaad/operators/operators.hpp" // for slice
+#include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
+#include <algorithm>                                  // for copy, fill
+#include <cstddef>                                    // for size_t
+#include <initializer_list>                           // for initializer_list
+#include <memory>                                     // for allocator, uniq...
+#include <span>                                       // for span
+#include <string>                                     // for char_traits
+#include <utility>                                    // for move
+#include <vector>                                     // for vector
 
 namespace kaad {
 
-Node slice(Computation_graph &rec, Node A, std::initializer_list<int> size,
+Node slice(Graph &rec, Node A, std::initializer_list<int> size,
            std::initializer_list<int> offset) {
     int recLen = rec.nodes.size();
 

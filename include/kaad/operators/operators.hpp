@@ -5,7 +5,7 @@
 
 namespace kaad {
 
-class Computation_graph;
+class Graph;
 
 /**
  * @defgroup operators Operators applied to Nodes on a computation graph.
@@ -25,7 +25,7 @@ class Computation_graph;
  * @return A handle of the new node representing the negated tensor,
  *         with the same shape as A.
  */
-Node negative(Computation_graph &rec, Node A);
+Node negative(Graph &rec, Node A);
 
 /**
  * @brief Adds a unary square node (A^2) to the computation graph.
@@ -36,7 +36,7 @@ Node negative(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the element-wise square of A,
  *         with the same shape as the input tensor.
  */
-Node square(Computation_graph &rec, Node A);
+Node square(Graph &rec, Node A);
 
 /**
  * @brief Adds a unary square root node (sqrt(A)) to the computation graph.
@@ -47,7 +47,7 @@ Node square(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the element-wise square root
  * of A, with the same shape as the input tensor.
  */
-Node sqrt(Computation_graph &rec, Node A);
+Node sqrt(Graph &rec, Node A);
 
 /**
  * @brief Adds a unary logarithm node (log(A)) to the computation graph.
@@ -58,7 +58,7 @@ Node sqrt(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the element-wise logarithm
  * of A, with the same shape as the input tensor.
  */
-Node log(Computation_graph &rec, Node A);
+Node log(Graph &rec, Node A);
 
 /**
  * @brief Adds a unary exponent node (e^A) to the computation graph.
@@ -69,7 +69,7 @@ Node log(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the element-wise exponent
  * of A, with the same shape as the input tensor.
  */
-Node exp(Computation_graph &rec, Node A);
+Node exp(Graph &rec, Node A);
 
 /**
  * @brief Adds a unary absolute value node (|A|) to the computation graph.
@@ -80,7 +80,7 @@ Node exp(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the element-wise absolute
  * value of A, with the same shape as the input tensor.
  */
-Node abs(Computation_graph &rec, Node A);
+Node abs(Graph &rec, Node A);
 
 /**
  * @brief Adds a slice node to the computation graph.
@@ -98,7 +98,7 @@ Node abs(Computation_graph &rec, Node A);
  * 0.
  * @return A handle of the new node representing the sliced tensor.
  */
-Node slice(Computation_graph &rec, Node A, std::initializer_list<int> size,
+Node slice(Graph &rec, Node A, std::initializer_list<int> size,
            std::initializer_list<int> offset);
 
 /**
@@ -113,7 +113,7 @@ Node slice(Computation_graph &rec, Node A, std::initializer_list<int> size,
  * @return A handle of the new node representing the scalar sum of all elements
  * of A.
  */
-Node sum(Computation_graph &rec, Node A);
+Node sum(Graph &rec, Node A);
 
 /**
  * @brief Adds a sum node to the computation graph that sums elements along a
@@ -134,7 +134,7 @@ Node sum(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the tensor after summation
  * along the specified dimension.
  */
-Node sum(Computation_graph &rec, Node A, int dim, bool keep_rank = false);
+Node sum(Graph &rec, Node A, int dim, bool keep_rank = false);
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -148,7 +148,7 @@ Node sum(Computation_graph &rec, Node A, int dim, bool keep_rank = false);
  * @return A handle of the new node representing the scalar mean of all
  * elements of A.
  */
-Node mean(Computation_graph &rec, Node A);
+Node mean(Graph &rec, Node A);
 
 /**
  * @brief Adds a mean node to the computation graph that computes the mean along
@@ -170,7 +170,7 @@ Node mean(Computation_graph &rec, Node A);
  * @return A handle of the new node representing the tensor after mean
  * reduction along the specified dimension.
  */
-Node mean(Computation_graph &rec, Node A, int dim, bool keep_rank = 0);
+Node mean(Graph &rec, Node A, int dim, bool keep_rank = 0);
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
@@ -188,8 +188,7 @@ Node mean(Computation_graph &rec, Node A, int dim, bool keep_rank = 0);
  * @return A handle of the new node representing the transposed tensor,
  *         with shape adjusted according to `perm` or full transpose.
  */
-Node transpose(Computation_graph &rec, Node A,
-               std::initializer_list<int> perm = {});
+Node transpose(Graph &rec, Node A, std::initializer_list<int> perm = {});
 
 /**
  * @defgroup binary_operators Binary operators.
@@ -209,7 +208,7 @@ Node transpose(Computation_graph &rec, Node A,
  * @return A handle of the new node representing the element-wise sum of A and
  * B.
  */
-Node add(Computation_graph &rec, Node A, Node B);
+Node add(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary subtratction node (A - B) to the computation graph.
@@ -224,7 +223,7 @@ Node add(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise difference of
  * A and B.
  */
-Node sub(Computation_graph &rec, Node A, Node B);
+Node sub(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary multiplication node (A * B) to the computation
@@ -240,7 +239,7 @@ Node sub(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise product of A
  * and B.
  */
-Node mul(Computation_graph &rec, Node A, Node B);
+Node mul(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary division node (A / B) to the computation graph.
@@ -255,7 +254,7 @@ Node mul(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise quotient of A
  * and B.
  */
-Node div(Computation_graph &rec, Node A, Node B);
+Node div(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary power node (A ^ B) to the computation graph.
@@ -270,7 +269,7 @@ Node div(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise power of A
  * and B.
  */
-Node pow(Computation_graph &rec, Node A, Node B);
+Node pow(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary minimum node (min(A, B)) to the computation graph.
@@ -285,7 +284,7 @@ Node pow(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise minimum of A
  * and B.
  */
-Node min(Computation_graph &rec, Node A, Node B);
+Node min(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary maximum node (max(A, B)) to the computation graph.
@@ -300,7 +299,7 @@ Node min(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise maximum of A
  * and B.
  */
-Node max(Computation_graph &rec, Node A, Node B);
+Node max(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a binary dot product node (A dot B) to the computation graph.
@@ -315,7 +314,7 @@ Node max(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the element-wise dot product
  * of A and B.
  */
-Node dot(Computation_graph &rec, Node A, Node B);
+Node dot(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a matrix multiplication node (A x B) to the computation graph.
@@ -336,7 +335,7 @@ Node dot(Computation_graph &rec, Node A, Node B);
  * @return A handle of the new node representing the matrix (or batched)
  * product of A and B.
  */
-Node matmul(Computation_graph &rec, Node A, Node B);
+Node matmul(Graph &rec, Node A, Node B);
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
@@ -358,6 +357,6 @@ Node matmul(Computation_graph &rec, Node A, Node B);
  * @return A Handle of the new node representing the generalized outer product
  * of A and B.
  */
-Node outer(Computation_graph &rec, Node A, Node B);
+Node outer(Graph &rec, Node A, Node B);
 
 } // namespace kaad

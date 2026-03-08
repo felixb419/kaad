@@ -103,7 +103,7 @@ std::array<kaad::Scalar, 24> res_grad{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
 int main() {
-    kaad::Computation_graph rec;
+    kaad::Graph rec;
 
     auto a = rec.add_input_node(std::array{3, 5});
     std::span<float> a_vals = a.value_elements();

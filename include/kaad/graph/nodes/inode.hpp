@@ -6,7 +6,7 @@
 namespace kaad {
 
 /**
- * @defgroup nodes Nodes that can be added to a @ref Computation_graph.
+ * @defgroup nodes Nodes that can be added to a @ref Graph.
  */
 
 /**
