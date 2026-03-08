@@ -41,28 +41,28 @@ class Node {
     }
 
     /**
-     * @brief Get immutable value tensor of the node.
-     * @return Const reference to the value tensor of the node.
+     * @brief Returns an immutable pointer to the node.
+     * @return Const pointer to the node.
      */
-    const Tensor &value() const {
+    const INode *node() const {
         if (this->idx() >= this->origin_->nodes.size()) {
             throw argument_error("idx_ of this handle is invalid");
         }
 
-        return this->origin_->nodes[this->idx()].get()->value();
+        return this->origin_->nodes[this->idx()].get();
     }
+
+    /**
+     * @brief Get immutable value tensor of the node.
+     * @return Const reference to the value tensor of the node.
+     */
+    const Tensor &value() const { return this->node()->value(); }
 
     /**
      * @brief Get immutable gradient tensor of the node.
      * @return Const reference to the gradient tensor of the node.
      */
-    const Tensor &gradient() const {
-        if (this->idx() >= this->origin_->nodes.size()) {
-            throw argument_error("idx_ of this handle is invalid");
-        }
-
-        return this->origin_->nodes[this->idx()].get()->gradient();
-    }
+    const Tensor &gradient() const { return this->node()->gradient(); }
 
     friend constexpr auto operator<=>(Node, Node) = default;
     friend std::ostream &operator<<(std::ostream &os, Node node);
