@@ -22,8 +22,10 @@ class Node_input : public INode {
      * @brief Constructs a leaf node holding a constant value.
      * @ingroup nodes
      * @param tensor The tensor value to store.
+     * @param label Label string for the node.
      */
-    Node_input(std::span<const int> value_shape) : INode(value_shape, true) {}
+    Node_input(std::span<const int> value_shape, const char *label = "")
+        : INode(value_shape, true, label) {}
 
     /**
      * @brief Returns the type of the node as a string.

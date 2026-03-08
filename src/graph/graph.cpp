@@ -29,8 +29,9 @@ INode *Graph::get_node(Node node) {
     return this->nodes[node.idx_].get();
 }
 
-Node Graph::add_input_node(std::span<const int> value_shape) {
-    this->nodes.push_back(std::make_unique<Node_input>(value_shape));
+Node Graph::add_input_node(std::span<const int> value_shape,
+                           const char *label) {
+    this->nodes.push_back(std::make_unique<Node_input>(value_shape, label));
 
     return Node(this->nodes.size() - 1, this);
 }

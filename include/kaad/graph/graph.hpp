@@ -50,10 +50,12 @@ class Graph {
      * Creates a Tensor using the given shape, wraps it in a InputNode, and
      * stores the node as a std::unique_ptr in the `nodes` container.
      *
-     * @param[in] value_shape Shape of the tensor of the input node.
+     * @param value_shape Shape of the tensor of the input node.
+     * @param label Label string for the node.
      * @return A handle of the newly created InputNode.
      */
-    Node add_input_node(std::span<const int> value_shape);
+    Node add_input_node(std::span<const int> value_shape,
+                        const char *label = "");
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.
