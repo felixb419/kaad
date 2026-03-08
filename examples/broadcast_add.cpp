@@ -9,20 +9,21 @@ int main() {
     kaad::Computation_graph rec;
 
     // Add input nodes to the graph.
-    std::span<float> a_vals; // span to represent the element array of a
-    auto a = rec.add_input_node(std::array{3, 2}, a_vals);
+    auto a = rec.add_input_node(std::array{3, 2});
+    std::span<float> a_vals =
+        a.value_elements(); // span to represent the element array of a
     std::fill(a_vals.begin(), a_vals.end(), 10);
 
-    std::span<float> b_vals;
-    auto b = rec.add_input_node(std::array{3, 2}, b_vals);
+    auto b = rec.add_input_node(std::array{3, 2});
+    std::span<float> b_vals = b.value_elements();
     std::fill(b_vals.begin(), b_vals.end(), 30);
 
-    std::span<float> c_vals;
-    auto c = rec.add_input_node(std::array{1}, c_vals);
+    auto c = rec.add_input_node(std::array{1});
+    std::span<float> c_vals = c.value_elements();
     std::fill(c_vals.begin(), c_vals.end(), 50);
 
-    std::span<float> d_vals;
-    auto d = rec.add_input_node(std::array{2, 3, 1}, d_vals);
+    auto d = rec.add_input_node(std::array{2, 3, 1});
+    std::span<float> d_vals = d.value_elements();
     std::fill(d_vals.begin(), d_vals.end(), 20);
 
     // Add computation nodes to graph via operators.

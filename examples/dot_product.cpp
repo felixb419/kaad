@@ -9,16 +9,17 @@ int main() {
     kaad::Computation_graph rec;
 
     // Add input nodes to the graph.
-    std::span<float> a_vals; // Add input nodes to the graph
-    auto a = rec.add_input_node(std::array{5}, a_vals);
+    auto a = rec.add_input_node(std::array{5});
+    std::span<float> a_vals =
+        a.value_elements(); // Add input nodes to the graph
     std::fill(a_vals.begin(), a_vals.end(), 10);
 
-    std::span<float> b_vals;
-    auto b = rec.add_input_node(std::array{5}, b_vals);
+    auto b = rec.add_input_node(std::array{5});
+    std::span<float> b_vals = b.value_elements();
     std::fill(b_vals.begin(), b_vals.end(), 50);
 
-    std::span<float> c_vals;
-    auto c = rec.add_input_node(std::array{5}, c_vals);
+    auto c = rec.add_input_node(std::array{5});
+    std::span<float> c_vals = c.value_elements();
     std::fill(c_vals.begin(), c_vals.end(), 20);
 
     // Add computation nodes to graph via operators.

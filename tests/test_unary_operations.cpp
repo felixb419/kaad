@@ -126,8 +126,8 @@ int main() {
 
     kaad::Computation_graph rec;
 
-    std::span<float> a_vals;
-    kaad::Node a = rec.add_input_node(std::array{5, 2, 5, 10}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{5, 2, 5, 10});
+    std::span<float> a_vals = a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 250);
 
     kaad::Node a_slice = kaad::slice(rec, a, {2, 4, 3}, {1, 5});

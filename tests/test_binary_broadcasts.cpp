@@ -73,20 +73,20 @@ std::array<kaad::Scalar, 12> res_grad{1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Computation_graph rec;
 
-    std::span<float> a_vals;
-    kaad::Node a = rec.add_input_node(std::array{3, 2}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{3, 2});
+    std::span<float> a_vals = a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 200);
 
-    std::span<float> b_vals;
-    kaad::Node b = rec.add_input_node(std::array{3, 2}, b_vals);
+    kaad::Node b = rec.add_input_node(std::array{3, 2});
+    std::span<float> b_vals = b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 90);
 
-    std::span<float> c_vals;
-    kaad::Node c = rec.add_input_node(std::array{1}, c_vals);
+    kaad::Node c = rec.add_input_node(std::array{1});
+    std::span<float> c_vals = c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 30);
 
-    std::span<float> d_vals;
-    kaad::Node d = rec.add_input_node(std::array{2, 3, 1}, d_vals);
+    kaad::Node d = rec.add_input_node(std::array{2, 3, 1});
+    std::span<float> d_vals = d.value_elements();
     std::iota(d_vals.begin(), d_vals.end(), 0);
 
     kaad::Node ab = add(rec, a, b);

@@ -1,6 +1,5 @@
 #include "../../include/kaad/graph/computation_graph.hpp"
-#include "../../include/kaad/exceptions.hpp" // for argument_error
-#include "../../include/kaad/graph/computation_graph.hpp"
+#include "../../include/kaad/exceptions.hpp"        // for argument_error
 #include "../../include/kaad/graph/node_handle.hpp" // for Node, operator<<
 #include "../../include/kaad/graph/nodes/inode.hpp" // for INode
 #include "../../include/kaad/graph/nodes/input.hpp" // for Node_input
@@ -35,13 +34,8 @@ const INode *Computation_graph::get_node(Node node) const {
     return this->nodes[node.idx_].get();
 }
 
-Node Computation_graph::add_input_node(std::span<const int> value_shape,
-                                       std::span<Scalar> &node_value_elements) {
+Node Computation_graph::add_input_node(std::span<const int> value_shape) {
     this->nodes.push_back(std::make_unique<Node_input>(value_shape));
-
-    Tensor &Node_value = nodes.back()->value();
-    node_value_elements = std::span<Scalar>(
-        Node_value.data(), Node_value.data() + Node_value.size());
 
     return Node(this->nodes.size() - 1, this);
 }

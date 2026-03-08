@@ -9,8 +9,9 @@ int main() {
     kaad::Computation_graph rec;
 
     // Add input nodes to the graph.
-    std::span<float> a_vals; // span to represent the element array of a
-    kaad::Node a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{3, 5, 2});
+    std::span<float> a_vals =
+        a.value_elements(); // span to represent the element array of a
     std::iota(a_vals.begin(), a_vals.end(), 0);
 
     // Add computation nodes to graph via operators.

@@ -105,16 +105,16 @@ std::array<kaad::Scalar, 24> res_grad{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Computation_graph rec;
 
-    std::span<float> a_vals;
-    auto a = rec.add_input_node(std::array{3, 5}, a_vals);
+    auto a = rec.add_input_node(std::array{3, 5});
+    std::span<float> a_vals = a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 200);
 
-    std::span<float> b_vals;
-    auto b = rec.add_input_node(std::array{5, 8}, b_vals);
+    auto b = rec.add_input_node(std::array{5, 8});
+    std::span<float> b_vals = b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 900);
 
-    std::span<float> c_vals;
-    auto c = rec.add_input_node(std::array{2, 2, 8, 2}, c_vals);
+    auto c = rec.add_input_node(std::array{2, 2, 8, 2});
+    std::span<float> c_vals = c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 100);
 
     kaad::Node ab = matmul(rec, a, b);

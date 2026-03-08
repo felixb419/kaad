@@ -61,8 +61,8 @@ std::array<kaad::Scalar, 30> res_grad{
 int main() {
     kaad::Computation_graph rec;
 
-    std::span<float> a_vals;
-    kaad::Node a = rec.add_input_node(std::array{3, 5, 2}, a_vals);
+    kaad::Node a = rec.add_input_node(std::array{3, 5, 2});
+    std::span<float> a_vals = a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 32);
 
     kaad::Node res = transpose(rec, a);
