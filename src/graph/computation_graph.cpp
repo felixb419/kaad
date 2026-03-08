@@ -18,10 +18,6 @@ Node Computation_graph::back_handle() noexcept {
 }
 
 INode *Computation_graph::get_node(Node node) {
-    return const_cast<INode *>(std::as_const(*this).get_node(node));
-}
-
-const INode *Computation_graph::get_node(Node node) const {
     if (node.origin_ != this) {
         throw argument_error(
             "node does not belong to this instance of Computation_graph");

@@ -44,15 +44,6 @@ class Computation_graph {
 
   public:
     /**
-     * @brief Returns a const pointer to a node handle.
-     * @warning Will throw argument_error if @p node doesnt refer to
-     * correct graph.
-     * @param node Node handle of the relevant node.
-     * @return Immutable pointer to the Node.
-     */
-    const INode *get_node(Node node) const;
-
-    /**
      * @brief Constructs an evaluated node with no inputs and adds it to the
      * graph.
      *

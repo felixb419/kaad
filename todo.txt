@@ -36,8 +36,6 @@ LATER:
 FIX:
 REFACTOR:
     (?) put reset, evaluate and getGradient into single function
-    make add_input_node take Tensor&&
-    remove get_node
 FEAT:
     (?) label member for nodes
 PERF:
