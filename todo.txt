@@ -26,23 +26,23 @@ FIX:
 REFACTOR:
 FEAT:
 PERF:
-    make Tensor variant with compile time shape
 DOC:
 CHORE:
 LATER:
+    make Tensor variant with compile time shape
 
 
 [ GRAPH ]
 FIX:
 REFACTOR:
-    (?) put reset, evaluate and getGradient into single function
 FEAT:
-    (?) label member for nodes
 PERF:
-    make stride function transpose dimensions so biggest is highest
 DOC:
 CHORE:
 LATER:
+    make stride function transpose dimensions so biggest is highest
+    (?) label member for computation nodes
+    (?) put reset, evaluate and getGradient into single function
 
 
 [ FUNCTIONS ]
@@ -73,8 +73,8 @@ LATER:
 FIX:
 REFACTOR:
 FEAT:
-    (?) more example programs
 PERF:
 DOC:
 CHORE:
 LATER:
+    (?) more example programs

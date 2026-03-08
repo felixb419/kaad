@@ -25,6 +25,8 @@ class INode {
     Tensor value_;    ///< Value computed by this node.
     Tensor gradient_; ///< Gradient associated with this node.
 
+    const char *label_; ///< User set name of the node.
+
     bool evaluated_ = false;     ///< Whether this node is currently evaluated.
     bool is_input_node_ = false; ///< Whether this node is an input node.
 
@@ -32,13 +34,14 @@ class INode {
      * @brief Initializes the first input, flags, value and gradient tensors for
      * a node.
      * @ingroup nodes
+     * @param label Label string for the node.
      * @param value_shape Shape of the value and gradient tensor.
      * @param is_input_node Flag indicating wheter it is an input node.
      * @param value_stride Stride array of the value tensor (can be omitted if
      * value is not transposed).
      */
     INode(std::span<const int> value_shape, bool is_input_node,
-          std::span<const int> value_stride = {});
+          const char *label = "", std::span<const int> value_stride = {});
 
   public:
     /// Virtual destructor for polymorphic deletion
@@ -49,6 +52,12 @@ class INode {
      * @ingroup nodes
      */
     virtual const char *node_type() const noexcept = 0;
+
+    /**
+     * @brief Get label of the node.
+     * @return Pointer to the label string.
+     */
+    const char *label() { return this->label_; }
 
     /**
      * @brief Get a refernce to the value tensor.

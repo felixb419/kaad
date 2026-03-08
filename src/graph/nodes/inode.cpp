@@ -7,8 +7,8 @@
 namespace kaad {
 
 INode::INode(std::span<const int> value_shape, bool is_input_node,
-             std::span<const int> value_stride)
-    : evaluated_(is_input_node), is_input_node_(is_input_node) {
+             const char *label, std::span<const int> value_stride)
+    : label_(label), evaluated_(is_input_node), is_input_node_(is_input_node) {
 
     // if @p value_stride is given its used to construct value_
     if (value_stride.size() != 0) {
