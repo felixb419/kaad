@@ -224,7 +224,7 @@ Tensor::iterator Tensor::end() {
 
     if (this->rank() == 0) {
 
-        return iterator(*this, std::move(std::vector<int>{0}));
+        return iterator(*this, std::vector<int>{0});
     } else {
 
         std::vector<int> cords(this->shape_);
@@ -240,7 +240,7 @@ Tensor::iterator Tensor::end() {
 Tensor::const_iterator Tensor::end() const {
     if (this->rank() == 0) {
 
-        return const_iterator(*this, std::move(std::vector<int>{0}));
+        return const_iterator(*this, std::vector<int>{0});
     } else {
 
         std::vector<int> cords(this->shape_);
