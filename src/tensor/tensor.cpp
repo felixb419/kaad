@@ -282,16 +282,20 @@ struct Tensor_view_mut Tensor::view_mut() noexcept {
 }
 
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
-    os << "shape: (" << tensor.shape()[0];
-    for (Tensor::size_type i = 1; i < tensor.rank(); i++) {
-        os << ", " << tensor.shape()[i];
+
+    os << "shape: (";
+    if (tensor.shape().size() != 0) {
+
+        os << tensor.shape()[0];
+        for (Tensor::size_type i = 1; i < tensor.rank(); i++) {
+            os << ", " << tensor.shape()[i];
+        }
     }
-    os << ")"
-       << "\n";
+    os << ")\n";
 
     os << "elements: ";
 
-    if (tensor.rank() == 0 || tensor.size() == 0) {
+    if (tensor.size() == 0) {
         os << "[]";
     } else {
         os << "\n";
