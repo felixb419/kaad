@@ -8,7 +8,8 @@ namespace kaad {
 
 INode::INode(std::span<const int> value_shape, bool is_input_node,
              const char *label, std::span<const int> value_stride)
-    : label_(label), evaluated_(is_input_node), is_input_node_(is_input_node) {
+    : gradient_(value_shape), label_(label), evaluated_(is_input_node),
+      is_input_node_(is_input_node) {
 
     // if @p value_stride is given its used to construct value_
     if (value_stride.size() != 0) {
@@ -16,12 +17,6 @@ INode::INode(std::span<const int> value_shape, bool is_input_node,
     } else {
         this->value_ = Tensor(value_shape);
     }
-
-    if (!this->is_input_node_) {
-        std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
-    }
-
-    this->gradient_ = Tensor::zeros(value_shape);
 }
 
 Tensor &INode::value() noexcept { return this->value_; }
