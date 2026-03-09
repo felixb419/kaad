@@ -38,10 +38,10 @@ Node matmul(Graph &rec, Node A, Node B) {
 
     if (newLen == 2) {
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_matmul>(A_ptr, B_ptr, newShape)));
+            std::make_unique<Node_matmul>(A_ptr, B_ptr, newShape));
     } else {
-        rec.nodes.push_back(std::move(
-            std::make_unique<Node_batch_matmul>(A_ptr, B_ptr, newShape)));
+        rec.nodes.push_back(
+            std::make_unique<Node_batch_matmul>(A_ptr, B_ptr, newShape));
     }
 
     return rec.back_handle();

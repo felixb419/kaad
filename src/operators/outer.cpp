@@ -25,8 +25,7 @@ Node outer(Graph &rec, Node A, Node B) {
     std::copy(B_val.shape().begin(), B_val.shape().end(),
               newShape.begin() + A_val.rank());
 
-    rec.nodes.push_back(
-        std::move(std::make_unique<Node_outer>(A_ptr, B_ptr, newShape)));
+    rec.nodes.push_back(std::make_unique<Node_outer>(A_ptr, B_ptr, newShape));
 
     return rec.back_handle();
 }

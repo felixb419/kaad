@@ -64,7 +64,7 @@ Node transpose(Graph &rec, Node A, std::initializer_list<int> perm) {
     }
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_transp>(A_ptr, shape_T, stride_T)));
+        std::make_unique<Node_transp>(A_ptr, shape_T, stride_T));
 
     return rec.back_handle();
 }

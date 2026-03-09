@@ -30,13 +30,11 @@ Node dot(Graph &rec, Node A, Node B) {
 
         if (B_scalar) {
 
-            rec.nodes.push_back(
-                std::move(std::make_unique<Node_dot>(A_ptr, B_ptr)));
+            rec.nodes.push_back(std::make_unique<Node_dot>(A_ptr, B_ptr));
 
         } else if (A_scalar) {
 
-            rec.nodes.push_back(
-                std::move(std::make_unique<Node_dot>(B_ptr, A_ptr)));
+            rec.nodes.push_back(std::make_unique<Node_dot>(B_ptr, A_ptr));
         }
 
         // override functions to ScalarDot
@@ -49,8 +47,7 @@ Node dot(Graph &rec, Node A, Node B) {
                std::equal(A_val.shape().begin(), A_val.shape().end(),
                           B_val.shape().begin())) {
 
-        rec.nodes.push_back(
-            std::move(std::make_unique<Node_dot>(A_ptr, B_ptr)));
+        rec.nodes.push_back(std::make_unique<Node_dot>(A_ptr, B_ptr));
 
     } else {
         throw shape_error(make_graph_errmsg(

@@ -73,8 +73,8 @@ Node slice(Graph &rec, Node A, std::initializer_list<int> size,
     std::vector<int> newShape(newLen);
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 
-    rec.nodes.push_back(std::move(
-        std::make_unique<Node_slice>(A_ptr, offset_owned.data(), newShape)));
+    rec.nodes.push_back(
+        std::make_unique<Node_slice>(A_ptr, offset_owned.data(), newShape));
     return rec.back_handle();
 }
 
