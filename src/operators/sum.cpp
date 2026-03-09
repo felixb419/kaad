@@ -24,7 +24,7 @@ Node sum(Graph &rec, Node A) {
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();
 
-    using Kernel = class Kernels::Sum<Scalar>;
+    using Kernel = struct Kernels::Sum<Scalar>;
     functions::primal::unary::pointwise_fn<Kernel> op =
         functions::primal::unary::scalarOut<Kernel>;
     functions::adjoint::unary::pointwise_fn<Kernel> grad =
