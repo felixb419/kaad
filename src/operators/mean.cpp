@@ -22,7 +22,7 @@ Node mean(Graph &rec, Node A) {
 }
 
 Node mean(Graph &rec, Node A, int dim, bool keep_rank) {
-    int recLen = rec.nodes.size();
+    std::size_t recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();

@@ -36,10 +36,10 @@ static inline bool combine_flexible(const int *shape1, std::size_t rank1,
                                     const int *shape2, std::size_t rank2,
                                     int *newShape,
                                     std::size_t newLen) noexcept {
-    int ind = newLen - 1;
+    int ind = static_cast<int>(newLen) - 1;
     for (std::size_t i = 1; i <= newLen; i++, ind--) {
-        int ind1 = rank1 - i;
-        int ind2 = rank2 - i;
+        int ind1 = static_cast<int>(rank1 - i);
+        int ind2 = static_cast<int>(rank2 - i);
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 &&
                 shape2[ind2] != 1) {
@@ -103,7 +103,7 @@ template <class Kernel>
 Node binOperator(Graph &rec, Node A, Node B, const char *opName) {
 
     static const BinaryKernels<Kernel> kernels;
-    int recLen = rec.nodes.size();
+    std::size_t recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     INode *B_ptr = rec.get_node(B);

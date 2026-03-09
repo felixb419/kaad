@@ -16,7 +16,7 @@ namespace kaad {
 
 Node dot(Graph &rec, Node A, Node B) {
 
-    int recLen = rec.nodes.size();
+    std::size_t recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     INode *B_ptr = rec.get_node(B);

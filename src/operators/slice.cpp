@@ -18,7 +18,7 @@ namespace kaad {
 
 Node slice(Graph &rec, Node A, std::initializer_list<int> size,
            std::initializer_list<int> offset) {
-    int recLen = rec.nodes.size();
+    std::size_t recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();
@@ -38,7 +38,7 @@ Node slice(Graph &rec, Node A, std::initializer_list<int> size,
             {{"offset", offset_span}, {"A.shape", A_val.shape()}}));
     }
 
-    int size_diff = A_val.rank() - size.size();
+    int size_diff = static_cast<int>(A_val.rank() - size.size());
     std::vector<int> size_owned(A_val.rank());
 
     // if length of size is smaller than rank of A, the left out dimensions stay
@@ -49,7 +49,7 @@ Node slice(Graph &rec, Node A, std::initializer_list<int> size,
 
     // if length of offset is smaller than rank of A, the left out offsets are
     // set to 0.
-    int offset_diff = A_val.rank() - offset.size();
+    int offset_diff = static_cast<int>(A_val.rank() - offset.size());
     std::vector<int> offset_owned(A_val.rank());
     std::fill(offset_owned.begin(), offset_owned.begin() + offset_diff, 0);
     std::copy(offset.begin(), offset.end(), offset_owned.begin() + offset_diff);

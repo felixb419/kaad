@@ -32,13 +32,14 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
     res_stride = new int[D];
 
     int idx, idxA, idxB, idxC;
-    for (std::size_t i = 1; i <= D; i++) {
-        idx = D - i;
-        idxA = lhs.rank - i;
+    int rank = static_cast<int>(D);
+    for (int i = 1; i <= rank; i++) {
+        idx = rank - i;
+        idxA = static_cast<int>(lhs.rank) - i;
         lhs_stride[idx] = idxA >= 0 ? lhs.stride[idxA] : 0;
-        idxB = rhs.rank - i;
+        idxB = static_cast<int>(rhs.rank) - i;
         rhs_stride[idx] = idxB >= 0 ? rhs.stride[idxB] : 0;
-        idxC = res.rank - i;
+        idxC = static_cast<int>(res.rank) - i;
         res_stride[idx] = idxC >= 0 ? res.stride[idxC] : 0;
     }
 

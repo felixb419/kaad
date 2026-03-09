@@ -15,7 +15,7 @@ void Node_mean_dim::metadata(int dim) {
     Tensor &value = this->value();
     Tensor &input_grad = this->input->gradient();
 
-    this->divisor = input.shape()[dim];
+    this->divisor = static_cast<Scalar>(input.shape()[dim]);
     this->value_end = value.data() + value.size();
     this->input_grad_end = input_grad.data() + input_grad.size();
 

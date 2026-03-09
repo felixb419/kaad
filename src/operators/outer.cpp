@@ -23,7 +23,7 @@ Node outer(Graph &rec, Node A, Node B) {
     std::vector<int> newShape(newLen);
     std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());
     std::copy(B_val.shape().begin(), B_val.shape().end(),
-              newShape.begin() + A_val.rank());
+              newShape.begin() + static_cast<int>(A_val.rank()));
 
     rec.nodes.push_back(std::make_unique<Node_outer>(A_ptr, B_ptr, newShape));
 

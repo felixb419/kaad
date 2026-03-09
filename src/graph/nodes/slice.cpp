@@ -19,11 +19,11 @@ void Node_slice::metadata(const int *offset_arr) {
 
     int idx, input_idx, value_dix;
     for (std::size_t i = 1; i <= this->value_rank; i++) {
-        idx = this->value_rank - i;
-        input_idx = input.rank() - i;
+        idx = static_cast<int>(this->value_rank - i);
+        input_idx = static_cast<int>(input.rank() - i);
         this->input_stride[idx] =
             input_idx >= 0 ? input.stride()[input_idx] : 0;
-        value_dix = value.rank() - i;
+        value_dix = static_cast<int>(value.rank() - i);
         this->value_stride[idx] =
             value_dix >= 0 ? value.stride()[value_dix] : 0;
         // make sure value_stride[idx] is 1 instead of 0 if value.shape[idx] is
@@ -35,7 +35,8 @@ void Node_slice::metadata(const int *offset_arr) {
 
     this->value_offset.resize(this->value_rank);
     for (std::size_t i = 0; i < this->value_rank; i++) {
-        this->value_offset[i] = value.shape()[i] * this->value_stride[i];
+        this->value_offset[i] =
+            static_cast<int>(value.shape()[i] * this->value_stride[i]);
     }
 
     this->start_offset_a.resize(input.rank());

@@ -28,7 +28,8 @@ class shape_error : public kaad_error {
 };
 
 std::string make_graph_errmsg(
-    const char *err_type, int graph_idx, const char *op_name, const char *msg,
+    const char *err_type, std::size_t graph_idx, const char *op_name,
+    const char *msg,
     std::initializer_list<std::pair<const char *, std::span<const int>>>
         arrays = std::initializer_list<
             std::pair<const char *, std::span<const int>>>{},

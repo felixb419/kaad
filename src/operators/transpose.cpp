@@ -14,7 +14,7 @@
 namespace kaad {
 
 Node transpose(Graph &rec, Node A, std::initializer_list<int> perm) {
-    int recLen = rec.nodes.size();
+    std::size_t recLen = rec.nodes.size();
 
     INode *A_ptr = rec.get_node(A);
     Tensor &A_val = A_ptr->value();

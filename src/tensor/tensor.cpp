@@ -23,7 +23,7 @@ std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
     }
 
     std::vector<int> stride(shape.size());
-    int i = shape.size() - 1;
+    int i = static_cast<int>(shape.size()) - 1;
 
     stride[i--] = 1;
 

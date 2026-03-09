@@ -28,7 +28,8 @@ void Node_outer::metadata() {
 
     this->C_offset.resize(this->C_rank);
     for (std::size_t i = 0; i < this->C_rank; i++) {
-        this->C_offset[i] = C.shape()[i] * this->strideC[i];
+        this->C_offset[i] =
+            static_cast<std::size_t>(C.shape()[i]) * this->strideC[i];
     }
 
     // assign compile-time recursive function

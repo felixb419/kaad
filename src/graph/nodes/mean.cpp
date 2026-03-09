@@ -9,7 +9,7 @@ Node_mean::Node_mean(INode *input_ptr)
     this->input_end = input_ptr->value().data() + input_ptr->value().size();
     this->input_grad_end =
         input_ptr->gradient().data() + input_ptr->gradient().size();
-    this->divisor = input_ptr->value().size();
+    this->divisor = static_cast<Scalar>(input_ptr->value().size());
 }
 
 const char *Node_mean::node_type() const noexcept { return "Node_mean"; }

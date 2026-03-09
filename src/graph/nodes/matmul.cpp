@@ -22,7 +22,7 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
     for (int i = 1; i <= 2; i++) {
         idx = 2 - i;
 
-        value_idx = value.rank - i;
+        value_idx = static_cast<int>(value.rank) - i;
         value_prev = value_offset;
         value_offset += ((value_idx >= 0 ? value.shape[value_idx] : i) - 1) *
                         value_stride[idx];
