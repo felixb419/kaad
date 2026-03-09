@@ -36,9 +36,8 @@ class Node_mean : public INode {
      * @brief Constructs a mean node.
      * @ingroup nodes
      * @param input_ptr Pointer to the input node.
-     * @param value_shape Shape of the value and gradient tensors.
      */
-    Node_mean(INode *input_ptr, std::span<const int> value_shape);
+    Node_mean(INode *input_ptr);
 
     /**
      * @brief Returns the type of the node as a string.

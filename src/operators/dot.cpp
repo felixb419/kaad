@@ -23,8 +23,8 @@ Node dot(Graph &rec, Node A, Node B) {
     Tensor &A_val = A_ptr->value();
     Tensor &B_val = B_ptr->value();
 
-    bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
-    bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;
+    bool A_scalar = A_val.size() == 1;
+    bool B_scalar = B_val.size() == 1;
 
     if (A_scalar || B_scalar) {
 

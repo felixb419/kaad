@@ -61,7 +61,7 @@ std::array c_shape{5};
 std::array<kaad::Scalar, 5> c_val{150.0, 151.0, 152.0, 153.0, 154.0};
 std::array<kaad::Scalar, 5> c_grad{19330.0, 19330.0, 19330.0, 19330.0, 19330.0};
 
-std::array res_shape{1};
+std::array<int, 0> res_shape{};
 std::array<kaad::Scalar, 1> res_val{14690800.0};
 std::array<kaad::Scalar, 1> res_grad{1.0};
 

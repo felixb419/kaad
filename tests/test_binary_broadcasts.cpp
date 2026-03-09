@@ -31,7 +31,7 @@ def print_all(label, val, grad):
 
 a = tf.Variable(get_data([3, 2], 200))
 b = tf.Variable(get_data([3, 2], 90))
-c = tf.Variable(get_data([1], 30))
+c = tf.Variable(get_data([], 30))
 d = tf.Variable(get_data([2, 3, 1], 0))
 
 with tf.GradientTape() as tape:
@@ -56,7 +56,7 @@ std::array b_shape{3, 2};
 std::array<kaad::Scalar, 6> b_val{90.0, 91.0, 92.0, 93.0, 94.0, 95.0};
 std::array<kaad::Scalar, 6> b_grad{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array c_shape{1};
+std::array<int, 0> c_shape{};
 std::array<kaad::Scalar, 1> c_val{30.0};
 std::array<kaad::Scalar, 1> c_grad{12.0};
 
@@ -81,7 +81,7 @@ int main() {
     std::span<float> b_vals = b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 90);
 
-    kaad::Node c = rec.add_input_node(std::array{1});
+    kaad::Node c = rec.add_input_node(std::array<int, 0>{});
     std::span<float> c_vals = c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 30);
 

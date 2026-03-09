@@ -4,8 +4,8 @@
 
 namespace kaad {
 
-Node_mean::Node_mean(INode *input_ptr, std::span<const int> value_shape)
-    : INode(value_shape, false), input(input_ptr) {
+Node_mean::Node_mean(INode *input_ptr)
+    : INode(std::array<int, 0>{}, false), input(input_ptr) {
     this->input_end = input_ptr->value().data() + input_ptr->value().size();
     this->input_grad_end =
         input_ptr->gradient().data() + input_ptr->gradient().size();

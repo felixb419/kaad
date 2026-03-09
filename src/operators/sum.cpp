@@ -30,8 +30,8 @@ Node sum(Graph &rec, Node A) {
     functions::adjoint::unary::pointwise_fn<Kernel> grad =
         functions::adjoint::unary::scalarOut<Kernel>;
 
-    rec.nodes.push_back(std::move(
-        std::make_unique<Node_unary<Kernel>>(op, grad, A_ptr, std::array{1})));
+    rec.nodes.push_back(std::move(std::make_unique<Node_unary<Kernel>>(
+        op, grad, A_ptr, std::array<int, 0>{})));
     static_cast<Node_unary<Kernel> *>(rec.nodes.back().get())->end =
         A_val.data() + A_val.size(); // override end from constructor
 

@@ -61,7 +61,7 @@ std::array<kaad::Scalar, 30> a_grad{
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214,
     0.03333333507180214, 0.03333333507180214, 0.03333333507180214};
 
-std::array res_shape{1}; // tensorflow actually outputs 0-rank
+std::array<int, 0> res_shape{};
 std::array<kaad::Scalar, 1> res_val{64.5};
 std::array<kaad::Scalar, 1> res_grad{1.0};
 

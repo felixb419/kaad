@@ -18,7 +18,7 @@ namespace kaad {
 Node mean(Graph &rec, Node A) {
 
     rec.nodes.push_back(
-        std::move(std::make_unique<Node_mean>(rec.get_node(A), std::array{1})));
+        std::move(std::make_unique<Node_mean>(rec.get_node(A))));
     return rec.back_handle();
 }
 

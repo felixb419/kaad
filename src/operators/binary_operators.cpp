@@ -110,8 +110,8 @@ Node binOperator(Graph &rec, Node A, Node B, const char *opName) {
     Tensor &A_val = A_ptr->value();
     Tensor &B_val = B_ptr->value();
 
-    bool A_scalar = A_val.rank() == 1 && A_val.shape()[0] == 1;
-    bool B_scalar = B_val.rank() == 1 && B_val.shape()[0] == 1;
+    bool A_scalar = A_val.size() == 1;
+    bool B_scalar = B_val.size() == 1;
 
     std::size_t newLen = std::max(A_val.rank(), B_val.rank());
     std::vector<int> newShape(newLen);

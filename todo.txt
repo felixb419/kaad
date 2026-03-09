@@ -1,8 +1,5 @@
 [ GLOBAL ]
 FIX:
-    maybe scalar should be 0-rank
-    handle 0-rank tensor at:
-        operators
     make sure release build works
 REFACTOR:
 FEAT:
@@ -19,7 +16,6 @@ LATER:
 
 [ TENSOR ]
 FIX:
-    make sure tensor with rank 0 either cant be created or can be handled
 REFACTOR:
 FEAT:
 PERF:
