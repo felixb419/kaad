@@ -1,0 +1,12 @@
+Checks: >
+
+  -*,
+  modernize-*,
+  bugprone-*,
+  performance-*,
+
+  readability-*,
+  -modernize-use-trailing-return-type
+
+
+WarningsAsErrors: '*'
