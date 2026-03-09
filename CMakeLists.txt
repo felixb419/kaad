@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
+
 project(kaad
     VERSION 0.9
     DESCRIPTION "Kind Alright Auto Differentiation"
@@ -10,6 +11,12 @@ project(kaad
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXTENSIONS OFF)
+
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+
+if(CLANG_TIDY_EXE)
+    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+endif()
 
 # Option flags
 option(ENABLE_SANITIZERS "Enable ASan + UBSan" ON)

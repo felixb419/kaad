@@ -7,7 +7,6 @@ FEAT:
 PERF:
 DOC:
 CHORE:
-    add clang-tidy
     (?) kaadConfig.cmake.in
 LATER:
     (?) add proper test system
