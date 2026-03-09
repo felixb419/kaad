@@ -3,8 +3,9 @@
 #include "../include/kaad/tensor/tensor.hpp"           // for Tensor
 #include "/home/bert/dev/kaad/include/kaad/scalar.hpp" // for Scalar
 #include <algorithm>                                   // for equal
-#include <span>                                        // for span
-#include <vector>                                      // for vector
+#include <iostream>
+#include <span>   // for span
+#include <vector> // for vector
 
 inline bool equal_tol(kaad::Scalar a, kaad::Scalar b, kaad::Scalar abs_tol,
                       kaad::Scalar rel_tol) {
@@ -44,10 +45,10 @@ inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
     for (; elements_it != elements_correct.end();
          tensor_it++, elements_it++, idx++) {
         if (!equal_tol(*tensor_it, *elements_it, abs_tol, rel_tol)) {
-            throw std::runtime_error(std::string("mismatching values in '") +
-                                     label + "' at idx " + std::to_string(idx) +
-                                     ", act=" + std::to_string(*tensor_it) +
-                                     ", corr=" + std::to_string(*elements_it));
+            std::cerr << "mismatching values in '" << label << "' at idx "
+                      << idx << ", act=" << *tensor_it
+                      << ", corr=" << *elements_it << std::endl;
+            return false;
         }
     }
 
