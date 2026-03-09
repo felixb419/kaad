@@ -73,7 +73,7 @@ int main() {
     std::iota(a_vals.begin(), a_vals.end(), 50);
 
     kaad::Node a_mean = mean(rec, a, 2, true);
-    kaad::Node a_mean2 = mean(rec, a, 1);
+    kaad::Node a_mean2 = mean(rec, a_mean, 1);
     kaad::Node res = mean(rec, a_mean2);
 
     rec.reset();
