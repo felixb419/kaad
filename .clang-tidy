@@ -1,12 +1,15 @@
 Checks: >
-
   -*,
+
   modernize-*,
+  -modernize-use-trailing-return-type,
+
   bugprone-*,
+  -bugprone-easily-swappable-parameters,
+
   performance-*,
 
   readability-*,
-  -modernize-use-trailing-return-type
 
 
 WarningsAsErrors: '*'

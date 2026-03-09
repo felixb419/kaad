@@ -75,7 +75,7 @@ using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
                              const typename Kernel::value_type *res,
                              const typename Kernel::value_type *d_res,
                              int *stride_lhs, int *stride_rhs, int *stride_res,
-                             std::size_t *res_dim_offset, int res_rank);
+                             std::size_t *res_dim_offset, std::size_t res_rank);
 
 template <typename T>
 using dot_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
@@ -93,7 +93,7 @@ using batch_matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                                  int **stride_rhs, int **stride_res,
                                  int **res_shape, int *lhs_dim_offset,
                                  int *rhs_dim_offset, int *shared_dim,
-                                 int res_rank);
+                                 std::size_t res_rank);
 
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
@@ -205,7 +205,7 @@ void flexible(const typename Kernel::value_type *lhs,
               const typename Kernel::value_type *res,
               const typename Kernel::value_type *d_res, int *stride_lhs,
               int *stride_rhs, int *stride_res, std::size_t *res_dim_offset,
-              int res_rank) noexcept(kernel_noexcept<Kernel>()) {
+              std::size_t res_rank) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
     if (res_rank <= 1) {
         for (; res != end; lhs += *stride_lhs, rhs += *stride_rhs,
@@ -228,15 +228,14 @@ void flexible(const typename Kernel::value_type *lhs,
  * @brief Compile-time recursive version of runtime @ref flexible().
  * @ingroup binary_adjoint_functions
  */
-template <kernel_class Kernel, int res_rank>
-void flexible(const typename Kernel::value_type *lhs,
-              typename Kernel::value_type *d_lhs,
-              const typename Kernel::value_type *rhs,
-              typename Kernel::value_type *d_rhs,
-              const typename Kernel::value_type *res,
-              const typename Kernel::value_type *d_res, int *stride_lhs,
-              int *stride_rhs, int *stride_res, std::size_t *res_dim_offset,
-              [[maybe_unused]] int _) noexcept(kernel_noexcept<Kernel>()) {
+template <kernel_class Kernel, std::size_t res_rank>
+void flexible(
+    const typename Kernel::value_type *lhs, typename Kernel::value_type *d_lhs,
+    const typename Kernel::value_type *rhs, typename Kernel::value_type *d_rhs,
+    const typename Kernel::value_type *res,
+    const typename Kernel::value_type *d_res, int *stride_lhs, int *stride_rhs,
+    int *stride_res, std::size_t *res_dim_offset,
+    [[maybe_unused]] std::size_t _) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
     if constexpr (res_rank <= 1) {
         for (; res != end; lhs += *stride_lhs, rhs += *stride_rhs,
@@ -361,7 +360,8 @@ template <typename T>
 void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                   const T *d_res, int **stride_lhs, int **stride_rhs,
                   int **stride_res, int **res_shape, int *lhs_dim_offset,
-                  int *rhs_dim_offset, int *shared_dim, int res_rank) noexcept {
+                  int *rhs_dim_offset, int *shared_dim,
+                  std::size_t res_rank) noexcept {
     // d_lhs = d_res * rhs^T
     functions::primal::binary::batch_matmul<T>(
         d_res, rhs, d_lhs, stride_res[0], stride_rhs[0], stride_lhs[0],
@@ -378,12 +378,12 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
  * @brief Compile-time recursive version of runtime @ref batch_matmul().
  * @ingroup binary_adjoint_functions
  */
-template <typename T, int res_rank>
+template <typename T, std::size_t res_rank>
 void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                   const T *d_res, int **stride_lhs, int **stride_rhs,
                   int **stride_res, int **res_shape, int *lhs_dim_offset,
                   int *rhs_dim_offset, int *shared_dim,
-                  [[maybe_unused]] int _) noexcept {
+                  [[maybe_unused]] std::size_t _) noexcept {
     // d_lhs = d_res * rhs^T
     functions::primal::binary::batch_matmul<T, res_rank>(
         d_res, rhs, d_lhs, stride_res[0], stride_rhs[0], stride_lhs[0],
@@ -441,7 +441,7 @@ using pointwise_fn = void (*)(const typename Kernel::value_type *inp,
 template <typename T>
 using sum_dim_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
                             int *stride_res, std::size_t *inp_dim_offset,
-                            int inp_rank);
+                            std::size_t inp_rank);
 
 template <typename T>
 using mean_fn = void (*)(T *d_inp, const T *d_res, const T *d_inp_end,
@@ -450,12 +450,12 @@ using mean_fn = void (*)(T *d_inp, const T *d_res, const T *d_inp_end,
 template <typename T>
 using mean_dim_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
                              int *stride_res, std::size_t *inp_dim_offset,
-                             int inp_rank, T divisor, const T *res_end);
+                             std::size_t inp_rank, T divisor, const T *res_end);
 
 template <typename T>
 using slice_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
                           int *stride_res, std::size_t *start_offset,
-                          std::size_t *res_dim_offset, int rank);
+                          std::size_t *res_dim_offset, std::size_t rank);
 
 /**
  * @brief Accumulates the gradient of Op in @p inp .
@@ -518,7 +518,7 @@ void pointwise(const typename Kernel::value_type *inp,
  */
 template <typename T>
 void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
-             std::size_t *inp_dim_offset, int inp_rank) noexcept {
+             std::size_t *inp_dim_offset, std::size_t inp_rank) noexcept {
     const T *end = d_inp + *inp_dim_offset;
     if (inp_rank <= 1) {
         for (; d_inp != end; d_inp += *stride_inp, d_res += *stride_res) {
@@ -536,9 +536,10 @@ void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
  * @brief Compile-time recursive version of runtime @ref sum_dim().
  * @ingroup unary_adjoint_functions
  */
-template <typename T, int inp_rank>
+template <typename T, std::size_t inp_rank>
 void sum_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
-             std::size_t *inp_dim_offset, [[maybe_unused]] int _) noexcept {
+             std::size_t *inp_dim_offset,
+             [[maybe_unused]] std::size_t _) noexcept {
     const T *end = d_inp + *inp_dim_offset;
     if constexpr (inp_rank <= 1) {
         for (; d_inp != end; d_inp += *stride_inp, d_res += *stride_res) {
@@ -584,7 +585,7 @@ void mean(T *d_inp, const T *d_res, const T *d_inp_end, T divisor) noexcept {
  */
 template <typename T>
 void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
-              std::size_t *inp_dim_offset, int inp_rank, T divisor,
+              std::size_t *inp_dim_offset, std::size_t inp_rank, T divisor,
               const T *d_inp_end) noexcept {
     sum_dim(d_inp, d_res, stride_inp, stride_res, inp_dim_offset, inp_rank);
     for (; d_inp != d_inp_end; d_inp++) {
@@ -596,10 +597,10 @@ void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
  * @brief Compile-time recursive version of runtime @ref mean_dim().
  * @ingroup unary_adjoint_functions
  */
-template <typename T, int inp_rank>
+template <typename T, std::size_t inp_rank>
 void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
-              std::size_t *inp_dim_offset, [[maybe_unused]] int _, T divisor,
-              const T *d_inp_end) noexcept {
+              std::size_t *inp_dim_offset, [[maybe_unused]] std::size_t _,
+              T divisor, const T *d_inp_end) noexcept {
     sum_dim<T, inp_rank>(d_inp, d_res, stride_inp, stride_res, inp_dim_offset,
                          0);
     for (; d_inp != d_inp_end; d_inp++) {
@@ -622,7 +623,7 @@ void mean_dim(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 template <typename T>
 void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
            std::size_t *start_offset, std::size_t *res_dim_offset,
-           int rank) noexcept {
+           std::size_t rank) noexcept {
     d_inp += *start_offset;
     const T *end = d_res + *res_dim_offset;
     if (rank <= 1) {
@@ -641,10 +642,10 @@ void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
  * @brief Compile-time recursive version of runtime @ref slice().
  * @ingroup unary_adjoint_functions
  */
-template <typename T, int rank>
+template <typename T, std::size_t rank>
 void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
            std::size_t *start_offset, std::size_t *res_dim_offset,
-           [[maybe_unused]] int _) noexcept {
+           [[maybe_unused]] std::size_t _) noexcept {
     d_inp += *start_offset;
     const T *end = d_res + *res_dim_offset;
     if constexpr (rank <= 1) {
