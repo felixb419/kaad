@@ -207,14 +207,14 @@ const std::vector<int> &Tensor::stride() const noexcept {
 }
 
 Tensor::iterator Tensor::begin() {
-    std::vector<int> cords(this->rank());
+    std::vector<int> cords(std::max(this->rank(), size_type(1)));
     std::fill(cords.begin(), cords.end(), 0);
 
     return iterator(*this, std::move(cords));
 }
 
 Tensor::const_iterator Tensor::begin() const {
-    std::vector<int> cords(this->rank());
+    std::vector<int> cords(std::max(this->rank(), size_t(1)));
     std::fill(cords.begin(), cords.end(), 0);
 
     return const_iterator(*this, std::move(cords));
@@ -222,23 +222,35 @@ Tensor::const_iterator Tensor::begin() const {
 
 Tensor::iterator Tensor::end() {
 
-    std::vector<int> cords(this->shape_);
-    // increment every cord but the last, so iterator points one past end.
-    for (size_type i = 0; i < this->rank() - 1; i++) {
-        cords[i]--;
-    }
+    if (this->rank() == 0) {
 
-    return iterator(*this, std::move(cords));
+        return iterator(*this, std::move(std::vector<int>{0}));
+    } else {
+
+        std::vector<int> cords(this->shape_);
+        // increment every cord but the last, so iterator points one past end.
+        for (size_type i = 0; i < this->rank() - 1; i++) {
+            cords[i]--;
+        }
+
+        return iterator(*this, std::move(cords));
+    }
 }
 
 Tensor::const_iterator Tensor::end() const {
-    std::vector<int> cords(this->shape_);
-    // increment every cord but the last, so iterator points one past end.
-    for (size_type i = 0; i < this->rank() - 1; i++) {
-        cords[i]--;
-    }
+    if (this->rank() == 0) {
 
-    return const_iterator(*this, std::move(cords));
+        return const_iterator(*this, std::move(std::vector<int>{0}));
+    } else {
+
+        std::vector<int> cords(this->shape_);
+        // increment every cord but the last, so iterator points one past end.
+        for (size_type i = 0; i < this->rank() - 1; i++) {
+            cords[i]--;
+        }
+
+        return const_iterator(*this, std::move(cords));
+    }
 }
 
 Tensor::size_type Tensor::size() const noexcept {

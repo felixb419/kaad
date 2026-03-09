@@ -42,6 +42,11 @@ template <bool isConst> class iterator_impl {
     }
 
     iterator_impl &operator++() {
+        if (this->origin_.rank() == 0) {
+            this->cords_[0] = 1;
+            return *this;
+        }
+
         int rank = static_cast<int>(this->origin_.rank() - 1);
 
         this->cords_[rank]++;
