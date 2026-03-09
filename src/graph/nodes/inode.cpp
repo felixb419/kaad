@@ -11,6 +11,11 @@ INode::INode(std::span<const int> value_shape, bool is_input_node,
     : gradient_(value_shape), label_(label), evaluated_(is_input_node),
       is_input_node_(is_input_node) {
 
+    if (this->value_.size() == 0 || this->gradient_.size() == 0) {
+        throw argument_error("given value_shape results in tensor with no "
+                             "elements which is not allowed");
+    }
+
     // if @p value_stride is given its used to construct value_
     if (value_stride.size() != 0) {
         this->value_ = Tensor(value_shape, value_stride);

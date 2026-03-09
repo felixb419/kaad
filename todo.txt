@@ -2,7 +2,6 @@
 FIX:
     maybe scalar should be 0-rank
     handle 0-rank tensor at:
-        Node constructor
         operators
     make sure release build works
 REFACTOR:
