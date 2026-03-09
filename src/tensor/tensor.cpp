@@ -18,6 +18,10 @@ template class iterator_impl<true>;
 
 std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
 
+    if (shape.size() == 0) {
+        return std::vector<int>{};
+    }
+
     std::vector<int> stride(shape.size());
     int i = shape.size() - 1;
 
@@ -37,6 +41,11 @@ std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
 }
 
 Tensor::size_type Tensor::compute_size(std::span<const int> shape) {
+
+    if (shape.size() == 0) {
+        return 1;
+    }
+
     size_type len = 1;
     for (const int d : shape) {
         len *= d;
@@ -70,7 +79,7 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
     return std::vector<Scalar>(elements.begin(), elements.end());
 }
 
-Tensor::Tensor() : shape_({0}), stride_({0}), elements_({}) {}
+Tensor::Tensor() : shape_{}, stride_{}, elements_{0} {}
 
 Tensor::Tensor(std::span<const int> shape)
     : shape_(shape.begin(), shape.end()),

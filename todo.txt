@@ -2,7 +2,6 @@
 FIX:
     maybe scalar should be 0-rank
     handle 0-rank tensor at:
-        Tensor constructor
         std::operator<<
         Node constructor
         operators
@@ -30,6 +29,7 @@ DOC:
 CHORE:
 LATER:
     make Tensor variant with compile time shape
+    combine shape and stride into shape struct
 
 
 [ GRAPH ]

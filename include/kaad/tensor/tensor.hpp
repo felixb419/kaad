@@ -56,7 +56,7 @@ class Tensor {
     static size_type compute_size(std::span<const int> shape);
 
     /**
-     * @brief Constructs tensor with shape: [0]
+     * @brief Constructs 0-rank tensor initialized to 0.
      */
     Tensor();
 
