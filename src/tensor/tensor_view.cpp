@@ -30,7 +30,7 @@ Tensor_view_mut::Tensor_view_mut(const int *shape, const int *stride,
                                  size_type len) noexcept
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
-Tensor_view Tensor_view_mut::make_immutable() noexcept {
+Tensor_view Tensor_view_mut::make_immutable() const noexcept {
     return Tensor_view(this->shape, this->stride, this->rank, this->elements,
                        this->len);
 }
