@@ -17,8 +17,10 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
     std::copy(rhs.stride, rhs.stride + 2, rhs_stride);
     std::copy(value.stride, value.stride + 2, value_stride);
 
-    int idx, value_idx;
-    int value_offset = 0, value_prev;
+    int idx;
+    int value_idx;
+    int value_offset = 0;
+    int value_prev;
     for (int i = 1; i <= 2; i++) {
         idx = 2 - i;
 

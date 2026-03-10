@@ -17,7 +17,9 @@ void Node_slice::metadata(const int *offset_arr) {
     this->input_stride.resize(this->value_rank);
     this->value_stride.resize(this->value_rank);
 
-    int idx, input_idx, value_dix;
+    int idx;
+    int input_idx;
+    int value_dix;
     for (std::size_t i = 1; i <= this->value_rank; i++) {
         idx = static_cast<int>(this->value_rank - i);
         input_idx = static_cast<int>(input.rank() - i);

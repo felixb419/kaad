@@ -31,7 +31,10 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
     rhs_stride = new int[D];
     res_stride = new int[D];
 
-    int idx, idxA, idxB, idxC;
+    int idx;
+    int idxA;
+    int idxB;
+    int idxC;
     int rank = static_cast<int>(D);
     for (int i = 1; i <= rank; i++) {
         idx = rank - i;
