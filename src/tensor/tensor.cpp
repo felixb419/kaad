@@ -79,7 +79,7 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
     return std::vector<Scalar>(elements.begin(), elements.end());
 }
 
-Tensor::Tensor() : shape_{}, stride_{}, elements_{0} {}
+Tensor::Tensor() : elements_{0} {}
 
 Tensor::Tensor(std::span<const int> shape)
     : shape_(shape.begin(), shape.end()),
