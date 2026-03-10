@@ -61,9 +61,11 @@ void Node_matmul::metadata() {
     metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
                   this->shared_dim[0], this->lhs_stride, this->rhs_stride,
                   this->value_stride);
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     metadata_impl(value, rhs_T, lhs, this->lhs_rows[1], this->rhs_cols[1],
                   this->shared_dim[1], this->value_stride + 2,
                   this->rhs_stride + 2, this->lhs_stride + 2);
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     metadata_impl(lhs_T, value, rhs, this->lhs_rows[2], this->rhs_cols[2],
                   this->shared_dim[2], this->lhs_stride + 4,
                   this->value_stride + 4, this->rhs_stride + 4);
