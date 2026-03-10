@@ -45,7 +45,7 @@ class Node_dot : public INode {
      * @param B_ptr Pointer to the second input node.
      * @param tensor_args Arguments to construct the output tensor.
      */
-    Node_dot(INode *A_ptr, INode *B_ptr);
+    Node_dot(INode *lhs_ptr, INode *rhs_ptr);
 
     /**
      * @brief Returns the type of the node as a string.
