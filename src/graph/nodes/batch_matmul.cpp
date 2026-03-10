@@ -84,10 +84,12 @@ void Node_batch_matmul::metadata() {
                   this->value_stride[0], this->value_shape_broadcast[0],
                   this->lhs_colStride[0], this->rhs_rowStride[0],
                   this->shared_dim[0], this->value_rank);
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     metadata_impl(value, b_T, lhs, this->value_stride[1], this->rhs_stride[1],
                   this->lhs_stride[1], this->value_shape_broadcast[1],
                   this->lhs_colStride[1], this->rhs_rowStride[1],
                   this->shared_dim[1], this->value_rank);
+    // NOLINTNEXTLINE(readability-suspicious-call-argument)
     metadata_impl(a_T, value, rhs, this->lhs_stride[2], this->value_stride[2],
                   this->rhs_stride[2], this->value_shape_broadcast[2],
                   this->lhs_colStride[2], this->rhs_rowStride[2],
