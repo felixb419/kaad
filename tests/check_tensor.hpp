@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../include/kaad/tensor/tensor.hpp"           // for Tensor
-#include "/home/bert/dev/kaad/include/kaad/scalar.hpp" // for Scalar
-#include <algorithm>                                   // for equal
+#include "../include/kaad/scalar.hpp"        // for Scalar
+#include "../include/kaad/tensor/tensor.hpp" // for Tensor
+#include <algorithm>                         // for equal
 #include <iostream>
 #include <span>   // for span
 #include <vector> // for vector
