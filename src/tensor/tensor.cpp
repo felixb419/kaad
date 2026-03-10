@@ -222,35 +222,39 @@ Tensor::const_iterator Tensor::begin() const {
 
 Tensor::iterator Tensor::end() {
 
+    std::vector<int> cords(this->shape_);
+
     if (this->rank() == 0) {
 
-        return iterator(*this, std::vector<int>{0});
+        cords.resize(1);
+        cords[0] = 0;
     } else {
 
-        std::vector<int> cords(this->shape_);
         // increment every cord but the last, so iterator points one past end.
         for (size_type i = 0; i < this->rank() - 1; i++) {
             cords[i]--;
         }
-
-        return iterator(*this, std::move(cords));
     }
+
+    return iterator(*this, std::move(cords));
 }
 
 Tensor::const_iterator Tensor::end() const {
+    std::vector<int> cords(this->shape_);
+
     if (this->rank() == 0) {
 
-        return const_iterator(*this, std::vector<int>{0});
+        cords.resize(1);
+        cords[0] = 0;
     } else {
 
-        std::vector<int> cords(this->shape_);
         // increment every cord but the last, so iterator points one past end.
         for (size_type i = 0; i < this->rank() - 1; i++) {
             cords[i]--;
         }
-
-        return const_iterator(*this, std::move(cords));
     }
+
+    return const_iterator(*this, std::move(cords));
 }
 
 Tensor::size_type Tensor::size() const noexcept {
