@@ -36,10 +36,10 @@ int main() {
     rec.getGradient(res, std::array{a, b, c});
 
     // Print values of nodes.
-    std::cout << "A:\n" << a << std::endl;
-    std::cout << "B:\n" << b << std::endl;
-    std::cout << "C:\n" << c << std::endl;
-    std::cout << "Res:\n" << res << std::endl;
+    std::cout << "A:\n" << a << '\n';
+    std::cout << "B:\n" << b << '\n';
+    std::cout << "C:\n" << c << '\n';
+    std::cout << "Res:\n" << res << '\n';
 
     return 0;
 }

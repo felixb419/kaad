@@ -27,8 +27,8 @@ int main() {
     rec.getGradient(c, std::array{a});
 
     // Print values of nodes.
-    std::cout << "A:\n" << a << std::endl;
-    std::cout << "C:\n" << c << std::endl;
+    std::cout << "A:\n" << a << '\n';
+    std::cout << "C:\n" << c << '\n';
 
     return 0;
 }
