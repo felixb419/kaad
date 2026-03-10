@@ -18,7 +18,7 @@ template class iterator_impl<true>;
 
 std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
 
-    if (shape.size() == 0) {
+    if (shape.empty()) {
         return std::vector<int>{};
     }
 
@@ -42,7 +42,7 @@ std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
 
 Tensor::size_type Tensor::compute_size(std::span<const int> shape) {
 
-    if (shape.size() == 0) {
+    if (shape.empty()) {
         return 1;
     }
 
@@ -296,7 +296,7 @@ struct Tensor_view_mut Tensor::view_mut() noexcept {
 std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
 
     os << "shape: (";
-    if (tensor.shape().size() != 0) {
+    if (!tensor.shape().empty()) {
 
         os << tensor.shape()[0];
         for (Tensor::size_type i = 1; i < tensor.rank(); i++) {
@@ -307,7 +307,7 @@ std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
 
     os << "elements: ";
 
-    if (tensor.size() == 0) {
+    if (tensor.empty()) {
         os << "[]";
     } else {
         os << "\n";
