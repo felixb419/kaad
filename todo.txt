@@ -16,6 +16,7 @@ LATER:
 [ TENSOR ]
 FIX:
 REFACTOR:
+    put print logic into common
 FEAT:
 PERF:
 DOC:
@@ -28,6 +29,7 @@ LATER:
 [ GRAPH ]
 FIX:
 REFACTOR:
+    move Node operator<< to node
 FEAT:
 PERF:
 DOC:
@@ -36,6 +38,18 @@ LATER:
     make stride function transpose dimensions so biggest is highest
     (?) label member for computation nodes
     (?) put reset, evaluate and getGradient into single function
+
+[ OPERATORS ]
+FIX:
+REFACTOR:
+FEAT:
+PERF:
+DOC:
+    add @pre with shape requirements
+    replace ` with @p
+    rework comments
+CHORE:
+LATER:
 
 
 [ FUNCTIONS ]

@@ -23,12 +23,12 @@ std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
     }
 
     std::vector<int> stride(shape.size());
-    int i = static_cast<int>(shape.size()) - 1;
+    int idx = static_cast<int>(shape.size()) - 1;
 
-    stride[i--] = 1;
+    stride[idx--] = 1;
 
-    for (; i >= 0; i--) {
-        stride[i] = shape[i + 1] * stride[i + 1];
+    for (; idx >= 0; idx--) {
+        stride[idx] = shape[idx + 1] * stride[idx + 1];
     }
 
     for (size_type i = 0; i < stride.size(); i++) {
@@ -47,8 +47,8 @@ Tensor::size_type Tensor::compute_size(std::span<const int> shape) {
     }
 
     size_type len = 1;
-    for (const int d : shape) {
-        len *= d;
+    for (const int dim : shape) {
+        len *= dim;
     }
     return len;
 }
@@ -297,32 +297,32 @@ struct Tensor_view_mut Tensor::view_mut() noexcept {
                            this->rank(), this->elements_.data(), this->size());
 }
 
-std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
+std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
 
-    os << "shape: (";
+    stream << "shape: (";
     if (!tensor.shape().empty()) {
 
-        os << tensor.shape()[0];
+        stream << tensor.shape()[0];
         for (Tensor::size_type i = 1; i < tensor.rank(); i++) {
-            os << ", " << tensor.shape()[i];
+            stream << ", " << tensor.shape()[i];
         }
     }
-    os << ")\n";
+    stream << ")\n";
 
-    os << "elements: ";
+    stream << "elements: ";
 
     if (tensor.empty()) {
-        os << "[]";
+        stream << "[]";
     } else {
-        os << "\n";
+        stream << "\n";
         std::vector<int> cords(tensor.rank());
         int indent = 0;
 
-        detail::print_tensor(os, cords, tensor.shape().data(),
+        detail::print_tensor(stream, cords, tensor.shape().data(),
                              tensor.stride().data(), tensor.rank(),
                              tensor.data(), tensor.size(), 0, indent);
     }
-    return os;
+    return stream;
 }
 
 } // namespace kaad

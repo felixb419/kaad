@@ -76,7 +76,7 @@ class Node {
     const Tensor &gradient() const { return this->node()->gradient(); }
 
     friend constexpr auto operator<=>(Node, Node) = default;
-    friend std::ostream &operator<<(std::ostream &os, Node node);
+    friend std::ostream &operator<<(std::ostream &stream, Node node);
 };
 
 } // namespace kaad

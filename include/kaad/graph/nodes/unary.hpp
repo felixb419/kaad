@@ -90,7 +90,7 @@ template <class Kernel> class Node_unary : public INode {
         }
     }
 
-    friend Node sum(Graph &rec, Node A);
+    friend Node sum(Graph &rec, Node input);
 };
 
 } // namespace kaad

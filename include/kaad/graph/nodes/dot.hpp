@@ -67,7 +67,7 @@ class Node_dot : public INode {
      */
     void getGrad() override;
 
-    friend Node dot(Graph &rec, Node A, Node B);
+    friend Node dot(Graph &rec, Node lhs, Node rhs);
 };
 
 } // namespace kaad

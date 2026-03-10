@@ -106,23 +106,24 @@ class Graph {
      */
     void reset();
 
-    friend std::ostream &operator<<(std::ostream &os, Node node);
+    friend std::ostream &operator<<(std::ostream &stream, Node node);
 
     friend class Node;
 
     template <class Kernel>
-    friend Node binOperator(Graph &rec, Node A, Node B, const char *opName);
-    friend Node dot(Graph &rec, Node A, Node B);
-    friend Node matmul(Graph &rec, Node A, Node B);
-    friend Node mean(Graph &rec, Node A);
-    friend Node mean(Graph &rec, Node A, int dim, bool keep_rank);
-    friend Node outer(Graph &rec, Node A, Node B);
-    friend Node slice(Graph &rec, Node A, std::initializer_list<int> size,
+    friend Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName);
+    friend Node dot(Graph &rec, Node lhs, Node rhs);
+    friend Node matmul(Graph &rec, Node lhs, Node rhs);
+    friend Node mean(Graph &rec, Node input);
+    friend Node mean(Graph &rec, Node input, int dim, bool keep_rank);
+    friend Node outer(Graph &rec, Node lhs, Node rhs);
+    friend Node slice(Graph &rec, Node input, std::initializer_list<int> size,
                       std::initializer_list<int> offset);
-    friend Node sum(Graph &rec, Node A);
-    friend Node sum(Graph &rec, Node A, int dim, bool keep_rank);
-    friend Node transpose(Graph &rec, Node A, std::initializer_list<int> perm);
-    template <class Kernel> friend Node unOperator(Graph &rec, Node A);
+    friend Node sum(Graph &rec, Node input);
+    friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
+    friend Node transpose(Graph &rec, Node input,
+                          std::initializer_list<int> perm);
+    template <class Kernel> friend Node unOperator(Graph &rec, Node input);
 };
 
 } // namespace kaad

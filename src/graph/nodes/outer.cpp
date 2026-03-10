@@ -12,32 +12,33 @@ void Node_outer::metadata() {
     // compute metadata
     Tensor &lhs = this->lhs->value();
     Tensor &rhs = this->rhs->value();
-    Tensor &C = this->value();
+    Tensor &res = this->value();
 
-    this->C_rank = C.rank();
+    this->res_rank = res.rank();
 
-    this->lhs_stride.resize(this->C_rank);
-    this->rhs_stride.resize(this->C_rank);
-    this->strideC.resize(this->C_rank);
+    this->lhs_stride.resize(this->res_rank);
+    this->rhs_stride.resize(this->res_rank);
+    this->res_stride.resize(this->res_rank);
 
-    std::copy(C.stride().begin(), C.stride().end(), this->strideC.data());
+    std::copy(res.stride().begin(), res.stride().end(),
+              this->res_stride.data());
     std::copy(lhs.stride().begin(), lhs.stride().end(),
               this->lhs_stride.data());
     std::copy(rhs.stride().begin(), rhs.stride().end(),
               this->rhs_stride.data() + lhs.rank());
 
-    this->C_offset.resize(this->C_rank);
-    for (std::size_t i = 0; i < this->C_rank; i++) {
-        this->C_offset[i] =
-            static_cast<std::size_t>(C.shape()[i]) * this->strideC[i];
+    this->res_offset.resize(this->res_rank);
+    for (std::size_t i = 0; i < this->res_rank; i++) {
+        this->res_offset[i] =
+            static_cast<std::size_t>(res.shape()[i]) * this->res_stride[i];
     }
 
     // assign compile-time recursive function
-    if (this->C_rank <= Dispatchers::MAX_NDIMS) {
+    if (this->res_rank <= Dispatchers::MAX_NDIMS) {
         this->forward_op =
-            Dispatchers::get_flexOp<Node_outer::Kernel>()[this->C_rank];
+            Dispatchers::get_flexOp<Node_outer::Kernel>()[this->res_rank];
         this->backward_op =
-            Dispatchers::get_flexGrad<Node_outer::Kernel>()[this->C_rank];
+            Dispatchers::get_flexGrad<Node_outer::Kernel>()[this->res_rank];
     }
 }
 
@@ -57,7 +58,7 @@ void Node_outer::eval() {
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
                    this->value().data(), lhs_stride.data(), rhs_stride.data(),
-                   strideC.data(), C_offset.data(), C_rank);
+                   res_stride.data(), res_offset.data(), res_rank);
         this->evaluated_ = true;
     }
 }
@@ -66,8 +67,8 @@ void Node_outer::getGrad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->value().data(), this->gradient().data(),
-                lhs_stride.data(), rhs_stride.data(), strideC.data(),
-                C_offset.data(), C_rank);
+                lhs_stride.data(), rhs_stride.data(), res_stride.data(),
+                res_offset.data(), res_rank);
 
     if (!this->lhs->isInput()) {
         this->lhs->getGrad();

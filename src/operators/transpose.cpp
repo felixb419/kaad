@@ -13,48 +13,48 @@
 
 namespace kaad {
 
-Node transpose(Graph &rec, Node A, std::initializer_list<int> perm) {
+Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
     std::size_t recLen = rec.nodes.size();
 
-    INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value();
+    INode *input_ptr = rec.get_node(input);
+    Tensor &input_val = input_ptr->value();
 
-    if (A_val.rank() < 2) {
+    if (input_val.rank() < 2) {
         throw shape_error(make_graph_errmsg("shape error", recLen, "transpose",
                                             "A.rank() hast to be > 1",
-                                            {{"A.shape", A_val.shape()}}));
+                                            {{"A.shape", input_val.shape()}}));
     }
 
-    std::vector<int> shape_T(A_val.rank());
-    std::vector<int> stride_T(A_val.rank());
+    std::vector<int> shape_T(input_val.rank());
+    std::vector<int> stride_T(input_val.rank());
     if (perm.size() == 0) {
 
-        std::reverse_copy(A_val.shape().begin(), A_val.shape().end(),
+        std::reverse_copy(input_val.shape().begin(), input_val.shape().end(),
                           shape_T.data());
-        std::reverse_copy(A_val.stride().begin(), A_val.stride().end(),
+        std::reverse_copy(input_val.stride().begin(), input_val.stride().end(),
                           stride_T.data());
 
     } else {
-        if (perm.size() != A_val.rank()) {
+        if (perm.size() != input_val.rank()) {
             throw argument_error(
                 make_graph_errmsg("argument erro", recLen, "transpose",
                                   "perm.size() has to be same as A.rank()",
-                                  {{"A.shape", A_val.shape()}}));
+                                  {{"A.shape", input_val.shape()}}));
         }
 
-        std::vector<int> count(A_val.rank());
+        std::vector<int> count(input_val.rank());
 
-        int *sh = shape_T.data();
-        int *st = stride_T.data();
+        auto shape_it = shape_T.begin();
+        auto stride_it = stride_T.begin();
         for (int idx : perm) {
 
             count[idx]++;
 
-            *(sh++) = A_val.shape()[idx];
-            *(st++) = A_val.stride()[idx];
+            *(shape_it++) = input_val.shape()[idx];
+            *(stride_it++) = input_val.stride()[idx];
         }
-        for (int c : count) {
-            if (c != 1) {
+        for (int count_elem : count) {
+            if (count_elem != 1) {
                 throw argument_error(make_graph_errmsg(
                     "argument error", recLen, "transpose",
                     "perm has to contain index of every dimension exactly once",
@@ -64,7 +64,7 @@ Node transpose(Graph &rec, Node A, std::initializer_list<int> perm) {
     }
 
     rec.nodes.push_back(
-        std::make_unique<Node_transp>(A_ptr, shape_T, stride_T));
+        std::make_unique<Node_transp>(input_ptr, shape_T, stride_T));
 
     return rec.back_handle();
 }

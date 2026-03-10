@@ -19,59 +19,61 @@
 
 namespace kaad {
 
-Node sum(Graph &rec, Node A) {
+Node sum(Graph &rec, Node input) {
 
-    INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value();
+    INode *input_ptr = rec.get_node(input);
+    Tensor &input_val = input_ptr->value();
 
     using Kernel = struct Kernels::Sum<Scalar>;
-    functions::primal::unary::pointwise_fn<Kernel> op =
+    functions::primal::unary::pointwise_fn<Kernel> func =
         functions::primal::unary::scalarOut<Kernel>;
     functions::adjoint::unary::pointwise_fn<Kernel> grad =
         functions::adjoint::unary::scalarOut<Kernel>;
 
     rec.nodes.push_back(std::make_unique<Node_unary<Kernel>>(
-        op, grad, A_ptr, std::array<int, 0>{}));
+        func, grad, input_ptr, std::array<int, 0>{}));
     static_cast<Node_unary<Kernel> *>(rec.nodes.back().get())->end =
-        A_val.data() + A_val.size(); // override end from constructor
+        input_val.data() + input_val.size(); // override end from constructor
 
     return rec.back_handle();
 }
 
-Node sum(Graph &rec, Node A, int dim, bool keep_rank) {
+Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
     std::size_t recLen = rec.nodes.size();
 
-    INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value();
+    INode *input_ptr = rec.get_node(input);
+    Tensor &input_val = input_ptr->value();
 
-    if (dim < 0 || dim >= static_cast<int>(A_val.rank())) {
-        throw argument_error(
-            make_graph_errmsg("argument error", recLen, "sum",
-                              "dim has to be a valid index of A.shape",
-                              {{"A.shape", A_val.shape()}}, {{"dim", dim}}));
+    if (dim < 0 || dim >= static_cast<int>(input_val.rank())) {
+        throw argument_error(make_graph_errmsg(
+            "argument error", recLen, "sum",
+            "dim has to be a valid index of A.shape",
+            {{"A.shape", input_val.shape()}}, {{"dim", dim}}));
     }
 
-    if (A_val.rank() == 1) {
-        return sum(rec, A);
+    if (input_val.rank() == 1) {
+        return sum(rec, input);
     }
 
-    std::size_t newLen = A_val.rank();
+    std::size_t newLen = input_val.rank();
     std::vector<int> newShape(newLen);
     if (keep_rank) {
-        std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());
+        std::copy(input_val.shape().begin(), input_val.shape().end(),
+                  newShape.begin());
         newShape[dim] = 1;
 
     } else {
 
         newShape.resize(newShape.size() - 1);
 
-        std::copy(A_val.shape().begin(), A_val.shape().begin() + dim,
+        std::copy(input_val.shape().begin(), input_val.shape().begin() + dim,
                   newShape.begin());
-        std::copy(A_val.shape().begin() + dim + 1, A_val.shape().end(),
+        std::copy(input_val.shape().begin() + dim + 1, input_val.shape().end(),
                   newShape.begin() + dim);
     }
 
-    rec.nodes.push_back(std::make_unique<Node_sum_dim>(A_ptr, dim, newShape));
+    rec.nodes.push_back(
+        std::make_unique<Node_sum_dim>(input_ptr, dim, newShape));
     return rec.back_handle();
 }
 

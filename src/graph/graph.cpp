@@ -58,11 +58,11 @@ void Graph::reset() {
 std::vector<const Tensor *> Graph::getGradient(Node output,
                                                std::span<const Node> inputs) {
 
-    INode *f = this->get_node(output);
-    std::fill(f->gradient().elements_.begin(), f->gradient().elements_.end(),
-              1.0);
+    INode *output_node = this->get_node(output);
+    std::fill(output_node->gradient().elements_.begin(),
+              output_node->gradient().elements_.end(), 1.0);
 
-    f->getGrad();
+    output_node->getGrad();
 
     std::vector<const Tensor *> partials(inputs.size());
 
@@ -73,14 +73,14 @@ std::vector<const Tensor *> Graph::getGradient(Node output,
     return partials;
 }
 
-std::ostream &operator<<(std::ostream &os, Node node) {
+std::ostream &operator<<(std::ostream &stream, Node node) {
     INode *node_ptr = node.origin_->get_node(node);
-    os << node_ptr->node_type() << " at idx " << node.idx() << " of Graph at "
-       << node.origin() << "\n"
-       << "value:\n"
-       << node_ptr->value() << "\ngradient:\n"
-       << node_ptr->gradient();
-    return os;
+    stream << node_ptr->node_type() << " at idx " << node.idx()
+           << " of Graph at " << node.origin() << "\n"
+           << "value:\n"
+           << node_ptr->value() << "\ngradient:\n"
+           << node_ptr->gradient();
+    return stream;
 }
 
 } // namespace kaad

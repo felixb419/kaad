@@ -16,46 +16,46 @@
 
 namespace kaad {
 
-Node slice(Graph &rec, Node A, std::initializer_list<int> size,
+Node slice(Graph &rec, Node input, std::initializer_list<int> size,
            std::initializer_list<int> offset) {
     std::size_t recLen = rec.nodes.size();
 
-    INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value();
+    INode *input_ptr = rec.get_node(input);
+    Tensor &input_val = input_ptr->value();
 
-    if (size.size() > A_val.rank()) {
+    if (size.size() > input_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());
         throw argument_error(make_graph_errmsg(
             "argument error", recLen, "slice",
             "length of size is bigger than A.rank()",
-            {{"size", size_span}, {"A.shape", A_val.shape()}}));
+            {{"size", size_span}, {"A.shape", input_val.shape()}}));
     }
-    if (offset.size() > A_val.rank()) {
+    if (offset.size() > input_val.rank()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
         throw argument_error(make_graph_errmsg(
             "argument error", recLen, "slice",
             "length of offset is bigger than A.rank()",
-            {{"offset", offset_span}, {"A.shape", A_val.shape()}}));
+            {{"offset", offset_span}, {"A.shape", input_val.shape()}}));
     }
 
-    int size_diff = static_cast<int>(A_val.rank() - size.size());
-    std::vector<int> size_owned(A_val.rank());
+    int size_diff = static_cast<int>(input_val.rank() - size.size());
+    std::vector<int> size_owned(input_val.rank());
 
     // if length of size is smaller than rank of A, the left out dimensions stay
     // the same.
-    std::copy(A_val.shape().begin(), A_val.shape().begin() + size_diff,
+    std::copy(input_val.shape().begin(), input_val.shape().begin() + size_diff,
               size_owned.begin());
     std::copy(size.begin(), size.end(), size_owned.begin() + size_diff);
 
     // if length of offset is smaller than rank of A, the left out offsets are
     // set to 0.
-    int offset_diff = static_cast<int>(A_val.rank() - offset.size());
-    std::vector<int> offset_owned(A_val.rank());
+    int offset_diff = static_cast<int>(input_val.rank() - offset.size());
+    std::vector<int> offset_owned(input_val.rank());
     std::fill(offset_owned.begin(), offset_owned.begin() + offset_diff, 0);
     std::copy(offset.begin(), offset.end(), offset_owned.begin() + offset_diff);
 
-    for (std::size_t i = 0; i < A_val.rank(); i++) {
-        if (offset_owned[i] + size_owned[i] > A_val.shape()[i]) {
+    for (std::size_t i = 0; i < input_val.rank(); i++) {
+        if (offset_owned[i] + size_owned[i] > input_val.shape()[i]) {
             std::span<const int> size_span(size.begin(), size.size());
             std::span<const int> offset_span(offset.begin(), offset.size());
             std::string idx_str = std::to_string(i);
@@ -70,16 +70,16 @@ Node slice(Graph &rec, Node A, std::initializer_list<int> size,
                 "argument error", recLen, "slice", msg.c_str(),
                 {{"size", size_span},
                  {"offset", offset_span},
-                 {"A.shape", A_val.shape()}}));
+                 {"A.shape", input_val.shape()}}));
         }
     }
 
-    std::size_t newLen = A_val.rank();
+    std::size_t newLen = input_val.rank();
     std::vector<int> newShape(newLen);
     std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
 
     rec.nodes.push_back(
-        std::make_unique<Node_slice>(A_ptr, offset_owned.data(), newShape));
+        std::make_unique<Node_slice>(input_ptr, offset_owned.data(), newShape));
     return rec.back_handle();
 }
 

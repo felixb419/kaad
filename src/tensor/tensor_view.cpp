@@ -10,17 +10,17 @@ Tensor_view::Tensor_view(const int *shape, const int *stride, size_type rank,
                          const value_type *elements, size_type len) noexcept
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
-std::ostream &operator<<(std::ostream &os, const Tensor_view &view) {
+std::ostream &operator<<(std::ostream &stream, const Tensor_view &view) {
     if (view.rank == 0) {
         std::cout << "[]";
     } else {
         std::vector<int> cords(view.rank);
         int indent = 0;
 
-        detail::print_tensor(os, cords, view.shape, view.stride, view.rank,
+        detail::print_tensor(stream, cords, view.shape, view.stride, view.rank,
                              view.elements, view.len, 0, indent);
     }
-    return os;
+    return stream;
 }
 
 Tensor_view_mut::Tensor_view_mut() noexcept {}
@@ -35,17 +35,17 @@ Tensor_view Tensor_view_mut::make_immutable() noexcept {
                        this->len);
 }
 
-std::ostream &operator<<(std::ostream &os, const Tensor_view_mut &view) {
+std::ostream &operator<<(std::ostream &stream, const Tensor_view_mut &view) {
     if (view.rank == 0) {
         std::cout << "[]";
     } else {
         std::vector<int> cords(view.rank);
         int indent = 0;
 
-        detail::print_tensor(os, cords, view.shape, view.stride, view.rank,
+        detail::print_tensor(stream, cords, view.shape, view.stride, view.rank,
                              view.elements, view.len, 0, indent);
     }
-    return os;
+    return stream;
 }
 
 } // namespace kaad

@@ -34,49 +34,49 @@ template <class Kernel> struct UnaryKernels {
  *
  * Adds a generalized unary operation node to the computation graph `rec`.
  * Applies the unary operation specified by `kernels` to the input tensor node
- * `A`.
+ * `input`.
  *
  * @tparam Kernel The kernel providing forward operation and gradient.
  * @param rec Reference to the computation graph.
- * @param A Handle of the input node.
+ * @param input Handle of the input node.
  * @param kernels Unary operation and gradient kernels.
  * @return Handle of the newly created unary operation node.
  */
-template <class Kernel> Node unOperator(Graph &rec, Node A) {
+template <class Kernel> Node unOperator(Graph &rec, Node input) {
 
     static const UnaryKernels<Kernel> kernels;
 
-    INode *A_ptr = rec.get_node(A);
-    Tensor &A_val = A_ptr->value();
+    INode *input_ptr = rec.get_node(input);
+    Tensor &input_val = input_ptr->value();
 
     rec.nodes.push_back(std::move(std::make_unique<Node_unary<Kernel>>(
-        kernels.op, kernels.grad, A_ptr, A_val.shape())));
+        kernels.op, kernels.grad, input_ptr, input_val.shape())));
 
     return rec.back_handle();
 }
 
-Node negative(Graph &rec, Node A) {
-    return unOperator<Kernels::Neg<Scalar>>(rec, A);
+Node negative(Graph &rec, Node input) {
+    return unOperator<Kernels::Neg<Scalar>>(rec, input);
 }
 
-Node square(Graph &rec, Node A) {
-    return unOperator<Kernels::Square<Scalar>>(rec, A);
+Node square(Graph &rec, Node input) {
+    return unOperator<Kernels::Square<Scalar>>(rec, input);
 }
 
-Node sqrt(Graph &rec, Node A) {
-    return unOperator<Kernels::safe_Sqrt<Scalar>>(rec, A);
+Node sqrt(Graph &rec, Node input) {
+    return unOperator<Kernels::safe_Sqrt<Scalar>>(rec, input);
 }
 
-Node log(Graph &rec, Node A) {
-    return unOperator<Kernels::safe_Log<Scalar>>(rec, A);
+Node log(Graph &rec, Node input) {
+    return unOperator<Kernels::safe_Log<Scalar>>(rec, input);
 }
 
-Node exp(Graph &rec, Node A) {
-    return unOperator<Kernels::safe_Exp<Scalar>>(rec, A);
+Node exp(Graph &rec, Node input) {
+    return unOperator<Kernels::safe_Exp<Scalar>>(rec, input);
 }
 
-Node abs(Graph &rec, Node A) {
-    return unOperator<Kernels::Abs<Scalar>>(rec, A);
+Node abs(Graph &rec, Node input) {
+    return unOperator<Kernels::Abs<Scalar>>(rec, input);
 }
 
 } // namespace kaad

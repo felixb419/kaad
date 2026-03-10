@@ -87,97 +87,98 @@ template <class Kernel> struct BinaryKernels {
  *
  * Adds a generalized binary operation node to the computation graph `rec`.
  * Applies the binary operation specified by `kernels` to the input tensor nodes
- * `A` and `B`.
+ * `lhs` and `rhs`.
  *
  * @tparam Kernel The kernel providing forward operation and gradient.
  *
  * @param rec Reference to the computation graph.
- * @param A Handle of the first input node.
- * @param B Handle of the second input node.
+ * @param lhs Handle of the first input node.
+ * @param rhs Handle of the second input node.
  * @param kernels Binary operation and gradient kernels.
  * @param opName A string identifier for the operation (used for debugging or
  * logging).
  * @return Handle of the newly created binary operation node.
  */
 template <class Kernel>
-Node binOperator(Graph &rec, Node A, Node B, const char *opName) {
+Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     static const BinaryKernels<Kernel> kernels;
     std::size_t recLen = rec.nodes.size();
 
-    INode *A_ptr = rec.get_node(A);
-    INode *B_ptr = rec.get_node(B);
-    Tensor &A_val = A_ptr->value();
-    Tensor &B_val = B_ptr->value();
+    INode *lhs_ptr = rec.get_node(lhs);
+    INode *rhs_ptr = rec.get_node(rhs);
+    Tensor &lhs_val = lhs_ptr->value();
+    Tensor &rhs_val = rhs_ptr->value();
 
-    bool A_scalar = A_val.size() == 1;
-    bool B_scalar = B_val.size() == 1;
+    bool lhs_scalar = lhs_val.size() == 1;
+    bool rhs_scalar = rhs_val.size() == 1;
 
-    std::size_t newLen = std::max(A_val.rank(), B_val.rank());
+    std::size_t newLen = std::max(lhs_val.rank(), rhs_val.rank());
     std::vector<int> newShape(newLen);
 
-    if (B_scalar) {
+    if (rhs_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
-            kernels.scalarOpRhs, kernels.scalarGradRhs, A_ptr, B_ptr,
-            A_val.shape())));
+            kernels.scalarOpRhs, kernels.scalarGradRhs, lhs_ptr, rhs_ptr,
+            lhs_val.shape())));
 
-    } else if (A_scalar) {
-
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
-            kernels.scalarOpLhs, kernels.scalarGradLhs, A_ptr, B_ptr,
-            B_val.shape())));
-
-    } else if (A_val.rank() == B_val.rank() &&
-               std::equal(A_val.shape().begin(), A_val.shape().end(),
-                          B_val.shape().begin()) &&
-               std::equal(A_val.stride().begin(), A_val.stride().end(),
-                          B_val.stride().begin())) {
+    } else if (lhs_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
-            kernels.pointOp, kernels.pointGrad, A_ptr, B_ptr, A_val.shape())));
+            kernels.scalarOpLhs, kernels.scalarGradLhs, lhs_ptr, rhs_ptr,
+            rhs_val.shape())));
 
-    } else if (combine_flexible(A_val.shape().data(), A_val.rank(),
-                                B_val.shape().data(), B_val.rank(),
+    } else if (lhs_val.rank() == rhs_val.rank() &&
+               std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),
+                          rhs_val.shape().begin()) &&
+               std::equal(lhs_val.stride().begin(), lhs_val.stride().end(),
+                          rhs_val.stride().begin())) {
+
+        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
+            kernels.pointOp, kernels.pointGrad, lhs_ptr, rhs_ptr,
+            lhs_val.shape())));
+
+    } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),
+                                rhs_val.shape().data(), rhs_val.rank(),
                                 newShape.data(), newLen)) {
         rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary_flex<Kernel>>(A_ptr, B_ptr,
-                                                                 newShape)));
+            std::move(std::make_unique<Node_binary_flex<Kernel>>(
+                lhs_ptr, rhs_ptr, newShape)));
     } else {
         throw shape_error(make_graph_errmsg(
             "shape error", recLen, opName,
             "incompatible tensor shapes for binary operation",
-            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}}));
+            {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }
     return rec.back_handle();
 }
 
-Node add(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::Add<Scalar>>(rec, A, B, "add");
+Node add(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::Add<Scalar>>(rec, lhs, rhs, "add");
 }
 
-Node sub(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::Sub<Scalar>>(rec, A, B, "sub");
+Node sub(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::Sub<Scalar>>(rec, lhs, rhs, "sub");
 }
 
-Node mul(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::Mul<Scalar>>(rec, A, B, "mul");
+Node mul(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::Mul<Scalar>>(rec, lhs, rhs, "mul");
 }
 
-Node div(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::safe_Div<Scalar>>(rec, A, B, "div");
+Node div(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::safe_Div<Scalar>>(rec, lhs, rhs, "div");
 }
 
-Node pow(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::safe_Pow<Scalar>>(rec, A, B, "pow");
+Node pow(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::safe_Pow<Scalar>>(rec, lhs, rhs, "pow");
 }
 
-Node min(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::Min<Scalar>>(rec, A, B, "minimum");
+Node min(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::Min<Scalar>>(rec, lhs, rhs, "minimum");
 }
 
-Node max(Graph &rec, Node A, Node B) {
-    return binOperator<Kernels::Max<Scalar>>(rec, A, B, "minimum");
+Node max(Graph &rec, Node lhs, Node rhs) {
+    return binOperator<Kernels::Max<Scalar>>(rec, lhs, rhs, "minimum");
 }
 
 } // namespace kaad

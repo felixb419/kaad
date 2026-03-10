@@ -3,17 +3,17 @@
 namespace kaad {
 
 static inline std::string to_array_string(std::span<const int> array) {
-    std::string s = "[";
+    std::string str = "[";
     bool first = true;
-    for (auto x : array) {
+    for (auto elem : array) {
         if (!first) {
-            s += ", ";
+            str += ", ";
         }
         first = false;
-        s += std::to_string(x);
+        str += std::to_string(elem);
     }
-    s += "]";
-    return s;
+    str += "]";
+    return str;
 }
 
 std::string make_graph_errmsg(

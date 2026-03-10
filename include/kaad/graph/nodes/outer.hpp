@@ -34,10 +34,10 @@ class Node_outer : public INode {
 
     std::vector<int> lhs_stride; ///< stride Array for lhs.
     std::vector<int> rhs_stride; ///< stride Array for rhs.
-    std::vector<int> strideC;    ///< stride Array for C.
+    std::vector<int> res_stride; ///< stride Array for res.
     std::vector<std::size_t>
-        C_offset;           ///< Per-dim offset to the end of C buffer.
-    std::size_t C_rank = 0; ///< Number of the dimensions of the C tensor.
+        res_offset;           ///< Per-dim offset to the end of res buffer.
+    std::size_t res_rank = 0; ///< Number of the dimensions of the res tensor.
 
     void metadata();
 

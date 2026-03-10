@@ -305,6 +305,6 @@ class Tensor {
  * @param tensor The tensor to print.
  * @return Reference to the output stream.
  */
-std::ostream &operator<<(std::ostream &os, const Tensor &tensor);
+std::ostream &operator<<(std::ostream &stream, const Tensor &tensor);
 
 } // namespace kaad

@@ -7,11 +7,12 @@
 namespace kaad {
 
 void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
-                   const Tensor_view value, int &a_dim, int &b_dim, int &k,
-                   int *lhs_stride, int *rhs_stride, int *value_stride) {
+                   const Tensor_view value, int &a_dim, int &b_dim,
+                   int &shared_dim, int *lhs_stride, int *rhs_stride,
+                   int *value_stride) {
     a_dim = lhs.shape[0];
     b_dim = rhs.shape[1];
-    k = lhs.shape[1];
+    shared_dim = lhs.shape[1];
 
     std::copy(lhs.stride, lhs.stride + 2, lhs_stride);
     std::copy(rhs.stride, rhs.stride + 2, rhs_stride);

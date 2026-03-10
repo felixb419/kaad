@@ -15,27 +15,27 @@ namespace kaad {
 
 void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
                    int *&lhs_stride, int *&rhs_stride, int *&res_stride,
-                   int *&c_shape_broadcast, int &a_off, int &b_off, int &k,
-                   std::size_t &D) {
+                   int *&c_shape_broadcast, int &a_off, int &b_off,
+                   int &shared_dim, std::size_t &res_rank) {
     a_off = lhs.stride[lhs.rank - 1];
     b_off = rhs.stride[rhs.rank - 2];
-    k = lhs.shape[lhs.rank - 1];
+    shared_dim = lhs.shape[lhs.rank - 1];
 
-    D = std::max(lhs.rank, rhs.rank);
-    c_shape_broadcast = new int[D];
+    res_rank = std::max(lhs.rank, rhs.rank);
+    c_shape_broadcast = new int[res_rank];
 
     detail::combine_matrix(lhs.shape, lhs.rank, rhs.shape, rhs.rank,
-                           c_shape_broadcast, D);
+                           c_shape_broadcast, res_rank);
 
-    lhs_stride = new int[D];
-    rhs_stride = new int[D];
-    res_stride = new int[D];
+    lhs_stride = new int[res_rank];
+    rhs_stride = new int[res_rank];
+    res_stride = new int[res_rank];
 
     int idx;
     int idxA;
     int idxB;
     int idxC;
-    int rank = static_cast<int>(D);
+    int rank = static_cast<int>(res_rank);
     for (int i = 1; i <= rank; i++) {
         idx = rank - i;
         idxA = static_cast<int>(lhs.rank) - i;
@@ -46,8 +46,8 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
         res_stride[idx] = idxC >= 0 ? res.stride[idxC] : 0;
     }
 
-    lhs_stride[D - 1] = 0;
-    rhs_stride[D - 2] = 0;
+    lhs_stride[res_rank - 1] = 0;
+    rhs_stride[res_rank - 2] = 0;
 }
 
 void Node_batch_matmul::metadata() {

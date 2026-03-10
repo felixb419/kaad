@@ -14,27 +14,27 @@
 
 namespace kaad {
 
-Node dot(Graph &rec, Node A, Node B) {
+Node dot(Graph &rec, Node lhs, Node rhs) {
 
     std::size_t recLen = rec.nodes.size();
 
-    INode *A_ptr = rec.get_node(A);
-    INode *B_ptr = rec.get_node(B);
-    Tensor &A_val = A_ptr->value();
-    Tensor &B_val = B_ptr->value();
+    INode *lhs_ptr = rec.get_node(lhs);
+    INode *rhs_ptr = rec.get_node(rhs);
+    Tensor &lhs_val = lhs_ptr->value();
+    Tensor &rhs_val = rhs_ptr->value();
 
-    bool A_scalar = A_val.size() == 1;
-    bool B_scalar = B_val.size() == 1;
+    bool lhs_scalar = lhs_val.size() == 1;
+    bool rhs_scalar = rhs_val.size() == 1;
 
-    if (A_scalar || B_scalar) {
+    if (lhs_scalar || rhs_scalar) {
 
-        if (B_scalar) {
+        if (rhs_scalar) {
 
-            rec.nodes.push_back(std::make_unique<Node_dot>(A_ptr, B_ptr));
+            rec.nodes.push_back(std::make_unique<Node_dot>(lhs_ptr, rhs_ptr));
 
-        } else if (A_scalar) {
+        } else if (lhs_scalar) {
 
-            rec.nodes.push_back(std::make_unique<Node_dot>(B_ptr, A_ptr));
+            rec.nodes.push_back(std::make_unique<Node_dot>(rhs_ptr, lhs_ptr));
         }
 
         // override functions to ScalarDot
@@ -43,17 +43,17 @@ Node dot(Graph &rec, Node A, Node B) {
         static_cast<Node_dot *>(rec.nodes.back().get())->backward_op =
             functions::adjoint::binary::scalarDot;
 
-    } else if (A_val.rank() == 1 && B_val.rank() == 1 &&
-               std::equal(A_val.shape().begin(), A_val.shape().end(),
-                          B_val.shape().begin())) {
+    } else if (lhs_val.rank() == 1 && rhs_val.rank() == 1 &&
+               std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),
+                          rhs_val.shape().begin())) {
 
-        rec.nodes.push_back(std::make_unique<Node_dot>(A_ptr, B_ptr));
+        rec.nodes.push_back(std::make_unique<Node_dot>(lhs_ptr, rhs_ptr));
 
     } else {
         throw shape_error(make_graph_errmsg(
             "shape error", recLen, "dot",
             "incompatible tensor shapes for dot product",
-            {{"A.shape", A_val.shape()}, {"B.shape", B_val.shape()}}));
+            {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }
 
     return rec.back_handle();

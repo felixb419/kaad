@@ -12,20 +12,21 @@
 
 namespace kaad {
 
-Node outer(Graph &rec, Node A, Node B) {
+Node outer(Graph &rec, Node lhs, Node rhs) {
 
-    INode *A_ptr = rec.get_node(A);
-    INode *B_ptr = rec.get_node(B);
-    Tensor &A_val = A_ptr->value();
-    Tensor &B_val = B_ptr->value();
+    INode *lhs_ptr = rec.get_node(lhs);
+    INode *rhs_ptr = rec.get_node(rhs);
+    Tensor &lhs_val = lhs_ptr->value();
+    Tensor &rhs_val = rhs_ptr->value();
 
-    std::size_t newLen = A_val.rank() + B_val.rank();
+    std::size_t newLen = lhs_val.rank() + rhs_val.rank();
     std::vector<int> newShape(newLen);
-    std::copy(A_val.shape().begin(), A_val.shape().end(), newShape.begin());
-    std::copy(B_val.shape().begin(), B_val.shape().end(),
-              newShape.begin() + static_cast<int>(A_val.rank()));
+    std::copy(lhs_val.shape().begin(), lhs_val.shape().end(), newShape.begin());
+    std::copy(rhs_val.shape().begin(), rhs_val.shape().end(),
+              newShape.begin() + static_cast<int>(lhs_val.rank()));
 
-    rec.nodes.push_back(std::make_unique<Node_outer>(A_ptr, B_ptr, newShape));
+    rec.nodes.push_back(
+        std::make_unique<Node_outer>(lhs_ptr, rhs_ptr, newShape));
 
     return rec.back_handle();
 }
