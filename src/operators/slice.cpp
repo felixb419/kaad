@@ -59,8 +59,13 @@ Node slice(Graph &rec, Node A, std::initializer_list<int> size,
             std::span<const int> size_span(size.begin(), size.size());
             std::span<const int> offset_span(offset.begin(), offset.size());
             std::string idx_str = std::to_string(i);
-            std::string msg = "offset[" + idx_str + "] + length[" + idx_str +
-                              "] > A.shape[" + idx_str + "]";
+            std::string msg = "offset[";
+            msg += idx_str;
+            msg += "] + length[";
+            msg += idx_str;
+            msg += "] > A.shape[";
+            msg += idx_str;
+            msg += "]";
             throw argument_error(make_graph_errmsg(
                 "argument error", recLen, "slice", msg.c_str(),
                 {{"size", size_span},
