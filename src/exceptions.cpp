@@ -21,8 +21,11 @@ std::string make_graph_errmsg(
     const char *msg,
     std::initializer_list<std::pair<const char *, std::span<const int>>> arrays,
     std::initializer_list<std::pair<const char *, int>> numbers) {
+
     std::string errmsg;
-    errmsg.reserve(128);
+    const std::size_t max_msg_len = 128;
+    errmsg.reserve(max_msg_len);
+
     errmsg += err_type;
     errmsg += " in node[";
     errmsg += std::to_string(graph_idx);
