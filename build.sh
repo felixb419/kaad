@@ -3,10 +3,11 @@ set -euo pipefail
 
 RELEASE=false
 CLEAN=false
+FAST=false
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") [--release] [--clean] [--help]
+Usage: $(basename "$0") [--release] [--clean] [--fast] [--help]
 
   --clean     Delete build/ directory before building
   --release   Build in release mode
@@ -24,6 +25,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --clean)
         CLEAN=true
+        shift
+        ;;
+    --fast)
+        FAST=true
         shift
         ;;
     --help)
@@ -59,6 +64,13 @@ if $RELEASE; then
     cmake -DCMAKE_BUILD_TYPE=Debug ..
 else
     cmake -DCMAKE_BUILD_TYPE=Release ..
+fi
+
+# Turn off iwyu, clang-tidy and sanitizers
+if $FAST; then
+    cmake -DENABLE_SANITIZERS=OFF ..
+    cmake -DUSE_CLANG_TIDY=OFF ..
+    cmake -DUSE_IWYU=OFF ..
 fi
 
 # Build everything
