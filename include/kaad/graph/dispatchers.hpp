@@ -6,8 +6,6 @@
 #include <bits/utility.h>           // for index_sequence, make_index_s...
 #include <cstddef>                  // for size_t
 
-namespace kaad {
-
 /**
  * @namespace kaad::Dispatchers
  * @brief Provides compile-time dispatcher utilities for flexible binary
@@ -24,7 +22,7 @@ namespace kaad {
  * Typical users do not need to call these functions directly unless
  * implementing new operators.
  */
-namespace Dispatchers {
+namespace kaad::Dispatchers {
 
 constexpr static int MAX_NDIMS = 10;
 
@@ -162,5 +160,4 @@ get_slice_grad() {
     return get_slice_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
 
-} // namespace Dispatchers
-} // namespace kaad
+} // namespace kaad::Dispatchers

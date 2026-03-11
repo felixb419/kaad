@@ -4,8 +4,6 @@
 #include <cstddef>     // for size_t
 #include <type_traits> // for declval
 
-namespace kaad {
-
 /**
  * @file functions.hpp
  * @brief Tensor operations with NumPy-style broadcasting.
@@ -30,7 +28,7 @@ namespace kaad {
  * @namespace functions::primal
  * @brief Contains primal (e.g. used for forward computation) tensor operations.
  */
-namespace functions::primal {
+namespace kaad::functions::primal {
 
 /**
  * @defgroup primal_functions Primal (e.g. used for forward computation) tensor
@@ -613,5 +611,4 @@ void slice(const T *inp, T *res, int *stride_inp, int *stride_res,
 }
 
 } // namespace unary
-} // namespace functions::primal
-} // namespace kaad
+} // namespace kaad::functions::primal

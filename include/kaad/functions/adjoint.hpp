@@ -5,14 +5,12 @@
 #include <cstddef>     // for size_t
 #include <type_traits> // for declval
 
-namespace kaad {
-
 /**
  * @namespace functions::adjoint
  * @brief Contains adjoint (e.g. used for backward computation) tensor
  * operations.
  */
-namespace functions::adjoint {
+namespace kaad::functions::adjoint {
 
 /**
  * @defgroup adjoint_functions Adjoint (e.g. used for backward computation)
@@ -661,5 +659,4 @@ void slice(T *d_inp, const T *d_res, int *stride_inp, int *stride_res,
 }
 
 } // namespace unary
-} // namespace functions::adjoint
-} // namespace kaad
+} // namespace kaad::functions::adjoint

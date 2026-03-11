@@ -4,14 +4,12 @@
 #include <cstdlib> // for abs
 #include <limits>  // for numeric_limits
 
-namespace kaad {
-
 /**
  * @namespace kaad::Kernels
  * @brief Contains elementary operation kernels and their corresponding
  * gradients.
  */
-namespace Kernels {
+namespace kaad::Kernels {
 
 /**
  * @brief Binary kernel for addition.
@@ -363,5 +361,4 @@ template <typename T> struct Abs {
     }
 };
 
-} // namespace Kernels
-} // namespace kaad
+} // namespace kaad::Kernels

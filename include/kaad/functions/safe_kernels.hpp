@@ -4,14 +4,12 @@
 #include <cstdlib> // for abs
 #include <limits>  // for numeric_limits
 
-namespace kaad {
-
 /**
  * @namespace kaad::Kernels
  * @brief Contains elementary operation kernels and their corresponding
  * gradients.
  */
-namespace Kernels {
+namespace kaad::Kernels {
 
 template <typename T>
 static constexpr T epsilon =
@@ -166,5 +164,4 @@ template <typename T> struct safe_Exp {
     }
 };
 
-} // namespace Kernels
-} // namespace kaad
+} // namespace kaad::Kernels
