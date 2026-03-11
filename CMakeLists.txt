@@ -15,6 +15,7 @@ set(CMAKE_EXTENSIONS OFF)
 # Option flags
 option(ENABLE_SANITIZERS "Enable ASan + UBSan" ON)
 option(USE_CLANG_TIDY "Enable clang-tidy" ON)
+option(USE_IWYU "Enable IWYU" ON)
 option(KAAD_BUILD_TESTS "Build tests" ON)
 option(KAAD_BUILD_EXAMPLES "Build examples" ON)
 
@@ -35,6 +36,15 @@ if (USE_CLANG_TIDY)
     if(CLANG_TIDY_EXE)
         set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
     endif()
+endif()
+
+if(USE_IWYU)
+  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+
+  if(IWYU_PATH)
+    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_PATH}")
+  endif()
+
 endif()
 
 
