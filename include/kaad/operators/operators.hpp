@@ -170,7 +170,7 @@ Node mean(Graph &rec, Node input);
  * @return A handle of the new node representing the tensor after mean
  * reduction along the specified dimension.
  */
-Node mean(Graph &rec, Node input, int dim, bool keep_rank = 0);
+Node mean(Graph &rec, Node input, int dim, bool keep_rank = false);
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
