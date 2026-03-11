@@ -4,7 +4,7 @@
 
 namespace kaad {
 
-Tensor_view::Tensor_view() noexcept {}
+Tensor_view::Tensor_view() noexcept = default;
 
 Tensor_view::Tensor_view(const int *shape, const int *stride, size_type rank,
                          const value_type *elements, size_type len) noexcept
@@ -23,7 +23,7 @@ std::ostream &operator<<(std::ostream &stream, const Tensor_view &view) {
     return stream;
 }
 
-Tensor_view_mut::Tensor_view_mut() noexcept {}
+Tensor_view_mut::Tensor_view_mut() noexcept = default;
 
 Tensor_view_mut::Tensor_view_mut(const int *shape, const int *stride,
                                  size_type rank, value_type *elements,
