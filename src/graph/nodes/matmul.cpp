@@ -60,16 +60,16 @@ void Node_matmul::metadata() {
     rhs_T.stride = rhs_T_stride.data();
 
     metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
-                  this->shared_dim[0], this->lhs_stride, this->rhs_stride,
-                  this->value_stride);
+                  this->shared_dim[0], this->lhs_stride.data(),
+                  this->rhs_stride.data(), this->value_stride.data());
     // NOLINTNEXTLINE(readability-suspicious-call-argument)
     metadata_impl(value, rhs_T, lhs, this->lhs_rows[1], this->rhs_cols[1],
-                  this->shared_dim[1], this->value_stride + 2,
-                  this->rhs_stride + 2, this->lhs_stride + 2);
+                  this->shared_dim[1], this->value_stride.data() + 2,
+                  this->rhs_stride.data() + 2, this->lhs_stride.data() + 2);
     // NOLINTNEXTLINE(readability-suspicious-call-argument)
     metadata_impl(lhs_T, value, rhs, this->lhs_rows[2], this->rhs_cols[2],
-                  this->shared_dim[2], this->lhs_stride + 4,
-                  this->value_stride + 4, this->rhs_stride + 4);
+                  this->shared_dim[2], this->lhs_stride.data() + 4,
+                  this->value_stride.data() + 4, this->rhs_stride.data() + 4);
 }
 
 Node_matmul::Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
@@ -88,7 +88,8 @@ void Node_matmul::eval() {
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
                    this->value().data(), lhs_rows[0], rhs_cols[0],
-                   shared_dim[0], lhs_stride, rhs_stride, value_stride);
+                   shared_dim[0], lhs_stride.data(), rhs_stride.data(),
+                   value_stride.data());
         this->evaluated_ = true;
     }
 }
@@ -96,9 +97,10 @@ void Node_matmul::eval() {
 void Node_matmul::getGrad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
-                this->gradient().data(), lhs_rows + 1, rhs_cols + 1,
-                shared_dim + 1, lhs_stride + 2, rhs_stride + 2,
-                value_stride + 2);
+                this->gradient().data(), lhs_rows.data() + 1,
+                rhs_cols.data() + 1, shared_dim.data() + 1,
+                lhs_stride.data() + 2, rhs_stride.data() + 2,
+                value_stride.data() + 2);
 
     if (!this->lhs->isInput()) {
         this->lhs->getGrad();

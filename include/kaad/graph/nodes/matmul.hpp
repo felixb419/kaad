@@ -4,6 +4,7 @@
 #include "../../functions/primal.hpp"  // for matmul, matmul_fn
 #include "../../scalar.hpp"            // for Scalar
 #include "inode.hpp"                   // for INode
+#include <array>                       // for array
 #include <span>                        // for span
 
 namespace kaad {
@@ -36,16 +37,21 @@ class Node_matmul : public INode {
      * - [2..3] Gradient w.r.t. A (dA = dC * B^t)
      * - [4..5] Gradient w.r.t. B (dB = A^t * dC)
      */
-    int lhs_rows[3]; ///< Number of rows of tensor A for each computation stage.
-    int rhs_cols[3]; ///< Number of columns of tensor B for each computation
-                     ///< stage.
-    int shared_dim[3]; ///< Shared inner dimension for each computation stage.
-    int lhs_stride[6]; ///< Flattened stride pairs for tensor A (2 per stage x 3
-                       ///< stages).
-    int rhs_stride[6]; ///< Flattened stride pairs for tensor B (2 per stage x 3
-                       ///< stages).
-    int value_stride[6]; ///< Flattened stride pairs for tensor C (2 per stage x
-                         ///< 3 stages).
+    std::array<int, 3>
+        lhs_rows; ///< Number of rows of tensor A for each computation stage.
+    std::array<int, 3> rhs_cols; ///< Number of columns of tensor B for each
+                                 ///< computation stage.
+    std::array<int, 3>
+        shared_dim; ///< Shared inner dimension for each computation stage.
+
+    // NOLINTBEGIN(readability-magic-numbers)
+    std::array<int, 6> lhs_stride;   ///< Flattened stride pairs for tensor A (2
+                                     ///< per stage x 3 stages).
+    std::array<int, 6> rhs_stride;   ///< Flattened stride pairs for tensor B (2
+                                     ///< per stage x 3 stages).
+    std::array<int, 6> value_stride; ///< Flattened stride pairs for tensor C (2
+                                     ///< per stage x 3 stages).
+    // NOLINTEND(readability-magic-numbers)
 
     void metadata();
 

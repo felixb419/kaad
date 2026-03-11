@@ -4,6 +4,7 @@
 #include "../../functions/primal.hpp"  // for batch_matmul, batch_matmul_fn
 #include "../../scalar.hpp"            // for Scalar
 #include "inode.hpp"                   // for INode
+#include <array>                       // for array
 #include <cstddef>                     // for size_t
 #include <span>                        // for span
 
@@ -37,14 +38,14 @@ class Node_batch_matmul : public INode {
      * - [1] Gradient w.r.t. A (dA = dC * B^t)
      * - [2] Gradient w.r.t. B (dB = A^t * dC)
      */
-    int *lhs_stride[3];            ///< Stride array for tensor A.
-    int *rhs_stride[3];            ///< Stride array for tensor B.
-    int *value_stride[3];          ///< Stride array for tensor C.
-    int *value_shape_broadcast[3]; ///< shape of C (without summing over batch
-                                   ///< dimensions).
-    int lhs_colStride[3];          ///< Gap between columns of the A matrix.
-    int rhs_rowStride[3];          ///< Gap between rows of the B matrix.
-    int shared_dim[3];             ///< Shared inner dimension of the tensors.
+    std::array<int *, 3> lhs_stride;            ///< Stride array for tensor A.
+    std::array<int *, 3> rhs_stride;            ///< Stride array for tensor B.
+    std::array<int *, 3> value_stride;          ///< Stride array for tensor C.
+    std::array<int *, 3> value_shape_broadcast; ///< shape of C (without summing
+                                                ///< over batch dimensions).
+    std::array<int, 3> lhs_colStride; ///< Gap between columns of the A matrix.
+    std::array<int, 3> rhs_rowStride; ///< Gap between rows of the B matrix.
+    std::array<int, 3> shared_dim; ///< Shared inner dimension of the tensors.
     std::size_t value_rank =
         0; ///< Number of the dimensions of the value tensor.
 
