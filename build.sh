@@ -1,16 +1,14 @@
-
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLEAN=false
 RELEASE=false
+CLEAN=false
 
 usage() {
-  cat <<EOF
-Usage: $(basename "$0") [--debug] [--clean] [--release] [--help]
+    cat <<EOF
+Usage: $(basename "$0") [--release] [--clean] [--help]
 
-  --debug     Enable debug mode
-  --clean     Run clean step
+  --clean     Delete build/ directory before building
   --release   Build in release mode
   --help      Show this help message
 EOF
@@ -18,36 +16,35 @@ EOF
 
 # Parse long flags
 while [[ $# -gt 0 ]]; do
-  case "$1" in
-    --clean)
-      CLEAN=true
-      shift
-      ;;
+    case "$1" in
     --release)
-      RELEASE=true
+        RELEASE=true
 
-      shift
-      ;;
+        shift
+        ;;
+    --clean)
+        CLEAN=true
+        shift
+        ;;
     --help)
-      usage
+        usage
 
-      exit 0
-      ;;
+        exit 0
+        ;;
     --) # end of options
-      shift
-      break
-      ;;
+        shift
+        break
+        ;;
     -*)
-      echo "Unknown option: $1" >&2
-      usage
+        echo "Unknown option: $1" >&2
+        usage
 
-      exit 1
-      ;;
-  esac
+        exit 1
+        ;;
+    esac
 done
 
 BUILD_DIR=./build
-
 
 if $CLEAN; then
     rm -rf $BUILD_DIR
