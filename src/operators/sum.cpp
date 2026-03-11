@@ -14,7 +14,7 @@
 #include <array>                                      // for array
 #include <cstddef>                                    // for size_t
 #include <memory>                                     // for unique_ptr
-#include <utility>                                    // for move
+#include <utility>                                    // for cmp_greater_equal
 #include <vector>                                     // for vector
 
 namespace kaad {
@@ -44,7 +44,7 @@ Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
     INode *input_ptr = rec.get_node(input);
     Tensor &input_val = input_ptr->value();
 
-    if (dim < 0 || dim >= static_cast<int>(input_val.rank())) {
+    if (dim < 0 || std::cmp_greater_equal(dim, input_val.rank())) {
         throw argument_error(make_graph_errmsg(
             "argument error", recLen, "sum",
             "dim has to be a valid index of A.shape",
