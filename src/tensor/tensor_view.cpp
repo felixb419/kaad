@@ -31,8 +31,7 @@ Tensor_view_mut::Tensor_view_mut(const int *shape, const int *stride,
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
 Tensor_view Tensor_view_mut::make_immutable() const noexcept {
-    return Tensor_view(this->shape, this->stride, this->rank, this->elements,
-                       this->len);
+    return {this->shape, this->stride, this->rank, this->elements, this->len};
 }
 
 std::ostream &operator<<(std::ostream &stream, const Tensor_view_mut &view) {

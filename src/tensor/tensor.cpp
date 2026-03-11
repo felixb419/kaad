@@ -63,7 +63,7 @@ std::vector<int> checked_stride(std::span<const int> stride,
             ") need to be equal");
     }
 
-    return std::vector(stride.begin(), stride.end());
+    return {stride.begin(), stride.end()};
 }
 
 std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
@@ -76,7 +76,7 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
             ", size implied by shape param: " + std::to_string(implied_len));
     }
 
-    return std::vector<Scalar>(elements.begin(), elements.end());
+    return {elements.begin(), elements.end()};
 }
 
 Tensor::Tensor() : elements_{0} {}
@@ -210,14 +210,14 @@ Tensor::iterator Tensor::begin() {
     std::vector<int> cords(std::max(this->rank(), size_type(1)));
     std::fill(cords.begin(), cords.end(), 0);
 
-    return iterator(*this, std::move(cords));
+    return {*this, std::move(cords)};
 }
 
 Tensor::const_iterator Tensor::begin() const {
     std::vector<int> cords(std::max(this->rank(), size_t(1)));
     std::fill(cords.begin(), cords.end(), 0);
 
-    return const_iterator(*this, std::move(cords));
+    return {*this, std::move(cords)};
 }
 
 Tensor::iterator Tensor::end() {
@@ -236,7 +236,7 @@ Tensor::iterator Tensor::end() {
         }
     }
 
-    return iterator(*this, std::move(cords));
+    return {*this, std::move(cords)};
 }
 
 Tensor::const_iterator Tensor::end() const {
@@ -254,7 +254,7 @@ Tensor::const_iterator Tensor::end() const {
         }
     }
 
-    return const_iterator(*this, std::move(cords));
+    return {*this, std::move(cords)};
 }
 
 Tensor::size_type Tensor::size() const noexcept {
@@ -288,13 +288,13 @@ Tensor::const_pointer Tensor::data() const noexcept {
 }
 
 struct Tensor_view Tensor::view() const noexcept {
-    return Tensor_view(this->shape_.data(), this->stride_.data(), this->rank(),
-                       this->data(), this->size());
+    return {this->shape_.data(), this->stride_.data(), this->rank(),
+            this->data(), this->size()};
 }
 
 struct Tensor_view_mut Tensor::view_mut() noexcept {
-    return Tensor_view_mut(this->shape_.data(), this->stride_.data(),
-                           this->rank(), this->elements_.data(), this->size());
+    return {this->shape_.data(), this->stride_.data(), this->rank(),
+            this->elements_.data(), this->size()};
 }
 
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
