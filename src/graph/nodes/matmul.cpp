@@ -40,23 +40,23 @@ void Node_matmul::metadata() {
     Tensor_view rhs = this->rhs->value().view();
     Tensor_view value = this->value().view();
 
-    int lhs_T_shape[2];
-    int lhs_T_stride[2];
-    std::reverse_copy(lhs.shape, lhs.shape + lhs.rank, lhs_T_shape);
-    std::reverse_copy(lhs.stride, lhs.stride + lhs.rank, lhs_T_stride);
+    std::array<int, 2> lhs_T_shape;
+    std::array<int, 2> lhs_T_stride;
+    std::reverse_copy(lhs.shape, lhs.shape + lhs.rank, lhs_T_shape.begin());
+    std::reverse_copy(lhs.stride, lhs.stride + lhs.rank, lhs_T_stride.begin());
 
     Tensor_view lhs_T = lhs;
-    lhs_T.shape = lhs_T_shape;
-    lhs_T.stride = lhs_T_stride;
+    lhs_T.shape = lhs_T_shape.data();
+    lhs_T.stride = lhs_T_stride.data();
 
-    int rhs_T_shape[2];
-    int rhs_T_stride[2];
-    std::reverse_copy(rhs.shape, rhs.shape + rhs.rank, rhs_T_shape);
-    std::reverse_copy(rhs.stride, rhs.stride + rhs.rank, rhs_T_stride);
+    std::array<int, 2> rhs_T_shape;
+    std::array<int, 2> rhs_T_stride;
+    std::reverse_copy(rhs.shape, rhs.shape + rhs.rank, rhs_T_shape.begin());
+    std::reverse_copy(rhs.stride, rhs.stride + rhs.rank, rhs_T_stride.begin());
 
     Tensor_view rhs_T = rhs;
-    rhs_T.shape = rhs_T_shape;
-    rhs_T.stride = rhs_T_stride;
+    rhs_T.shape = rhs_T_shape.data();
+    rhs_T.stride = rhs_T_stride.data();
 
     metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
                   this->shared_dim[0], this->lhs_stride, this->rhs_stride,
