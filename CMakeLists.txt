@@ -14,17 +14,9 @@ set(CMAKE_EXTENSIONS OFF)
 
 # Option flags
 option(ENABLE_SANITIZERS "Enable ASan + UBSan" ON)
+option(USE_CLANG_TIDY "Enable clang-tidy" ON)
 option(KAAD_BUILD_TESTS "Build tests" ON)
 option(KAAD_BUILD_EXAMPLES "Build examples" ON)
-option(USE_CLANG_TIDY "Enable clang-tidy" ON)
-
-if (USE_CLANG_TIDY)
-    find_program(CLANG_TIDY_EXE NAMES clang-tidy)
-
-    if(CLANG_TIDY_EXE)
-        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
-    endif()
-endif()
 
 if (ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
@@ -36,6 +28,15 @@ if (ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
         -fsanitize=address,undefined
     )
 endif()
+
+if (USE_CLANG_TIDY)
+    find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+
+    if(CLANG_TIDY_EXE)
+        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
+    endif()
+endif()
+
 
 # Add subdirectories
 add_subdirectory(src)
