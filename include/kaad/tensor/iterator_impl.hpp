@@ -34,7 +34,7 @@ template <bool isConst> class iterator_impl {
     const Tensor &origin() { return this->origin_; }
 
     reference operator*() const {
-        std::size_t idx = 0;
+        int idx = 0;
         for (std::size_t i = 0; i < this->origin_.rank(); i++) {
             idx += this->cords_[i] * this->stride_[i];
         }

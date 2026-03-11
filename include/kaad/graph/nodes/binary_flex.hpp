@@ -70,7 +70,8 @@ template <class Kernel> class Node_binary_flex : public INode {
 
         this->C_offset.resize(this->value_rank);
         for (std::size_t i = 0; i < this->value_rank; i++) {
-            this->C_offset[i] = value.shape()[i] * this->value_stride[i];
+            this->C_offset[i] = static_cast<std::size_t>(value.shape()[i]) *
+                                this->value_stride[i];
         }
 
         // assign compile-time recursive function

@@ -94,7 +94,7 @@ inline void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim,
 
     A_offset.resize(D);
     for (std::size_t i = 0; i < D; i++) {
-        A_offset[i] = A.shape()[i] * strideA[i];
+        A_offset[i] = static_cast<std::size_t>(A.shape()[i]) * strideA[i];
     }
 }
 
