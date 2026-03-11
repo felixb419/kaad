@@ -50,8 +50,8 @@ std::vector<const Tensor *> Graph::evaluate(std::span<const Node> nodes) {
 }
 
 void Graph::reset() {
-    for (std::size_t i = 0; i < nodes.size(); i++) {
-        (*nodes[i]).reset();
+    for (std::unique_ptr<INode> &node : this->nodes) {
+        (*node).reset();
     }
 }
 
