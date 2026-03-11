@@ -61,8 +61,7 @@ template <bool isConst> class iterator_impl {
             } else {
                 // increment every cord but the last, so iterator points one
                 // past end and return.
-                std::copy(this->shape_.begin(), this->shape_.end(),
-                          this->cords_.begin());
+                std::ranges::copy(this->shape_, this->cords_.begin());
                 for (std::size_t i = 0; i < this->origin_.rank() - 1; i++) {
                     this->cords_[i]--;
                 }
@@ -93,7 +92,7 @@ template <bool isConst> class iterator_impl {
 
             } else {
                 // set cords to all 0 and return
-                std::fill(this->cords_.begin(), this->cords_.end(), 0);
+                std::ranges::fill(this->cords_, 0);
                 break;
             }
         }
