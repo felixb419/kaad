@@ -38,10 +38,10 @@ bool INode::isInput() const noexcept { return this->is_input_node_; }
 
 void INode::reset() {
     if (!this->is_input_node_) {
-        std::fill(value_.elements_.begin(), value_.elements_.end(), 0);
+        std::ranges::fill(value_.elements_, 0);
         evaluated_ = false;
     }
-    std::fill(gradient_.elements_.begin(), gradient_.elements_.end(), 0);
+    std::ranges::fill(gradient_.elements_, 0);
 }
 
 } // namespace kaad

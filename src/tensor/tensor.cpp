@@ -185,7 +185,7 @@ void Tensor::manual_seed(uint64_t seed) {
 
 void Tensor::reshape(std::span<const int> shape) {
 
-    std::copy(shape.begin(), shape.end(), this->shape_.begin());
+    std::ranges::copy(shape, this->shape_.begin());
 
     size_type suggested_len = compute_size(this->shape_);
     this->stride_ = compute_stride(this->shape_);
@@ -208,14 +208,14 @@ const std::vector<int> &Tensor::stride() const noexcept {
 
 Tensor::iterator Tensor::begin() {
     std::vector<int> cords(std::max(this->rank(), size_type(1)));
-    std::fill(cords.begin(), cords.end(), 0);
+    std::ranges::fill(cords, 0);
 
     return {*this, std::move(cords)};
 }
 
 Tensor::const_iterator Tensor::begin() const {
     std::vector<int> cords(std::max(this->rank(), size_t(1)));
-    std::fill(cords.begin(), cords.end(), 0);
+    std::ranges::fill(cords, 0);
 
     return {*this, std::move(cords)};
 }

@@ -12,15 +12,15 @@ int main() {
     auto a = rec.add_input_node(std::array{3, 5});
     std::span<float> a_vals =
         a.value_elements(); // span to represent the element array of a
-    std::fill(a_vals.begin(), a_vals.end(), 10);
+    std::ranges::fill(a_vals, 10);
 
     auto b = rec.add_input_node(std::array{5, 8});
     std::span<float> b_vals = b.value_elements();
-    std::fill(b_vals.begin(), b_vals.end(), 50);
+    std::ranges::fill(b_vals, 50);
 
     auto c = rec.add_input_node(std::array{2, 2, 8, 2});
     std::span<float> c_vals = c.value_elements();
-    std::fill(c_vals.begin(), c_vals.end(), 20);
+    std::ranges::fill(c_vals, 20);
 
     // Add computation nodes to graph via operators.
     kaad::Node ab = matmul(rec, a, b);

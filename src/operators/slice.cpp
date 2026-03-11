@@ -45,14 +45,14 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     // the same.
     std::copy(input_val.shape().begin(), input_val.shape().begin() + size_diff,
               size_owned.begin());
-    std::copy(size.begin(), size.end(), size_owned.begin() + size_diff);
+    std::ranges::copy(size, size_owned.begin() + size_diff);
 
     // if length of offset is smaller than rank of A, the left out offsets are
     // set to 0.
     int offset_diff = static_cast<int>(input_val.rank() - offset.size());
     std::vector<int> offset_owned(input_val.rank());
     std::fill(offset_owned.begin(), offset_owned.begin() + offset_diff, 0);
-    std::copy(offset.begin(), offset.end(), offset_owned.begin() + offset_diff);
+    std::ranges::copy(offset, offset_owned.begin() + offset_diff);
 
     for (std::size_t i = 0; i < input_val.rank(); i++) {
         if (offset_owned[i] + size_owned[i] > input_val.shape()[i]) {
@@ -76,7 +76,7 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
 
     std::size_t newLen = input_val.rank();
     std::vector<int> newShape(newLen);
-    std::copy(size_owned.begin(), size_owned.end(), newShape.begin());
+    std::ranges::copy(size_owned, newShape.begin());
 
     rec.nodes.push_back(
         std::make_unique<Node_slice>(input_ptr, offset_owned.data(), newShape));
