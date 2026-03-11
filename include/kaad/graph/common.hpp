@@ -31,10 +31,10 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
     newShape[newLen - 1] = shape2[rank2 - 1];
     newShape[newLen - 2] = shape1[rank1 - 2];
 
-    int ind = newLen - 3;
+    std::size_t ind = newLen - 3;
     for (int i = 3; i <= static_cast<int>(newLen); i++, ind--) {
-        int ind1 = rank1 - i;
-        int ind2 = rank2 - i;
+        int ind1 = static_cast<int>(rank1) - i;
+        int ind2 = static_cast<int>(rank2) - i;
         if (ind1 >= 0 && ind2 >= 0) {
             if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 &&
                 shape2[ind2] != 1) {
