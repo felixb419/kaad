@@ -1,13 +1,12 @@
-#include "../../include/kaad/graph/nodes/outer.hpp"   // for Node_outer
-#include "../../include/kaad/graph/graph.hpp"         // for Graph
+#include "../../include/kaad/graph/nodes/outer.hpp"
+#include "../../include/kaad/graph/graph.hpp"         // for Graph, outer
 #include "../../include/kaad/graph/node_handle.hpp"   // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
 #include "../../include/kaad/operators/operators.hpp" // for outer
 #include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
 #include <algorithm>                                  // for copy
 #include <cstddef>                                    // for size_t
-#include <memory>                                     // for unique_ptr, __u...
-#include <utility>                                    // for move
+#include <memory>                                     // for unique_ptr
 #include <vector>                                     // for vector
 
 namespace kaad {

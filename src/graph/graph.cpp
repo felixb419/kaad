@@ -4,12 +4,12 @@
 #include "../../include/kaad/graph/nodes/inode.hpp" // for INode
 #include "../../include/kaad/graph/nodes/input.hpp" // for Node_input
 #include "../../include/kaad/tensor/tensor.hpp"     // for operator<<, Tensor
-#include <memory>      // for unique_ptr, make_unique, allocator_t...
-#include <ostream>     // for operator<<, basic_ostream, basic_ost...
-#include <string>      // for operator+, to_string, char_traits
-#include <type_traits> // for add_const_t
-#include <utility>     // for as_const
-#include <vector>      // for vector
+#include <algorithm>                                // for fill
+#include <cstddef>                                  // for size_t
+#include <memory>                                   // for unique_ptr, make...
+#include <ostream>                                  // for basic_ostream
+#include <string>                                   // for char_traits, ope...
+#include <vector>                                   // for vector
 
 namespace kaad {
 

@@ -1,11 +1,7 @@
 #pragma once
 
-#include "../scalar.hpp"        // for Scalar
 #include "../tensor/tensor.hpp" // for Tensor
 #include "nodes/inode.hpp"      // for INode
-#include <algorithm>            // for fill
-#include <array>                // for array
-#include <cstddef>              // for size_t
 #include <initializer_list>     // for initializer_list
 #include <iosfwd>               // for ostream
 #include <memory>               // for unique_ptr

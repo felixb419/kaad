@@ -1,8 +1,8 @@
 #include "../../../include/kaad/graph/nodes/mean_dim.hpp"
-#include "../../../include/kaad/functions/adjoint.hpp" // for mean_dim_fn
-#include "../../../include/kaad/functions/primal.hpp"  // for mean_dim_fn
-#include "../../../include/kaad/graph/common.hpp"      // for along_dim_m...
+#include "../../../include/kaad/graph/common.hpp"      // for along_dim_met...
 #include "../../../include/kaad/graph/dispatchers.hpp" // for get_meanDim
+#include "../../../include/kaad/graph/nodes/inode.hpp" // for INode
+#include "../../../include/kaad/scalar.hpp"            // for Scalar
 #include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
 #include <array>                                       // for array
 

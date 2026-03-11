@@ -1,17 +1,18 @@
-#include "../../include/kaad/graph/nodes/matmul.hpp" // for Node_matmul
-#include "../../include/kaad/exceptions.hpp"         // for make_graph_errmsg
-#include "../../include/kaad/graph/common.hpp"       // for combine_matrix
-#include "../../include/kaad/graph/graph.hpp"        // for Graph
-#include "../../include/kaad/graph/node_handle.hpp"  // for Node
-#include "../../include/kaad/graph/nodes/batch_matmul.hpp" // for Node_batch_matmul
+#include "../../include/kaad/graph/nodes/matmul.hpp"
+#include "../../include/kaad/exceptions.hpp"               // for shape_error
+#include "../../include/kaad/graph/common.hpp"             // for combine_m...
+#include "../../include/kaad/graph/graph.hpp"              // for Graph
+#include "../../include/kaad/graph/node_handle.hpp"        // for Node
+#include "../../include/kaad/graph/nodes/batch_matmul.hpp" // for Node_batc...
 #include "../../include/kaad/graph/nodes/inode.hpp"        // for INode
 #include "../../include/kaad/operators/operators.hpp"      // for matmul
 #include "../../include/kaad/tensor/tensor.hpp"            // for Tensor
 #include <algorithm>                                       // for max
 #include <cstddef>                                         // for size_t
-#include <memory>  // for unique_ptr, __u...
-#include <utility> // for move
-#include <vector>  // for vector
+#include <memory>                                          // for unique_ptr
+#include <string>                                          // for basic_string
+#include <utility>                                         // for pair
+#include <vector>                                          // for vector
 
 namespace kaad {
 

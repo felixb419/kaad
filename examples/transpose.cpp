@@ -1,6 +1,6 @@
 #include "../include/kaad/kaad.hpp"
 #include <array>    // for array
-#include <iostream> // for operator<<
+#include <iostream> // for basic_ostream, char_traits
 #include <numeric>  // for iota
 #include <span>     // for span
 

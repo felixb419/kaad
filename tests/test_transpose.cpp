@@ -2,7 +2,6 @@
 #include "check_tensor.hpp" // for check_tensor
 #include <array>            // for array
 #include <cassert>          // for assert
-#include <iostream>         // for operator<<
 #include <numeric>          // for iota
 #include <span>             // for span
 

@@ -1,8 +1,8 @@
-#include "../../include/kaad/functions/adjoint.hpp" // for pointwise, poin...
-#include "../../include/kaad/functions/kernels.hpp" // for Abs, Neg, Square
-#include "../../include/kaad/functions/primal.hpp"  // for pointwise, poin...
-#include "../../include/kaad/functions/safe_kernels.hpp" // for safe_Exp, safe_Log
-#include "../../include/kaad/graph/graph.hpp"            // for Graph
+#include "../../include/kaad/functions/adjoint.hpp"      // for pointwise
+#include "../../include/kaad/functions/kernels.hpp"      // for Abs, Neg
+#include "../../include/kaad/functions/primal.hpp"       // for pointwise
+#include "../../include/kaad/functions/safe_kernels.hpp" // for safe_Exp
+#include "../../include/kaad/graph/graph.hpp"            // for Graph, unOp...
 #include "../../include/kaad/graph/node_handle.hpp"      // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"      // for INode
 #include "../../include/kaad/graph/nodes/unary.hpp"      // for Node_unary
@@ -11,6 +11,8 @@
 #include "../../include/kaad/tensor/tensor.hpp"          // for Tensor
 #include <memory>                                        // for make_unique
 #include <utility>                                       // for move
+
+// IWYU pragma: no_forward_declare kaad::Node_unary
 
 namespace kaad {
 

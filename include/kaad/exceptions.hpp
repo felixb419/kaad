@@ -1,10 +1,13 @@
 #pragma once
 
+#include <cstddef>          // for size_t
 #include <initializer_list> // for initializer_list
-#include <span>             // for span
 #include <stdexcept>        // for runtime_error
 #include <string>           // for string
-#include <utility>          // for pair
+
+// here to statisfy (likely buggy) iwyu
+#include <span>    // for span // IWYU pragma: keep
+#include <utility> // for pair // IWYU pragma: keep
 
 namespace kaad {
 

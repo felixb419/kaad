@@ -1,4 +1,5 @@
 #include "../include/kaad/exceptions.hpp"
+#include <utility> // for pair
 
 namespace kaad {
 

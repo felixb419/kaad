@@ -1,8 +1,8 @@
-#include "../../include/kaad/exceptions.hpp"          // for make_graph_e...
-#include "../../include/kaad/functions/adjoint.hpp"   // for scalarOut
+#include "../../include/kaad/exceptions.hpp"          // for argument_error
+#include "../../include/kaad/functions/adjoint.hpp"   // for pointwise_fn
 #include "../../include/kaad/functions/kernels.hpp"   // for Sum
-#include "../../include/kaad/functions/primal.hpp"    // for scalarOut
-#include "../../include/kaad/graph/graph.hpp"         // for Computation_...
+#include "../../include/kaad/functions/primal.hpp"    // for pointwise_fn
+#include "../../include/kaad/graph/graph.hpp"         // for Graph, sum
 #include "../../include/kaad/graph/node_handle.hpp"   // for Node
 #include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
 #include "../../include/kaad/graph/nodes/sum_dim.hpp" // for Node_sum_dim
@@ -14,6 +14,8 @@
 #include <array>                                      // for array
 #include <cstddef>                                    // for size_t
 #include <memory>                                     // for unique_ptr
+#include <span>                                       // for span
+#include <string>                                     // for basic_string
 #include <utility>                                    // for cmp_greater_equal
 #include <vector>                                     // for vector
 

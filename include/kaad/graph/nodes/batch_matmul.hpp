@@ -1,15 +1,13 @@
 #pragma once
 
-#include "../../functions/adjoint.hpp" // for batch_matmul, batch_matmu...
-#include "../../functions/primal.hpp"  // for batch_matmul, batch_matmu...
+#include "../../functions/adjoint.hpp" // for batch_matmul, batch_matmul_fn
+#include "../../functions/primal.hpp"  // for batch_matmul, batch_matmul_fn
 #include "../../scalar.hpp"            // for Scalar
 #include "inode.hpp"                   // for INode
 #include <cstddef>                     // for size_t
 #include <span>                        // for span
 
 namespace kaad {
-
-class Node_batch_matmul;
 
 /**
  * @brief A batch_matmul operation node in a computation graph.
