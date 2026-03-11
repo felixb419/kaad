@@ -1,12 +1,12 @@
-add_executable(broadcast_add broadcast_add.cpp)
-target_link_libraries(broadcast_add PRIVATE kaad)
+set(EXAMPLE_TARGETS
+    broadcast_add
+    dot_product
+    matmul
+    transpose
+)
 
-add_executable(dot_product dot_product.cpp)
-target_link_libraries(dot_product PRIVATE kaad)
-
-add_executable(matmul matmul.cpp)
-target_link_libraries(matmul PRIVATE kaad)
-
-add_executable(transpose transpose.cpp)
-target_link_libraries(transpose PRIVATE kaad)
-
+foreach(EXAMPLE_TARGET ${EXAMPLE_TARGETS})
+    add_executable(${EXAMPLE_TARGET} ${EXAMPLE_TARGET}.cpp)
+    target_link_libraries(${EXAMPLE_TARGET} PRIVATE kaad)
+    add_test(NAME ${EXAMPLE_TARGET} COMMAND ${EXAMPLE_TARGET})
+endforeach()
