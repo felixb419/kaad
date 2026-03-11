@@ -62,7 +62,7 @@ class Node {
         assert(this->node()->isInput());
 
         Tensor &value = this->origin_->get_node(*this)->value();
-        return std::span<Scalar>(value.data(), value.size());
+        return {value.data(), value.size()};
     }
 
     /**
