@@ -1,6 +1,5 @@
 [ GLOBAL ]
 FIX:
-    make sure release build works
 REFACTOR:
 FEAT:
     Install support
