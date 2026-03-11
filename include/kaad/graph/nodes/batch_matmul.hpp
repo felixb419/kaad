@@ -72,7 +72,7 @@ class Node_batch_matmul : public INode {
      * @brief Destructor for Node_batch_matmul.
      * @ingroup nodes
      */
-    ~Node_batch_matmul() noexcept;
+    ~Node_batch_matmul() noexcept override;
 
     /**
      * @brief Evaluates the batch_matmul operation by calling forward_op, if not
