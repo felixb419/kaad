@@ -59,7 +59,9 @@ template <class Kernel> class Node_binary : public INode {
      * @brief Returns the type of the node as a string.
      * @ingroup nodes
      */
-    const char *node_type() const noexcept override { return "Node_binary"; }
+    [[nodiscard]] const char *node_type() const noexcept override {
+        return "Node_binary";
+    }
 
     /**
      * @brief Evaluates the binary operation by applying forward_op, if not

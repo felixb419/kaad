@@ -51,7 +51,7 @@ class INode {
      * @brief Returns the type of the node as a string.
      * @ingroup nodes
      */
-    virtual const char *node_type() const noexcept = 0;
+    [[nodiscard]] virtual const char *node_type() const noexcept = 0;
 
     /**
      * @brief Get label of the node.
@@ -71,7 +71,7 @@ class INode {
      * @ingroup nodes
      * @return Immutable reference to the value tensor.
      */
-    const Tensor &value() const noexcept;
+    [[nodiscard]] const Tensor &value() const noexcept;
 
     /**
      * @brief Get a refernce to the gradient tensor.
@@ -85,21 +85,21 @@ class INode {
      * @ingroup nodes
      * @return Reference to the gradient tensor.
      */
-    const Tensor &gradient() const noexcept;
+    [[nodiscard]] const Tensor &gradient() const noexcept;
 
     /**
      * @brief Tells wether the node has been evaluated.
      * @ingroup nodes
      * @return True if the node was already evaluated, False otherwise.
      */
-    bool evaluated() const noexcept;
+    [[nodiscard]] bool evaluated() const noexcept;
 
     /**
      * @brief Tells wether the node has inputs.
      * @ingroup nodes
      * @return True if the node has inputs, False otherwise.
      */
-    bool isInput() const noexcept;
+    [[nodiscard]] bool isInput() const noexcept;
 
     /**
      * @brief Resets the value and gradient of the node.

@@ -55,7 +55,7 @@ class Node_batch_matmul : public INode {
      * @brief Returns the type of the node as a string.
      * @ingroup nodes
      */
-    const char *node_type() const noexcept override;
+    [[nodiscard]] const char *node_type() const noexcept override;
 
     /**
      * @brief Constructs a batch_matmul node.

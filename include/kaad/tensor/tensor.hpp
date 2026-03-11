@@ -167,13 +167,13 @@ class Tensor {
      * @brief Get number of dimensions of the tensor.
      * @return Length of the shape array.
      */
-    size_type rank() const noexcept;
+    [[nodiscard]] size_type rank() const noexcept;
 
     /**
      * @brief Get immutable reference to the shape array.
      * @return Const reference to shape_.
      */
-    const std::vector<int> &shape() const noexcept;
+    [[nodiscard]] const std::vector<int> &shape() const noexcept;
 
     /**
      * @brief Returns the tensor stride array.
@@ -181,7 +181,7 @@ class Tensor {
      * consecutive entries along each dimension.
      * @return Const reference to the stride array.
      */
-    const std::vector<int> &stride() const noexcept;
+    [[nodiscard]] const std::vector<int> &stride() const noexcept;
 
     /**
      * @brief Get an iterator to the begin of the element array.
@@ -197,7 +197,7 @@ class Tensor {
      * Tensor::data() for that).
      * @return Const iterator to the first element.
      */
-    const_iterator begin() const;
+    [[nodiscard]] const_iterator begin() const;
 
     /**
      * @brief Get an iterator to the end of the element array.
@@ -213,19 +213,19 @@ class Tensor {
      * Tensor::data() for that).
      * @return Const iterator to one past the last element.
      */
-    const_iterator end() const;
+    [[nodiscard]] const_iterator end() const;
 
     /**
      * @brief Get number of elements in the tensor.
      * @return Length of the element array.
      */
-    size_type size() const noexcept;
+    [[nodiscard]] size_type size() const noexcept;
 
     /**
      * @brief Checks if tensor has no elements
      * @return True if container is empty, false otherwise.
      */
-    bool empty() const noexcept;
+    [[nodiscard]] bool empty() const noexcept;
 
     /**
      * @brief Returns a reference to the first element.
@@ -235,7 +235,7 @@ class Tensor {
     /**
      * @brief Returns an immutable reference to the first element.
      */
-    const_reference front() const noexcept;
+    [[nodiscard]] const_reference front() const noexcept;
 
     /**
      * @brief Returns a reference to the last element.
@@ -245,7 +245,7 @@ class Tensor {
     /**
      * @brief Returns an immutable reference to the last element.
      */
-    const_reference back() const noexcept;
+    [[nodiscard]] const_reference back() const noexcept;
 
     /**
      * @brief Returns a pointer to the underlying contiguous storage.
@@ -265,14 +265,14 @@ class Tensor {
      * order does not match the physical memory layout (use Tensor::begin then).
      * @return Const pointer to the first element in memory.
      */
-    const_pointer data() const noexcept;
+    [[nodiscard]] const_pointer data() const noexcept;
 
     /**
      * @brief Creates a view of the tensor.
      * @return A Tensor_view<T> structure representing a non-owning
      * immutable view of the tensor.
      */
-    struct Tensor_view view() const noexcept;
+    [[nodiscard]] struct Tensor_view view() const noexcept;
 
     /**
      * @brief Creates a view of the tensor.

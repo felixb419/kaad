@@ -60,7 +60,9 @@ template <class Kernel> class Node_unary : public INode {
      * @brief Returns the type of the node as a string.
      * @ingroup nodes
      */
-    const char *node_type() const noexcept override { return "Node_unary"; }
+    [[nodiscard]] const char *node_type() const noexcept override {
+        return "Node_unary";
+    }
 
     /**
      * @brief Evaluates the unary operation by applying forward_op, if not

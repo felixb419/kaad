@@ -42,7 +42,7 @@ class Node_mean : public INode {
      * @brief Returns the type of the node as a string.
      * @ingroup nodes
      */
-    const char *node_type() const noexcept override;
+    [[nodiscard]] const char *node_type() const noexcept override;
 
     /**
      * @brief Evaluates the mean operation by applying forwrd_op, if not already

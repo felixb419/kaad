@@ -94,7 +94,7 @@ struct Tensor_view_mut {
      * @brief Get an immutable view of the Tensor.
      * @return Immutable view (Tensor_view).
      */
-    Tensor_view make_immutable() const noexcept;
+    [[nodiscard]] Tensor_view make_immutable() const noexcept;
 };
 
 /**

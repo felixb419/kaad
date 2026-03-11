@@ -31,19 +31,21 @@ class Node {
      * @brief Get the index.
      * @return Copy of the idx_ member.
      */
-    constexpr uint32_t idx() const noexcept { return this->idx_; }
+    [[nodiscard]] constexpr uint32_t idx() const noexcept { return this->idx_; }
 
     /**
      * @brief Get the origin of the Node.
      * @return Pointer to the Graph which contains the node.
      */
-    constexpr const Graph *origin() const noexcept { return this->origin_; }
+    [[nodiscard]] constexpr const Graph *origin() const noexcept {
+        return this->origin_;
+    }
 
     /**
      * @brief Returns an immutable pointer to the node.
      * @return Const pointer to the node.
      */
-    const INode *node() const {
+    [[nodiscard]] const INode *node() const {
         if (this->idx() >= this->origin_->nodes.size()) {
             throw argument_error("idx_ of this handle is invalid");
         }
@@ -67,13 +69,15 @@ class Node {
      * @brief Get immutable value tensor of the node.
      * @return Const reference to the value tensor of the node.
      */
-    const Tensor &value() const { return this->node()->value(); }
+    [[nodiscard]] const Tensor &value() const { return this->node()->value(); }
 
     /**
      * @brief Get immutable gradient tensor of the node.
      * @return Const reference to the gradient tensor of the node.
      */
-    const Tensor &gradient() const { return this->node()->gradient(); }
+    [[nodiscard]] const Tensor &gradient() const {
+        return this->node()->gradient();
+    }
 
     friend constexpr auto operator<=>(Node, Node) = default;
     friend std::ostream &operator<<(std::ostream &stream, Node node);
