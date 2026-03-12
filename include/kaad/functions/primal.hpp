@@ -90,8 +90,8 @@ using matmul_fn = void (*)(const T *lhs, const T *rhs, T *res, int lhs_rows,
 
 template <typename T>
 using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
-                                 int *stride_lhs, int *stride_rhs,
-                                 int *stride_res, int *res_shape,
+                                 const int *stride_lhs, const int *stride_rhs,
+                                 const int *stride_res, const int *res_shape,
                                  int lhs_dim_offset, int rhs_dim_offset,
                                  int shared_dim, std::size_t res_rank);
 
@@ -311,10 +311,10 @@ void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
  * @param res_rank Number of dimension of @p res.
  */
 template <typename T>
-void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
-                  int *stride_rhs, int *stride_res, int *res_shape,
-                  int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
-                  std::size_t res_rank) noexcept {
+void batch_matmul(const T *lhs, const T *rhs, T *res, const int *stride_lhs,
+                  const int *stride_rhs, const int *stride_res,
+                  const int *res_shape, int lhs_dim_offset, int rhs_dim_offset,
+                  int shared_dim, std::size_t res_rank) noexcept {
     if (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
              i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
@@ -340,9 +340,10 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
  * @ingroup binary_primal_functions
  */
 template <typename T, std::size_t res_rank>
-void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
-                  int *stride_rhs, int *stride_res, int *res_shape,
-                  int lhs_dim_offset, int rhs_dim_offset, int shared_dim,
+void batch_matmul(const T *lhs, const T *rhs, T *res, const int *stride_lhs,
+                  const int *stride_rhs, const int *stride_res,
+                  const int *res_shape, int lhs_dim_offset, int rhs_dim_offset,
+                  int shared_dim,
                   [[maybe_unused]] std::size_t unused) noexcept {
     if constexpr (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
