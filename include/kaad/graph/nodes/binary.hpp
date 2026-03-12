@@ -51,7 +51,7 @@ template <class Kernel> class Node_binary : public INode {
                 std::span<const int> value_shape)
         : INode(value_shape, false), forward_op(operation),
           backward_op(derivative), lhs(lhs_ptr), rhs(rhs_ptr) {
-        auto base_ptr = static_cast<INode *>(this);
+        auto *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value().data() + base_ptr->value().size();
     }
 
