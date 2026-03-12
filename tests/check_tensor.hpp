@@ -47,7 +47,7 @@ inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
         if (!equal_tol(*tensor_it, *elements_it, abs_tol, rel_tol)) {
             std::cerr << "mismatching values in '" << label << "' at idx "
                       << idx << ", act=" << *tensor_it
-                      << ", corr=" << *elements_it << std::endl;
+                      << ", corr=" << *elements_it << '\n';
             return false;
         }
     }

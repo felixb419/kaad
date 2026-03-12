@@ -2,7 +2,7 @@
 
 #include "../scalar.hpp" // for Scalar
 #include <cstddef>       // for size_t
-#include <iostream>      // for operator<<, ostream, endl
+#include <iostream>      // for operator<<, ostream
 #include <vector>        // for vector
 
 namespace kaad::detail {
@@ -29,7 +29,7 @@ inline void print_tensor(std::ostream &os, std::vector<int> &cords,
             os << ", ";
             bool indent_here = false;
             for (std::size_t j = 0; j < rank - ind - 1; j++) {
-                os << std::endl;
+                os << "\n";
                 indent_here = true;
             }
             for (int j = 0; j < indent && indent_here; j++) {
