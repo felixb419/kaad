@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../tensor/tensor.hpp" // for Tensor
-#include <algorithm>            // for fill, max
+#include <algorithm>            // for fill, max, move
 #include <cstddef>              // for size_t
+#include <utility>              // for cmp_less_equal
 #include <vector>               // for vector
 
 namespace kaad::detail {
@@ -32,7 +33,7 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
     newShape[newLen - 2] = shape1[rank1 - 2];
 
     std::size_t ind = newLen - 3;
-    for (int i = 3; i <= static_cast<int>(newLen); i++, ind--) {
+    for (int i = 3; std::cmp_less_equal(i, newLen); i++, ind--) {
         int ind1 = static_cast<int>(rank1) - i;
         int ind2 = static_cast<int>(rank2) - i;
         if (ind1 >= 0 && ind2 >= 0) {
@@ -49,14 +50,14 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
 }
 
 /**
- * @brief Computes stride and offset metadata for operations along a specific
- * tensor dimension.
+ * @brief Computes stride and offset metadata for operations along a
+ * specific tensor dimension.
  * @param A          Input tensor.
  * @param C          Output tensor (e.g., reduced along `dim`).
  * @param dim        The dimension along which the operation is applied.
  * @param D          (out) Number of dimensions.
- * @param A_offset   (out) Array storing the maximum valid offset per dimension
- * for A.
+ * @param A_offset   (out) Array storing the maximum valid offset per
+ * dimension for A.
  * @param strideA    (out) Stride array for A.
  * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
  */
