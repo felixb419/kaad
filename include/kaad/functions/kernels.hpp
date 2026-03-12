@@ -84,9 +84,6 @@ template <typename T> struct Mul {
 template <typename T> struct Div {
     using value_type = T;
 
-    const static T epsilon =
-        static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
-
     /**
      * @brief C = lhs / B
      */
@@ -109,9 +106,6 @@ template <typename T> struct Div {
  */
 template <typename T> struct Pow {
     using value_type = T;
-
-    const static T epsilon =
-        static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
 
     static constexpr T max_finite = std::numeric_limits<T>::max();
     static constexpr T max_exp = std::log(max_finite);
@@ -293,8 +287,6 @@ template <typename T> struct Square {
 template <typename T> struct Sqrt {
     using value_type = T;
 
-    const static T epsilon =
-        static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
      * @brief C = sqrt(lhs)
      */
@@ -316,8 +308,6 @@ template <typename T> struct Sqrt {
 template <typename T> struct Log {
     using value_type = T;
 
-    const static T epsilon =
-        static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
      * @brief C = log(lhs)
      */
