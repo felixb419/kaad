@@ -52,7 +52,10 @@ template <class Kernel> class Node_binary_flex : public INode {
         this->rhs_stride.resize(this->value_rank);
         this->value_stride.resize(this->value_rank);
 
-        int idx, idxA, idxB, idxC;
+        int idx;
+        int idxA;
+        int idxB;
+        int idxC;
         for (std::size_t i = 1; i <= this->value_rank; i++) {
             idx = this->value_rank - i;
             idxA = lhs.rank() - i;

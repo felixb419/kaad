@@ -318,7 +318,8 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
     if (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
              i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            const T *row_lhs = lhs, *col_rhs = rhs;
+            const T *row_lhs = lhs;
+            const T *col_rhs = rhs;
             for (int j = 0; j < shared_dim;
                  j++, row_lhs += lhs_dim_offset, col_rhs += rhs_dim_offset) {
                 *res += (*row_lhs) * (*col_rhs);
@@ -346,7 +347,8 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, int *stride_lhs,
     if constexpr (res_rank <= 1) {
         for (int i = 0; i < *res_shape;
              i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            const T *row_lhs = lhs, *col_rhs = rhs;
+            const T *row_lhs = lhs;
+            const T *col_rhs = rhs;
             for (int j = 0; j < shared_dim;
                  j++, row_lhs += lhs_dim_offset, col_rhs += rhs_dim_offset) {
                 *res += (*row_lhs) * (*col_rhs);
