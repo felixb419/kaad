@@ -22,12 +22,9 @@ inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
 inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
                          std::span<const int> shape_correct,
                          std::span<const kaad::Scalar> elements_correct) {
-    static kaad::Scalar abs_tol = 1e-6;
-    static kaad::Scalar rel_tol = 1e-6;
-    if constexpr (std::same_as<kaad::Scalar, double>) {
-        abs_tol = 1e-12;
-        rel_tol = 1e-12;
-    }
+    constexpr bool scalar_is_double = std::same_as<kaad::Scalar, double>;
+    constexpr kaad::Scalar abs_tol = scalar_is_double ? 1e-12 : 1e-6;
+    constexpr kaad::Scalar rel_tol = scalar_is_double ? 1e-12 : 1e-6;
 
     if (tensor.rank() != shape_correct.size() ||
         tensor.size() != elements_correct.size()) {

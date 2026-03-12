@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cmath>   // for log, exp, copysign, floor, round, sqrt
+#include <cmath>   // for log, exp, copysign, floor, round, sqrt, lround
 #include <cstdlib> // for abs
 #include <limits>  // for numeric_limits
 
@@ -84,7 +84,7 @@ template <typename T> struct safe_Pow {
         else {
             res = std::exp(rhs_loglhs);
             if (lhs < 0)
-                res *= (int(std::floor(rhs + 0.5)) % 2 == 0 ? 1 : -1);
+                res *= (std::lround(rhs) % 2 == 0 ? 1 : -1);
         }
     }
     /**
