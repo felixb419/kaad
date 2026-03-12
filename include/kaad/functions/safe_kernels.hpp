@@ -77,14 +77,20 @@ template <typename T> struct safe_Pow {
         }
         T abs_lhs = std::abs(lhs);
         T rhs_loglhs = rhs * std::log(abs_lhs);
-        if (rhs_loglhs > max_exp<T>)
+        if (rhs_loglhs > max_exp<T>) {
+
             res = max_finite<T>;
-        else if (rhs_loglhs < min_exp<T>)
+
+        } else if (rhs_loglhs < min_exp<T>) {
+
             res = 0;
-        else {
+
+        } else {
             res = std::exp(rhs_loglhs);
-            if (lhs < 0)
+            if (lhs < 0) {
+
                 res *= (std::lround(rhs) % 2 == 0 ? 1 : -1);
+            }
         }
     }
     /**
