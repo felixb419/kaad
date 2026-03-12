@@ -323,6 +323,8 @@ template <typename T>
 void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
             int *lhs_rows, int *rhs_cols, int *shared_dim, int *stride_lhs,
             int *stride_rhs, int *stride_res) noexcept {
+    // NOLINTBEGIN(readability-suspicious-call-argument)
+
     // d_lhs = d_res * rhs^T
     functions::primal::binary::matmul(d_res, rhs, d_lhs, lhs_rows[0],
                                       rhs_cols[0], shared_dim[0], stride_res,
@@ -331,6 +333,8 @@ void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
     functions::primal::binary::matmul(
         lhs, d_res, d_rhs, lhs_rows[1], rhs_cols[1], shared_dim[1],
         stride_lhs + 2, stride_res + 2, stride_rhs + 2);
+
+    // NOLINTEND(readability-suspicious-call-argument)
 }
 
 /**
