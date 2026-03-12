@@ -24,6 +24,8 @@
  */
 namespace kaad::Dispatchers {
 
+// NOLINTBEGIN(readability-named-parameter)
+
 constexpr static int MAX_NDIMS = 10;
 
 /// @brief Returns full table of flexible binary operation implementations.
@@ -159,5 +161,7 @@ constexpr std::array<functions::adjoint::unary::slice_fn<T>, MAX_NDIMS>
 get_slice_grad() {
     return get_slice_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
 }
+
+// NOLINTEND(readability-named-parameter)
 
 } // namespace kaad::Dispatchers
