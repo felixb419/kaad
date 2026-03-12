@@ -115,7 +115,7 @@ template <class Kernel> class Node_binary_flex : public INode {
      * @ingroup nodes
      * already evaluated.
      */
-    inline void eval() override {
+    void eval() override {
         if (!this->evaluated()) {
             this->lhs->eval();
             this->rhs->eval();
@@ -133,7 +133,7 @@ template <class Kernel> class Node_binary_flex : public INode {
      * @ingroup nodes
      * calling backward_op.
      */
-    inline void getGrad() override {
+    void getGrad() override {
         backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                     this->rhs->value().data(), this->rhs->gradient().data(),
                     this->value().data(), this->gradient().data(),

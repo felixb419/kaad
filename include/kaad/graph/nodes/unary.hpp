@@ -69,7 +69,7 @@ template <class Kernel> class Node_unary : public INode {
      * @ingroup nodes
      * already evaluated.
      */
-    inline void eval() override {
+    void eval() override {
         if (!this->evaluated()) {
             this->input->eval();
 
@@ -83,7 +83,7 @@ template <class Kernel> class Node_unary : public INode {
      * @ingroup nodes
      * backward_op.
      */
-    inline void getGrad() override {
+    void getGrad() override {
         backward_op(this->input->value().data(), this->input->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
 
