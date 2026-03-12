@@ -1,4 +1,5 @@
 set(TEST_TARGETS
+    test_call_all_kernels
     test_binary_broadcasts
     test_unary_operations
     test_dot_product

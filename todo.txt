@@ -69,6 +69,7 @@ FEAT:
     add test_slice (with transpose)
     add test_batch_matmul (with transpose)
     add test_binary_flex (with transpose)
+    add values to kernels
 PERF:
 DOC:
 CHORE:
