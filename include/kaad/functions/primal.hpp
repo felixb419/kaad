@@ -85,8 +85,8 @@ using dot_fn = void (*)(const T *lhs, const T *rhs, T *res, const T *lhs_end);
 
 template <typename T>
 using matmul_fn = void (*)(const T *lhs, const T *rhs, T *res, int lhs_rows,
-                           int rhs_cols, int shared_dim, int *stride_lhs,
-                           int *stride_rhs, int *stride_res);
+                           int rhs_cols, int shared_dim, const int *stride_lhs,
+                           const int *stride_rhs, const int *stride_res);
 
 template <typename T>
 using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
@@ -272,8 +272,8 @@ void dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
  */
 template <typename T>
 void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
-            int shared_dim, int *stride_lhs, int *stride_rhs,
-            int *stride_res) noexcept {
+            int shared_dim, const int *stride_lhs, const int *stride_rhs,
+            const int *stride_res) noexcept {
     const T *row_lhs;
     const T *col_rhs;
     const T *elem_rhs;
