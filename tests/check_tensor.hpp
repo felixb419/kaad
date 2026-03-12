@@ -16,7 +16,7 @@ inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
     const kaad::Scalar diff = std::abs(lhs - rhs);
     const kaad::Scalar scale = std::max(std::abs(lhs), std::abs(rhs));
 
-    return diff <= abs_tol + rel_tol * scale;
+    return diff <= abs_tol + (rel_tol * scale);
 }
 
 inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
