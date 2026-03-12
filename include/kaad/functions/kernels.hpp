@@ -174,7 +174,7 @@ template <typename T> struct Min {
      */
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
-        int smaller = lhs <= rhs;
+        bool smaller = lhs <= rhs;
         d_lhs += smaller ? d_res : 0;
         d_rhs += smaller ? 0 : d_res;
     }
@@ -198,7 +198,7 @@ template <typename T> struct Max {
      */
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
-        int bigger = lhs >= rhs;
+        bool bigger = lhs >= rhs;
         d_lhs += bigger ? d_res : 0;
         d_rhs += bigger ? 0 : d_res;
     }
