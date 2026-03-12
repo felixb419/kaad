@@ -49,6 +49,8 @@ print_all("d", d, grad_d)
 print_all("res", res, grad_res)
  */
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 std::array a_shape{3, 2};
 std::array<kaad::Scalar, 6> a_val{200.0, 201.0, 202.0, 203.0, 204.0, 205.0};
 std::array<kaad::Scalar, 6> a_grad{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
@@ -89,6 +91,8 @@ int main() {
     kaad::Node d = rec.add_input_node(std::array{2, 3, 1});
     std::span<float> d_vals = d.value_elements();
     std::iota(d_vals.begin(), d_vals.end(), 0);
+
+    // NOLINTEND(readability-magic-numbers)
 
     kaad::Node ab = add(rec, a, b);
     kaad::Node abc = add(rec, ab, c);

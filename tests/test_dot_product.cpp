@@ -49,6 +49,8 @@ print_all("res", res, grad_res)
 */
 // clang-format on
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 std::array a_shape{5};
 std::array<kaad::Scalar, 5> a_val{40.0, 41.0, 42.0, 43.0, 44.0};
 std::array<kaad::Scalar, 5> a_grad{68400.0, 69160.0, 69920.0, 70680.0, 71440.0};
@@ -82,6 +84,8 @@ int main() {
 
     kaad::Node ab = dot(rec, a, b);
     kaad::Node res = dot(rec, ab, c);
+
+    // NOLINTEND(readability-magic-numbers)
 
     rec.reset();
 

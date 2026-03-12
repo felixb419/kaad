@@ -43,6 +43,8 @@ print_all("a", a, grad_a)
 print_all("res", res, grad_res)
 */
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 std::array a_shape{3, 5, 2};
 std::array<kaad::Scalar, 30> a_val{
     50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0,
@@ -70,6 +72,8 @@ int main() {
     kaad::Node a = rec.add_input_node(std::array{3, 5, 2});
     std::span<float> a_vals = a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 50);
+
+    // NOLINTEND(readability-magic-numbers)
 
     kaad::Node a_mean = mean(rec, a, 2, true);
     kaad::Node a_mean2 = mean(rec, a_mean, 1);

@@ -8,6 +8,8 @@ int main() {
     // Create computation graph.
     kaad::Graph rec;
 
+    // NOLINTBEGIN(readability-magic-numbers)
+
     // Add input nodes to the graph.
     auto a = rec.add_input_node(std::array{3, 2});
     std::span<float> a_vals =
@@ -25,6 +27,8 @@ int main() {
     auto d = rec.add_input_node(std::array{2, 3, 1});
     std::span<float> d_vals = d.value_elements();
     std::ranges::fill(d_vals, 20);
+
+    // NOLINTEND(readability-magic-numbers)
 
     // Add computation nodes to graph via operators.
     auto ab = add(rec, a, b);    // [3,2] + [3,2] -> [3,2]

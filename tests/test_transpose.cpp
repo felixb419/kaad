@@ -39,6 +39,8 @@ print_all("a", a, grad_a)
 print_all("res", res, grad_res)
 */
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 std::array a_shape{3, 5, 2};
 std::array<kaad::Scalar, 30> a_val{
     32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0,
@@ -65,6 +67,8 @@ int main() {
     std::iota(a_vals.begin(), a_vals.end(), 32);
 
     kaad::Node res = transpose(rec, a);
+
+    // NOLINTEND(readability-magic-numbers)
 
     rec.reset();
 

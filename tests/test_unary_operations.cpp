@@ -49,6 +49,8 @@ print_all("a", a, grad_a)
 print_all("res", res, grad_res)
  */
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 std::array a_shape{5, 2, 5, 10};
 std::array<kaad::Scalar, 500> a_val{
     250.0, 251.0, 252.0, 253.0, 254.0, 255.0, 256.0, 257.0, 258.0, 259.0, 260.0,
@@ -131,6 +133,7 @@ int main() {
     std::iota(a_vals.begin(), a_vals.end(), 250);
 
     kaad::Node a_slice = kaad::slice(rec, a, {2, 4, 3}, {1, 5});
+    // NOLINTEND(readability-magic-numbers)
     kaad::Node a_sqrt = kaad::sqrt(rec, a_slice);
     kaad::Node a_full_transp = kaad::transpose(rec, a_sqrt);
     kaad::Node a_mean_dim = kaad::mean(rec, a_full_transp, 0);

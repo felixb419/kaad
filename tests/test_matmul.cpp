@@ -47,6 +47,8 @@ print_all("c", c, grad_c)
 print_all("res", res, grad_res)
 */
 
+// NOLINTBEGIN(readability-magic-numbers)
+
 std::array a_shape{3, 5};
 std::array<kaad::Scalar, 15> a_val{200.0, 201.0, 202.0, 203.0, 204.0,
                                    205.0, 206.0, 207.0, 208.0, 209.0,
@@ -118,6 +120,8 @@ int main() {
 
     kaad::Node ab = matmul(rec, a, b);
     kaad::Node res = matmul(rec, ab, c);
+
+    // NOLINTEND(readability-magic-numbers)
 
     rec.reset();
 
