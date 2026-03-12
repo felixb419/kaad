@@ -29,8 +29,8 @@ inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
         rel_tol = 1e-12;
     }
 
-    if (!(tensor.rank() == shape_correct.size() &&
-          tensor.size() == elements_correct.size())) {
+    if (tensor.rank() != shape_correct.size() ||
+        tensor.size() != elements_correct.size()) {
         return false;
     }
 
