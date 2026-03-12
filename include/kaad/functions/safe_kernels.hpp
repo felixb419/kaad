@@ -35,22 +35,24 @@ template <typename T> struct safe_Div {
     /**
      * @brief C = A / B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept {
-        C = A / ((std::abs(B) < epsilon<T>) ? std::copysign(epsilon<T>, B) : B);
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+        res =
+            lhs / ((std::abs(rhs) < epsilon<T>) ? std::copysign(epsilon<T>, rhs)
+                                                : rhs);
     }
 
     /**
      * @brief Computes the gradient of a division.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        T B_safe =
-            (std::abs(B) < epsilon<T>) ? std::copysign(epsilon<T>, B) : B;
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        T rhs_safe =
+            (std::abs(rhs) < epsilon<T>) ? std::copysign(epsilon<T>, rhs) : rhs;
 
-        T B_inv = T(1) / B_safe;
-        dA += dC * B_inv;
+        T rhs_inv = T(1) / rhs_safe;
+        d_lhs += d_res * rhs_inv;
 
-        dB -= dC * A * B_inv * B_inv;
+        d_rhs -= d_res * lhs * rhs_inv * rhs_inv;
     }
 };
 
@@ -64,37 +66,37 @@ template <typename T> struct safe_Pow {
     /**
      * @brief C = A ^ B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept {
-        if (A == 0) {
-            C = (B == 0 ? 1 : 0); // 0^0=1 policy
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+        if (lhs == 0) {
+            res = (rhs == 0 ? 1 : 0); // 0^0=1 policy
             return;
         }
-        if (A < 0 && std::abs(B - std::round(B)) > epsilon<T>) {
-            C = 0; // or max_finite * sign, but 0 is simple
+        if (lhs < 0 && std::abs(rhs - std::round(rhs)) > epsilon<T>) {
+            res = 0; // or max_finite * sign, but 0 is simple
             return;
         }
-        T absA = std::abs(A);
-        T t = B * std::log(absA);
-        if (t > max_exp<T>)
-            C = max_finite<T>;
-        else if (t < min_exp<T>)
-            C = 0;
+        T abs_lhs = std::abs(lhs);
+        T rhs_loglhs = rhs * std::log(abs_lhs);
+        if (rhs_loglhs > max_exp<T>)
+            res = max_finite<T>;
+        else if (rhs_loglhs < min_exp<T>)
+            res = 0;
         else {
-            C = std::exp(t);
-            if (A < 0)
-                C *= (int(std::floor(B + 0.5)) % 2 == 0 ? 1 : -1);
+            res = std::exp(rhs_loglhs);
+            if (lhs < 0)
+                res *= (int(std::floor(rhs + 0.5)) % 2 == 0 ? 1 : -1);
         }
     }
     /**
      * @brief Computes the gradient of an exponentiation.
      */
-    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T B, T &dB, T C,
-                               T dC) noexcept {
-        if (A == 0 || std::abs(A) < epsilon<T>) {
+    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T rhs,
+                               T &d_rhs, T res, T d_res) noexcept {
+        if (lhs == 0 || std::abs(lhs) < epsilon<T>) {
             return;
         }
-        dA += dC * (C / A);
-        dB += dC * C * std::log(std::abs(A));
+        d_lhs += d_res * (res / lhs);
+        d_rhs += d_res * res * std::log(std::abs(lhs));
     }
 };
 
@@ -108,15 +110,15 @@ template <typename T> struct safe_Sqrt {
     /**
      * @brief C = sqrt(A)
      */
-    constexpr static void Op(T A, T &C) noexcept {
-        C = std::sqrt(std::max(A, T(0)));
+    constexpr static void Op(T lhs, T &res) noexcept {
+        res = std::sqrt(std::max(lhs, T(0)));
     }
-    constexpr static void Grad([[maybe_unused]] T A, T &dA, T C,
-                               T dC) noexcept {
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs, T res,
+                               T d_res) noexcept {
         /**
          * @brief Computes the gradient of the squareroot
          */
-        dA += C < epsilon<T> ? 0 : dC / (2 * C);
+        d_lhs += res < epsilon<T> ? 0 : d_res / (2 * res);
     }
 };
 
@@ -130,15 +132,15 @@ template <typename T> struct safe_Log {
     /**
      * @brief C = log(A)
      */
-    constexpr static void Op(T A, T &C) noexcept {
-        C = std::log(std::max(A, epsilon<T>));
+    constexpr static void Op(T lhs, T &res) noexcept {
+        res = std::log(std::max(lhs, epsilon<T>));
     }
     /**
      * @brief Computes the gradient of the logarithm
      */
-    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        dA += dC / std::max(A, epsilon<T>);
+    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
+                               T d_res) noexcept {
+        d_lhs += d_res / std::max(lhs, epsilon<T>);
     }
 };
 
@@ -149,18 +151,18 @@ template <typename T> struct safe_Log {
 template <typename T> struct safe_Exp {
     using value_type = T;
 
-    constexpr static void Op(T A, T &C) noexcept {
+    constexpr static void Op(T lhs, T &res) noexcept {
         /**
          * @brief C = e^A
          */
-        C = std::exp(std::max(min_exp<T>, std::min(max_exp<T>, A)));
+        res = std::exp(std::max(min_exp<T>, std::min(max_exp<T>, lhs)));
     }
     /**
      * @brief Computes the gradient of the exp function.
      */
-    constexpr static void Grad([[maybe_unused]] T A, T &dA, T C,
-                               T dC) noexcept {
-        dA += dC * C;
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs, T res,
+                               T d_res) noexcept {
+        d_lhs += d_res * res;
     }
 };
 

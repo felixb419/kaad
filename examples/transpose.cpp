@@ -11,13 +11,13 @@ int main() {
     // NOLINTBEGIN(readability-magic-numbers)
 
     // Add input nodes to the graph.
-    kaad::Node a = rec.add_input_node(std::array{3, 5, 2});
+    kaad::Node input_a = rec.add_input_node(std::array{3, 5, 2});
     std::span<float> a_vals =
-        a.value_elements(); // span to represent the element array of a
+        input_a.value_elements(); // span to represent the element array of a
     std::iota(a_vals.begin(), a_vals.end(), 0);
 
     // Add computation nodes to graph via operators.
-    kaad::Node c = transpose(rec, a); // [3,5,2] -> [2,5,3]
+    kaad::Node res = transpose(rec, input_a); // [3,5,2] -> [2,5,3]
 
     // NOLINTEND(readability-magic-numbers)
 
@@ -25,14 +25,14 @@ int main() {
     rec.reset();
 
     // Evaluate 'res'.
-    rec.evaluate(std::array{c});
+    rec.evaluate(std::array{res});
 
     // Compute the gradient of res w.r.t. to a.
-    rec.getGradient(c, std::array{a});
+    rec.getGradient(res, std::array{input_a});
 
     // Print values of nodes.
-    std::cout << "A:\n" << a << '\n';
-    std::cout << "C:\n" << c << '\n';
+    std::cout << "A:\n" << input_a << '\n';
+    std::cout << "C:\n" << res << '\n';
 
     return 0;
 }

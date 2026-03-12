@@ -106,20 +106,20 @@ std::array<kaad::Scalar, 24> res_grad{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Graph rec;
 
-    auto a = rec.add_input_node(std::array{3, 5});
-    std::span<float> a_vals = a.value_elements();
+    kaad::Node input_a = rec.add_input_node(std::array{3, 5});
+    std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 200);
 
-    auto b = rec.add_input_node(std::array{5, 8});
-    std::span<float> b_vals = b.value_elements();
+    kaad::Node input_b = rec.add_input_node(std::array{5, 8});
+    std::span<float> b_vals = input_b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 900);
 
-    auto c = rec.add_input_node(std::array{2, 2, 8, 2});
-    std::span<float> c_vals = c.value_elements();
+    kaad::Node input_c = rec.add_input_node(std::array{2, 2, 8, 2});
+    std::span<float> c_vals = input_c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 100);
 
-    kaad::Node ab = matmul(rec, a, b);
-    kaad::Node res = matmul(rec, ab, c);
+    kaad::Node prod_ab = matmul(rec, input_a, input_b);
+    kaad::Node res = matmul(rec, prod_ab, input_c);
 
     // NOLINTEND(readability-magic-numbers)
 
@@ -127,7 +127,7 @@ int main() {
 
     rec.evaluate(std::array{res});
 
-    rec.getGradient(res, std::array{a, b, c});
+    rec.getGradient(res, std::array{input_a, input_b, input_c});
 
     // Check a
     assert(check_tensor("a value", a.value(), a_shape, a_val));

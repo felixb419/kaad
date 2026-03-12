@@ -76,33 +76,33 @@ std::array<kaad::Scalar, 12> res_grad{1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Graph rec;
 
-    kaad::Node a = rec.add_input_node(std::array{3, 2});
-    std::span<float> a_vals = a.value_elements();
+    kaad::Node input_a = rec.add_input_node(std::array{3, 2});
+    std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 200);
 
-    kaad::Node b = rec.add_input_node(std::array{3, 2});
-    std::span<float> b_vals = b.value_elements();
+    kaad::Node input_b = rec.add_input_node(std::array{3, 2});
+    std::span<float> b_vals = input_b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 90);
 
-    kaad::Node c = rec.add_input_node(std::array<int, 0>{});
-    std::span<float> c_vals = c.value_elements();
+    kaad::Node input_c = rec.add_input_node(std::array<int, 0>{});
+    std::span<float> c_vals = input_c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 30);
 
-    kaad::Node d = rec.add_input_node(std::array{2, 3, 1});
-    std::span<float> d_vals = d.value_elements();
+    kaad::Node input_d = rec.add_input_node(std::array{2, 3, 1});
+    std::span<float> d_vals = input_d.value_elements();
     std::iota(d_vals.begin(), d_vals.end(), 0);
 
     // NOLINTEND(readability-magic-numbers)
 
-    kaad::Node ab = add(rec, a, b);
-    kaad::Node abc = add(rec, ab, c);
-    kaad::Node res = add(rec, abc, d);
+    kaad::Node a_plus_b = add(rec, input_a, input_b);
+    kaad::Node ab_plus_c = add(rec, a_plus_b, input_c);
+    kaad::Node res = add(rec, ab_plus_c, input_d);
 
     rec.reset();
 
     rec.evaluate(std::array{res});
 
-    rec.getGradient(res, std::array{a, b, d, res});
+    rec.getGradient(res, std::array{input_a, input_b, input_d, res});
 
     // Check a
     assert(check_tensor("a value", a.value(), a_shape, a_val));

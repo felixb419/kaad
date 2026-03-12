@@ -52,50 +52,52 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
 /**
  * @brief Computes stride and offset metadata for operations along a
  * specific tensor dimension.
- * @param A          Input tensor.
- * @param C          Output tensor (e.g., reduced along `dim`).
- * @param dim        The dimension along which the operation is applied.
- * @param D          (out) Number of dimensions.
- * @param A_offset   (out) Array storing the maximum valid offset per
- * dimension for A.
- * @param strideA    (out) Stride array for A.
- * @param strideC    (out) Stride array for C, adjusted to zero along `dim`.
+ * @param input Input tensor.
+ * @param output Output tensor (e.g., reduced along `dim`).
+ * @param dim The dimension along which the operation is applied.
+ * @param input_rank (out) Number of dimensions in input.
+ * @param input_offset (out) Array storing the maximum valid offset per
+ * dimension for @p input.
+ * @param input_stride (out) Stride array for @p input.
+ * @param output_stride (out) Stride array for @p output, adjusted to zero along
+ * `dim`.
  */
-inline void along_dim_metadata_impl(Tensor &A, Tensor &C, int dim,
-                                    std::size_t &D,
-                                    std::vector<std::size_t> &A_offset,
-                                    std::vector<int> &strideA,
-                                    std::vector<int> &strideC) {
-    D = A.rank();
-    strideA = std::vector<int>(A.stride());
+inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
+                                    std::size_t &input_rank,
+                                    std::vector<std::size_t> &input_offset,
+                                    std::vector<int> &input_stride,
+                                    std::vector<int> &output_stride) {
+    input_rank = input.rank();
+    input_stride = std::vector<int>(input.stride());
 
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
-    for (std::size_t i = 0; i < D; i++) {
-        if (strideA[i] == 0 && A.shape()[i] == 1) {
-            strideA[i] = 1;
+    for (std::size_t i = 0; i < input_rank; i++) {
+        if (input_stride[i] == 0 && input.shape()[i] == 1) {
+            input_stride[i] = 1;
         }
     }
 
-    strideC = std::vector<int>(C.stride());
+    output_stride = std::vector<int>(output.stride());
 
-    // adjust strideC if keep_rank was not set
-    if (A.rank() > C.rank()) {
+    // adjust output_stride if keep_rank was not set
+    if (input.rank() > output.rank()) {
 
-        strideC.push_back(0);
+        output_stride.push_back(0);
 
-        std::move(strideC.begin() + dim, strideC.end() - 1,
-                  strideC.begin() + dim + 1);
+        std::move(output_stride.begin() + dim, output_stride.end() - 1,
+                  output_stride.begin() + dim + 1);
     }
 
-    strideC[dim] = 0;
+    output_stride[dim] = 0;
     for (int i = 0; i < dim; i++) {
-        strideC[i] /= A.shape()[dim];
+        output_stride[i] /= input.shape()[dim];
     }
 
-    A_offset.resize(D);
-    for (std::size_t i = 0; i < D; i++) {
-        A_offset[i] = static_cast<std::size_t>(A.shape()[i]) * strideA[i];
+    input_offset.resize(input_rank);
+    for (std::size_t i = 0; i < input_rank; i++) {
+        input_offset[i] =
+            static_cast<std::size_t>(input.shape()[i]) * input_stride[i];
     }
 }
 

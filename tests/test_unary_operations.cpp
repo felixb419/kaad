@@ -128,11 +128,11 @@ int main() {
 
     kaad::Graph rec;
 
-    kaad::Node a = rec.add_input_node(std::array{5, 2, 5, 10});
-    std::span<float> a_vals = a.value_elements();
+    kaad::Node input_a = rec.add_input_node(std::array{5, 2, 5, 10});
+    std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 250);
 
-    kaad::Node a_slice = kaad::slice(rec, a, {2, 4, 3}, {1, 5});
+    kaad::Node a_slice = kaad::slice(rec, input_a, {2, 4, 3}, {1, 5});
     // NOLINTEND(readability-magic-numbers)
     kaad::Node a_sqrt = kaad::sqrt(rec, a_slice);
     kaad::Node a_full_transp = kaad::transpose(rec, a_sqrt);
@@ -145,7 +145,7 @@ int main() {
 
     rec.evaluate(std::array{res});
 
-    rec.getGradient(res, std::array{a});
+    rec.getGradient(res, std::array{input_a});
 
     // Check a
     assert(check_tensor("a value", a.value(), a_shape, a_val));

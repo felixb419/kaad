@@ -7,14 +7,14 @@
 #include <span>   // for span
 #include <vector> // for vector
 
-inline bool equal_tol(kaad::Scalar a, kaad::Scalar b, kaad::Scalar abs_tol,
+inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
                       kaad::Scalar rel_tol) {
-    if (a == b) {
+    if (lhs == rhs) {
         return true;
     }
 
-    const kaad::Scalar diff = std::abs(a - b);
-    const kaad::Scalar scale = std::max(std::abs(a), std::abs(b));
+    const kaad::Scalar diff = std::abs(lhs - rhs);
+    const kaad::Scalar scale = std::max(std::abs(lhs), std::abs(rhs));
 
     return diff <= abs_tol + rel_tol * scale;
 }

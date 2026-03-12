@@ -19,17 +19,17 @@ template <typename T> struct Add {
     using value_type = T;
 
     /**
-     * @brief C = A + B
+     * @brief C = lhs + B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A + B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs + rhs; }
     /**
      * @brief Computes the gradient of an addition.
      */
-    constexpr static void Grad([[maybe_unused]] T A, T &dA,
-                               [[maybe_unused]] T B, T &dB,
-                               [[maybe_unused]] T C, T dC) noexcept {
-        dA += dC;
-        dB += dC;
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+                               [[maybe_unused]] T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        d_lhs += d_res;
+        d_rhs += d_res;
     }
 };
 
@@ -41,17 +41,17 @@ template <typename T> struct Sub {
     using value_type = T;
 
     /**
-     * @brief C = A - B
+     * @brief C = lhs - B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A - B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs - rhs; }
     /**
      * @brief Computes the gradient of a subtraction.
      */
-    constexpr static void Grad([[maybe_unused]] T A, T &dA,
-                               [[maybe_unused]] T B, T &dB,
-                               [[maybe_unused]] T C, T dC) noexcept {
-        dA += dC;
-        dB -= dC;
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+                               [[maybe_unused]] T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        d_lhs += d_res;
+        d_rhs -= d_res;
     }
 };
 
@@ -63,16 +63,16 @@ template <typename T> struct Mul {
     using value_type = T;
 
     /**
-     * @brief C = A * B
+     * @brief C = lhs * B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A * B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs * rhs; }
     /**
      * @brief Computes the gradient a multiplication.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        dA += dC * B;
-        dB += dC * A;
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        d_lhs += d_res * rhs;
+        d_rhs += d_res * lhs;
     }
 };
 
@@ -88,16 +88,17 @@ template <typename T> struct Div {
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
 
     /**
-     * @brief C = A / B
+     * @brief C = lhs / B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A / B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs / rhs; }
 
     /**
      * @brief Computes the gradient of a division.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-        dA += dC * (1 / B);
-        dB -= dC * (A / (B * B));
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
+                               T d_res) noexcept {
+        d_lhs += d_res * (1 / rhs);
+        d_rhs -= d_res * (lhs / (rhs * rhs));
     }
 };
 
@@ -117,15 +118,18 @@ template <typename T> struct Pow {
     static constexpr T min_exp = -max_exp;
 
     /**
-     * @brief C = A ^ B
+     * @brief C = lhs ^ B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = std::pow(A, B); }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+        res = std::pow(lhs, rhs);
+    }
     /**
      * @brief Computes the gradient of an exponentiation.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-        dA += dC * B * std::pow(A, B - 1);
-        dB += dC * C * std::log(A);
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
+                               T d_res) noexcept {
+        d_lhs += d_res * rhs * std::pow(lhs, rhs - 1);
+        d_rhs += d_res * res * std::log(lhs);
     }
 };
 
@@ -137,15 +141,18 @@ template <typename T> struct Dot {
     using value_type = T;
 
     /**
-     * @brief C += A * B
+     * @brief C += lhs * B
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C += A * B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+        res += lhs * rhs;
+    }
     /**
      * @brief Computes the gradient of a dot-product.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, T C, T dC) noexcept {
-        dA += dC * B;
-        dB += dC * A;
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
+                               T d_res) noexcept {
+        d_lhs += d_res * rhs;
+        d_rhs += d_res * lhs;
     }
 };
 
@@ -157,17 +164,19 @@ template <typename T> struct Min {
     using value_type = T;
 
     /**
-     * @brief C = min(A,B)
+     * @brief C = min(lhs,B)
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A < B ? A : B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+        res = lhs < rhs ? lhs : rhs;
+    }
     /**
      * @brief Computes the gradient of the min function.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        int smaller = A <= B;
-        dA += smaller ? dC : 0;
-        dB += smaller ? 0 : dC;
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        int smaller = lhs <= rhs;
+        d_lhs += smaller ? d_res : 0;
+        d_rhs += smaller ? 0 : d_res;
     }
 };
 
@@ -179,17 +188,19 @@ template <typename T> struct Max {
     using value_type = T;
 
     /**
-     * @brief C = max(A,B)
+     * @brief C = max(lhs,B)
      */
-    constexpr static void Op(T A, T B, T &C) noexcept { C = A > B ? A : B; }
+    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+        res = lhs > rhs ? lhs : rhs;
+    }
     /**
      * @brief Computes the gradient of the max function.
      */
-    constexpr static void Grad(T A, T &dA, T B, T &dB, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        int bigger = A >= B;
-        dA += bigger ? dC : 0;
-        dB += bigger ? 0 : dC;
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        int bigger = lhs >= rhs;
+        d_lhs += bigger ? d_res : 0;
+        d_rhs += bigger ? 0 : d_res;
     }
 };
 
@@ -201,16 +212,16 @@ template <typename T> struct NoOp {
     using value_type = T;
 
     /**
-     * @brief C = A
+     * @brief C = lhs
      */
-    constexpr static void Op(T A, T &C) noexcept { C = A; }
+    constexpr static void Op(T lhs, T &res) noexcept { res = lhs; }
 
     /**
-     * @brief dA += dC
+     * @brief d_lhs += dC
      */
-    constexpr static void Grad([[maybe_unused]] T A, T &dA,
-                               [[maybe_unused]] T C, T dC) noexcept {
-        dA += dC;
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        d_lhs += d_res;
     }
 };
 
@@ -222,15 +233,15 @@ template <typename T> struct Sum {
     using value_type = T;
 
     /**
-     * @brief C += A
+     * @brief C += lhs
      */
-    constexpr static void Op(T A, T &C) noexcept { C += A; }
+    constexpr static void Op(T lhs, T &res) noexcept { res += lhs; }
     /**
      * @brief Computes the gradient of the summation.
      */
-    constexpr static void Grad([[maybe_unused]] T A, T &dA,
-                               [[maybe_unused]] T C, T dC) noexcept {
-        dA += dC;
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        d_lhs += d_res;
     }
 };
 
@@ -242,15 +253,15 @@ template <typename T> struct Neg {
     using value_type = T;
 
     /**
-     * @brief C = -A
+     * @brief C = -lhs
      */
-    constexpr static void Op(T A, T &C) noexcept { C = -A; }
+    constexpr static void Op(T lhs, T &res) noexcept { res = -lhs; }
     /**
      * @brief Computes the gradient of the negation.
      */
-    constexpr static void Grad([[maybe_unused]] T A, T &dA,
-                               [[maybe_unused]] T C, T dC) noexcept {
-        dA -= dC;
+    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
+        d_lhs -= d_res;
     }
 };
 
@@ -262,15 +273,15 @@ template <typename T> struct Square {
     using value_type = T;
 
     /**
-     * @brief C = A ^ 2
+     * @brief C = lhs ^ 2
      */
-    constexpr static void Op(T A, T &C) noexcept { C = A * A; }
+    constexpr static void Op(T lhs, T &res) noexcept { res = lhs * lhs; }
     /**
      * @brief Computes the gradient of the square.
      */
-    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        dA += dC * 2 * A;
+    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
+                               T d_res) noexcept {
+        d_lhs += d_res * 2 * lhs;
     }
 };
 
@@ -285,15 +296,15 @@ template <typename T> struct Sqrt {
     inline static T epsilon =
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
-     * @brief C = sqrt(A)
+     * @brief C = sqrt(lhs)
      */
-    constexpr static void Op(T A, T &C) noexcept { C = std::sqrt(A); }
+    constexpr static void Op(T lhs, T &res) noexcept { res = std::sqrt(lhs); }
 
     /**
      * @brief Computes the gradient of the squareroot
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept {
-        dA += dC / (2 * C);
+    constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
+        d_lhs += d_res / (2 * res);
     }
 };
 
@@ -308,13 +319,15 @@ template <typename T> struct Log {
     inline static T epsilon =
         static_cast<T>(1000) * std::numeric_limits<T>::epsilon();
     /**
-     * @brief C = log(A)
+     * @brief C = log(lhs)
      */
-    constexpr static void Op(T A, T &C) noexcept { C = std::log(A); }
+    constexpr static void Op(T lhs, T &res) noexcept { res = std::log(lhs); }
     /**
      * @brief Computes the gradient of the logarithm
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC / A; }
+    constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
+        d_lhs += d_res / lhs;
+    }
 };
 
 /**
@@ -327,18 +340,20 @@ template <typename T> struct Exp {
 
     inline static T max_exp = std::log(std::numeric_limits<T>::max());
     inline static T min_exp = std::log(std::numeric_limits<T>::min());
-    constexpr static void Op(T A, T &C) noexcept {
+    constexpr static void Op(T lhs, T &res) noexcept {
         /**
-         * @brief C = e^A
+         * @brief C = e^lhs
          * @if NO_STABLE_EXP is not defined a numerically safe version is
          * used instead.
          */
-        C = std::exp(A);
+        res = std::exp(lhs);
     }
     /**
      * @brief Computes the gradient of the exp function.
      */
-    constexpr static void Grad(T A, T &dA, T C, T dC) noexcept { dA += dC * C; }
+    constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
+        d_lhs += d_res * res;
+    }
 };
 
 /**
@@ -349,15 +364,15 @@ template <typename T> struct Abs {
     using value_type = T;
 
     /**
-     * @brief C = abs(A)
+     * @brief C = abs(lhs)
      */
-    constexpr static void Op(T A, T &C) noexcept { C = std::abs(A); }
+    constexpr static void Op(T lhs, T &res) noexcept { res = std::abs(lhs); }
     /**
      * @brief Computes the gradient of the abs function.
      */
-    constexpr static void Grad(T A, T &dA, [[maybe_unused]] T C,
-                               T dC) noexcept {
-        dA += dC * (A > 0 ? 1 : -1);
+    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
+                               T d_res) noexcept {
+        d_lhs += d_res * (lhs > 0 ? 1 : -1);
     }
 };
 

@@ -11,24 +11,24 @@ int main() {
     // NOLINTBEGIN(readability-magic-numbers)
 
     // Add input nodes to the graph.
-    auto a = rec.add_input_node(std::array{5});
+    kaad::Node input_a = rec.add_input_node(std::array{5});
     std::span<float> a_vals =
-        a.value_elements(); // Add input nodes to the graph
+        input_a.value_elements(); // Add input nodes to the graph
     std::ranges::fill(a_vals, 10);
 
-    auto b = rec.add_input_node(std::array{5});
-    std::span<float> b_vals = b.value_elements();
+    kaad::Node input_b = rec.add_input_node(std::array{5});
+    std::span<float> b_vals = input_b.value_elements();
     std::ranges::fill(b_vals, 50);
 
-    auto c = rec.add_input_node(std::array{5});
-    std::span<float> c_vals = c.value_elements();
+    kaad::Node input_c = rec.add_input_node(std::array{5});
+    std::span<float> c_vals = input_c.value_elements();
     std::ranges::fill(c_vals, 20);
 
     // NOLINTEND(readability-magic-numbers)
 
     // Add computation nodes to graph via operators.
-    kaad::Node ab = dot(rec, a, b);   // [5] * [5] -> [1]
-    kaad::Node res = dot(rec, ab, c); // [1] * [5] -> [1]
+    kaad::Node dot_ab = dot(rec, input_a, input_b); // [5] * [5] -> [1]
+    kaad::Node res = dot(rec, dot_ab, input_c);     // [1] * [5] -> [1]
 
     // Reset the graph.
     rec.reset();
@@ -37,12 +37,12 @@ int main() {
     rec.evaluate(std::array{res});
 
     // Compute the gradient of res w.r.t. to a, b and c.
-    rec.getGradient(res, std::array{a, b, c});
+    rec.getGradient(res, std::array{input_a, input_b, input_c});
 
     // Print values of nodes.
-    std::cout << "A:\n" << a << '\n';
-    std::cout << "B:\n" << b << '\n';
-    std::cout << "C:\n" << c << '\n';
+    std::cout << "A:\n" << input_a << '\n';
+    std::cout << "B:\n" << input_b << '\n';
+    std::cout << "C:\n" << input_c << '\n';
     std::cout << "Res:\n" << res << '\n';
 
     return 0;

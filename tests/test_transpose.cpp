@@ -62,11 +62,11 @@ std::array<kaad::Scalar, 30> res_grad{
 int main() {
     kaad::Graph rec;
 
-    kaad::Node a = rec.add_input_node(std::array{3, 5, 2});
-    std::span<float> a_vals = a.value_elements();
+    kaad::Node input_a = rec.add_input_node(std::array{3, 5, 2});
+    std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 32);
 
-    kaad::Node res = transpose(rec, a);
+    kaad::Node res = transpose(rec, input_a);
 
     // NOLINTEND(readability-magic-numbers)
 
@@ -74,7 +74,7 @@ int main() {
 
     rec.evaluate(std::array{res});
 
-    rec.getGradient(res, std::array{a});
+    rec.getGradient(res, std::array{input_a});
 
     // Check a
     assert(check_tensor("a value", a.value(), a_shape, a_val));

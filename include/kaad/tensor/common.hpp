@@ -7,7 +7,7 @@
 
 namespace kaad::detail {
 
-inline void print_tensor(std::ostream &os, std::vector<int> &cords,
+inline void print_tensor(std::ostream &stream, std::vector<int> &cords,
                          const int *shape, const int *stride, std::size_t rank,
                          const Scalar *elements, std::size_t nElems,
                          std::size_t ind, int &indent) {
@@ -16,33 +16,33 @@ inline void print_tensor(std::ostream &os, std::vector<int> &cords,
         for (std::size_t i = 0; i < rank; i++) {
             idx += (cords[i] % shape[i]) * stride[i];
         }
-        os << elements[idx];
+        stream << elements[idx];
     } else {
         int lim = shape[ind];
-        os << "[";
+        stream << "[";
         indent++;
         // iterate for size of current dimension
         for (int i = 0; i < lim - 1; i++) {
             // print next dimension
-            print_tensor(os, cords, shape, stride, rank, elements, nElems,
+            print_tensor(stream, cords, shape, stride, rank, elements, nElems,
                          ind + 1, indent);
-            os << ", ";
+            stream << ", ";
             bool indent_here = false;
             for (std::size_t j = 0; j < rank - ind - 1; j++) {
-                os << "\n";
+                stream << "\n";
                 indent_here = true;
             }
             for (int j = 0; j < indent && indent_here; j++) {
-                os << " ";
+                stream << " ";
             }
             cords[ind]++;
         }
         // last pass without trailing comma
-        print_tensor(os, cords, shape, stride, rank, elements, nElems, ind + 1,
-                     indent);
+        print_tensor(stream, cords, shape, stride, rank, elements, nElems,
+                     ind + 1, indent);
         cords[ind]++;
 
-        os << "]";
+        stream << "]";
         indent--;
     }
 }
