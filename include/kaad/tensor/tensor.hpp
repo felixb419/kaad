@@ -184,6 +184,22 @@ class Tensor {
     [[nodiscard]] const std::vector<int> &stride() const noexcept;
 
     /**
+     * @brief Returns the tensors element array.
+     * @warning If the tensor has been transposed the physical and logical order
+     * of elements can differ.
+     * @return Reference to the element array.
+     */
+    [[nodiscard]] std::vector<Scalar> &elements() noexcept;
+
+    /**
+     * @brief Returns the tensors element array.
+     * @warning If the tensor has been transposed the physical and logical order
+     * of elements can differ.
+     * @return Const reference to the element array.
+     */
+    [[nodiscard]] const std::vector<Scalar> &elements() const noexcept;
+
+    /**
      * @brief Get an iterator to the begin of the element array.
      * @warning Tensor::iterator is not a contignous iterator (use
      * Tensor::data() for that).

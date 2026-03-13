@@ -206,6 +206,12 @@ const std::vector<int> &Tensor::stride() const noexcept {
     return this->stride_;
 }
 
+std::vector<Scalar> &Tensor::elements() noexcept { return this->elements_; }
+
+const std::vector<Scalar> &Tensor::elements() const noexcept {
+    return this->elements_;
+}
+
 Tensor::iterator Tensor::begin() {
     std::vector<int> cords(std::max(this->rank(), size_type(1)));
     std::ranges::fill(cords, 0);
