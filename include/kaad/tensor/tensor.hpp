@@ -189,7 +189,7 @@ class Tensor {
      * of elements can differ.
      * @return Reference to the element array.
      */
-    [[nodiscard]] std::vector<Scalar> &elements() noexcept;
+    [[nodiscard]] std::span<Scalar> elements() noexcept;
 
     /**
      * @brief Returns the tensors element array.
@@ -197,7 +197,7 @@ class Tensor {
      * of elements can differ.
      * @return Const reference to the element array.
      */
-    [[nodiscard]] const std::vector<Scalar> &elements() const noexcept;
+    [[nodiscard]] std::span<const Scalar> elements() const noexcept;
 
     /**
      * @brief Get an iterator to the begin of the element array.

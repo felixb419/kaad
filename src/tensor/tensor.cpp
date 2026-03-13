@@ -204,9 +204,9 @@ std::span<const int> Tensor::shape() const noexcept { return this->shape_; }
 
 std::span<const int> Tensor::stride() const noexcept { return this->stride_; }
 
-std::vector<Scalar> &Tensor::elements() noexcept { return this->elements_; }
+std::span<Scalar> Tensor::elements() noexcept { return this->elements_; }
 
-const std::vector<Scalar> &Tensor::elements() const noexcept {
+std::span<const Scalar> Tensor::elements() const noexcept {
     return this->elements_;
 }
 

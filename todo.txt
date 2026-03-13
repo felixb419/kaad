@@ -15,7 +15,6 @@ LATER:
 [ TENSOR ]
 FIX:
 REFACTOR:
-    shape() and elements() should return std::span<const int>
 FEAT:
 PERF:
 DOC:
