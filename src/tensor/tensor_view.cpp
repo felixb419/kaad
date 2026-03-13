@@ -1,6 +1,7 @@
 #include "../../include/kaad/tensor/tensor_view.hpp"
-#include "../../include/kaad/tensor/common.hpp" // for print_tensor
-#include <vector>                               // for vector
+#include "../../include/kaad/tensor/common.hpp" // for print_tensor_impl
+#include "kaad/scalar.hpp"                      // for Scalar
+#include <span>                                 // for span
 
 namespace kaad {
 
@@ -11,15 +12,10 @@ Tensor_view::Tensor_view(const int *shape, const int *stride, size_type rank,
     : shape(shape), stride(stride), rank(rank), elements(elements), len(len) {}
 
 std::ostream &operator<<(std::ostream &stream, const Tensor_view &view) {
-    if (view.rank == 0) {
-        std::cout << "[]";
-    } else {
-        std::vector<int> cords(view.rank);
-        int indent = 0;
+    print_tensor_impl(stream, std::span<const int>(view.shape, view.rank),
+                      std::span<const int>(view.stride, view.rank),
+                      std::span<const Scalar>(view.elements, view.len));
 
-        print_tensor(stream, cords, view.shape, view.stride, view.rank,
-                     view.elements, view.len, 0, indent);
-    }
     return stream;
 }
 
@@ -35,15 +31,9 @@ Tensor_view Tensor_view_mut::make_immutable() const noexcept {
 }
 
 std::ostream &operator<<(std::ostream &stream, const Tensor_view_mut &view) {
-    if (view.rank == 0) {
-        std::cout << "[]";
-    } else {
-        std::vector<int> cords(view.rank);
-        int indent = 0;
 
-        print_tensor(stream, cords, view.shape, view.stride, view.rank,
-                     view.elements, view.len, 0, indent);
-    }
+    stream << view.make_immutable();
+
     return stream;
 }
 
