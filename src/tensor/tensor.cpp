@@ -318,9 +318,9 @@ std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
         std::vector<int> cords(tensor.rank());
         int indent = 0;
 
-        detail::print_tensor(stream, cords, tensor.shape().data(),
-                             tensor.stride().data(), tensor.rank(),
-                             tensor.data(), tensor.size(), 0, indent);
+        print_tensor(stream, cords, tensor.shape().data(),
+                     tensor.stride().data(), tensor.rank(), tensor.data(),
+                     tensor.size(), 0, indent);
     }
     return stream;
 }

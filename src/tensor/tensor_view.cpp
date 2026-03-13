@@ -17,8 +17,8 @@ std::ostream &operator<<(std::ostream &stream, const Tensor_view &view) {
         std::vector<int> cords(view.rank);
         int indent = 0;
 
-        detail::print_tensor(stream, cords, view.shape, view.stride, view.rank,
-                             view.elements, view.len, 0, indent);
+        print_tensor(stream, cords, view.shape, view.stride, view.rank,
+                     view.elements, view.len, 0, indent);
     }
     return stream;
 }
@@ -41,8 +41,8 @@ std::ostream &operator<<(std::ostream &stream, const Tensor_view_mut &view) {
         std::vector<int> cords(view.rank);
         int indent = 0;
 
-        detail::print_tensor(stream, cords, view.shape, view.stride, view.rank,
-                             view.elements, view.len, 0, indent);
+        print_tensor(stream, cords, view.shape, view.stride, view.rank,
+                     view.elements, view.len, 0, indent);
     }
     return stream;
 }
