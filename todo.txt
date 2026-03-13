@@ -15,14 +15,14 @@ LATER:
 [ TENSOR ]
 FIX:
 REFACTOR:
-    put print logic into common
+    shape() and elements() should return std::span<const int>
 FEAT:
 PERF:
 DOC:
 CHORE:
 LATER:
     make Tensor variant with compile time shape
-    combine shape and stride into shape struct
+    (?) combine shape and stride into shape struct
 
 
 [ GRAPH ]

@@ -305,29 +305,9 @@ struct Tensor_view_mut Tensor::view_mut() noexcept {
 
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
 
-    stream << "shape: (";
-    if (!tensor.shape().empty()) {
+    print_tensor_impl(stream, tensor.shape(), tensor.stride(),
+                      tensor.elements());
 
-        stream << tensor.shape()[0];
-        for (Tensor::size_type i = 1; i < tensor.rank(); i++) {
-            stream << ", " << tensor.shape()[i];
-        }
-    }
-    stream << ")\n";
-
-    stream << "elements: ";
-
-    if (tensor.empty()) {
-        stream << "[]";
-    } else {
-        stream << "\n";
-        std::vector<int> cords(tensor.rank());
-        int indent = 0;
-
-        print_tensor(stream, cords, tensor.shape().data(),
-                     tensor.stride().data(), tensor.rank(), tensor.data(),
-                     tensor.size(), 0, indent);
-    }
     return stream;
 }
 

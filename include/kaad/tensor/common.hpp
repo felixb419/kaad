@@ -1,15 +1,16 @@
 #pragma once
 
 #include "../scalar.hpp" // for Scalar
-#include <cstddef>       // for size_t
 #include <iostream>      // for operator<<, ostream
-#include <vector>        // for vector
+#include <span>          // for span
 
 namespace kaad {
 
-void print_tensor(std::ostream &stream, std::vector<int> &cords,
-                  const int *shape, const int *stride, std::size_t rank,
-                  const Scalar *elements, std::size_t nElems, std::size_t ind,
-                  int &indent);
+/**
+ * @internal
+ */
+void print_tensor_impl(std::ostream &stream, std::span<const int> shape,
+                       std::span<const int> stride,
+                       std::span<const Scalar> elements);
 
 } // namespace kaad
