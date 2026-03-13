@@ -1,4 +1,4 @@
-#include "../../include/kaad/tensor/common.hpp"
+#include "../../include/kaad/tensor/print_tensor.hpp"
 #include "../../include/kaad/tensor/tensor.hpp" // for Tensor
 #include "kaad/scalar.hpp"                      // for Scalar
 #include <cstddef>                              // for size_t

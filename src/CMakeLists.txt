@@ -21,7 +21,7 @@ add_library(kaad
     ./graph/graph.cpp
     ./tensor/tensor_view.cpp
     ./tensor/tensor.cpp
-    ./tensor/common.cpp
+    ./tensor/print_tensor.cpp
     ./exceptions.cpp
 )
 

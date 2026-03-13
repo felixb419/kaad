@@ -1,8 +1,8 @@
 #include "../../include/kaad/tensor/tensor.hpp"
 #include "../../include/kaad/exceptions.hpp"           // for argument_error
 #include "../../include/kaad/scalar.hpp"               // for Scalar
-#include "../../include/kaad/tensor/common.hpp"        // for print_tensor
 #include "../../include/kaad/tensor/iterator_impl.hpp" // for iterator_impl
+#include "../../include/kaad/tensor/print_tensor.hpp"  // for print_tensor
 #include "../../include/kaad/tensor/tensor_view.hpp"   // for Tensor_view
 #include <algorithm>                                   // for copy, fill, fill_n
 #include <iostream>                                    // for char_traits
