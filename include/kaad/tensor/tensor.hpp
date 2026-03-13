@@ -173,7 +173,7 @@ class Tensor {
      * @brief Get immutable reference to the shape array.
      * @return Const reference to shape_.
      */
-    [[nodiscard]] const std::vector<int> &shape() const noexcept;
+    [[nodiscard]] std::span<const int> shape() const noexcept;
 
     /**
      * @brief Returns the tensor stride array.
@@ -181,7 +181,7 @@ class Tensor {
      * consecutive entries along each dimension.
      * @return Const reference to the stride array.
      */
-    [[nodiscard]] const std::vector<int> &stride() const noexcept;
+    [[nodiscard]] std::span<const int> stride() const noexcept;
 
     /**
      * @brief Returns the tensors element array.

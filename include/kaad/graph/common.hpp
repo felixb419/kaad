@@ -68,7 +68,8 @@ inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
                                     std::vector<int> &input_stride,
                                     std::vector<int> &output_stride) {
     input_rank = input.rank();
-    input_stride = std::vector<int>(input.stride());
+    input_stride =
+        std::vector<int>(input.stride().begin(), input.stride().end());
 
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
@@ -78,7 +79,8 @@ inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
         }
     }
 
-    output_stride = std::vector<int>(output.stride());
+    output_stride =
+        std::vector<int>(output.stride().begin(), output.stride().end());
 
     // adjust output_stride if keep_rank was not set
     if (input.rank() > output.rank()) {

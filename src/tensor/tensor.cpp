@@ -200,11 +200,9 @@ Tensor::size_type Tensor::rank() const noexcept {
     return static_cast<size_type>(this->shape_.size());
 }
 
-const std::vector<int> &Tensor::shape() const noexcept { return this->shape_; }
+std::span<const int> Tensor::shape() const noexcept { return this->shape_; }
 
-const std::vector<int> &Tensor::stride() const noexcept {
-    return this->stride_;
-}
+std::span<const int> Tensor::stride() const noexcept { return this->stride_; }
 
 std::vector<Scalar> &Tensor::elements() noexcept { return this->elements_; }
 
