@@ -3,6 +3,7 @@
 #include "../scalar.hpp" // for Scalar
 #include <algorithm>     // for copy
 #include <iterator>      // for bidirectional_iterator_tag
+#include <span>          // for span
 #include <type_traits>   // for conditional_t
 #include <vector>        // for vector
 
@@ -14,10 +15,10 @@ template <bool isConst> class iterator_impl {
   private:
     using Tensor_reference =
         std::conditional_t<isConst, const Tensor &, Tensor &>;
-    Tensor_reference origin_;        ///< Origin tensor of the iterator.
-    std::vector<int> cords_;         ///< Per-dim coordinates of the element.
-    const std::vector<int> &shape_;  ///< Shape of the tensor.
-    const std::vector<int> &stride_; ///< Stride array of the tensor.
+    Tensor_reference origin_;     ///< Origin tensor of the iterator.
+    std::vector<int> cords_;      ///< Per-dim coordinates of the element.
+    std::span<const int> shape_;  ///< Shape of the tensor.
+    std::span<const int> stride_; ///< Stride array of the tensor.
 
   public:
     using iterator_concept = std::bidirectional_iterator_tag;
