@@ -19,6 +19,7 @@ add_library(kaad
     ./operators/slice.cpp
     ./operators/binary_operators.cpp
     ./graph/graph.cpp
+    ./graph/node_handle.cpp
     ./tensor/tensor_view.cpp
     ./tensor/tensor.cpp
     ./tensor/print_tensor.cpp
