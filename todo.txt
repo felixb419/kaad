@@ -27,7 +27,6 @@ LATER:
 [ GRAPH ]
 FIX:
 REFACTOR:
-    move Node operator<< to node
 FEAT:
 PERF:
 DOC:

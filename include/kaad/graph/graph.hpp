@@ -1,7 +1,6 @@
 #pragma once
 
 #include <initializer_list>           // for initializer_list
-#include <iosfwd>                     // for ostream
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr
@@ -101,8 +100,6 @@ class Graph {
      * new forward pass.
      */
     void reset();
-
-    friend std::ostream &operator<<(std::ostream &stream, Node node);
 
     friend class Node;
 

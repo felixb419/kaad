@@ -3,13 +3,12 @@
 #include <algorithm>                  // for fill
 #include <cstddef>                    // for size_t
 #include <kaad/exceptions.hpp>        // for argument_error
-#include <kaad/graph/node_handle.hpp> // for Node, operator<<
+#include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/graph/nodes/input.hpp> // for Node_input
-#include <kaad/tensor/tensor.hpp>     // for operator<<, Tensor
-#include <memory>                     // for unique_ptr, make...
-#include <ostream>                    // for basic_ostream
-#include <string>                     // for char_traits, ope...
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <memory>                     // for unique_ptr, make_unique
+#include <string>                     // for operator+, to_string, basic_st...
 #include <vector>                     // for vector
 
 namespace kaad {
@@ -72,16 +71,6 @@ std::vector<const Tensor *> Graph::getGradient(Node output,
     }
 
     return partials;
-}
-
-std::ostream &operator<<(std::ostream &stream, Node node) {
-    INode *node_ptr = node.origin_->get_node(node);
-    stream << node_ptr->node_type() << " at idx " << node.idx()
-           << " of Graph at " << node.origin() << "\n"
-           << "value:\n"
-           << node_ptr->value() << "\ngradient:\n"
-           << node_ptr->gradient();
-    return stream;
 }
 
 } // namespace kaad

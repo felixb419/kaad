@@ -79,6 +79,15 @@ class Node {
         return this->node()->gradient();
     }
 
+    friend std::ostream &operator<<(std::ostream &stream, Node node) {
+        stream << node.node()->node_type() << " at idx " << node.idx()
+               << " of Graph at " << node.origin() << "\n"
+               << "value:\n"
+               << node.value() << "\ngradient:\n"
+               << node.gradient();
+        return stream;
+    }
+
     friend constexpr auto operator<=>(Node, Node) = default;
     friend std::ostream &operator<<(std::ostream &stream, Node node);
 };
