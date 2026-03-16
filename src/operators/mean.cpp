@@ -1,18 +1,19 @@
-#include "../../include/kaad/graph/nodes/mean.hpp"
-#include "../../include/kaad/exceptions.hpp"           // for argument_error
-#include "../../include/kaad/graph/graph.hpp"          // for Graph, mean
-#include "../../include/kaad/graph/node_handle.hpp"    // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"    // for INode
-#include "../../include/kaad/graph/nodes/mean_dim.hpp" // for Node_mean_dim
-#include "../../include/kaad/operators/operators.hpp"  // for mean
-#include "../../include/kaad/tensor/tensor.hpp"        // for Tensor
-#include <algorithm>                                   // for copy
-#include <cstddef>                                     // for size_t
-#include <memory>                                      // for unique_ptr
-#include <span>                                        // for span
-#include <string>                                      // for basic_string
-#include <utility>                                     // for cmp_greater_e...
-#include <vector>                                      // for vector
+#include <kaad/operators/operators.hpp> // for mean
+
+#include <algorithm>                     // for copy
+#include <cstddef>                       // for size_t
+#include <kaad/exceptions.hpp>           // for argument_error, make_graph_...
+#include <kaad/graph/graph.hpp>          // for Graph, mean
+#include <kaad/graph/node_handle.hpp>    // for Node
+#include <kaad/graph/nodes/inode.hpp>    // for INode
+#include <kaad/graph/nodes/mean.hpp>     // for Node_mean
+#include <kaad/graph/nodes/mean_dim.hpp> // for Node_mean_dim
+#include <kaad/tensor/tensor.hpp>        // for Tensor
+#include <memory>                        // for unique_ptr, make_unique
+#include <span>                          // for span
+#include <string>                        // for basic_string
+#include <utility>                       // for cmp_greater_equal, pair
+#include <vector>                        // for vector
 
 namespace kaad {
 

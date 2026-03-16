@@ -1,18 +1,19 @@
-#include "../../include/kaad/exceptions.hpp"          // for argument_error
-#include "../../include/kaad/graph/graph.hpp"         // for Graph, transpose
-#include "../../include/kaad/graph/node_handle.hpp"   // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
-#include "../../include/kaad/graph/nodes/transp.hpp"  // for Node_transp
-#include "../../include/kaad/operators/operators.hpp" // for transpose
-#include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
-#include <algorithm>                                  // for reverse_copy
-#include <cstddef>                                    // for size_t
-#include <initializer_list>                           // for initializer_list
-#include <memory>                                     // for unique_ptr
-#include <span>                                       // for span
-#include <string>                                     // for basic_string
-#include <utility>                                    // for pair
-#include <vector>                                     // for vector
+#include <kaad/operators/operators.hpp> // for transpose
+
+#include <algorithm>                   // for reverse_copy
+#include <cstddef>                     // for size_t
+#include <initializer_list>            // for initializer_list
+#include <kaad/exceptions.hpp>         // for argument_error, make_graph_e...
+#include <kaad/graph/graph.hpp>        // for Graph, transpose
+#include <kaad/graph/node_handle.hpp>  // for Node
+#include <kaad/graph/nodes/inode.hpp>  // for INode
+#include <kaad/graph/nodes/transp.hpp> // for Node_transp
+#include <kaad/tensor/tensor.hpp>      // for Tensor
+#include <memory>                      // for unique_ptr, make_unique
+#include <span>                        // for span
+#include <string>                      // for basic_string
+#include <utility>                     // for pair
+#include <vector>                      // for vector
 
 namespace kaad {
 

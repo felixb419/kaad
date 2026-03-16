@@ -1,9 +1,10 @@
-#include "../../../include/kaad/graph/nodes/outer.hpp"
-#include "../../../include/kaad/graph/dispatchers.hpp" // for get_flexGrad
-#include "../../../include/kaad/graph/nodes/inode.hpp" // for INode
-#include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
-#include <algorithm>                                   // for copy
-#include <array>                                       // for array
+#include <kaad/graph/nodes/outer.hpp>
+
+#include <algorithm>                  // for copy
+#include <array>                      // for array
+#include <kaad/graph/dispatchers.hpp> // for get_flexGrad
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/tensor/tensor.hpp>     // for Tensor
 
 namespace kaad {
 

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../scalar.hpp" // for Scalar
-#include <algorithm>     // for copy
-#include <iterator>      // for bidirectional_iterator_tag
-#include <span>          // for span
-#include <type_traits>   // for conditional_t
-#include <vector>        // for vector
+#include <algorithm>       // for copy
+#include <iterator>        // for bidirectional_iterator_tag
+#include <kaad/scalar.hpp> // for Scalar
+#include <span>            // for span
+#include <type_traits>     // for conditional_t
+#include <vector>          // for vector
 
 namespace kaad {
 

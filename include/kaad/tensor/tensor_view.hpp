@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../scalar.hpp" // for Scalar
-#include <cstddef>       // for size_t
-#include <iostream>      // for ostream, ptrdiff_t
+#include <cstddef>         // for size_t
+#include <iostream>        // for ostream, ptrdiff_t
+#include <kaad/scalar.hpp> // for Scalar
 
 namespace kaad {
 

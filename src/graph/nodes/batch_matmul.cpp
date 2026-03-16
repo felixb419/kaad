@@ -1,14 +1,15 @@
-#include "../../../include/kaad/graph/nodes/batch_matmul.hpp"
-#include "../../../include/kaad/graph/common.hpp"       // for combine_matrix
-#include "../../../include/kaad/graph/dispatchers.hpp"  // for get_batch_ma...
-#include "../../../include/kaad/graph/nodes/inode.hpp"  // for INode
-#include "../../../include/kaad/scalar.hpp"             // for Scalar
-#include "../../../include/kaad/tensor/tensor.hpp"      // for Tensor
-#include "../../../include/kaad/tensor/tensor_view.hpp" // for Tensor_view
-#include <algorithm>                                    // for copy, max
-#include <array>                                        // for array
-#include <utility>                                      // for swap
-#include <vector>                                       // for vector
+#include <kaad/graph/nodes/batch_matmul.hpp>
+
+#include <algorithm>                   // for copy, max
+#include <array>                       // for array
+#include <kaad/graph/common.hpp>       // for combine_matrix
+#include <kaad/graph/dispatchers.hpp>  // for get_batch_ma...
+#include <kaad/graph/nodes/inode.hpp>  // for INode
+#include <kaad/scalar.hpp>             // for Scalar
+#include <kaad/tensor/tensor.hpp>      // for Tensor
+#include <kaad/tensor/tensor_view.hpp> // for Tensor_view
+#include <utility>                     // for swap
+#include <vector>                      // for vector
 
 namespace kaad {
 

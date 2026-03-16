@@ -1,8 +1,7 @@
 #pragma once
 
-#include <concepts>    // for concept
-#include <cstddef>     // for size_t
-#include <type_traits> // for declval
+#include <concepts> // for concept
+#include <cstddef>  // for size_t
 
 /**
  * @file functions.hpp

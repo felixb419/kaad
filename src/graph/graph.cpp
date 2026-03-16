@@ -1,15 +1,16 @@
-#include "../../include/kaad/graph/graph.hpp"
-#include "../../include/kaad/exceptions.hpp"        // for argument_error
-#include "../../include/kaad/graph/node_handle.hpp" // for Node, operator<<
-#include "../../include/kaad/graph/nodes/inode.hpp" // for INode
-#include "../../include/kaad/graph/nodes/input.hpp" // for Node_input
-#include "../../include/kaad/tensor/tensor.hpp"     // for operator<<, Tensor
-#include <algorithm>                                // for fill
-#include <cstddef>                                  // for size_t
-#include <memory>                                   // for unique_ptr, make...
-#include <ostream>                                  // for basic_ostream
-#include <string>                                   // for char_traits, ope...
-#include <vector>                                   // for vector
+#include <kaad/graph/graph.hpp>
+
+#include <algorithm>                  // for fill
+#include <cstddef>                    // for size_t
+#include <kaad/exceptions.hpp>        // for argument_error
+#include <kaad/graph/node_handle.hpp> // for Node, operator<<
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/graph/nodes/input.hpp> // for Node_input
+#include <kaad/tensor/tensor.hpp>     // for operator<<, Tensor
+#include <memory>                     // for unique_ptr, make...
+#include <ostream>                    // for basic_ostream
+#include <string>                     // for char_traits, ope...
+#include <vector>                     // for vector
 
 namespace kaad {
 

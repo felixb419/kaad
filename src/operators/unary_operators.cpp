@@ -1,16 +1,17 @@
-#include "../../include/kaad/functions/adjoint.hpp"      // for pointwise
-#include "../../include/kaad/functions/kernels.hpp"      // for Abs, Neg
-#include "../../include/kaad/functions/primal.hpp"       // for pointwise
-#include "../../include/kaad/functions/safe_kernels.hpp" // for safe_Exp
-#include "../../include/kaad/graph/graph.hpp"            // for Graph, unOp...
-#include "../../include/kaad/graph/node_handle.hpp"      // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"      // for INode
-#include "../../include/kaad/graph/nodes/unary.hpp"      // for Node_unary
-#include "../../include/kaad/operators/operators.hpp"    // for abs, exp, log
-#include "../../include/kaad/scalar.hpp"                 // for Scalar
-#include "../../include/kaad/tensor/tensor.hpp"          // for Tensor
-#include <memory>                                        // for make_unique
-#include <utility>                                       // for move
+#include <kaad/operators/operators.hpp>
+
+#include <kaad/functions/adjoint.hpp>      // for pointwise
+#include <kaad/functions/kernels.hpp>      // for Abs, Neg
+#include <kaad/functions/primal.hpp>       // for pointwise
+#include <kaad/functions/safe_kernels.hpp> // for safe_Exp
+#include <kaad/graph/graph.hpp>            // for Graph, unOp...
+#include <kaad/graph/node_handle.hpp>      // for Node
+#include <kaad/graph/nodes/inode.hpp>      // for INode
+#include <kaad/graph/nodes/unary.hpp>      // for Node_unary
+#include <kaad/scalar.hpp>                 // for Scalar
+#include <kaad/tensor/tensor.hpp>          // for Tensor
+#include <memory>                          // for make_unique
+#include <utility>                         // for move
 
 // IWYU pragma: no_forward_declare kaad::Node_unary
 

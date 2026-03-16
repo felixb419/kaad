@@ -1,18 +1,20 @@
-#include "../../include/kaad/graph/nodes/matmul.hpp"
-#include "../../include/kaad/exceptions.hpp"               // for shape_error
-#include "../../include/kaad/graph/common.hpp"             // for combine_m...
-#include "../../include/kaad/graph/graph.hpp"              // for Graph
-#include "../../include/kaad/graph/node_handle.hpp"        // for Node
-#include "../../include/kaad/graph/nodes/batch_matmul.hpp" // for Node_batc...
-#include "../../include/kaad/graph/nodes/inode.hpp"        // for INode
-#include "../../include/kaad/operators/operators.hpp"      // for matmul
-#include "../../include/kaad/tensor/tensor.hpp"            // for Tensor
-#include <algorithm>                                       // for max
-#include <cstddef>                                         // for size_t
-#include <memory>                                          // for unique_ptr
-#include <string>                                          // for basic_string
-#include <utility>                                         // for pair
-#include <vector>                                          // for vector
+#include <kaad/operators/operators.hpp> // for matmul
+
+#include <algorithm>                         // for max
+#include <cstddef>                           // for size_t
+#include <kaad/exceptions.hpp>               // for shape_error, make_graph...
+#include <kaad/graph/common.hpp>             // for combine_matrix
+#include <kaad/graph/graph.hpp>              // for Graph, matmul
+#include <kaad/graph/node_handle.hpp>        // for Node
+#include <kaad/graph/nodes/batch_matmul.hpp> // for Node_batch_matmul
+#include <kaad/graph/nodes/inode.hpp>        // for INode
+#include <kaad/graph/nodes/matmul.hpp>       // for Node_matmul
+#include <kaad/tensor/tensor.hpp>            // for Tensor
+#include <memory>                            // for unique_ptr, make_unique
+#include <span>                              // for span
+#include <string>                            // for basic_string
+#include <utility>                           // for pair
+#include <vector>                            // for vector
 
 namespace kaad {
 

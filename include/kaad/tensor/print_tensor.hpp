@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../scalar.hpp" // for Scalar
-#include <iostream>      // for operator<<, ostream
-#include <span>          // for span
+#include <iostream>        // for operator<<, ostream
+#include <kaad/scalar.hpp> // for Scalar
+#include <span>            // for span
 
 namespace kaad {
 

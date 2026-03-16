@@ -1,15 +1,16 @@
-#include "../../include/kaad/tensor/tensor.hpp"
-#include "../../include/kaad/exceptions.hpp"           // for argument_error
-#include "../../include/kaad/scalar.hpp"               // for Scalar
-#include "../../include/kaad/tensor/iterator_impl.hpp" // for iterator_impl
-#include "../../include/kaad/tensor/print_tensor.hpp"  // for print_tensor
-#include "../../include/kaad/tensor/tensor_view.hpp"   // for Tensor_view
-#include <algorithm>                                   // for copy, fill, fill_n
-#include <iostream>                                    // for char_traits
-#include <span>                                        // for span
-#include <string>                                      // for operator+, to_s...
-#include <utility>                                     // for move
-#include <vector>                                      // for allocator, vector
+#include <kaad/tensor/tensor.hpp>
+
+#include <algorithm>                     // for copy, fill, fill_n
+#include <iostream>                      // for char_traits
+#include <kaad/exceptions.hpp>           // for argument_error
+#include <kaad/scalar.hpp>               // for Scalar
+#include <kaad/tensor/iterator_impl.hpp> // for iterator_impl
+#include <kaad/tensor/print_tensor.hpp>  // for print_tensor
+#include <kaad/tensor/tensor_view.hpp>   // for Tensor_view
+#include <span>                          // for span
+#include <string>                        // for operator+, to_s...
+#include <utility>                       // for move
+#include <vector>                        // for allocator, vector
 
 namespace kaad {
 

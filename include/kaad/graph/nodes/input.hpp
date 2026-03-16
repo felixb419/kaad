@@ -1,7 +1,7 @@
 #pragma once
 
-#include "inode.hpp" // for INode
-#include <span>      // for span
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <span>                       // for span
 
 namespace kaad {
 

@@ -1,23 +1,24 @@
-#include "../../include/kaad/exceptions.hpp"          // for argument_error
-#include "../../include/kaad/functions/adjoint.hpp"   // for pointwise_fn
-#include "../../include/kaad/functions/kernels.hpp"   // for Sum
-#include "../../include/kaad/functions/primal.hpp"    // for pointwise_fn
-#include "../../include/kaad/graph/graph.hpp"         // for Graph, sum
-#include "../../include/kaad/graph/node_handle.hpp"   // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
-#include "../../include/kaad/graph/nodes/sum_dim.hpp" // for Node_sum_dim
-#include "../../include/kaad/graph/nodes/unary.hpp"   // for Node_unary
-#include "../../include/kaad/operators/operators.hpp" // for sum
-#include "../../include/kaad/scalar.hpp"              // for Scalar
-#include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
-#include <algorithm>                                  // for copy
-#include <array>                                      // for array
-#include <cstddef>                                    // for size_t
-#include <memory>                                     // for unique_ptr
-#include <span>                                       // for span
-#include <string>                                     // for basic_string
-#include <utility>                                    // for cmp_greater_equal
-#include <vector>                                     // for vector
+#include <kaad/operators/operators.hpp> // for sum
+
+#include <algorithm>                    // for copy
+#include <array>                        // for array
+#include <cstddef>                      // for size_t
+#include <kaad/exceptions.hpp>          // for argument_error, make_graph_e...
+#include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalarOut
+#include <kaad/functions/kernels.hpp>   // for Sum
+#include <kaad/functions/primal.hpp>    // for pointwise_fn, scalarOut
+#include <kaad/graph/graph.hpp>         // for Graph, sum
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/graph/nodes/sum_dim.hpp> // for Node_sum_dim
+#include <kaad/graph/nodes/unary.hpp>   // for Node_unary
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <memory>                       // for unique_ptr, make_unique
+#include <span>                         // for span
+#include <string>                       // for basic_string
+#include <utility>                      // for cmp_greater_equal, pair
+#include <vector>                       // for vector
 
 namespace kaad {
 

@@ -1,6 +1,7 @@
-#include "../../../include/kaad/graph/nodes/transp.hpp"
-#include "../../../include/kaad/graph/nodes/inode.hpp" // for INode
-#include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
+#include <kaad/graph/nodes/transp.hpp>
+
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/tensor/tensor.hpp>     // for Tensor
 
 namespace kaad {
 

@@ -1,9 +1,8 @@
 #pragma once
 
-#include "primal.hpp"  // for batch_matmul, matmul
-#include <concepts>    // for concept
-#include <cstddef>     // for size_t
-#include <type_traits> // for declval
+#include <concepts>                  // for concept
+#include <cstddef>                   // for size_t
+#include <kaad/functions/primal.hpp> // for batch_matmul, matmul
 
 /**
  * @namespace functions::adjoint

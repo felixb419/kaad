@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../../functions/adjoint.hpp" // for flexible, flexible_fn
-#include "../../functions/primal.hpp"  // for flexible, flexible_fn
-#include "../../tensor/tensor.hpp"     // for Tensor
-#include "../dispatchers.hpp"          // for MAX_NDIMS, get_flex...
-#include "inode.hpp"                   // for INode
-#include <cstddef>                     // for size_t
-#include <span>                        // for span
-#include <vector>                      // for vector
+#include <cstddef>                    // for size_t
+#include <kaad/functions/adjoint.hpp> // for flexible, flexible_fn
+#include <kaad/functions/primal.hpp>  // for flexible, flexible_fn
+#include <kaad/graph/dispatchers.hpp> // for MAX_NDIMS, get_flex...
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <span>                       // for span
+#include <vector>                     // for vector
 
 namespace kaad {
 

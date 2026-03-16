@@ -1,7 +1,8 @@
-#include "../../include/kaad/tensor/tensor_view.hpp"
-#include "../../include/kaad/tensor/print_tensor.hpp" // for print_tensor_impl
-#include "kaad/scalar.hpp"                            // for Scalar
-#include <span>                                       // for span
+#include <kaad/tensor/tensor_view.hpp>
+
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/print_tensor.hpp> // for print_tensor_impl
+#include <span>                         // for span
 
 namespace kaad {
 

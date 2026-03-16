@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../tensor/tensor.hpp" // for Tensor
-#include <span>                    // for span
+#include <kaad/tensor/tensor.hpp> // for Tensor
+#include <span>                   // for span
 
 namespace kaad {
 

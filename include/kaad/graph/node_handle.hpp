@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../../../include/kaad/exceptions.hpp"  // for argument_error
-#include "../../../include/kaad/graph/graph.hpp" // for computation_graph
-#include <cassert>                               // for assert
-#include <iostream>                              // for ostream
-#include <stdint.h>                              // for uint32_t
+#include <cassert>              // for assert
+#include <cstdint>              // for uint32_t
+#include <iostream>             // for ostream
+#include <kaad/exceptions.hpp>  // for argument_error
+#include <kaad/graph/graph.hpp> // for computation_graph
 
 namespace kaad {
 class Graph;

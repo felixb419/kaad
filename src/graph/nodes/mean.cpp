@@ -1,9 +1,10 @@
-#include "../../../include/kaad/graph/nodes/mean.hpp"
-#include "../../../include/kaad/graph/nodes/inode.hpp" // for INode
-#include "../../../include/kaad/scalar.hpp"            // for Scalar
-#include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
-#include <array>                                       // for array
-#include <span>                                        // for span
+#include <kaad/graph/nodes/mean.hpp>
+
+#include <array>                      // for array
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/scalar.hpp>            // for Scalar
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <span>                       // for span
 
 namespace kaad {
 

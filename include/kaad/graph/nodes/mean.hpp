@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../functions/adjoint.hpp" // for mean, mean_fn
-#include "../../functions/primal.hpp"  // for mean, mean_fn
-#include "../../scalar.hpp"            // for Scalar
-#include "inode.hpp"                   // for INode
+#include <kaad/functions/adjoint.hpp> // for mean, mean_fn
+#include <kaad/functions/primal.hpp>  // for mean, mean_fn
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/scalar.hpp>            // for Scalar
 
 namespace kaad {
 

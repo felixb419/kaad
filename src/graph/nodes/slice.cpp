@@ -1,10 +1,11 @@
-#include "../../../include/kaad/graph/nodes/slice.hpp"
-#include "../../../include/kaad/graph/dispatchers.hpp" // for get_slice
-#include "../../../include/kaad/graph/nodes/inode.hpp" // for INode
-#include "../../../include/kaad/scalar.hpp"            // for Scalar
-#include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
-#include <algorithm>                                   // for copy
-#include <array>                                       // for array
+#include <kaad/graph/nodes/slice.hpp>
+
+#include <algorithm>                  // for copy
+#include <array>                      // for array
+#include <kaad/graph/dispatchers.hpp> // for get_slice
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/scalar.hpp>            // for Scalar
+#include <kaad/tensor/tensor.hpp>     // for Tensor
 
 namespace kaad {
 

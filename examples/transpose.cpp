@@ -1,8 +1,8 @@
-#include "../include/kaad/kaad.hpp"
 #include <array>    // for array
 #include <iostream> // for basic_ostream, char_traits
-#include <numeric>  // for iota
-#include <span>     // for span
+#include <kaad/kaad.hpp>
+#include <numeric> // for iota
+#include <span>    // for span
 
 int main() {
     // Create computation graph.

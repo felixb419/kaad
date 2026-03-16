@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../graph/node_handle.hpp" // for Node
-#include <initializer_list>         // for initializer_list
+#include <initializer_list>           // for initializer_list
+#include <kaad/graph/node_handle.hpp> // for Node
 
 namespace kaad {
 

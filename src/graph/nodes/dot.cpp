@@ -1,8 +1,9 @@
-#include "../../../include/kaad/graph/nodes/dot.hpp"
-#include "../../../include/kaad/graph/nodes/inode.hpp" // for INode
-#include "../../../include/kaad/tensor/tensor.hpp"     // for Tensor
-#include <array>                                       // for array
-#include <span>                                        // for span
+#include <kaad/graph/nodes/dot.hpp>
+
+#include <array>                      // for array
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <span>                       // for span
 
 namespace kaad {
 

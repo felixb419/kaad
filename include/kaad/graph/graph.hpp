@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../tensor/tensor.hpp" // for Tensor
-#include "nodes/inode.hpp"      // for INode
-#include <initializer_list>     // for initializer_list
-#include <iosfwd>               // for ostream
-#include <memory>               // for unique_ptr
-#include <span>                 // for span
-#include <vector>               // for vector
+#include <initializer_list>           // for initializer_list
+#include <iosfwd>                     // for ostream
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <memory>                     // for unique_ptr
+#include <span>                       // for span
+#include <vector>                     // for vector
 
 namespace kaad {
 

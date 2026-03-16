@@ -1,7 +1,8 @@
-#include "../../../include/kaad/graph/nodes/inode.hpp"
-#include "../../../include/kaad/exceptions.hpp"    // for argument_error
-#include "../../../include/kaad/tensor/tensor.hpp" // for Tensor
-#include <algorithm>                               // for __fill_fn, fill
+#include <kaad/graph/nodes/inode.hpp>
+
+#include <algorithm>              // for __fill_fn, fill
+#include <kaad/exceptions.hpp>    // for argument_error
+#include <kaad/tensor/tensor.hpp> // for Tensor
 
 namespace kaad {
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../tensor/tensor.hpp" // for Tensor
-#include <algorithm>            // for fill, max, move
-#include <cstddef>              // for size_t
-#include <utility>              // for cmp_less_equal
-#include <vector>               // for vector
+#include <algorithm>              // for fill, max, move
+#include <cstddef>                // for size_t
+#include <kaad/tensor/tensor.hpp> // for Tensor
+#include <utility>                // for cmp_less_equal
+#include <vector>                 // for vector
 
 namespace kaad::detail {
 

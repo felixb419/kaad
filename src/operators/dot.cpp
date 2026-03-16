@@ -1,19 +1,20 @@
-#include "../../include/kaad/graph/nodes/dot.hpp"
-#include "../../include/kaad/exceptions.hpp"          // for shape_error
-#include "../../include/kaad/functions/adjoint.hpp"   // for scalarDot
-#include "../../include/kaad/functions/primal.hpp"    // for scalarDot
-#include "../../include/kaad/graph/graph.hpp"         // for Graph, dot
-#include "../../include/kaad/graph/node_handle.hpp"   // for Node
-#include "../../include/kaad/graph/nodes/inode.hpp"   // for INode
-#include "../../include/kaad/operators/operators.hpp" // for dot
-#include "../../include/kaad/tensor/tensor.hpp"       // for Tensor
-#include <algorithm>                                  // for equal
-#include <cstddef>                                    // for size_t
-#include <memory>                                     // for unique_ptr
-#include <span>                                       // for span
-#include <string>                                     // for basic_string
-#include <utility>                                    // for pair
-#include <vector>                                     // for vector
+#include <kaad/operators/operators.hpp> // for dot
+
+#include <algorithm>                  // for equal
+#include <cstddef>                    // for size_t
+#include <kaad/exceptions.hpp>        // for shape_error, make_graph_errmsg
+#include <kaad/functions/adjoint.hpp> // for scalarDot
+#include <kaad/functions/primal.hpp>  // for scalarDot
+#include <kaad/graph/graph.hpp>       // for Graph, dot
+#include <kaad/graph/node_handle.hpp> // for Node
+#include <kaad/graph/nodes/dot.hpp>   // for Node_dot, dot
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <memory>                     // for unique_ptr, make_unique
+#include <span>                       // for span
+#include <string>                     // for basic_string
+#include <utility>                    // for pair
+#include <vector>                     // for vector
 
 namespace kaad {
 

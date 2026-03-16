@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../functions/adjoint.hpp" // for matmul, matmul_fn
-#include "../../functions/primal.hpp"  // for matmul, matmul_fn
-#include "../../scalar.hpp"            // for Scalar
-#include "inode.hpp"                   // for INode
-#include <array>                       // for array
-#include <span>                        // for span
+#include <array>                      // for array
+#include <kaad/functions/adjoint.hpp> // for matmul, matmul_fn
+#include <kaad/functions/primal.hpp>  // for matmul, matmul_fn
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/scalar.hpp>            // for Scalar
+#include <span>                       // for span
 
 namespace kaad {
 
