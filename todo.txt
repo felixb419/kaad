@@ -7,8 +7,39 @@
 [PERF]
 
 [DOC]
-(operators)    add @pre with shape requirements
-(operators)    rework comments
+    Rework comments in:
+        ./tests/check_tensor.hpp
+        ./include/kaad/tensor/print_tensor.hpp
+        ./include/kaad/tensor/tensor_view.hpp
+        ./include/kaad/tensor/tensor.hpp
+        ./include/kaad/tensor/iterator_impl.hpp
+        ./include/kaad/graph/graph.hpp
+        ./include/kaad/graph/common.hpp
+        ./include/kaad/graph/node_handle.hpp
+        ./include/kaad/graph/dispatchers.hpp
+        ./include/kaad/graph/nodes/slice.hpp
+        ./include/kaad/graph/nodes/matmul.hpp
+        ./include/kaad/graph/nodes/binary_flex.hpp
+        ./include/kaad/graph/nodes/mean.hpp
+        ./include/kaad/graph/nodes/inode.hpp
+        ./include/kaad/graph/nodes/sum_dim.hpp
+        ./include/kaad/graph/nodes/batch_matmul.hpp
+        ./include/kaad/graph/nodes/mean_dim.hpp
+        ./include/kaad/graph/nodes/transp.hpp
+        ./include/kaad/graph/nodes/input.hpp
+        ./include/kaad/graph/nodes/unary.hpp
+        ./include/kaad/graph/nodes/dot.hpp
+        ./include/kaad/graph/nodes/outer.hpp
+        ./include/kaad/graph/nodes/binary.hpp
+        ./include/kaad/scalar.hpp
+        ./include/kaad/operators/operators.hpp
+                    add @pre with shape requirements
+        ./include/kaad/exceptions.hpp
+        ./include/kaad/functions/kernels.hpp
+        ./include/kaad/functions/primal.hpp
+        ./include/kaad/functions/adjoint.hpp
+        ./include/kaad/functions/safe_kernels.hpp
+        ./include/kaad/kaad.hpp
 
 [CHORE]
 
