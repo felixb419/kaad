@@ -8,7 +8,6 @@
 
 [DOC]
 (operators)    add @pre with shape requirements
-(operators)    replace ` with @p
 (operators)    rework comments
 
 [CHORE]
