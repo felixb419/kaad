@@ -63,11 +63,10 @@ LATER:
 FIX:
 REFACTOR:
 FEAT:
-    add test_outer (with transpose)
     add test_slice (with transpose)
     add test_batch_matmul (with transpose)
     add test_binary_flex (with transpose)
-    add values to kernels
+    add test_sum_dim (with transpose)
 PERF:
 DOC:
 CHORE:

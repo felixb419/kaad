@@ -6,6 +6,7 @@ set(TEST_TARGETS
     test_matmul
     test_mean
     test_transpose
+    test_outer
 )
 
 foreach(TEST_TARGET ${TEST_TARGETS})
