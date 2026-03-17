@@ -7,6 +7,7 @@ set(TEST_TARGETS
     test_mean
     test_transpose
     test_outer
+    test_slice
 )
 
 foreach(TEST_TARGET ${TEST_TARGETS})
