@@ -1,81 +1,28 @@
-[ GLOBAL ]
-FIX:
-REFACTOR:
-FEAT:
+[FIX]
+
+[REFACTOR]
+
+[FEAT]
+
+[PERF]
+
+[DOC]
+(operators)    add @pre with shape requirements
+(operators)    replace ` with @p
+(operators)    rework comments
+
+[CHORE]
+
+[BUILD]
     Install support
-PERF:
-DOC:
-CHORE:
     (?) kaadConfig.cmake.in
-LATER:
+
+[LATER]
     (?) add proper test system
     (?) Add system for inference
-
-
-[ TENSOR ]
-FIX:
-REFACTOR:
-FEAT:
-PERF:
-DOC:
-CHORE:
-LATER:
-    make Tensor variant with compile time shape
-    (?) combine shape and stride into shape struct
-
-
-[ GRAPH ]
-FIX:
-REFACTOR:
-FEAT:
-PERF:
-DOC:
-CHORE:
-LATER:
-    make stride function transpose dimensions so biggest is highest
-    (?) label member for computation nodes
-    (?) put reset, evaluate and getGradient into single function
-
-[ OPERATORS ]
-FIX:
-REFACTOR:
-FEAT:
-PERF:
-DOC:
-    add @pre with shape requirements
-    replace ` with @p
-    rework comments
-CHORE:
-LATER:
-
-
-[ FUNCTIONS ]
-FIX:
-REFACTOR:
-FEAT:
-PERF:
-DOC:
-CHORE:
-LATER:
-
-
-[ TESTS ]
-FIX:
-REFACTOR:
-FEAT:
-    add test_sum_dim (with transpose)
-PERF:
-DOC:
-CHORE:
-LATER:
-
-
-[ EXAMPLES ]
-FIX:
-REFACTOR:
-FEAT:
-PERF:
-DOC:
-CHORE:
-LATER:
-    (?) more example programs
+(tensor)    make Tensor variant with compile time shape
+(tensor)    (?) combine shape and stride into shape struct
+(graph)    make stride function transpose dimensions so biggest is highest
+(graph)    (?) label member for computation nodes
+(graph)    (?) put reset, evaluate and getGradient into single function
+(examples)    (?) more example programs

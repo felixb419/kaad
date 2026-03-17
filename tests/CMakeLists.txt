@@ -5,6 +5,7 @@ set(TEST_TARGETS
     test_dot_product
     test_matmul
     test_mean
+    test_sum
     test_transpose
     test_outer
     test_slice
