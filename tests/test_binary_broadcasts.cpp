@@ -30,13 +30,15 @@ def print_all(label, val, grad):
     print(label + " grad:", grad.numpy().ravel().tolist())
 
 
-a = tf.Variable(get_data([3, 2], 200))
+a = tf.Variable(get_data([2, 3], 200))
 b = tf.Variable(get_data([3, 2], 90))
 c = tf.Variable(get_data([], 30))
 d = tf.Variable(get_data([2, 3, 1], 0))
 
 with tf.GradientTape() as tape:
-    ab = a + b
+    a_t = tf.transpose(a)
+
+    ab = a_t + b
     abc = ab + c
     res = abc + d
 
@@ -51,32 +53,33 @@ print_all("res", res, grad_res)
 
 // NOLINTBEGIN(readability-magic-numbers)
 
-std::array a_shape{3, 2};
-std::array<kaad::Scalar, 6> a_val{200.0, 201.0, 202.0, 203.0, 204.0, 205.0};
-std::array<kaad::Scalar, 6> a_grad{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+std::array a_shape = {2, 3};
+std::array<kaad::Scalar, 6> a_val = {200.0, 201.0, 202.0, 203.0, 204.0, 205.0};
+std::array<kaad::Scalar, 6> a_grad = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array b_shape{3, 2};
-std::array<kaad::Scalar, 6> b_val{90.0, 91.0, 92.0, 93.0, 94.0, 95.0};
-std::array<kaad::Scalar, 6> b_grad{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+std::array b_shape = {3, 2};
+std::array<kaad::Scalar, 6> b_val = {90.0, 91.0, 92.0, 93.0, 94.0, 95.0};
+std::array<kaad::Scalar, 6> b_grad = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array<int, 0> c_shape{};
-std::array<kaad::Scalar, 1> c_val{30.0};
-std::array<kaad::Scalar, 1> c_grad{12.0};
+std::array<int, 0> c_shape = {};
+std::array<kaad::Scalar, 1> c_val = {30.0};
+std::array<kaad::Scalar, 1> c_grad = {12.0};
 
-std::array d_shape{2, 3, 1};
-std::array<kaad::Scalar, 6> d_val{0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
-std::array<kaad::Scalar, 6> d_grad{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+std::array d_shape = {2, 3, 1};
+std::array<kaad::Scalar, 6> d_val = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
+std::array<kaad::Scalar, 6> d_grad = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array res_shape{2, 3, 2};
-std::array<kaad::Scalar, 12> res_val{320.0, 322.0, 325.0, 327.0, 330.0, 332.0,
-                                     323.0, 325.0, 328.0, 330.0, 333.0, 335.0};
-std::array<kaad::Scalar, 12> res_grad{1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
-                                      1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+std::array res_shape = {2, 3, 2};
+std::array<kaad::Scalar, 12> res_val = {320.0, 324.0, 324.0, 328.0,
+                                        328.0, 332.0, 323.0, 327.0,
+                                        327.0, 331.0, 331.0, 335.0};
+std::array<kaad::Scalar, 12> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                                         1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(std::array{3, 2});
+    kaad::Node input_a = rec.add_input_node(std::array{2, 3});
     std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 200);
 
@@ -94,7 +97,9 @@ int main() {
 
     // NOLINTEND(readability-magic-numbers)
 
-    kaad::Node a_plus_b = add(rec, input_a, input_b);
+    kaad::Node a_t = transpose(rec, input_a);
+
+    kaad::Node a_plus_b = add(rec, a_t, input_b);
     kaad::Node ab_plus_c = add(rec, a_plus_b, input_c);
     kaad::Node res = add(rec, ab_plus_c, input_d);
 

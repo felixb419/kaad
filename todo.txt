@@ -63,7 +63,6 @@ LATER:
 FIX:
 REFACTOR:
 FEAT:
-    add test_binary_flex (with transpose)
     add test_sum_dim (with transpose)
 PERF:
 DOC:
