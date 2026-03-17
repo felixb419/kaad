@@ -105,20 +105,20 @@ int main() {
     rec.getGradient(res, std::array{input_a, input_b, input_d, res});
 
     // Check a
-    assert(check_tensor("a value", a.value(), a_shape, a_val));
-    assert(check_tensor("a gradient", a.gradient(), a_shape, a_grad));
+    assert(check_tensor("a value", input_a.value(), a_shape, a_val));
+    assert(check_tensor("a gradient", input_a.gradient(), a_shape, a_grad));
 
     // Check b
-    assert(check_tensor("b value", b.value(), b_shape, b_val));
-    assert(check_tensor("b gradient", b.gradient(), b_shape, b_grad));
+    assert(check_tensor("b value", input_b.value(), b_shape, b_val));
+    assert(check_tensor("b gradient", input_b.gradient(), b_shape, b_grad));
 
     // Check c
-    assert(check_tensor("c value", c.value(), c_shape, c_val));
-    assert(check_tensor("c gradient", c.gradient(), c_shape, c_grad));
+    assert(check_tensor("c value", input_c.value(), c_shape, c_val));
+    assert(check_tensor("c gradient", input_c.gradient(), c_shape, c_grad));
 
     // Check d
-    assert(check_tensor("d value", d.value(), d_shape, d_val));
-    assert(check_tensor("d gradient", d.gradient(), d_shape, d_grad));
+    assert(check_tensor("d value", input_d.value(), d_shape, d_val));
+    assert(check_tensor("d gradient", input_d.gradient(), d_shape, d_grad));
 
     // Check res
     assert(check_tensor("res value", res.value(), res_shape, res_val));

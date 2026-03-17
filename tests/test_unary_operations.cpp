@@ -148,8 +148,8 @@ int main() {
     rec.getGradient(res, std::array{input_a});
 
     // Check a
-    assert(check_tensor("a value", a.value(), a_shape, a_val));
-    assert(check_tensor("a gradient", a.gradient(), a_shape, a_grad));
+    assert(check_tensor("a value", input_a.value(), a_shape, a_val));
+    assert(check_tensor("a gradient", input_a.gradient(), a_shape, a_grad));
 
     // Check res
     assert(check_tensor("res value", res.value(), res_shape, res_val));
