@@ -2,7 +2,7 @@
 
 namespace kaad {
 
-#ifdef KAAD_USE_DOULE
+#ifdef KAAD_USE_DOUBLE
 using Scalar = double;
 #else
 using Scalar = float;
