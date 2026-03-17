@@ -61,9 +61,9 @@ cd build || exit 1 # exit if cd fails
 
 # Configure CMake and set build type
 if $RELEASE; then
-    cmake -DCMAKE_BUILD_TYPE=Debug ..
-else
     cmake -DCMAKE_BUILD_TYPE=Release ..
+else
+    cmake -DCMAKE_BUILD_TYPE=Debug ..
 fi
 
 # Turn off iwyu, clang-tidy and sanitizers
