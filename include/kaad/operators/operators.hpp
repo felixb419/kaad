@@ -25,7 +25,7 @@ class Graph;
  * @return A handle of the new node representing the negated tensor,
  *         with the same shape as @p input
  */
-Node negative(Graph &rec, Node inpuinput);
+Node negative(Graph &rec, Node input);
 
 /**
  * @brief Adds a unary square node to the computation graph.
