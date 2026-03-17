@@ -1,8 +1,7 @@
 build/
+
 .cache/
-makefile
-compile_commands.json
-bin/
+
 .vscode/
-html/
-test.cpp
+
+docs/doxygen
