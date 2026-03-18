@@ -66,7 +66,7 @@ class Tensor {
 
     /// @brief Constructs a rank-1 tensor with given @p elements.
     /// @param elements Elements of the tensor.
-    explicit Tensor(std::span<const Scalar> elements);
+    explicit Tensor(std::span<const value_type> elements);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p stride.
@@ -81,7 +81,7 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(std::span<const int> shape, std::span<const Scalar> elements);
+    Tensor(std::span<const int> shape, std::span<const value_type> elements);
 
     /**
      * @brief Constructs a tensor with given @p shape, @p stride and @p
@@ -91,7 +91,7 @@ class Tensor {
      * @param elements Elements of the tensor.
      */
     Tensor(std::span<const int> shape, std::span<const int> stride,
-           std::span<const Scalar> elements);
+           std::span<const value_type> elements);
 
     /**
      * @brief Returns a tensor with given shape and filled with @p
@@ -99,7 +99,7 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param fill_value Value to fill the element array.
      */
-    static Tensor full(std::span<const int> shape, Scalar fill_value);
+    static Tensor full(std::span<const int> shape, value_type fill_value);
 
     /// @brief Returns a tensor with given shape and filled with 0.
     /// @param shape Dimensions of the tensor.
@@ -116,12 +116,12 @@ class Tensor {
      * @param starting_value The value to start the sequence at.
      */
     static Tensor sequential(std::span<const int> shape,
-                             Scalar starting_value = 1);
+                             value_type starting_value = 1);
 
     /// @brief Returns a tensor with given shape and linearly spaced values.
     /// @param shape Dimensions of the tensor.
-    static Tensor linspace(std::span<const int> shape, Scalar start,
-                           Scalar step);
+    static Tensor linspace(std::span<const int> shape, value_type start,
+                           value_type step);
 
     /**
      * @brief Returns a tensor with given shape and filled with random values.
@@ -129,8 +129,8 @@ class Tensor {
      * @param min Minimum random value.
      * @param min Maximum random value.
      */
-    static Tensor rand(std::span<const int> shape, Scalar min = 0,
-                       Scalar max = 1);
+    static Tensor rand(std::span<const int> shape, value_type min = 0,
+                       value_type max = 1);
 
     /**
      * @brief Returns a tensor with given shape and filled with normally
@@ -139,8 +139,8 @@ class Tensor {
      * @param mean Mean of the produced values.
      * @param std Standard deviation of the produced values.
      */
-    static Tensor randn(std::span<const int> shape, Scalar mean = 0,
-                        Scalar std = 1);
+    static Tensor randn(std::span<const int> shape, value_type mean = 0,
+                        value_type std = 1);
 
     /**
      * @brief Set manual seed for random number generation.
@@ -177,7 +177,7 @@ class Tensor {
      * order of elements can differ.
      * @return Read/Write span representing the elements.
      */
-    [[nodiscard]] std::span<Scalar> elements() noexcept;
+    [[nodiscard]] std::span<value_type> elements() noexcept;
 
     /**
      * @copybrief Tensor::elements()
@@ -185,7 +185,7 @@ class Tensor {
      * order of elements can differ.
      * @return Read-only span representing the elements.
      */
-    [[nodiscard]] std::span<const Scalar> elements() const noexcept;
+    [[nodiscard]] std::span<const value_type> elements() const noexcept;
 
     /**
      * @brief Returns an iterator to the first logical element.
