@@ -155,7 +155,7 @@ class Tensor {
      * @note Only affects generation in current thread.
      * @param seed Seed to be used.
      */
-    static void manual_seed(uint64_t seed);
+    static void rng_seed(uint64_t seed);
 
     /**
      * @brief Reshapes the tensor.

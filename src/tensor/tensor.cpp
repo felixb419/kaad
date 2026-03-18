@@ -172,7 +172,7 @@ Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
     return out;
 }
 
-void Tensor::manual_seed(uint64_t seed) { Tensor::rng_.seed(seed); }
+void Tensor::rng_seed(uint64_t seed) { Tensor::rng_.seed(seed); }
 
 void Tensor::reshape(std::span<const int> shape) {
 
