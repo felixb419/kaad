@@ -3,14 +3,13 @@
 #include <cstddef>         // for size_t
 #include <iostream>        // for ostream, ptrdiff_t
 #include <kaad/scalar.hpp> // for Scalar
+#include <span>            // for span
 
 namespace kaad {
 
-/**
- * @brief Lightweight immutable view into a tensor's shape, stride, and data.
- */
-struct Tensor_view {
-    using value_type = Scalar;
+/// @internal
+template <bool isMut> struct Tensor_view_impl {
+    using value_type = std::conditional_t<isMut, Scalar, const Scalar>;
     using reference = value_type &;
     using const_reference = const value_type &;
     using pointer = value_type *;
@@ -21,16 +20,15 @@ struct Tensor_view {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    const int *shape = nullptr;  ///< Pointer to the shape array.
-    const int *stride = nullptr; ///< Pointer to the stride array.
-    size_type rank = 0;          ///< Length of the shape and stride arrays.
-    const value_type *elements = nullptr; ///< Pointer to the element array.
-    size_type len = 0;                    ///< Length of the element array.
+    std::span<const int> shape;  ///< Dimensions of the tensor.
+    std::span<const int> stride; ///< Stride of the tensor (steps needed to move
+                                 ///< one element in each dimension).
+    std::span<value_type> elements; ///< Elements of the tensor.
 
     /**
      * @brief Default constructor.
      */
-    Tensor_view() noexcept;
+    Tensor_view_impl() noexcept;
 
     /**
      * @brief Constructs a tensor view.
@@ -40,8 +38,13 @@ struct Tensor_view {
      * @param elements Pointer to the element array.
      * @param len Length of the element array.
      */
-    Tensor_view(const int *shape, const int *stride, size_type rank,
-                const value_type *elements, size_type len) noexcept;
+    Tensor_view_impl(std::span<const int> shape, std::span<const int> stride,
+                     std::span<value_type> elements)
+        : shape(shape), stride(stride), elements(elements) {}
+
+    /// @brief Get rank of the tensor.
+    /// @return Length of the shape array.
+    [[nodiscard]] size_type rank() const { return this->shape.size(); }
 };
 
 /**
@@ -51,58 +54,21 @@ struct Tensor_view {
  * @param view The tensor view to print.
  * @return std::ostream& The updated output stream.
  */
-std::ostream &operator<<(std::ostream &stream, const Tensor_view &view);
+template <bool isMut>
+std::ostream &operator<<(std::ostream &stream,
+                         const Tensor_view_impl<isMut> &tensor) {
+    print_tensor_impl(stream, tensor.shape, tensor.stride, tensor.elements);
+    return stream;
+}
 
-/**
- * @brief Lightweight mutable view into a tensor's shape, stride, and data.
- */
-struct Tensor_view_mut {
-    using value_type = Scalar;
-    using reference = value_type &;
-    using const_reference = const value_type &;
-    using pointer = value_type *;
-    using const_pointer = const value_type *;
-
-    using iterator = value_type *;
-    using const_iterator = const value_type *;
-    using difference_type = std::ptrdiff_t;
-    using size_type = std::size_t;
-
-    const int *shape = nullptr;     ///< Pointer to the shape array.
-    const int *stride = nullptr;    ///< Pointer to the stride array.
-    size_type rank = 0;             ///< Length of the shape and stride arrays.
-    value_type *elements = nullptr; ///< Pointer to the element array.
-    size_type len = 0;              ///< Length of the element array.
-
-    /**
-     * @brief Default constructor.
-     */
-    Tensor_view_mut() noexcept;
-
-    /**
-     * @brief Constructs a tensor view.
-     * @param shape Pointer to the shape array.
-     * @param shape Pointer to the stride array.
-     * @param rank Length of the shape and stride arrays.
-     * @param elements Pointer to the element array.
-     * @param len Length of the element array.
-     */
-    Tensor_view_mut(const int *shape, const int *stride, size_type rank,
-                    value_type *elements, size_type len) noexcept;
-
-    /**
-     * @brief Get an immutable view of the Tensor.
-     * @return Immutable view (Tensor_view).
-     */
-    [[nodiscard]] Tensor_view make_immutable() const noexcept;
+/// @brief Non-owning immutable view of a tensor.
+struct Tensor_view : Tensor_view_impl<false> {
+    using Tensor_view_impl<false>::Tensor_view_impl;
 };
 
-/**
- * @brief Overloads the stream output operator to print the tensor view.
- * @param stream Output stream.
- * @param view The tensor view to print.
- * @return std::ostream& The updated output stream.
- */
-std::ostream &operator<<(std::ostream &stream, const Tensor_view_mut &view);
+/// @brief Non-owning mutable view of a tensor.
+struct Tensor_view_mut : Tensor_view_impl<true> {
+    using Tensor_view_impl<true>::Tensor_view_impl;
+};
 
 } // namespace kaad

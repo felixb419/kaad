@@ -259,11 +259,11 @@ class Tensor {
 
     /// @brief Creates a non-owning immutable view of the tensor.
     /// @return A Tensor_view object.
-    [[nodiscard]] struct Tensor_view view() const noexcept;
+    [[nodiscard]] Tensor_view view() const noexcept;
 
     /// @brief Creates a non-owning mutable view of the tensor.
     /// @return A Tensor_view_mut object.
-    struct Tensor_view_mut view_mut() noexcept;
+    Tensor_view_mut view_mut() noexcept;
 
     friend class Graph;
     friend class INode;

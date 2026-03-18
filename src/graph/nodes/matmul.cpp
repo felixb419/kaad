@@ -16,9 +16,9 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
     b_dim = rhs.shape[1];
     shared_dim = lhs.shape[1];
 
-    std::copy(lhs.stride, lhs.stride + 2, lhs_stride);
-    std::copy(rhs.stride, rhs.stride + 2, rhs_stride);
-    std::copy(value.stride, value.stride + 2, value_stride);
+    std::ranges::copy(lhs.stride, lhs_stride);
+    std::ranges::copy(rhs.stride, rhs_stride);
+    std::ranges::copy(value.stride, value_stride);
 
     int idx;
     int value_idx;
@@ -27,7 +27,7 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
     for (int i = 1; i <= 2; i++) {
         idx = 2 - i;
 
-        value_idx = static_cast<int>(value.rank) - i;
+        value_idx = static_cast<int>(value.rank()) - i;
         value_prev = value_offset;
         value_offset += ((value_idx >= 0 ? value.shape[value_idx] : i) - 1) *
                         value_stride[idx];
@@ -44,21 +44,21 @@ void Node_matmul::metadata() {
 
     std::array<int, 2> lhs_T_shape;
     std::array<int, 2> lhs_T_stride;
-    std::reverse_copy(lhs.shape, lhs.shape + lhs.rank, lhs_T_shape.begin());
-    std::reverse_copy(lhs.stride, lhs.stride + lhs.rank, lhs_T_stride.begin());
+    std::ranges::reverse_copy(lhs.shape, lhs_T_shape.begin());
+    std::ranges::reverse_copy(lhs.stride, lhs_T_stride.begin());
 
     Tensor_view lhs_T = lhs;
-    lhs_T.shape = lhs_T_shape.data();
-    lhs_T.stride = lhs_T_stride.data();
+    lhs_T.shape = std::span<const int>(lhs_T_shape);
+    lhs_T.stride = std::span<const int>(lhs_T_stride);
 
     std::array<int, 2> rhs_T_shape;
     std::array<int, 2> rhs_T_stride;
-    std::reverse_copy(rhs.shape, rhs.shape + rhs.rank, rhs_T_shape.begin());
-    std::reverse_copy(rhs.stride, rhs.stride + rhs.rank, rhs_T_stride.begin());
+    std::ranges::reverse_copy(rhs.shape, rhs_T_shape.begin());
+    std::ranges::reverse_copy(rhs.stride, rhs_T_stride.begin());
 
     Tensor_view rhs_T = rhs;
-    rhs_T.shape = rhs_T_shape.data();
-    rhs_T.stride = rhs_T_stride.data();
+    rhs_T.shape = std::span<const int>(rhs_T_shape);
+    rhs_T.stride = std::span<const int>(rhs_T_stride);
 
     metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
                   this->shared_dim[0], this->lhs_stride.data(),

@@ -9,6 +9,9 @@
         nodes
         graph
 
+(graph)     remove "Node_" from node type
+(graph)     rename stride members to stride_flattened
+
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    (?) make strided_Tensor child class
@@ -38,6 +41,8 @@
         ./include/kaad/graph/nodes/outer.hpp
         ./include/kaad/graph/nodes/binary.hpp
         ./include/kaad/scalar.hpp
+        ./include/kaad/functions/primal.hpp
+        ./include/kaad/functions/adjoint.hpp
         ./include/kaad/operators/operators.hpp
                     add @pre with shape requirements
         ./include/kaad/exceptions.hpp

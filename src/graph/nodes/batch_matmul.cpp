@@ -17,15 +17,15 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
                    int *&lhs_stride, int *&rhs_stride, int *&res_stride,
                    int *&c_shape_broadcast, int &a_off, int &b_off,
                    int &shared_dim, std::size_t &res_rank) {
-    a_off = lhs.stride[lhs.rank - 1];
-    b_off = rhs.stride[rhs.rank - 2];
-    shared_dim = lhs.shape[lhs.rank - 1];
+    a_off = lhs.stride[lhs.rank() - 1];
+    b_off = rhs.stride[rhs.rank() - 2];
+    shared_dim = lhs.shape[lhs.rank() - 1];
 
-    res_rank = std::max(lhs.rank, rhs.rank);
+    res_rank = std::max(lhs.rank(), rhs.rank());
     c_shape_broadcast = new int[res_rank];
 
-    detail::combine_matrix(lhs.shape, lhs.rank, rhs.shape, rhs.rank,
-                           c_shape_broadcast, res_rank);
+    detail::combine_matrix(lhs.shape.data(), lhs.rank(), rhs.shape.data(),
+                           rhs.rank(), c_shape_broadcast, res_rank);
 
     lhs_stride = new int[res_rank];
     rhs_stride = new int[res_rank];
@@ -38,11 +38,11 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
     int rank = static_cast<int>(res_rank);
     for (int i = 1; i <= rank; i++) {
         idx = rank - i;
-        idxA = static_cast<int>(lhs.rank) - i;
+        idxA = static_cast<int>(lhs.rank()) - i;
         lhs_stride[idx] = idxA >= 0 ? lhs.stride[idxA] : 0;
-        idxB = static_cast<int>(rhs.rank) - i;
+        idxB = static_cast<int>(rhs.rank()) - i;
         rhs_stride[idx] = idxB >= 0 ? rhs.stride[idxB] : 0;
-        idxC = static_cast<int>(res.rank) - i;
+        idxC = static_cast<int>(res.rank()) - i;
         res_stride[idx] = idxC >= 0 ? res.stride[idxC] : 0;
     }
 
@@ -56,29 +56,31 @@ void Node_batch_matmul::metadata() {
     Tensor_view rhs = this->rhs->value().view();
     Tensor_view value = this->value().view();
 
-    std::vector<int> a_T_shape(lhs.rank);
-    std::vector<int> a_T_stride(lhs.rank);
+    std::vector<int> a_T_shape(lhs.rank());
+    std::vector<int> a_T_stride(lhs.rank());
 
-    std::copy(lhs.shape, lhs.shape + lhs.rank, a_T_shape.data());
-    std::swap(a_T_shape[lhs.rank - 1], a_T_shape[lhs.rank - 2]);
-    std::copy(lhs.stride, lhs.stride + lhs.rank, a_T_stride.data());
-    std::swap(a_T_stride[lhs.rank - 1], a_T_stride[lhs.rank - 2]);
+    std::ranges::copy(lhs.shape, a_T_shape.data());
+    std::swap(a_T_shape[lhs.rank() - 1], a_T_shape[lhs.rank() - 2]);
+
+    std::ranges::copy(lhs.stride, a_T_stride.data());
+    std::swap(a_T_stride[lhs.rank() - 1], a_T_stride[lhs.rank() - 2]);
 
     Tensor_view a_T = lhs;
-    a_T.shape = a_T_shape.data();
-    a_T.stride = a_T_stride.data();
+    a_T.shape = std::span<const int>(a_T_shape);
+    a_T.stride = std::span<const int>(a_T_stride);
 
-    std::vector<int> b_T_shape(rhs.rank);
-    std::vector<int> b_T_stride(rhs.rank);
+    std::vector<int> b_T_shape(rhs.rank());
+    std::vector<int> b_T_stride(rhs.rank());
 
-    std::copy(rhs.shape, rhs.shape + rhs.rank, b_T_shape.data());
-    std::swap(b_T_shape[rhs.rank - 1], b_T_shape[rhs.rank - 2]);
-    std::copy(rhs.stride, rhs.stride + rhs.rank, b_T_stride.data());
-    std::swap(b_T_stride[rhs.rank - 1], b_T_stride[rhs.rank - 2]);
+    std::ranges::copy(rhs.shape, b_T_shape.data());
+    std::swap(b_T_shape[rhs.rank() - 1], b_T_shape[rhs.rank() - 2]);
+
+    std::ranges::copy(rhs.stride, b_T_stride.data());
+    std::swap(b_T_stride[rhs.rank() - 1], b_T_stride[rhs.rank() - 2]);
 
     Tensor_view b_T = rhs;
-    b_T.shape = b_T_shape.data();
-    b_T.stride = b_T_stride.data();
+    b_T.shape = std::span<const int>(b_T_shape);
+    b_T.stride = std::span<const int>(b_T_stride);
 
     metadata_impl(lhs, rhs, value, this->lhs_stride[0], this->rhs_stride[0],
                   this->value_stride[0], this->value_shape_broadcast[0],
