@@ -20,15 +20,21 @@ static constexpr T epsilon =
 template <typename T>
 static constexpr T max_finite = std::numeric_limits<T>::max();
 
-/// Smallest (most negative) finite representable value.
+/// Smallest positive finite representable value.
 template <typename T>
 static constexpr T min_finite = std::numeric_limits<T>::min();
+
+// NOLINTBEGIN(bugprone-throwing-static-initialization)
+// std::log will never throw here since max_finite and min_finite are always
+// positive for floating point types.
 
 /// Maximum safe exponent: log(max_finite).
 template <typename T> static inline const T max_exp = std::log(max_finite<T>);
 
 /// Minimum safe exponent: log(min_finite).
 template <typename T> static inline const T min_exp = std::log(min_finite<T>);
+
+// NOLINTEND(bugprone-throwing-static-initialization)
 
 /// Numerically safe division kernel with forward/backward operations.
 /// @ingroup binary_kernels
