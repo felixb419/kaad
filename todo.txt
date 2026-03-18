@@ -1,16 +1,23 @@
 [FIX]
 
 [REFACTOR]
-(functions)    maybe remove functions::unary/binary namespaces
+(functions)    (?) maybe remove functions::unary/binary namespaces
+                    remove warnings from comments in normal tensor
+
+    mark getters as nodiscard in:
+        tensor
+        nodes
+        graph
 
 [FEAT]
+(tensor)    Tensor(std::vector<Scalar> &&)
+(tensor)    (?) make strided_Tensor child class
 
 [PERF]
 
 [DOC]
     Rework comments in:
         ./include/kaad/tensor/tensor_view.hpp
-        ./include/kaad/tensor/tensor.hpp
         ./include/kaad/tensor/iterator_impl.hpp
         ./include/kaad/graph/graph.hpp
         ./include/kaad/graph/common.hpp

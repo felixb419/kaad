@@ -14,6 +14,10 @@ namespace kaad {
 
 /**
  * @brief A class representing a multi-dimensional tensor.
+ *
+ * This class owns all of its underlying memory and provides full-value
+ * semantics (copy, move, and assignment). It includes standard STL-style
+ * type aliases and member functions (e.g., iterators, size(), data()).
  */
 class Tensor {
   public:
@@ -29,123 +33,109 @@ class Tensor {
     using const_iterator = iterator_impl<true>;
 
   private:
+    std::vector<int> shape_; ///< Vector containing the size of the tensor
+                             ///< in each dimension.
     std::vector<int>
-        shape_; ///< Vector containing the size of the tensor in each dimension.
-    std::vector<int>
-        stride_; ///< Vector containing the stride of the tensor (steps needed
-                 ///< to move one element in each dimension).
+        stride_; ///< Vector containing the stride of the tensor (steps
+                 ///< needed to move one element in each dimension).
     std::vector<value_type>
         elements_; ///< Vector containing the elements of the Tensor.
 
+    /// @internal
     static std::mt19937_64 &get_rng() {
         thread_local static std::mt19937_64 rng{std::random_device{}()};
         return rng;
     }
 
   public:
-    /**
-     * @brief Compute per-dim stride array based on @p shape.
-     * @param shape Shape array for wich the strides are computed.
-     * @return Vector containing the strides.
-     */
+    /// @return Stride array based on @p shape.
     static std::vector<int> compute_stride(std::span<const int> shape);
 
-    /**
-     * @brief Compute the size of a element array based on @p shape.
-     * @param shape Shape array for which the size is computed.
-     * @return Size of the element array suggested by @p shape.
-     */
+    /// @return Number of elements based on @p shape.
     static size_type compute_size(std::span<const int> shape);
 
-    /**
-     * @brief Constructs 0-rank tensor initialized to 0.
-     */
+    /// @brief Constructs 0-rank tensor initialized to 0.
     Tensor();
 
     /**
      * @brief Constructs a tensor with given @p shape.
      * @note The elements array is initialized ot 0.
-     * @param shape Array with the shape of the tensor.
+     * @param shape Dimensions of the tensor.
      */
     explicit Tensor(std::span<const int> shape);
 
-    /**
-     * @brief Constructs a rank-1 tensor with given @p elements.
-     * @param shape Array with the shape of the tensor.
-     */
+    /// @brief Constructs a rank-1 tensor with given @p elements.
+    /// @param elements Elements of the tensor.
     explicit Tensor(std::span<const Scalar> elements);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p stride.
-     * @note The elements array is initialized ot 0.
-     * @param shape Array with the shape of the tensor.
-     * @param stride Array with the per-dim strides of the tensor.
+     * @note The elements array is initialized to 0.
+     * @param shape Dimensions of the tensor.
+     * @param stride Per-dim strides of the tensor.
      */
     Tensor(std::span<const int> shape, std::span<const int> stride);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p elements.
-     * @param shape Array with the shape of the tensor.
-     * @param elements Array with the values of the tensor.
+     * @param shape Dimensions of the tensor.
+     * @param elements Elements of the tensor.
      */
     Tensor(std::span<const int> shape, std::span<const Scalar> elements);
 
     /**
      * @brief Constructs a tensor with given @p shape, @p stride and @p
      * elements.
-     * @param shape Array with the shape of the tensor.
-     * @param stride Array with the per-dim strides of the tensor.
-     * @param elements Array with the values of the tensor.
+     * @param shape Dimensions of the tensor.
+     * @param stride Per-dim strides of the tensor.
+     * @param elements Elements of the tensor.
      */
     Tensor(std::span<const int> shape, std::span<const int> stride,
            std::span<const Scalar> elements);
 
     /**
-     * @brief Returns a tensor with given shape and filled with @p fill_value.
-     * @param shape Shape array for the tensor.
+     * @brief Returns a tensor with given shape and filled with @p
+     * fill_value.
+     * @param shape Dimensions of the tensor.
      * @param fill_value Value to fill the element array.
      */
     static Tensor full(std::span<const int> shape, Scalar fill_value);
 
-    /**
-     * @brief Returns a tensor with given shape and filled with 0.
-     * @param shape Shape array for the tensor.
-     */
+    /// @brief Returns a tensor with given shape and filled with 0.
+    /// @param shape Dimensions of the tensor.
     static Tensor zeros(std::span<const int> shape);
 
-    /**
-     * @brief Returns a tensor with given shape and filled with 1.
-     * @param shape Shape array for the tensor.
-     */
+    /// @brief Returns a tensor with given shape and filled with 1.
+    /// @param shape Dimensions of the tensor.
     static Tensor ones(std::span<const int> shape);
 
     /**
      * @brief Returns a tensor with given shape and sequentially increasing
      * values.
-     * @param shape Shape array for the tensor.
+     * @param shape Dimensions of the tensor.
      * @param starting_value The value to start the sequence at.
      */
     static Tensor sequential(std::span<const int> shape,
                              Scalar starting_value = 1);
 
-    /**
-     * @brief Returns a tensor with given shape and linearly spaced values.
-     * @param shape Shape array for the tensor.
-     */
+    /// @brief Returns a tensor with given shape and linearly spaced values.
+    /// @param shape Dimensions of the tensor.
     static Tensor linspace(std::span<const int> shape, Scalar start,
                            Scalar step);
 
     /**
      * @brief Returns a tensor with given shape and filled with random values.
-     * @param shape Shape array for the tensor.
+     * @param shape Dimensions of the tensor.
+     * @param min Minimum random value.
+     * @param min Maximum random value.
      */
     static Tensor rand(std::span<const int> shape, Scalar min = 0,
                        Scalar max = 1);
 
     /**
-     * @brief Returns a tensor with given shape and filled with random values,
-     * sampled from a normal distribution.
-     * @param shape Shape array for the tensor.
+     * @brief Returns a tensor with given shape and filled with normally
+     * distrubted random values.
+     * @param shape Dimensions of the tensor.
      * @param mean Mean of the produced values.
      * @param std Standard deviation of the produced values.
      */
@@ -154,7 +144,8 @@ class Tensor {
 
     /**
      * @brief Set manual seed for random number generation.
-     * @note If this function isnt called std::random_device is used instead.
+     * @note If this function isnt called std::random_device is used
+     * instead.
      * @note Only affects generation in current thread.
      * @param seed Seed to be used.
      */
@@ -162,143 +153,116 @@ class Tensor {
 
     /**
      * @brief Reshapes the tensor.
-     * @note Recomputes the stride array for the new shape.
-     * @param shape New shape. Must preserve the total number of elements.
+     * @note Computes new stride array.
+     * @param shape New dimensions of the tensor, must be compatible with
+     * current @c size() .
      */
     void reshape(std::span<const int> shape);
 
-    /**
-     * @brief Get number of dimensions of the tensor.
-     * @return Length of the shape array.
-     */
+    /// @brief Get rank of the tensor.
+    /// @return Length of the shape array.
     [[nodiscard]] size_type rank() const noexcept;
 
-    /**
-     * @brief Get immutable reference to the shape array.
-     * @return Const reference to shape_.
-     */
+    /// @brief Get shape of the tensor.
+    /// @return Read-only span representing the dimensions of the tensor.
     [[nodiscard]] std::span<const int> shape() const noexcept;
 
-    /**
-     * @brief Returns the tensor stride array.
-     * The stride specifies the memory offset (in elements) between
-     * consecutive entries along each dimension.
-     * @return Const reference to the stride array.
-     */
+    /// @brief Get strides of the tensor.
+    /// @return Read-only span representing the stride array.
     [[nodiscard]] std::span<const int> stride() const noexcept;
 
     /**
-     * @brief Returns the tensors element array.
-     * @warning If the tensor has been transposed the physical and logical order
-     * of elements can differ.
-     * @return Reference to the element array.
+     * @brief Get the elements of the tensor.
+     * @note If the tensor has been transposed the physical and logical
+     * order of elements can differ.
+     * @return Read/Write span representing the elements.
      */
     [[nodiscard]] std::span<Scalar> elements() noexcept;
 
     /**
-     * @brief Returns the tensors element array.
-     * @warning If the tensor has been transposed the physical and logical order
-     * of elements can differ.
-     * @return Const reference to the element array.
+     * @copybrief Tensor::elements()
+     * @note If the tensor has been transposed the physical and logical
+     * order of elements can differ.
+     * @return Read-only span representing the elements.
      */
     [[nodiscard]] std::span<const Scalar> elements() const noexcept;
 
     /**
-     * @brief Get an iterator to the begin of the element array.
-     * @warning Tensor::iterator is not a contignous iterator (use
-     * Tensor::data() for that).
-     * @return Iterator to the first element.
+     * @brief Returns an iterator to the first logical element.
+     * @note Iterates in logical (transposed) order; use @c data() for
+     * contiguous raw access.
+     * @return Read/write iterator to the first element.
      */
     iterator begin();
 
     /**
-     * @brief Get a const iterator to the begin of the element array.
-     * @warning Tensor::iterator is not a contignous iterator (use
-     * Tensor::data() for that).
-     * @return Const iterator to the first element.
+     * @copybrief Tensor::begin()
+     * @note Iterates in logical (transposed) order; use @c data() for
+     * contiguous raw access.
+     * @return Read iterator to the first element.
      */
     [[nodiscard]] const_iterator begin() const;
 
     /**
-     * @brief Get an iterator to the end of the element array.
-     * @warning Tensor::iterator is not a contignous iterator (use
-     * Tensor::data() for that).
-     * @return Iterator to one past the last element.
+     * @brief Returns an iterator to one past the last logical element.
+     * @note Iterates in logical (transposed) order; use @c data() for
+     * contiguous raw access.
+     * @return Read/write iterator to one past the last element.
      */
     iterator end();
 
     /**
-     * @brief Get a const iterator to the end of the element array.
-     * @warning Tensor::iterator is not a contignous iterator (use
-     * Tensor::data() for that).
-     * @return Const iterator to one past the last element.
+     * @copybrief Tensor::end()
+     * @note Iterates in logical (transposed) order; use @c data() for
+     * contiguous raw access.
+     * @return Read iterator to one past the last element.
      */
     [[nodiscard]] const_iterator end() const;
 
-    /**
-     * @brief Get number of elements in the tensor.
-     * @return Length of the element array.
-     */
+    /// @brief Get number of elements in the tensor.
+    /// @return Length of the element array.
     [[nodiscard]] size_type size() const noexcept;
 
-    /**
-     * @brief Checks if tensor has no elements
-     * @return True if container is empty, false otherwise.
-     */
+    /// @brief Checks if tensor has elements.
+    /// @return True if elements is empty, false otherwise.
     [[nodiscard]] bool empty() const noexcept;
 
-    /**
-     * @brief Returns a reference to the first element.
-     */
+    /// @return Reference to the first element.
     reference front() noexcept;
 
-    /**
-     * @brief Returns an immutable reference to the first element.
-     */
+    /// @return Immutable reference to the first element.
     [[nodiscard]] const_reference front() const noexcept;
 
-    /**
-     * @brief Returns a reference to the last element.
-     */
+    /// @return Reference to the first element.
     reference back() noexcept;
 
-    /**
-     * @brief Returns an immutable reference to the last element.
-     */
+    /// @return Reference to the last element.
     [[nodiscard]] const_reference back() const noexcept;
 
     /**
      * @brief Returns a pointer to the underlying contiguous storage.
-     * @warning If the tensor is logically transposed, the logical indexing
-     * order does not match the physical memory layout (use Tensor::begin then).
+     * @note If the tensor is logically transposed, the logical indexing
+     * order does not match the physical memory layout (use Tensor::begin
+     * then).
      * @return Pointer to the first element in memory.
      */
     pointer data() noexcept;
 
-    /**
-     * @brief Get a const pointer to the element array.
-     * @return Const pointer to the start of the element array.
-     */
-    /**
-     * @brief Returns an immutable pointer to the underlying contiguous storage.
-     * @warning If the tensor is logically transposed, the logical indexing
-     * order does not match the physical memory layout (use Tensor::begin then).
+    /*
+     * @copybrief Tensor::data()
+     * @note If the tensor is logically transposed, the logical indexing
+     * order does not match the physical memory layout (use Tensor::begin
+     * then).
      * @return Const pointer to the first element in memory.
      */
     [[nodiscard]] const_pointer data() const noexcept;
 
-    /**
-     * @brief Creates a view of the tensor.
-     * @return A Tensor_view<T> structure representing a non-owning
-     * immutable view of the tensor.
-     */
+    /// @brief Creates a non-owning immutable view of the tensor.
+    /// @return A Tensor_view object.
     [[nodiscard]] struct Tensor_view view() const noexcept;
 
-    /**
-     * @brief Creates a view of the tensor.
-     * @return A Tensor_view<T> structure representing a non-owning mutable
-     * view of the tensor.
-     */
+    /// @brief Creates a non-owning mutable view of the tensor.
+    /// @return A Tensor_view_mut object.
     struct Tensor_view_mut view_mut() noexcept;
 
     friend class Graph;
@@ -319,12 +283,7 @@ class Tensor {
     friend class Node_mean_dim;
 };
 
-/**
- * @brief Stream output operator.
- * @param stream Output stream.
- * @param tensor The tensor to print.
- * @return Reference to the output stream.
- */
+/// @brief Prints @p tensor to @p stream.
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor);
 
 } // namespace kaad
