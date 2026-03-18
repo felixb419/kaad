@@ -37,8 +37,7 @@ class Tensor {
     std::vector<value_type>
         elements_; ///< Vector containing the elements of the Tensor.
 
-    thread_local static inline std::mt19937_64 gen_;
-    thread_local static inline bool seeded_ = false;
+    thread_local static inline std::mt19937_64 gen_{std::random_device{}()};
 
   public:
     /**
@@ -152,6 +151,8 @@ class Tensor {
 
     /**
      * @brief Set manual seed for random number generation.
+     * @note If this function isnt called std::random_device is used instead.
+     * @note Only affects generation in current thread.
      * @param seed Seed to be used.
      */
     static void manual_seed(uint64_t seed);

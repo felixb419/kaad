@@ -149,10 +149,7 @@ Tensor Tensor::linspace(std::span<const int> shape, Scalar start, Scalar step) {
 }
 
 Tensor Tensor::rand(std::span<const int> shape, Scalar min, Scalar max) {
-    if (!Tensor::seeded_) {
-        Tensor::gen_.seed(std::random_device{}());
-        seeded_ = true;
-    }
+
     std::uniform_real_distribution<Scalar> dist{min, max};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
@@ -165,10 +162,6 @@ Tensor Tensor::rand(std::span<const int> shape, Scalar min, Scalar max) {
 
 Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
 
-    if (!Tensor::seeded_) {
-        Tensor::gen_.seed(std::random_device{}());
-        seeded_ = true;
-    }
     std::normal_distribution<Scalar> dist{mean, std};
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
@@ -179,10 +172,7 @@ Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
     return out;
 }
 
-void Tensor::manual_seed(uint64_t seed) {
-    Tensor::gen_.seed(seed);
-    seeded_ = true;
-}
+void Tensor::manual_seed(uint64_t seed) { Tensor::gen_.seed(seed); }
 
 void Tensor::reshape(std::span<const int> shape) {
 
