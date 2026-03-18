@@ -22,7 +22,7 @@ class Node_outer : public INode {
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
-    using Kernel = typename Kernels::Mul<Scalar>;
+    using Kernel = Kernels::Mul<Scalar>;
 
     functions::primal::binary::flexible_fn<Kernel> forward_op =
         functions::primal::binary::flexible<Kernel>; ///< Function pointer to
