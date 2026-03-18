@@ -259,20 +259,16 @@ Tensor::size_type Tensor::size() const noexcept {
 
 bool Tensor::empty() const noexcept { return this->elements_.empty(); }
 
-Tensor::reference Tensor::front() noexcept {
-    return static_cast<reference>(this->elements_.front());
-}
+Tensor::reference Tensor::front() noexcept { return *this->begin(); }
 
 Tensor::const_reference Tensor::front() const noexcept {
-    return static_cast<const_reference>(this->elements_.front());
+    return *this->begin();
 }
 
-Tensor::reference Tensor::back() noexcept {
-    return static_cast<reference>(this->elements_.back());
-}
+Tensor::reference Tensor::back() noexcept { return *(this->end()--); }
 
 Tensor::const_reference Tensor::back() const noexcept {
-    return static_cast<const_reference>(this->elements_.back());
+    return *(this->end()--);
 }
 
 Tensor::pointer Tensor::data() noexcept {
