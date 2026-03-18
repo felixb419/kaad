@@ -4,6 +4,21 @@
 #include <kaad/functions/primal.hpp> // for batch_matmul, matmul
 
 /**
+ * @defgroup adjoint_functions Adjoint (e.g. used for backward computation)
+ * tensor operations.
+ */
+
+/**
+ * @defgroup binary_adjoint_functions Adjoint functions that take two inputs.
+ * @ingroup adjoint_functions
+ */
+
+/**
+ * @defgroup unary_adjoint_functions Adjoint functions that take one input.
+ * @ingroup adjoint_functions
+ */
+
+/**
  * @namespace functions::adjoint
  * @brief Contains adjoint (e.g. used for backward computation) tensor
  * operations.
@@ -11,19 +26,10 @@
 namespace kaad::functions::adjoint {
 
 /**
- * @defgroup adjoint_functions Adjoint (e.g. used for backward computation)
- * tensor operations.
- */
-
-/**
  * @namespace kaad::tensoruncs::adjoint
+ * @ingroup binary_adjoint_functions
  */
 namespace binary {
-
-/**
- * @defgroup binary_adjoint_functions Adjoint functions that take two inputs.
- * @ingroup adjoint_functions
- */
 
 template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
@@ -379,13 +385,9 @@ void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
 
 /**
  * @namespace kaad::functions::adjoint::unary
+ * @ingroup unary_adjoint_functions
  */
 namespace unary {
-
-/**
- * @defgroup unary_adjoint_functions Adjoint functions that take one input.
- * @ingroup adjoint_functions
- */
 
 template <unary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(

@@ -36,7 +36,6 @@
         ./include/kaad/operators/operators.hpp
                     add @pre with shape requirements
         ./include/kaad/exceptions.hpp
-        ./include/kaad/functions/adjoint.hpp
         ./include/kaad/kaad.hpp
     Add Pages for:
         what is backward autodiff
