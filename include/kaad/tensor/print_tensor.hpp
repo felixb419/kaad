@@ -6,9 +6,7 @@
 
 namespace kaad {
 
-/**
- * @internal
- */
+/// @internal
 void print_tensor_impl(std::ostream &stream, std::span<const int> shape,
                        std::span<const int> stride,
                        std::span<const Scalar> elements);

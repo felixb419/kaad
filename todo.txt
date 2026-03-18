@@ -9,8 +9,6 @@
 
 [DOC]
     Rework comments in:
-        ./tests/check_tensor.hpp
-        ./include/kaad/tensor/print_tensor.hpp
         ./include/kaad/tensor/tensor_view.hpp
         ./include/kaad/tensor/tensor.hpp
         ./include/kaad/tensor/iterator_impl.hpp
