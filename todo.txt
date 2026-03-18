@@ -10,7 +10,7 @@
         graph
 
 (graph)     remove "Node_" from node type
-(graph)     rename stride members to stride_flattened
+(tensor)    use Tensor::stride and Tensor::shape
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
@@ -56,6 +56,10 @@
             note that rand and randn require a working std::random_device failing fatally otherwise
 
 [CHORE]
+    types in PascalCase
+    functions in snake_case
+    variable names in snake_case
+    constants in UPPER CASE
 
 [BUILD]
     Install support

@@ -35,12 +35,21 @@ class Tensor {
     using iterator = iterator_impl<false>;
     using const_iterator = iterator_impl<true>;
 
+    /// Alias for an owning tensor shape.
+    using Shape = std::vector<int>;
+    /// Alias for non-owning immutable tensor shape.
+    using Shape_view = std::span<const int>;
+
+    /// Alias for owning tensor strides.
+    using Stride = std::vector<int>;
+    /// Alias for non-owning immutable tensor strides.
+    using Stride_view = std::span<const int>;
+
   private:
-    std::vector<int> shape_; ///< Vector containing the size of the tensor
-                             ///< in each dimension.
-    std::vector<int>
-        stride_; ///< Vector containing the stride of the tensor (steps
-                 ///< needed to move one element in each dimension).
+    Shape shape_;   ///< Vector containing the size of the tensor
+                    ///< in each dimension.
+    Stride stride_; ///< Vector containing the stride of the tensor (steps
+                    ///< needed to move one element in each dimension).
     std::vector<value_type>
         elements_; ///< Vector containing the elements of the Tensor.
 
@@ -52,10 +61,10 @@ class Tensor {
 
   public:
     /// @return Stride array based on @p shape.
-    static std::vector<int> compute_stride(std::span<const int> shape);
+    static Stride compute_stride(Shape_view shape);
 
     /// @return Number of elements based on @p shape.
-    static size_type compute_size(std::span<const int> shape);
+    static size_type compute_size(Shape_view shape);
 
     /// @brief Constructs 0-rank tensor initialized to 0.
     Tensor();
@@ -65,7 +74,7 @@ class Tensor {
      * @note The elements array is initialized ot 0.
      * @param shape Dimensions of the tensor.
      */
-    explicit Tensor(std::span<const int> shape);
+    explicit Tensor(Shape_view shape);
 
     /// @brief Constructs a rank-1 tensor with given @p elements.
     /// @param elements Elements of the tensor.
@@ -77,14 +86,14 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param stride Per-dim strides of the tensor.
      */
-    Tensor(std::span<const int> shape, std::span<const int> stride);
+    Tensor(Shape_view shape, Stride_view stride);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p elements.
      * @param shape Dimensions of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(std::span<const int> shape, std::span<const value_type> elements);
+    Tensor(Shape_view shape, std::span<const value_type> elements);
 
     /**
      * @brief Constructs a tensor with given @p shape, @p stride and @p
@@ -93,7 +102,7 @@ class Tensor {
      * @param stride Per-dim strides of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(std::span<const int> shape, std::span<const int> stride,
+    Tensor(Shape_view shape, Stride_view stride,
            std::span<const value_type> elements);
 
     /**
@@ -102,15 +111,15 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param fill_value Value to fill the element array.
      */
-    static Tensor full(std::span<const int> shape, value_type fill_value);
+    static Tensor full(Shape_view shape, value_type fill_value);
 
     /// @brief Returns a tensor with given shape and filled with 0.
     /// @param shape Dimensions of the tensor.
-    static Tensor zeros(std::span<const int> shape);
+    static Tensor zeros(Shape_view shape);
 
     /// @brief Returns a tensor with given shape and filled with 1.
     /// @param shape Dimensions of the tensor.
-    static Tensor ones(std::span<const int> shape);
+    static Tensor ones(Shape_view shape);
 
     /**
      * @brief Returns a tensor with given shape and sequentially increasing
@@ -118,13 +127,11 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param starting_value The value to start the sequence at.
      */
-    static Tensor sequential(std::span<const int> shape,
-                             value_type starting_value = 1);
+    static Tensor sequential(Shape_view shape, value_type starting_value = 1);
 
     /// @brief Returns a tensor with given shape and linearly spaced values.
     /// @param shape Dimensions of the tensor.
-    static Tensor linspace(std::span<const int> shape, value_type start,
-                           value_type step);
+    static Tensor linspace(Shape_view shape, value_type start, value_type step);
 
     /**
      * @brief Returns a tensor with given shape and filled with random values.
@@ -132,7 +139,7 @@ class Tensor {
      * @param min Minimum random value.
      * @param min Maximum random value.
      */
-    static Tensor rand(std::span<const int> shape, value_type min = 0,
+    static Tensor rand(Shape_view shape, value_type min = 0,
                        value_type max = 1);
 
     /**
@@ -142,7 +149,7 @@ class Tensor {
      * @param mean Mean of the produced values.
      * @param std Standard deviation of the produced values.
      */
-    static Tensor randn(std::span<const int> shape, value_type mean = 0,
+    static Tensor randn(Shape_view shape, value_type mean = 0,
                         value_type std = 1);
 
     /**
@@ -160,7 +167,7 @@ class Tensor {
      * @param shape New dimensions of the tensor, must be compatible with
      * current @c size() .
      */
-    void reshape(std::span<const int> shape);
+    void reshape(Shape_view shape);
 
     /// @brief Get rank of the tensor.
     /// @return Length of the shape array.
@@ -168,11 +175,11 @@ class Tensor {
 
     /// @brief Get shape of the tensor.
     /// @return Read-only span representing the dimensions of the tensor.
-    [[nodiscard]] std::span<const int> shape() const noexcept;
+    [[nodiscard]] Shape_view shape() const noexcept;
 
     /// @brief Get strides of the tensor.
     /// @return Read-only span representing the stride array.
-    [[nodiscard]] std::span<const int> stride() const noexcept;
+    [[nodiscard]] Stride_view stride() const noexcept;
 
     /**
      * @brief Get the elements of the tensor.

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <cstddef>         // for size_t
-#include <iostream>        // for ostream, ptrdiff_t
-#include <kaad/scalar.hpp> // for Scalar
-#include <span>            // for span
+#include <cstddef>                // for size_t
+#include <iostream>               // for ostream, ptrdiff_t
+#include <kaad/scalar.hpp>        // for Scalar
+#include <kaad/tensor/tensor.hpp> // for Shape, Shape_view, Stride, Stride_view
+#include <span>                   // for span
 
 namespace kaad {
 
@@ -20,9 +21,9 @@ template <bool isMut> struct Tensor_view_impl {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    std::span<const int> shape;  ///< Dimensions of the tensor.
-    std::span<const int> stride; ///< Stride of the tensor (steps needed to move
-                                 ///< one element in each dimension).
+    Tensor::Shape_view shape;   ///< Dimensions of the tensor.
+    Tensor::Stride_view stride; ///< Stride of the tensor (steps needed to move
+                                ///< one element in each dimension).
     std::span<value_type> elements; ///< Elements of the tensor.
 
     /**
@@ -38,7 +39,7 @@ template <bool isMut> struct Tensor_view_impl {
      * @param elements Pointer to the element array.
      * @param len Length of the element array.
      */
-    Tensor_view_impl(std::span<const int> shape, std::span<const int> stride,
+    Tensor_view_impl(Tensor::Shape_view shape, Tensor::Stride_view stride,
                      std::span<value_type> elements)
         : shape(shape), stride(stride), elements(elements) {}
 
