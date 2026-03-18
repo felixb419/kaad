@@ -5,12 +5,14 @@
 #include <iostream>                      // for ostream, ptrdiff_t
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for iterator_impl
-#include <kaad/tensor/tensor_view.hpp>   // for Tensor_view, Tensor_view_mut
 #include <random>                        // for mt19937_64
 #include <span>                          // for span
 #include <vector>                        // for vector
 
 namespace kaad {
+
+struct Tensor_view;
+struct Tensor_view_mut;
 
 /**
  * @brief A class representing a multi-dimensional tensor.
