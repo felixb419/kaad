@@ -10,20 +10,21 @@
  */
 namespace kaad::Kernels {
 
-/**
- * @brief Binary kernel for addition.
- * @tparam T The scalar type.
- */
+/// @defgroup kernels Kernels for elementary operations and their corresponding
+/// gradients.
+
+/// @defgroup binary_kernels Kernels that take two inputs.
+/// @ingroup kernels
+
+/// Elementwise addition kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Add {
     using value_type = T;
 
-    /**
-     * @brief C = lhs + B
-     */
+    /// Forward op: res = lhs + rhs.
     constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs + rhs; }
-    /**
-     * @brief Computes the gradient of an addition.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
                                [[maybe_unused]] T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
@@ -32,20 +33,15 @@ template <typename T> struct Add {
     }
 };
 
-/**
- * @brief Binary kernel for subtraction.
- * @tparam T The scalar type.
- */
+/// Elementwise subtraction kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Sub {
     using value_type = T;
 
-    /**
-     * @brief C = lhs - B
-     */
+    /// Forward op: res = lhs - rhs.
     constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs - rhs; }
-    /**
-     * @brief Computes the gradient of a subtraction.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
                                [[maybe_unused]] T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
@@ -54,20 +50,15 @@ template <typename T> struct Sub {
     }
 };
 
-/**
- * @brief Binary kernel for multiplication.
- * @tparam T The scalar type.
- */
+/// Elementwise multiplication kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Mul {
     using value_type = T;
 
-    /**
-     * @brief C = lhs * B
-     */
+    /// Forward op: res = lhs * rhs.
     constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs * rhs; }
-    /**
-     * @brief Computes the gradient a multiplication.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         d_lhs += d_res * rhs;
@@ -75,22 +66,15 @@ template <typename T> struct Mul {
     }
 };
 
-/**
- * @brief Binary kernel for division.
- * @note In most applications @ref safe_Div is preferable.
- * @tparam T The scalar type.
- */
+/// Elementwise division kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Div {
     using value_type = T;
 
-    /**
-     * @brief C = lhs / B
-     */
+    /// Forward op: res = lhs / rhs.
     constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs / rhs; }
 
-    /**
-     * @brief Computes the gradient of a division.
-     */
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
                                T d_res) noexcept {
         d_lhs += d_res * (1 / rhs);
@@ -98,23 +82,17 @@ template <typename T> struct Div {
     }
 };
 
-/**
- * @brief Binary kernel for power.
- * @note In most applications @ref safe_Pow is preferable.
- * @tparam T The scalar type.
- */
+/// Elementwise power kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Pow {
     using value_type = T;
 
-    /**
-     * @brief C = lhs ^ B
-     */
+    /// Forward op: res = lhs ^ rhs.
     constexpr static void Op(T lhs, T rhs, T &res) noexcept {
         res = std::pow(lhs, rhs);
     }
-    /**
-     * @brief Computes the gradient of an exponentiation.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
                                T d_res) noexcept {
         d_lhs += d_res * rhs * std::pow(lhs, rhs - 1);
@@ -122,22 +100,17 @@ template <typename T> struct Pow {
     }
 };
 
-/**
- * @brief Binary kernel for dot.
- * @tparam T The scalar type.
- */
+/// Elementwise dot product kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Dot {
     using value_type = T;
 
-    /**
-     * @brief C += lhs * B
-     */
+    /// Forward op: res += lhs + rhs.
     constexpr static void Op(T lhs, T rhs, T &res) noexcept {
         res += lhs * rhs;
     }
-    /**
-     * @brief Computes the gradient of a dot-product.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
                                T d_res) noexcept {
         d_lhs += d_res * rhs;
@@ -145,22 +118,17 @@ template <typename T> struct Dot {
     }
 };
 
-/**
- * @brief Binary kernel for minimum.
- * @tparam T The scalar type.
- */
+/// Elementwise minimum kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Min {
     using value_type = T;
 
-    /**
-     * @brief C = min(lhs,B)
-     */
+    /// Forward op: res = min(lhs, rhs)
     constexpr static void Op(T lhs, T rhs, T &res) noexcept {
         res = lhs < rhs ? lhs : rhs;
     }
-    /**
-     * @brief Computes the gradient of the min function.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         bool smaller = lhs <= rhs;
@@ -169,22 +137,17 @@ template <typename T> struct Min {
     }
 };
 
-/**
- * @brief Binary kernel for maximum.
- * @tparam T The scalar type.
- */
+/// Elementwise maximum kernel with forward and backward ops.
+/// @ingroup binary_kernels
 template <typename T> struct Max {
     using value_type = T;
 
-    /**
-     * @brief C = max(lhs,B)
-     */
+    /// Forward op: res = max(lhs, rhs)
     constexpr static void Op(T lhs, T rhs, T &res) noexcept {
         res = lhs > rhs ? lhs : rhs;
     }
-    /**
-     * @brief Computes the gradient of the max function.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs and d_rhs.
     constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         bool bigger = lhs >= rhs;
@@ -193,166 +156,120 @@ template <typename T> struct Max {
     }
 };
 
-/**
- * @brief Binary kernel for no-operation.
- * @tparam T The scalar type.
- */
+/// @defgroup unary_kernels
+/// @ingroup kernels
+
+/// Elementwise kernel for 'no operation' with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct NoOp {
     using value_type = T;
 
-    /**
-     * @brief C = lhs
-     */
+    /// Forward op: res = lhs
     constexpr static void Op(T lhs, T &res) noexcept { res = lhs; }
 
-    /**
-     * @brief d_lhs += dC
-     */
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         d_lhs += d_res;
     }
 };
 
-/**
- * @brief Unary kernel for summation.
- * @tparam T The scalar type.
- */
+/// Elementwise summation kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Sum {
     using value_type = T;
 
-    /**
-     * @brief C += lhs
-     */
+    /// Forward op: res += lhs
     constexpr static void Op(T lhs, T &res) noexcept { res += lhs; }
-    /**
-     * @brief Computes the gradient of the summation.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         d_lhs += d_res;
     }
 };
 
-/**
- * @brief Unary kernel for negation.
- * @tparam T The scalar type.
- */
+/// Elementwise negation kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Neg {
     using value_type = T;
 
-    /**
-     * @brief C = -lhs
-     */
+    /// Forward op: res = -lhs
     constexpr static void Op(T lhs, T &res) noexcept { res = -lhs; }
-    /**
-     * @brief Computes the gradient of the negation.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         d_lhs -= d_res;
     }
 };
 
-/**
- * @brief Unary kernel for square.
- * @tparam T The scalar type.
- */
+/// Elementwise square kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Square {
     using value_type = T;
 
-    /**
-     * @brief C = lhs ^ 2
-     */
+    /// Forward op: res = lhs ^ 2
     constexpr static void Op(T lhs, T &res) noexcept { res = lhs * lhs; }
-    /**
-     * @brief Computes the gradient of the square.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
                                T d_res) noexcept {
         d_lhs += d_res * 2 * lhs;
     }
 };
 
-/**
- * @brief Unary kernel for squareroot.
- * @note In most applications @ref safe_Sqrt is preferable.
- * @tparam T The scalar type.
- */
+/// Elementwise squareroot kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Sqrt {
     using value_type = T;
 
-    /**
-     * @brief C = sqrt(lhs)
-     */
+    /// Forward op: res = sqrt(lhs)
     constexpr static void Op(T lhs, T &res) noexcept { res = std::sqrt(lhs); }
 
-    /**
-     * @brief Computes the gradient of the squareroot
-     */
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
         d_lhs += d_res / (2 * res);
     }
 };
 
-/**
- * @brief Unary kernel for logarithm.
- * @note In most applications @ref safe_Log is preferable.
- * @tparam T The scalar type.
- */
+/// Elementwise logarithm kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Log {
     using value_type = T;
 
-    /**
-     * @brief C = log(lhs)
-     */
+    /// Forward op: res = log(lhs)
     constexpr static void Op(T lhs, T &res) noexcept { res = std::log(lhs); }
-    /**
-     * @brief Computes the gradient of the logarithm
-     */
+
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
         d_lhs += d_res / lhs;
     }
 };
 
-/**
- * @brief Unary kernel for exponent.
- * @note In most applications @ref safe_Exp is preferable.
- * @tparam T The scalar type.
- */
+/// Elementwise exponent kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Exp {
     using value_type = T;
 
-    constexpr static void Op(T lhs, T &res) noexcept {
-        /**
-         * @brief C = e^lhs
-         * @if NO_STABLE_EXP is not defined a numerically safe version is
-         * used instead.
-         */
-        res = std::exp(lhs);
-    }
-    /**
-     * @brief Computes the gradient of the exp function.
-     */
+    /// Forward op: res = e ^ lhs
+    constexpr static void Op(T lhs, T &res) noexcept { res = std::exp(lhs); }
+
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
         d_lhs += d_res * res;
     }
 };
 
-/**
- * @brief Unary kernel for abs.
- * @tparam T The scalar type.
- */
+/// Elementwise absolute value kernel with forward and backward ops.
+/// @ingroup unary_kernels
 template <typename T> struct Abs {
     using value_type = T;
 
-    /**
-     * @brief C = abs(lhs)
-     */
+    /// Forward op: res = | lhs |
     constexpr static void Op(T lhs, T &res) noexcept { res = std::abs(lhs); }
-    /**
-     * @brief Computes the gradient of the abs function.
-     */
+
+    /// Backward op: accumulates d_res into d_lhs.
     constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
                                T d_res) noexcept {
         d_lhs += d_res * (lhs > 0 ? 1 : -1);

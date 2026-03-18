@@ -1,6 +1,7 @@
 [FIX]
 
 [REFACTOR]
+(functions)    maybe remove functions::unary/binary namespaces
 
 [FEAT]
 
@@ -35,10 +36,8 @@
         ./include/kaad/operators/operators.hpp
                     add @pre with shape requirements
         ./include/kaad/exceptions.hpp
-        ./include/kaad/functions/kernels.hpp
         ./include/kaad/functions/primal.hpp
         ./include/kaad/functions/adjoint.hpp
-        ./include/kaad/functions/safe_kernels.hpp
         ./include/kaad/kaad.hpp
 
 [CHORE]
