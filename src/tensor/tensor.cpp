@@ -212,14 +212,14 @@ std::span<const Scalar> Tensor::elements() const noexcept {
 }
 
 Tensor::iterator Tensor::begin() {
-    std::vector<int> cords(std::max(this->rank(), size_type(1)));
+    std::vector<int> cords(std::max(this->rank(), static_cast<size_type>(1)));
     std::ranges::fill(cords, 0);
 
     return {*this, std::move(cords)};
 }
 
 Tensor::const_iterator Tensor::begin() const {
-    std::vector<int> cords(std::max(this->rank(), size_t(1)));
+    std::vector<int> cords(std::max(this->rank(), static_cast<size_t>(1)));
     std::ranges::fill(cords, 0);
 
     return {*this, std::move(cords)};
