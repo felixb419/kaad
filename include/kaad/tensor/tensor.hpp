@@ -37,7 +37,7 @@ class Tensor {
     std::vector<value_type>
         elements_; ///< Vector containing the elements of the Tensor.
 
-    thread_local static inline std::mt19937_64 gen_{std::random_device{}()};
+    thread_local static inline std::mt19937_64 rng_{std::random_device{}()};
 
   public:
     /**
