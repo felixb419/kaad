@@ -2,7 +2,6 @@
 
 #include <cmath>   // for log, pow, exp, sqrt
 #include <cstdlib> // for abs
-#include <limits>  // for numeric_limits
 
 /**
  * @namespace kaad::Kernels
@@ -106,10 +105,6 @@ template <typename T> struct Div {
  */
 template <typename T> struct Pow {
     using value_type = T;
-
-    static constexpr T max_finite = std::numeric_limits<T>::max();
-    static constexpr T max_exp = std::log(max_finite);
-    static constexpr T min_exp = -max_exp;
 
     /**
      * @brief C = lhs ^ B
@@ -328,8 +323,6 @@ template <typename T> struct Log {
 template <typename T> struct Exp {
     using value_type = T;
 
-    inline static T max_exp = std::log(std::numeric_limits<T>::max());
-    inline static T min_exp = std::log(std::numeric_limits<T>::min());
     constexpr static void Op(T lhs, T &res) noexcept {
         /**
          * @brief C = e^lhs
