@@ -4,45 +4,32 @@
 #include <kaad/functions/kernels.hpp> // for binary_kernel_class, unary_kernel_class
 
 /**
- * @file functions.hpp
- * @brief Tensor operations with NumPy-style broadcasting.
- *
- * Broadcasting rules:
- * - When performing elementwise operations, input tensors are aligned from the
- * trailing dimensions.
- * - For each dimension:
- *   1. If the sizes match, that dimension is compatible.
- *   2. If one tensor has size 1, it is broadcast to match the other.
- *   3. If sizes differ and neither is 1, the shapes are incompatible.
- * - The resulting tensor shape is the elementwise maximum along each dimension.
- *
- * Examples:
- *   (3, 1, 5) and (1, 4, 5) -> broadcast to (3, 4, 5)
- *   (2, 3) and (3,) -> broadcast to (2, 3)
- *
- * @note These rules are identical to NumPy's broadcasting semantics.
- */
-
-/**
- * @namespace functions::primal
- * @brief Contains primal (e.g. used for forward computation) tensor operations.
- */
-namespace kaad::functions::primal {
-
-/**
  * @defgroup primal_functions Primal (e.g. used for forward computation) tensor
  * operations.
  */
 
 /**
- * @namespace kaad::functions::adjoint::binary
- */
-namespace binary {
-
-/**
  * @defgroup binary_primal_functions Primal functions that take two inputs.
  * @ingroup primal_functions
  */
+
+/**
+ * @defgroup unary_primal_functions Primal functions that take one input.
+ * @ingroup primal_functions
+ */
+
+/**
+ * @namespace functions::primal
+ * @brief Contains primal (e.g. used for forward computation) tensor operations.
+ * @ingroup primal_functions
+ */
+namespace kaad::functions::primal {
+
+/**
+ * @namespace kaad::functions::adjoint::binary
+ * @ingroup binary_primal_functions
+ */
+namespace binary {
 
 template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
@@ -353,6 +340,7 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, const int *stride_lhs,
 
 /**
  * @namespace kaad::Operations::unary
+ * @ingroup unary_primal_functions
  */
 namespace unary {
 
@@ -384,11 +372,6 @@ template <typename T>
 using slice_fn = void (*)(const T *inp, T *res, int *stride_inp,
                           int *stride_res, std::size_t *start_offset_a,
                           std::size_t *res_dim_offset, std::size_t res_rank);
-
-/**
- * @defgroup unary_primal_functions Primal functions that take one input.
- * @ingroup primal_functions
- */
 
 /**
  * @brief Applies a unary operation to @p inp .

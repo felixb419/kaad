@@ -36,9 +36,13 @@
         ./include/kaad/operators/operators.hpp
                     add @pre with shape requirements
         ./include/kaad/exceptions.hpp
-        ./include/kaad/functions/primal.hpp
         ./include/kaad/functions/adjoint.hpp
         ./include/kaad/kaad.hpp
+    Add Pages for:
+        what is backward autodiff
+        what is a computation graph
+        Node classes
+        operators (broadcasting)
 
 [CHORE]
 
