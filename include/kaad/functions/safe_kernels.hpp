@@ -108,15 +108,15 @@ template <typename T> struct safe_Pow {
 template <typename T> struct safe_Sqrt {
     using value_type = T;
 
-    /// Forward op: res = sqrt(max(lhs, 0))
-    constexpr static void Op(T lhs, T &res) noexcept {
-        res = std::sqrt(std::max(lhs, T(0)));
+    /// Forward op: res = sqrt(max(inp, 0))
+    constexpr static void Op(T inp, T &res) noexcept {
+        res = std::sqrt(std::max(inp, T(0)));
     }
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs, T res,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp, T res,
                                T d_res) noexcept {
 
-        d_lhs += res < epsilon<T> ? 0 : d_res / (2 * res);
+        d_inp += res < epsilon<T> ? 0 : d_res / (2 * res);
     }
 };
 
@@ -125,15 +125,15 @@ template <typename T> struct safe_Sqrt {
 template <typename T> struct safe_Log {
     using value_type = T;
 
-    /// Forward op: res = log(max(lhs, epsilon))
-    constexpr static void Op(T lhs, T &res) noexcept {
-        res = std::log(std::max(lhs, epsilon<T>));
+    /// Forward op: res = log(max(inp, epsilon))
+    constexpr static void Op(T inp, T &res) noexcept {
+        res = std::log(std::max(inp, epsilon<T>));
     }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad(T inp, T &d_inp, [[maybe_unused]] T res,
                                T d_res) noexcept {
-        d_lhs += d_res / std::max(lhs, epsilon<T>);
+        d_inp += d_res / std::max(inp, epsilon<T>);
     }
 };
 
@@ -142,16 +142,16 @@ template <typename T> struct safe_Log {
 template <typename T> struct safe_Exp {
     using value_type = T;
 
-    /// Forward op: res = e ^ (max(min_exp, min(max_exp, lhs)))
-    constexpr static void Op(T lhs, T &res) noexcept {
+    /// Forward op: res = e ^ (max(min_exp, min(max_exp, inp)))
+    constexpr static void Op(T inp, T &res) noexcept {
 
-        res = std::exp(std::max(min_exp<T>, std::min(max_exp<T>, lhs)));
+        res = std::exp(std::max(min_exp<T>, std::min(max_exp<T>, inp)));
     }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs, T res,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp, T res,
                                T d_res) noexcept {
-        d_lhs += d_res * res;
+        d_inp += d_res * res;
     }
 };
 

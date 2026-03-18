@@ -164,13 +164,13 @@ template <typename T> struct Max {
 template <typename T> struct NoOp {
     using value_type = T;
 
-    /// Forward op: res = lhs
-    constexpr static void Op(T lhs, T &res) noexcept { res = lhs; }
+    /// Forward op: res = inp
+    constexpr static void Op(T inp, T &res) noexcept { res = inp; }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp,
                                [[maybe_unused]] T res, T d_res) noexcept {
-        d_lhs += d_res;
+        d_inp += d_res;
     }
 };
 
@@ -179,13 +179,13 @@ template <typename T> struct NoOp {
 template <typename T> struct Sum {
     using value_type = T;
 
-    /// Forward op: res += lhs
-    constexpr static void Op(T lhs, T &res) noexcept { res += lhs; }
+    /// Forward op: res += inp
+    constexpr static void Op(T inp, T &res) noexcept { res += inp; }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp,
                                [[maybe_unused]] T res, T d_res) noexcept {
-        d_lhs += d_res;
+        d_inp += d_res;
     }
 };
 
@@ -194,13 +194,13 @@ template <typename T> struct Sum {
 template <typename T> struct Neg {
     using value_type = T;
 
-    /// Forward op: res = -lhs
-    constexpr static void Op(T lhs, T &res) noexcept { res = -lhs; }
+    /// Forward op: res = -inp
+    constexpr static void Op(T inp, T &res) noexcept { res = -inp; }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad([[maybe_unused]] T lhs, T &d_lhs,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp,
                                [[maybe_unused]] T res, T d_res) noexcept {
-        d_lhs -= d_res;
+        d_inp -= d_res;
     }
 };
 
@@ -209,13 +209,13 @@ template <typename T> struct Neg {
 template <typename T> struct Square {
     using value_type = T;
 
-    /// Forward op: res = lhs ^ 2
-    constexpr static void Op(T lhs, T &res) noexcept { res = lhs * lhs; }
+    /// Forward op: res = inp ^ 2
+    constexpr static void Op(T inp, T &res) noexcept { res = inp * inp; }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad(T inp, T &d_inp, [[maybe_unused]] T res,
                                T d_res) noexcept {
-        d_lhs += d_res * 2 * lhs;
+        d_inp += d_res * 2 * inp;
     }
 };
 
@@ -224,12 +224,12 @@ template <typename T> struct Square {
 template <typename T> struct Sqrt {
     using value_type = T;
 
-    /// Forward op: res = sqrt(lhs)
-    constexpr static void Op(T lhs, T &res) noexcept { res = std::sqrt(lhs); }
+    /// Forward op: res = sqrt(inp)
+    constexpr static void Op(T inp, T &res) noexcept { res = std::sqrt(inp); }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
-        d_lhs += d_res / (2 * res);
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad(T inp, T &d_inp, T res, T d_res) noexcept {
+        d_inp += d_res / (2 * res);
     }
 };
 
@@ -238,12 +238,12 @@ template <typename T> struct Sqrt {
 template <typename T> struct Log {
     using value_type = T;
 
-    /// Forward op: res = log(lhs)
-    constexpr static void Op(T lhs, T &res) noexcept { res = std::log(lhs); }
+    /// Forward op: res = log(inp)
+    constexpr static void Op(T inp, T &res) noexcept { res = std::log(inp); }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
-        d_lhs += d_res / lhs;
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad(T inp, T &d_inp, T res, T d_res) noexcept {
+        d_inp += d_res / inp;
     }
 };
 
@@ -252,12 +252,12 @@ template <typename T> struct Log {
 template <typename T> struct Exp {
     using value_type = T;
 
-    /// Forward op: res = e ^ lhs
-    constexpr static void Op(T lhs, T &res) noexcept { res = std::exp(lhs); }
+    /// Forward op: res = e ^ inp
+    constexpr static void Op(T inp, T &res) noexcept { res = std::exp(inp); }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad(T lhs, T &d_lhs, T res, T d_res) noexcept {
-        d_lhs += d_res * res;
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad(T inp, T &d_inp, T res, T d_res) noexcept {
+        d_inp += d_res * res;
     }
 };
 
@@ -266,13 +266,13 @@ template <typename T> struct Exp {
 template <typename T> struct Abs {
     using value_type = T;
 
-    /// Forward op: res = | lhs |
-    constexpr static void Op(T lhs, T &res) noexcept { res = std::abs(lhs); }
+    /// Forward op: res = | inp |
+    constexpr static void Op(T inp, T &res) noexcept { res = std::abs(inp); }
 
-    /// Backward op: accumulates d_res into d_lhs.
-    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T res,
+    /// Backward op: accumulates d_res into d_inp.
+    constexpr static void Grad(T inp, T &d_inp, [[maybe_unused]] T res,
                                T d_res) noexcept {
-        d_lhs += d_res * (lhs > 0 ? 1 : -1);
+        d_inp += d_res * (inp > 0 ? 1 : -1);
     }
 };
 
