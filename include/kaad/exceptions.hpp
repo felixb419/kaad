@@ -11,6 +11,8 @@
 
 namespace kaad {
 
+std::string to_string(std::span<const int> array);
+
 class kaad_error : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;

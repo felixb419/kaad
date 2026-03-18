@@ -4,7 +4,7 @@
 
 namespace kaad {
 
-static inline std::string to_array_string(std::span<const int> array) {
+std::string to_string(std::span<const int> array) {
     std::string str = "[";
     bool first = true;
     for (auto elem : array) {
@@ -60,7 +60,7 @@ std::string make_graph_errmsg(
         first = false;
         errmsg += pair.first;
         errmsg += "=";
-        errmsg += to_array_string(pair.second);
+        errmsg += to_string(pair.second);
     }
 
     if (empty) {
