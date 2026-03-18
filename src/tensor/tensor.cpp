@@ -182,8 +182,9 @@ void Tensor::reshape(std::span<const int> shape) {
     this->stride_ = compute_stride(this->shape_);
 
     if (suggested_len != this->size()) {
-        throw argument_error("length suggested by shape and previous length "
-                             "number of elements dont match");
+        throw argument_error("shape " + to_string(shape) +
+                             " is invalid for a tensor with " +
+                             std::to_string(this->size()) + " elements");
     }
 }
 
