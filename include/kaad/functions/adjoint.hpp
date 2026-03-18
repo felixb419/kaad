@@ -1,6 +1,5 @@
 #pragma once
 
-#include <concepts>                  // for concept
 #include <cstddef>                   // for size_t
 #include <kaad/functions/primal.hpp> // for batch_matmul, matmul
 
@@ -26,26 +25,7 @@ namespace binary {
  * @ingroup adjoint_functions
  */
 
-/**
- * @brief Concept requiring a kernel to have:
- * @ingroup binary_adjoint_functions
- * 1. 'value_type' alias
- * 2. static void Op(const value_type&, value_type&, const value_type&,
- *                   value_type&, const value_type&, const value_type&);
- */
-template <class Kernel>
-concept kernel_class = requires { typename Kernel::value_type; } && requires {
-    {
-        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
-                     std::declval<typename Kernel::value_type &>(),
-                     std::declval<const typename Kernel::value_type &>(),
-                     std::declval<typename Kernel::value_type &>(),
-                     std::declval<const typename Kernel::value_type &>(),
-                     std::declval<const typename Kernel::value_type &>())
-    } -> std::same_as<void>;
-};
-
-template <kernel_class Kernel> constexpr bool kernel_noexcept() {
+template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
         Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
@@ -55,7 +35,7 @@ template <kernel_class Kernel> constexpr bool kernel_noexcept() {
                      std::declval<const typename Kernel::value_type &>()));
 }
 
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
                               typename Kernel::value_type *d_lhs,
                               const typename Kernel::value_type *rhs,
@@ -64,7 +44,7 @@ using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
                               const typename Kernel::value_type *d_res,
                               const typename Kernel::value_type *end);
 
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
                              typename Kernel::value_type *d_lhs,
                              const typename Kernel::value_type *rhs,
@@ -106,7 +86,7 @@ using batch_matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void scalarRhs(const typename Kernel::value_type *lhs,
                typename Kernel::value_type *d_lhs,
                const typename Kernel::value_type *rhs,
@@ -134,7 +114,7 @@ void scalarRhs(const typename Kernel::value_type *lhs,
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void scalarLhs(const typename Kernel::value_type *lhs,
                typename Kernel::value_type *d_lhs,
                const typename Kernel::value_type *rhs,
@@ -162,7 +142,7 @@ void scalarLhs(const typename Kernel::value_type *lhs,
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *lhs,
                typename Kernel::value_type *d_lhs,
                const typename Kernel::value_type *rhs,
@@ -194,7 +174,7 @@ void pointwise(const typename Kernel::value_type *lhs,
  * @param res_dim_offset Offset to the end of @p res per dimension.
  * @param res_rank Number of dimensions of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void flexible(const typename Kernel::value_type *lhs,
               typename Kernel::value_type *d_lhs,
               const typename Kernel::value_type *rhs,
@@ -225,7 +205,7 @@ void flexible(const typename Kernel::value_type *lhs,
  * @brief Compile-time recursive version of runtime @ref flexible().
  * @ingroup binary_adjoint_functions
  */
-template <kernel_class Kernel, std::size_t res_rank>
+template <binary_kernel_class Kernel, std::size_t res_rank>
 void flexible(
     const typename Kernel::value_type *lhs, typename Kernel::value_type *d_lhs,
     const typename Kernel::value_type *rhs, typename Kernel::value_type *d_rhs,
@@ -407,24 +387,7 @@ namespace unary {
  * @ingroup adjoint_functions
  */
 
-/**
- * @brief Concept requiring a kernel to have:
- * @ingroup unary_adjoint_functions
- * 1. 'value_type' alias
- * 2. static void Op(const value_type&, value_type&, const value_type&, const
- * value_type&);
- */
-template <class Kernel>
-concept kernel_class = requires { typename Kernel::value_type; } && requires {
-    {
-        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
-                     std::declval<typename Kernel::value_type &>(),
-                     std::declval<const typename Kernel::value_type &>(),
-                     std::declval<const typename Kernel::value_type &>())
-    } -> std::same_as<void>;
-};
-
-template <kernel_class Kernel> constexpr bool kernel_noexcept() {
+template <unary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
         Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
@@ -432,7 +395,7 @@ template <kernel_class Kernel> constexpr bool kernel_noexcept() {
                      std::declval<const typename Kernel::value_type &>()));
 }
 
-template <kernel_class Kernel>
+template <unary_kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *inp,
                               typename Kernel::value_type *d_inp,
                               const typename Kernel::value_type *res,
@@ -470,7 +433,7 @@ using slice_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
  * @param inp_end Pointer to the end of @p inp.
  */
-template <kernel_class Kernel>
+template <unary_kernel_class Kernel>
 void scalarOut(const typename Kernel::value_type *inp,
                typename Kernel::value_type *d_inp,
                const typename Kernel::value_type *res,
@@ -494,7 +457,7 @@ void scalarOut(const typename Kernel::value_type *inp,
  * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <unary_kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *inp,
                typename Kernel::value_type *d_inp,
                const typename Kernel::value_type *res,

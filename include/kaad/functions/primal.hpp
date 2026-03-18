@@ -1,7 +1,7 @@
 #pragma once
 
-#include <concepts> // for concept
-#include <cstddef>  // for size_t
+#include <cstddef>                    // for size_t
+#include <kaad/functions/kernels.hpp> // for binary_kernel_class, unary_kernel_class
 
 /**
  * @file functions.hpp
@@ -44,35 +44,20 @@ namespace binary {
  * @ingroup primal_functions
  */
 
-/**
- * @brief Concept requiring a kernel to have:
- * @ingroup binary_primal_functions
- * 1. 'value_type' alias
- * 2. static void Op(const value_type&, const value_type&, value_type&);
- */
-template <class Kernel>
-concept kernel_class = requires { typename Kernel::value_type; } && requires {
-    {
-        Kernel::Op(std::declval<const typename Kernel::value_type &>(),
-                   std::declval<const typename Kernel::value_type &>(),
-                   std::declval<typename Kernel::value_type &>())
-    } -> std::same_as<void>;
-};
-
-template <kernel_class Kernel> constexpr bool kernel_noexcept() {
+template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
         Kernel::Op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<const typename Kernel::value_type &>(),
                    std::declval<typename Kernel::value_type &>()));
 }
 
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
                               const typename Kernel::value_type *rhs,
                               typename Kernel::value_type *res,
                               const typename Kernel::value_type *res_end);
 
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
                              const typename Kernel::value_type *rhs,
                              typename Kernel::value_type *res, int *stride_lhs,
@@ -104,7 +89,7 @@ using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
  * @param[out] res Pointer to the start of tensor.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void scalarRhs(const typename Kernel::value_type *lhs,
                const typename Kernel::value_type *rhs,
                typename Kernel::value_type *res,
@@ -125,7 +110,7 @@ void scalarRhs(const typename Kernel::value_type *lhs,
  * @param[out] res Pointer to the start of tensor.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void scalarLhs(const typename Kernel::value_type *lhs,
                const typename Kernel::value_type *rhs,
                typename Kernel::value_type *res,
@@ -146,7 +131,7 @@ void scalarLhs(const typename Kernel::value_type *lhs,
  * @param[out] res Pointer to the start of tensor.
  * @param res_end Pointer to the end of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *lhs,
                const typename Kernel::value_type *rhs,
                typename Kernel::value_type *res,
@@ -171,7 +156,7 @@ void pointwise(const typename Kernel::value_type *lhs,
  * @param res_dim_offset Offset to the end of @p res per dimension.
  * @param res_rank Number of dimensions of @p res.
  */
-template <kernel_class Kernel>
+template <binary_kernel_class Kernel>
 void flexible(const typename Kernel::value_type *lhs,
               const typename Kernel::value_type *rhs,
               typename Kernel::value_type *res, int *stride_lhs,
@@ -196,7 +181,7 @@ void flexible(const typename Kernel::value_type *lhs,
  * @brief Compile-time recursive version of the runtime @ref flexible().
  * @ingroup binary_primal_functions
  */
-template <kernel_class Kernel, std::size_t rank>
+template <binary_kernel_class Kernel, std::size_t rank>
 void flexible(
     const typename Kernel::value_type *lhs,
     const typename Kernel::value_type *rhs, typename Kernel::value_type *res,
@@ -371,26 +356,13 @@ void batch_matmul(const T *lhs, const T *rhs, T *res, const int *stride_lhs,
  */
 namespace unary {
 
-/**
- * @brief Concept requiring a kernel to have:
- * 1. 'value_type' alias
- * 2. static void Op(const value_type&, value_type&);
- */
-template <class Kernel>
-concept kernel_class = requires { typename Kernel::value_type; } && requires {
-    {
-        Kernel::Op(std::declval<const typename Kernel::value_type &>(),
-                   std::declval<typename Kernel::value_type &>())
-    } -> std::same_as<void>;
-};
-
-template <kernel_class Kernel> constexpr bool kernel_noexcept() {
+template <unary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
         Kernel::Op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<typename Kernel::value_type &>()));
 }
 
-template <kernel_class Kernel>
+template <unary_kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *inp,
                               typename Kernel::value_type *res,
                               const typename Kernel::value_type *res_end);
@@ -426,7 +398,7 @@ using slice_fn = void (*)(const T *inp, T *res, int *stride_inp,
  * @param[out] res Pointer to rank-0 tensor.
  * @param inp_end Pointer to the end of @p inp.
  */
-template <kernel_class Kernel>
+template <unary_kernel_class Kernel>
 void scalarOut(const typename Kernel::value_type *inp,
                typename Kernel::value_type *res,
                const typename Kernel::value_type
@@ -445,7 +417,7 @@ void scalarOut(const typename Kernel::value_type *inp,
  * @param res_end Pointer to the end of @p res.
  * @param op Instance of the callable class.
  */
-template <kernel_class Kernel>
+template <unary_kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *inp,
                typename Kernel::value_type *res,
                const typename Kernel::value_type

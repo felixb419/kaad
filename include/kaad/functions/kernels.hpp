@@ -3,18 +3,69 @@
 #include <cmath>   // for log, pow, exp, sqrt
 #include <cstdlib> // for abs
 
+/// @defgroup kernels Kernels for elementary operations and their corresponding
+/// gradients.
+
+/// @defgroup binary_kernels Kernels that take two inputs.
+/// @ingroup kernels
+
+/// @defgroup unary_kernels
+/// @ingroup kernels
+
+/**
+ * @brief Concept requiring a kernel to have:
+ * 1. 'value_type' alias
+ * 2. static void Op(const value_type&, const value_type&, value_type&);
+ * 3. static void Grad(const value_type&, value_type&, const value_type&,
+ *                   value_type&, const value_type&, const value_type&);
+ * @ingroup binary_kernels
+ */
+template <class Kernel>
+concept binary_kernel_class =
+    requires { typename Kernel::value_type; } && requires {
+        {
+            Kernel::Op(std::declval<const typename Kernel::value_type &>(),
+                       std::declval<const typename Kernel::value_type &>(),
+                       std::declval<typename Kernel::value_type &>())
+        } -> std::same_as<void>;
+        {
+            Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+                         std::declval<typename Kernel::value_type &>(),
+                         std::declval<const typename Kernel::value_type &>(),
+                         std::declval<typename Kernel::value_type &>(),
+                         std::declval<const typename Kernel::value_type &>(),
+                         std::declval<const typename Kernel::value_type &>())
+        } -> std::same_as<void>;
+    };
+
+/**
+ * @brief Concept requiring a kernel to have:
+ * 1. 'value_type' alias
+ * 2. static void Op(const value_type&, value_type&);
+ * 3. static void Grad(const value_type&, value_type&, const value_type&, const
+ * value_type&);
+ */
+template <class Kernel>
+concept unary_kernel_class =
+    requires { typename Kernel::value_type; } && requires {
+        {
+            Kernel::Op(std::declval<const typename Kernel::value_type &>(),
+                       std::declval<typename Kernel::value_type &>())
+        } -> std::same_as<void>;
+        {
+            Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+                         std::declval<typename Kernel::value_type &>(),
+                         std::declval<const typename Kernel::value_type &>(),
+                         std::declval<const typename Kernel::value_type &>())
+        } -> std::same_as<void>;
+    };
+
 /**
  * @namespace kaad::Kernels
  * @brief Contains elementary operation kernels and their corresponding
  * gradients.
  */
 namespace kaad::Kernels {
-
-/// @defgroup kernels Kernels for elementary operations and their corresponding
-/// gradients.
-
-/// @defgroup binary_kernels Kernels that take two inputs.
-/// @ingroup kernels
 
 /// Elementwise addition kernel with forward and backward ops.
 /// @ingroup binary_kernels
@@ -155,9 +206,6 @@ template <typename T> struct Max {
         d_rhs += bigger ? 0 : d_res;
     }
 };
-
-/// @defgroup unary_kernels
-/// @ingroup kernels
 
 /// Elementwise kernel for 'no operation' with forward and backward ops.
 /// @ingroup unary_kernels
