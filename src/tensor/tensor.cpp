@@ -154,7 +154,7 @@ Tensor Tensor::rand(std::span<const int> shape, Scalar min, Scalar max) {
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
     for (size_type i = 0; i < out.size(); i++) {
-        out.data()[i] = dist(Tensor::rng_);
+        out.data()[i] = dist(Tensor::get_rng());
     }
 
     return out;
@@ -166,13 +166,13 @@ Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
 
     Tensor out(std::span<const int>(shape.begin(), shape.end()));
     for (size_type i = 0; i < out.size(); i++) {
-        out.data()[i] = dist(Tensor::rng_);
+        out.data()[i] = dist(Tensor::get_rng());
     }
 
     return out;
 }
 
-void Tensor::rng_seed(uint64_t seed) { Tensor::rng_.seed(seed); }
+void Tensor::rng_seed(uint64_t seed) { Tensor::get_rng().seed(seed); }
 
 void Tensor::reshape(std::span<const int> shape) {
 

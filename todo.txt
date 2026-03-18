@@ -42,6 +42,8 @@
         what is a computation graph
         Node classes
         operators (broadcasting)
+        Tensors
+            note that rand and randn require a working std::random_device failing fatally otherwise
 
 [CHORE]
 
