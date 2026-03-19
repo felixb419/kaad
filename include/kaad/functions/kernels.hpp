@@ -126,8 +126,8 @@ template <typename T> struct Div {
     constexpr static void Op(T lhs, T rhs, T &res) noexcept { res = lhs / rhs; }
 
     /// Backward op: accumulates d_res into d_lhs and d_rhs.
-    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
-                               T d_res) noexcept {
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
         d_lhs += d_res * (1 / rhs);
         d_rhs -= d_res * (lhs / (rhs * rhs));
     }
@@ -162,8 +162,8 @@ template <typename T> struct Dot {
     }
 
     /// Backward op: accumulates d_res into d_lhs and d_rhs.
-    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs, T res,
-                               T d_res) noexcept {
+    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+                               [[maybe_unused]] T res, T d_res) noexcept {
         d_lhs += d_res * rhs;
         d_rhs += d_res * lhs;
     }
@@ -276,7 +276,8 @@ template <typename T> struct Sqrt {
     constexpr static void Op(T inp, T &res) noexcept { res = std::sqrt(inp); }
 
     /// Backward op: accumulates d_res into d_inp.
-    constexpr static void Grad(T inp, T &d_inp, T res, T d_res) noexcept {
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp, T res,
+                               T d_res) noexcept {
         d_inp += d_res / (2 * res);
     }
 };
@@ -290,7 +291,8 @@ template <typename T> struct Log {
     constexpr static void Op(T inp, T &res) noexcept { res = std::log(inp); }
 
     /// Backward op: accumulates d_res into d_inp.
-    constexpr static void Grad(T inp, T &d_inp, T res, T d_res) noexcept {
+    constexpr static void Grad(T inp, T &d_inp, [[maybe_unused]] T res,
+                               T d_res) noexcept {
         d_inp += d_res / inp;
     }
 };
@@ -304,7 +306,8 @@ template <typename T> struct Exp {
     constexpr static void Op(T inp, T &res) noexcept { res = std::exp(inp); }
 
     /// Backward op: accumulates d_res into d_inp.
-    constexpr static void Grad(T inp, T &d_inp, T res, T d_res) noexcept {
+    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp, T res,
+                               T d_res) noexcept {
         d_inp += d_res * res;
     }
 };
