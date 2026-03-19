@@ -5,6 +5,7 @@
 #include <kaad/functions/primal.hpp>  // for flexible, flexible_fn
 #include <kaad/graph/dispatchers.hpp> // for MAX_NDIMS, get_flex...
 #include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <span>                       // for span
 #include <vector>                     // for vector
@@ -78,7 +79,7 @@ template <class Kernel> class Node_binary_flex : public INode {
         }
 
         // assign compile-time recursive function
-        if (this->value_rank <= Dispatchers::MAX_NDIMS) {
+        if (this->value_rank <= KAAD_MAX_RANK) {
             this->forward_op =
                 Dispatchers::get_flexOp<Kernel>()[this->value_rank];
             this->backward_op =

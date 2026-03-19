@@ -4,6 +4,7 @@
 #include <array>                      // for array
 #include <kaad/graph/dispatchers.hpp> // for get_flexGrad
 #include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 
 namespace kaad {
@@ -34,7 +35,7 @@ void Node_outer::metadata() {
     }
 
     // assign compile-time recursive function
-    if (this->res_rank <= Dispatchers::MAX_NDIMS) {
+    if (this->res_rank <= KAAD_MAX_RANK) {
         this->forward_op =
             Dispatchers::get_flexOp<Node_outer::Kernel>()[this->res_rank];
         this->backward_op =

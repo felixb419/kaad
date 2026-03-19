@@ -4,6 +4,7 @@
 #include <kaad/graph/common.hpp>      // for along_dim_met...
 #include <kaad/graph/dispatchers.hpp> // for get_sumDim
 #include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>            // for Scalar
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 
@@ -20,7 +21,7 @@ void Node_sum_dim::metadata(int dim) {
 
     // assign compile-time recursive function
     std::size_t input_rank = input.rank();
-    if (input_rank <= Dispatchers::MAX_NDIMS) {
+    if (input_rank <= KAAD_MAX_RANK) {
         this->val_func = Dispatchers::get_sumDim<Scalar>()[input_rank];
         this->grad_func = Dispatchers::get_sumDim_grad<Scalar>()[input_rank];
     }

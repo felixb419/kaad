@@ -5,6 +5,7 @@
 #include <kaad/graph/common.hpp>       // for combine_matrix
 #include <kaad/graph/dispatchers.hpp>  // for get_batch_ma...
 #include <kaad/graph/nodes/inode.hpp>  // for INode
+#include <kaad/max_rank.hpp>           // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>             // for Scalar
 #include <kaad/tensor/tensor.hpp>      // for Tensor
 #include <kaad/tensor/tensor_view.hpp> // for Tensor_view
@@ -98,7 +99,7 @@ void Node_batch_matmul::metadata() {
                   this->shared_dim[2], this->value_rank);
 
     // assign compile-time recursive function
-    if (this->value_rank <= Dispatchers::MAX_NDIMS) {
+    if (this->value_rank <= KAAD_MAX_RANK) {
         this->forward_op =
             Dispatchers::get_batch_matmul<Scalar>()[this->value_rank];
         this->backward_op =

@@ -5,6 +5,7 @@
 #include <cstddef>                    // for size_t
 #include <kaad/functions/adjoint.hpp> // for batch_matmul_fn, flexible_fn
 #include <kaad/functions/primal.hpp>  // for batch_matmul_fn, flexible_fn
+#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
 
 /**
  * @namespace kaad::Dispatchers
@@ -16,7 +17,7 @@
  * implementation based on tensor dimensionality.
  *
  * These utilities support dynamic shape handling by generating function arrays
- * for all valid dimensions up to `MAX_NDIMS`. This enables efficient and
+ * for all valid dimensions up to `KAAD_MAX_RANK`. This enables efficient and
  * modular implementations of flexible tensor operations and their gradients.
  *
  * Typical users do not need to call these functions directly unless
@@ -25,8 +26,6 @@
 namespace kaad::Dispatchers {
 
 // NOLINTBEGIN(readability-named-parameter)
-
-constexpr static int MAX_NDIMS = 10;
 
 /// @brief Returns full table of flexible binary operation implementations.
 template <class Kernel, std::size_t... Is>
@@ -37,9 +36,10 @@ get_flexOp_impl(std::index_sequence<Is...>) {
 }
 
 template <class Kernel>
-constexpr std::array<functions::primal::binary::flexible_fn<Kernel>, MAX_NDIMS>
+constexpr std::array<functions::primal::binary::flexible_fn<Kernel>,
+                     KAAD_MAX_RANK>
 get_flexOp() {
-    return get_flexOp_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
+    return get_flexOp_impl<Kernel>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of flexible binary gradient implementations.
@@ -51,9 +51,10 @@ get_flexGrad_impl(std::index_sequence<Is...>) {
 }
 
 template <class Kernel>
-constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>,
+                     KAAD_MAX_RANK>
 get_flexGrad() {
-    return get_flexGrad_impl<Kernel>(std::make_index_sequence<MAX_NDIMS>());
+    return get_flexGrad_impl<Kernel>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of batch matmul operation implementations.
@@ -65,9 +66,10 @@ get_batch_matmul_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::primal::binary::batch_matmul_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::binary::batch_matmul_fn<T>,
+                     KAAD_MAX_RANK>
 get_batch_matmul() {
-    return get_batch_matmul_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_batch_matmul_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of batch matmul gradient implementations.
@@ -79,9 +81,11 @@ get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>,
+                     KAAD_MAX_RANK>
 get_batch_matmul_grad() {
-    return get_batch_matmul_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_batch_matmul_grad_impl<T>(
+        std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of sum_dim operation implementations.
@@ -92,9 +96,9 @@ get_sumDim_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::primal::unary::sum_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::unary::sum_dim_fn<T>, KAAD_MAX_RANK>
 get_sumDim() {
-    return get_sumDim_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_sumDim_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of sum_dim gradient implementations.
@@ -105,9 +109,9 @@ get_sumDim_grad_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::adjoint::unary::sum_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::unary::sum_dim_fn<T>, KAAD_MAX_RANK>
 get_sumDim_grad() {
-    return get_sumDim_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_sumDim_grad_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of mean_dim operation implementations.
@@ -118,9 +122,9 @@ get_meanDim_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::primal::unary::mean_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::unary::mean_dim_fn<T>, KAAD_MAX_RANK>
 get_meanDim() {
-    return get_meanDim_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_meanDim_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of mean_dim gradient implementations.
@@ -131,9 +135,9 @@ get_meanDim_grad_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::adjoint::unary::mean_dim_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::unary::mean_dim_fn<T>, KAAD_MAX_RANK>
 get_meanDim_grad() {
-    return get_meanDim_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_meanDim_grad_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of slice operation implementations.
@@ -144,9 +148,9 @@ get_slice_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::primal::unary::slice_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::primal::unary::slice_fn<T>, KAAD_MAX_RANK>
 get_slice() {
-    return get_slice_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_slice_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 /// @brief Returns full table of slice gradient implementations.
@@ -157,9 +161,9 @@ get_slice_grad_impl(std::index_sequence<Is...>) {
 }
 
 template <typename T>
-constexpr std::array<functions::adjoint::unary::slice_fn<T>, MAX_NDIMS>
+constexpr std::array<functions::adjoint::unary::slice_fn<T>, KAAD_MAX_RANK>
 get_slice_grad() {
-    return get_slice_grad_impl<T>(std::make_index_sequence<MAX_NDIMS>());
+    return get_slice_grad_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
 // NOLINTEND(readability-named-parameter)

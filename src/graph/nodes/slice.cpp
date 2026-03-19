@@ -4,6 +4,7 @@
 #include <array>                      // for array
 #include <kaad/graph/dispatchers.hpp> // for get_slice
 #include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>            // for Scalar
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 
@@ -51,7 +52,7 @@ void Node_slice::metadata(const int *offset_arr) {
 
     // assign compile-time recursive function
     std::size_t a_rank = this->input->value().rank();
-    if (a_rank < Dispatchers::MAX_NDIMS) {
+    if (a_rank < KAAD_MAX_RANK) {
         this->forward_op = Dispatchers::get_slice<Scalar>()[a_rank];
         this->backward_op = Dispatchers::get_slice_grad<Scalar>()[a_rank];
     }
