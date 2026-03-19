@@ -8,7 +8,6 @@
 #include <kaad/graph/nodes/outer.hpp> // for Node_outer
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr, make_unique
-#include <span>                       // for span
 #include <vector>                     // for vector
 
 namespace kaad {
