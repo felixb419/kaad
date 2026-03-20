@@ -1,28 +1,28 @@
 add_library(kaad
-    ./graph/nodes/inode.cpp
-    ./graph/nodes/transp.cpp
-    ./graph/nodes/dot.cpp
-    ./graph/nodes/sum_dim.cpp
-    ./graph/nodes/batch_matmul.cpp
-    ./graph/nodes/mean.cpp
-    ./graph/nodes/outer.cpp
-    ./graph/nodes/matmul.cpp
-    ./graph/nodes/slice.cpp
-    ./graph/nodes/mean_dim.cpp
-    ./operators/transpose.cpp
-    ./operators/sum.cpp
-    ./operators/dot.cpp
-    ./operators/mean.cpp
-    ./operators/outer.cpp
-    ./operators/unary_operators.cpp
-    ./operators/matmul.cpp
-    ./operators/slice.cpp
-    ./operators/binary_operators.cpp
+    ./exceptions.cpp
     ./graph/graph.cpp
     ./graph/node_handle.cpp
-    ./tensor/tensor.cpp
+    ./graph/nodes/batch_matmul.cpp
+    ./graph/nodes/dot.cpp
+    ./graph/nodes/inode.cpp
+    ./graph/nodes/matmul.cpp
+    ./graph/nodes/mean.cpp
+    ./graph/nodes/mean_dim.cpp
+    ./graph/nodes/outer.cpp
+    ./graph/nodes/slice.cpp
+    ./graph/nodes/sum_dim.cpp
+    ./graph/nodes/transp.cpp
+    ./operators/binary_operators.cpp
+    ./operators/dot.cpp
+    ./operators/matmul.cpp
+    ./operators/mean.cpp
+    ./operators/outer.cpp
+    ./operators/slice.cpp
+    ./operators/sum.cpp
+    ./operators/transpose.cpp
+    ./operators/unary_operators.cpp
     ./tensor/print_tensor.cpp
-    ./exceptions.cpp
+    ./tensor/tensor.cpp
 )
 
 # Public headers location
