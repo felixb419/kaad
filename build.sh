@@ -68,7 +68,6 @@ fi
 
 # Turn off iwyu, clang-tidy and sanitizers
 if $FAST; then
-    cmake -DENABLE_SANITIZERS=OFF ..
     cmake -DUSE_CLANG_TIDY=OFF ..
     cmake -DUSE_IWYU=OFF ..
 fi
