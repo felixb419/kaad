@@ -1,78 +1,80 @@
 [FIX]
 
 [REFACTOR]
-(functions)    (?) maybe remove functions::unary/binary namespaces
+(functions)(?) maybe remove functions::unary/binary namespaces
                     remove warnings from comments in normal tensor
 
-    change all T to floating_t
+            change all T to floating_t
 
-    mark getters as nodiscard in:
-        tensor
-        nodes
-        graph
+            mark getters as nodiscard in:
+                tensor
+                nodes
+                graph
 
 (graph)     remove "Node_" from node type
 (tensor)    use Tensor::stride and Tensor::shape
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
-(tensor)    (?) make strided_Tensor child class
+(tensor)(?) make strided_Tensor child class
 
 [PERF]
+(tensor)    change shape and stride to std::array<size_t, KAAD_MAX_RANK>
+(graph)     arena allocation
 
 [DOC]
-    Rework comments in:
-        ./include/kaad/tensor/tensor_view.hpp
-        ./include/kaad/tensor/iterator_impl.hpp
-        ./include/kaad/graph/graph.hpp
-        ./include/kaad/graph/common.hpp
-        ./include/kaad/graph/node_handle.hpp
-        ./include/kaad/graph/dispatchers.hpp
-        ./include/kaad/graph/nodes/slice.hpp
-        ./include/kaad/graph/nodes/matmul.hpp
-        ./include/kaad/graph/nodes/binary_flex.hpp
-        ./include/kaad/graph/nodes/mean.hpp
-        ./include/kaad/graph/nodes/inode.hpp
-        ./include/kaad/graph/nodes/sum_dim.hpp
-        ./include/kaad/graph/nodes/batch_matmul.hpp
-        ./include/kaad/graph/nodes/mean_dim.hpp
-        ./include/kaad/graph/nodes/transp.hpp
-        ./include/kaad/graph/nodes/input.hpp
-        ./include/kaad/graph/nodes/unary.hpp
-        ./include/kaad/graph/nodes/dot.hpp
-        ./include/kaad/graph/nodes/outer.hpp
-        ./include/kaad/graph/nodes/binary.hpp
-        ./include/kaad/scalar.hpp
-        ./include/kaad/functions/primal.hpp
-        ./include/kaad/functions/adjoint.hpp
-        ./include/kaad/operators/operators.hpp
-                    add @pre with shape requirements
-        ./include/kaad/exceptions.hpp
-        ./include/kaad/kaad.hpp
-    Add Pages for:
-        what is backward autodiff
-        what is a computation graph
-        Node classes
-        operators (broadcasting)
-        Tensors
-            note that rand and randn require a working std::random_device failing fatally otherwise
+            Rework comments in:
+                ./include/kaad/tensor/tensor_view.hpp
+                ./include/kaad/tensor/iterator_impl.hpp
+                ./include/kaad/graph/graph.hpp
+                ./include/kaad/graph/common.hpp
+                ./include/kaad/graph/node_handle.hpp
+                ./include/kaad/graph/dispatchers.hpp
+                ./include/kaad/graph/nodes/slice.hpp
+                ./include/kaad/graph/nodes/matmul.hpp
+                ./include/kaad/graph/nodes/binary_flex.hpp
+                ./include/kaad/graph/nodes/mean.hpp
+                ./include/kaad/graph/nodes/inode.hpp
+                ./include/kaad/graph/nodes/sum_dim.hpp
+                ./include/kaad/graph/nodes/batch_matmul.hpp
+                ./include/kaad/graph/nodes/mean_dim.hpp
+                ./include/kaad/graph/nodes/transp.hpp
+                ./include/kaad/graph/nodes/input.hpp
+                ./include/kaad/graph/nodes/unary.hpp
+                ./include/kaad/graph/nodes/dot.hpp
+                ./include/kaad/graph/nodes/outer.hpp
+                ./include/kaad/graph/nodes/binary.hpp
+                ./include/kaad/scalar.hpp
+                ./include/kaad/functions/primal.hpp
+                ./include/kaad/functions/adjoint.hpp
+                ./include/kaad/operators/operators.hpp
+                            add @pre with shape requirements
+                ./include/kaad/exceptions.hpp
+                ./include/kaad/kaad.hpp
+            Add Pages for:
+                what is backward autodiff
+                what is a computation graph
+                Node classes
+                operators (broadcasting)
+                Tensors
+                    note that rand and randn require a working std::random_device failing fatally otherwise
 
 [CHORE]
-    types in PascalCase
-    functions in snake_case
-    variable names in snake_case
-    constants in UPPER CASE
+            types in PascalCase
+            functions in snake_case
+            variable names in snake_case
+            constants in UPPER CASE
 
 [BUILD]
-    Install support
-    (?) kaadConfig.cmake.in
+            Install support
+        (?) kaadConfig.cmake.in
 
 [LATER]
-    (?) add proper test system
-    (?) Add system for inference
+        (?) add proper test system
+        (?) Add system for inference
 (tensor)    make Tensor variant with compile time shape
-(tensor)    (?) combine shape and stride into shape struct
-(graph)    make stride function transpose dimensions so biggest is highest
-(graph)    (?) label member for computation nodes
-(graph)    (?) put reset, evaluate and getGradient into single function
-(examples)    (?) more example programs
+(tensor)(?) combine shape and stride into shape struct
+(graph)     make stride function transpose dimensions so biggest is highest
+(graph) (?) label member for computation nodes
+(graph) (?) put reset, evaluate and getGradient into single function
+(examples)(?) more example programs

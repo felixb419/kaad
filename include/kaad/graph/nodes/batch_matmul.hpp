@@ -7,11 +7,9 @@
 namespace kaad {
 
 /**
- * @brief Batch matrix multiplication node.
- * @internal
+ * @brief A batch matmuloperation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::binary::batch_matmul
- * @see functions::adjoint::binary::batch_matmul
+ * @internal
  */
 class Node_batch_matmul : public INode {
   private:
@@ -26,6 +24,7 @@ class Node_batch_matmul : public INode {
     functions::BatchMatmul::Metadata backward_wrt_rhs;
 
   public:
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;
 
     /**
@@ -39,12 +38,12 @@ class Node_batch_matmul : public INode {
 
     ~Node_batch_matmul() noexcept override = default;
 
-    /// Compute elements for @c value .
-    /// Computes values for @c lhs and @c rhs first.
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override;
 
-    /// Compute elements for @c lhs::gradient and @c rhs::gradient.
-    /// Computes gradients for @c lhs and @c rhs after.
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override;
 };
 

@@ -11,10 +11,9 @@
 namespace kaad {
 
 /**
- * @brief A sum_dim operation node in a computation graph.
+ * @brief A sum dim operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::unary::sum_dim
- * @see functions::adjoint::unary::sum_dim
+ * @internal
  */
 class Node_sum_dim : public INode {
   private:
@@ -37,32 +36,22 @@ class Node_sum_dim : public INode {
 
   public:
     /**
-     * @brief Constructrs a sum_dim node.
-     * @ingroup nodes
-     * @param input_ptr    Pointer to the input node.
-     * @param dim Index of the relevant dimension.
-     * @param value_shape Shape of the value and gradient tensors.
+     * @brief Construct sum dim node.
+     * @param input_ptr Pointer to the first input node.
+     * @param dim Index of the dimension summed over.
+     * @param value_shape Output/gradient shape
      */
     Node_sum_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;
 
-    /**
-     * @brief Evaluates the sum_dim operation by applying forward_op, if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override;
 
-    /**
-     * @brief Propagates gradients back through the sum_dim operation, by
-     * @ingroup nodes
-     * applying backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override;
 };
 

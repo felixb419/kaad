@@ -8,10 +8,9 @@
 namespace kaad {
 
 /**
- * @brief A mean operation node in a computation graph.
+ * @brief A mean operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::unary::mean
- * @see functions::adjoint::unary::mean
+ * @internal
  */
 class Node_mean : public INode {
   private:
@@ -32,30 +31,20 @@ class Node_mean : public INode {
 
   public:
     /**
-     * @brief Constructs a mean node.
-     * @ingroup nodes
+     * @brief Construct mean node.
      * @param input_ptr Pointer to the input node.
      */
     Node_mean(INode *input_ptr);
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;
 
-    /**
-     * @brief Evaluates the mean operation by applying forwrd_op, if not already
-     * @ingroup nodes
-     * evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override;
 
-    /**
-     * @brief Propagates gradients back through the mean operation, by applying
-     * @ingroup nodes
-     * backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override;
 };
 

@@ -11,10 +11,9 @@
 namespace kaad {
 
 /**
- * @brief A mean_dim operation node in a computation graph.
+ * @brief A mean dim operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::unary::mean_dim
- * @see functions::adjoint::unary::mean_dim
+ * @internal
  */
 class Node_mean_dim : public INode {
   private:
@@ -43,32 +42,22 @@ class Node_mean_dim : public INode {
 
   public:
     /**
-     * @brief Constructs a mean_dim node with the given operation and gradient.
-     * @ingroup nodes
-     * @param lhs_ptr Pointer to the input node.
-     * @param dim Index of the relevant dimension.
-     * @param value_shape Shape of the value and gradient tensors.
+     * @brief Construct mean dim node.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
+     * @param value_shape Output/gradient shape
      */
     Node_mean_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;
 
-    /**
-     * @brief Evaluates the mean_dim operation by applying forward_op, if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override;
 
-    /**
-     * @brief Propagates gradients back through the mean_dim operation by
-     * @ingroup nodes
-     * applying backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override;
 };
 

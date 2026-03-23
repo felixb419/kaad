@@ -15,10 +15,9 @@ namespace kaad {
 template <class Kernel> class Node_binary_flex;
 
 /**
- * @brief A binary_flex operation node in a computation graph.
+ * @brief A binary flex operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::binary::flexible
- * @see functions::adjoint::binary::flexible
+ * @internal
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
@@ -89,12 +88,10 @@ template <class Kernel> class Node_binary_flex : public INode {
 
   public:
     /**
-     * @brief Constructs a binary_flex operation node with binary_flex operation
-     * @ingroup nodes
-     * and gradient.
-     * @param A_ptr Pointer to the first input node.
-     * @param B_ptr Pointer to the second input node.
-     * @param value_shape Shape of the value and gradient tensors.
+     * @brief Construct binary node for shape flexible operations.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
+     * @param value_shape Output/gradient shape
      */
     Node_binary_flex(INode *lhs_ptr, INode *rhs_ptr,
                      std::span<const int> value_shape)
@@ -103,19 +100,13 @@ template <class Kernel> class Node_binary_flex : public INode {
         this->metadata();
     }
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
         return "Node_binary_flex";
     }
 
-    /**
-     * @brief Evaluates the binary_flex operation by calling forward_op, if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override {
         if (!this->evaluated()) {
             this->lhs->eval();
@@ -129,11 +120,8 @@ template <class Kernel> class Node_binary_flex : public INode {
         }
     }
 
-    /**
-     * @brief Propagates gradients back through the binary_flex operation, by
-     * @ingroup nodes
-     * calling backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override {
         backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                     this->rhs->value().data(), this->rhs->gradient().data(),

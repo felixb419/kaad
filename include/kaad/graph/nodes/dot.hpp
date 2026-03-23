@@ -12,10 +12,9 @@ class Graph;
 class Node;
 
 /**
- * @brief A binary operation node in a computation graph.
+ * @brief A dot product node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::binary::pointwise
- * @see functions::adjoint::binary::pointwise
+ * @internal
  */
 class Node_dot : public INode {
   private:
@@ -36,35 +35,21 @@ class Node_dot : public INode {
 
   public:
     /**
-     * @brief Constructs a binary operation node with the given operation and
-     * @ingroup nodes
-     * gradient.
-     * @param operation Function pointer to the value operation.
-     * @param derivative Function pointer to the gradient operation.
-     * @param A_ptr Pointer to the first input node.
-     * @param B_ptr Pointer to the second input node.
-     * @param tensor_args Arguments to construct the output tensor.
+     * @brief Construct dot product node.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
      */
     Node_dot(INode *lhs_ptr, INode *rhs_ptr);
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;
 
-    /**
-     * @brief Evaluates the binary operation by applying forward_op, if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override;
 
-    /**
-     * @brief Propagates gradients back through the binary operation by applying
-     * @ingroup nodes
-     * backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override;
 
     friend Node dot(Graph &rec, Node lhs, Node rhs);

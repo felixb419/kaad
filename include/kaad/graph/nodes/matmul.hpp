@@ -10,10 +10,9 @@
 namespace kaad {
 
 /**
- * @brief A matmul node in a computation graph.
+ * @brief A matmul operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::binary::matmul
- * @see functions::adjoint::binary::matmul
+ * @internal
  */
 class Node_matmul : public INode {
   private:
@@ -57,34 +56,24 @@ class Node_matmul : public INode {
 
   public:
     /**
-     * @brief Constructs a matmul node.
-     * @ingroup nodes
+     * @brief Construct matmul node.
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
-     * @param value_shape Shape of the value and gradient tensors.
+     * @param value_shape Output/gradient shape
      */
     Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
                 std::span<const int> value_shape);
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;
 
-    /**
-     * @brief Evaluates the matmul operation by apllying forward_op,if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override;
 
-    /**
-     * @brief Propagates gradients back through the matmul operation, by
-     * @ingroup nodes
-     * applying backward_op.
-     */
-    inline void getGrad() override;
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
+    void getGrad() override;
 };
 
 } // namespace kaad

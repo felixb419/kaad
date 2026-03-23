@@ -34,11 +34,11 @@ class INode {
      * @brief Initializes the first input, flags, value and gradient tensors for
      * a node.
      * @ingroup nodes
-     * @param label Label string for the node.
-     * @param value_shape Shape of the value and gradient tensor.
+     * @param value_shape Output/gradient shape
      * @param is_input_node Flag indicating wheter it is an input node.
+     * @param label Label string for the node.
      * @param value_stride Stride array of the value tensor (can be omitted if
-     * value is not transposed).
+     * tensor is contigous).
      */
     INode(std::span<const int> value_shape, bool is_input_node,
           const char *label = "", std::span<const int> value_stride = {});
@@ -47,64 +47,34 @@ class INode {
     /// Virtual destructor for polymorphic deletion
     virtual ~INode() = default;
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] virtual const char *node_type() const noexcept = 0;
 
     /**
-     * @brief Get label of the node.
-     * @return Pointer to the label string.
+     * @return Lable of the node as a string.
      */
     const char *label() { return this->label_; }
 
-    /**
-     * @brief Get a refernce to the value tensor.
-     * @ingroup nodes
-     * @return Reference to the value tensor.
-     */
+    /// @return Reference to the value tensor.
     Tensor &value() noexcept;
 
-    /**
-     * @brief Get a refernce to the value tensor.
-     * @ingroup nodes
-     * @return Immutable reference to the value tensor.
-     */
+    /// @return Const reference to the value tensor.
     [[nodiscard]] const Tensor &value() const noexcept;
 
-    /**
-     * @brief Get a refernce to the gradient tensor.
-     * @ingroup nodes
-     * @return Immutable reference to the gradient tensor.
-     */
+    /// @return Reference to the value tensor.
     Tensor &gradient() noexcept;
 
-    /**
-     * @brief Get a refernce to the gradient tensor.
-     * @ingroup nodes
-     * @return Reference to the gradient tensor.
-     */
+    /// @return Const reference to the value tensor.
     [[nodiscard]] const Tensor &gradient() const noexcept;
 
-    /**
-     * @brief Tells wether the node has been evaluated.
-     * @ingroup nodes
-     * @return True if the node was already evaluated, False otherwise.
-     */
+    /// @return True if the node has already been evaluated, false otherwise.
     [[nodiscard]] bool evaluated() const noexcept;
 
-    /**
-     * @brief Tells wether the node has inputs.
-     * @ingroup nodes
-     * @return True if the node has inputs, False otherwise.
-     */
+    /// @return True if the node is an input node, false otherwise.
     [[nodiscard]] bool isInput() const noexcept;
 
     /**
      * @brief Resets the value and gradient of the node.
-     * @ingroup nodes
-     *
      * Clears the value tensor and sets the `evaluated` flag to false if the
      * node has inputs. Clears the gradient tensor in all cases.
      */
@@ -112,13 +82,12 @@ class INode {
 
     /**
      * @brief Evaluates the node's value. Must be implemented by derived
-     * @ingroup nodes
      * classes.
      */
     inline virtual void eval() = 0;
+
     /**
      * @brief Computes the gradient for this node. Must be implemented by
-     * @ingroup nodes
      * derived classes.
      */
     inline virtual void getGrad() = 0;

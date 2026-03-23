@@ -10,10 +10,9 @@
 namespace kaad {
 
 /**
- * @brief A binary operation node in a computation graph.
+ * @brief A binary operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::binary::pointwise
- * @see functions::adjoint::binary::pointwise
+ * @internal
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
@@ -36,14 +35,13 @@ template <class Kernel> class Node_binary : public INode {
 
   public:
     /**
-     * @brief Constructs a binary operation node with the given operation and
+     * @brief Constructs a binary operation node.
      * @ingroup nodes
-     * gradient.
      * @param operation Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
-     * @param value_shape Shape of the value and gradient tensors.
+     * @param value_shape Output/gradient shape
      */
     Node_binary(functions::primal::binary::pointwise_fn<Kernel> operation,
                 functions::adjoint::binary::pointwise_fn<Kernel> derivative,
@@ -55,19 +53,13 @@ template <class Kernel> class Node_binary : public INode {
         this->end = base_ptr->value().data() + base_ptr->value().size();
     }
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
         return "Node_binary";
     }
 
-    /**
-     * @brief Evaluates the binary operation by applying forward_op, if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override {
         if (!this->evaluated()) {
             this->lhs->eval();
@@ -79,11 +71,8 @@ template <class Kernel> class Node_binary : public INode {
         }
     }
 
-    /**
-     * @brief Propagates gradients back through the binary operation by applying
-     * @ingroup nodes
-     * backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override {
         backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                     this->rhs->value().data(), this->rhs->gradient().data(),

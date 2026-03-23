@@ -13,10 +13,9 @@ class Graph;
 class Node;
 
 /**
- * @brief A unary operation node in a computation graph.
+ * @brief A unary operation node for a @ref kaad::Graph
  * @ingroup nodes
- * @see functions::primal::unary::pointwise
- * @see functions::adjoint::unary::pointwise
+ * @internal
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
@@ -40,10 +39,16 @@ template <class Kernel> class Node_unary : public INode {
     /**
      * @brief Constructs a unary node with the given operation and gradient.
      * @ingroup nodes
-     * @param operation  Function pointer to the value operation.
-     * @param derivative Function pointer to the gradient operation.
      * @param input_ptr    Pointer to the input node.
      * @param value_shape Shape of the value and gradient tensors.
+     */
+    /**
+     * @brief Construct XXXX node.
+     * @param operation  Function pointer to the value operation.
+     * @param derivative Function pointer to the gradient operation.
+     * @param lhs_ptr Pointer to the first input node.
+     * @param rhs_ptr Pointer to the second input node.
+     * @param value_shape Output/gradient shape
      */
     Node_unary(functions::primal::unary::pointwise_fn<Kernel> operation,
                functions::adjoint::unary::pointwise_fn<Kernel> derivative,
@@ -56,19 +61,13 @@ template <class Kernel> class Node_unary : public INode {
                 .size(); // Points to end of value if not overriden in operator.
     }
 
-    /**
-     * @brief Returns the type of the node as a string.
-     * @ingroup nodes
-     */
+    /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
         return "Node_unary";
     }
 
-    /**
-     * @brief Evaluates the unary operation by applying forward_op, if not
-     * @ingroup nodes
-     * already evaluated.
-     */
+    /// Compute @c value for this node.
+    /// Computes @c value for @c lhs and @c rhs first.
     void eval() override {
         if (!this->evaluated()) {
             this->input->eval();
@@ -78,11 +77,8 @@ template <class Kernel> class Node_unary : public INode {
         }
     }
 
-    /**
-     * @brief Propagates gradients back through the unary operation, by applying
-     * @ingroup nodes
-     * backward_op.
-     */
+    /// Compute @c gradient for this node.
+    /// Computes @c gradient for @c lhs and @c rhs after.
     void getGrad() override {
         backward_op(this->input->value().data(), this->input->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
