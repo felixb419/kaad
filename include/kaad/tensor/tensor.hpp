@@ -163,14 +163,6 @@ class Tensor {
      */
     static void rng_seed(uint64_t seed);
 
-    /**
-     * @brief Reshapes the tensor.
-     * @note Computes new stride array.
-     * @param shape New dimensions of the tensor, must be compatible with
-     * current @c size() .
-     */
-    void reshape(Shape_view shape);
-
     /// @brief Get rank of the tensor.
     /// @return Length of the shape array.
     [[nodiscard]] size_type rank() const noexcept;

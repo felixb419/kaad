@@ -1,9 +1,6 @@
 [FIX]
 
 [REFACTOR]
-(functions)(?) maybe remove functions::unary/binary namespaces
-                    remove warnings from comments in normal tensor
-
             change all T to floating_t
 
             mark getters as nodiscard in:
@@ -12,10 +9,12 @@
                 graph
 
 (graph)     remove "Node_" from node type
-(tensor)    use Tensor::stride and Tensor::shape
+(tensor)    use Tensor::stride and Tensor::shape everywhere
+(functions) make new functions use std::mdspan
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
+(tensor)    Change TensorView to std::mdspan
 (tensor)(?) make strided_Tensor child class
 
 [PERF]
@@ -60,7 +59,6 @@
                     note that rand and randn require a working std::random_device failing fatally otherwise
 
 [CHORE]
-            types in PascalCase
             functions in snake_case
             variable names in snake_case
             constants in UPPER CASE

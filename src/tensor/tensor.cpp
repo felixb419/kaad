@@ -174,20 +174,6 @@ Tensor Tensor::randn(std::span<const int> shape, Scalar mean, Scalar std) {
 
 void Tensor::rng_seed(uint64_t seed) { Tensor::get_rng().seed(seed); }
 
-void Tensor::reshape(std::span<const int> shape) {
-
-    std::ranges::copy(shape, this->shape_.begin());
-
-    size_type suggested_len = compute_size(this->shape_);
-    this->stride_ = compute_stride(this->shape_);
-
-    if (suggested_len != this->size()) {
-        throw argument_error("shape " + to_string(shape) +
-                             " is invalid for a tensor with " +
-                             std::to_string(this->size()) + " elements");
-    }
-}
-
 Tensor::size_type Tensor::rank() const noexcept {
     return static_cast<size_type>(this->shape_.size());
 }
