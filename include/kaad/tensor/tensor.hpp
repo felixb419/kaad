@@ -10,10 +10,12 @@
 
 namespace kaad {
 
-template <bool isConst> class iterator_impl;
+template <bool isConst> class iterator_impl; // IWYU pragma: keep
 
-struct Tensor_view_const;
-struct Tensor_view_mut;
+template <typename T> struct Tensor_view;
+
+using Tensor_view_const = Tensor_view<const Scalar>;
+using Tensor_view_mut = Tensor_view<Scalar>;
 
 /**
  * @brief A class representing a multi-dimensional tensor.
