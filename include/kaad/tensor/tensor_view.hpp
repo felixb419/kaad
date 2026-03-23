@@ -48,6 +48,59 @@ template <typename T> struct TensorView {
     /// @brief Get rank of the tensor.
     /// @return Length of the shape array.
     [[nodiscard]] size_type rank() const { return this->shape.size(); }
+
+    /**
+     * @brief Get a transposed copy of the view.
+     * @param shape_buff The new shape will be stored in this.
+     * @param stride_buff The new strides will be stored in this.
+     * @note The memory of @p shape_buff has to be manually freed.
+     * @return View with transposed shape and stride.
+     */
+    TensorView<T> transpose(Tensor::Shape &shape_buff,
+                            Tensor::Stride &stride_buff) const {
+
+        const std::size_t rank = this->rank();
+
+        shape_buff.resize(rank);
+        std::ranges::reverse_copy(this->shape, shape_buff.begin());
+
+        stride_buff.resize(rank);
+        std::ranges::reverse_copy(this->stride, stride_buff.begin());
+
+        TensorView<T> out = *this;
+
+        out.shape = Tensor::Shape_view(shape_buff);
+        out.stride = Tensor::Shape_view(stride_buff);
+
+        return out;
+    }
+
+    /**
+     * @brief Get a copy of the view with the lowest 2 dimensions transposed.
+     * @param shape_buff The new shape will be stored in this.
+     * @param stride_buff The new strides will be stored in this.
+     * @note The memory of @p shape_buff has to be manually freed.
+     * @return View with transposed shape and stride.
+     */
+    TensorView<T> transpose_2d(Tensor::Shape &shape_buff,
+                               Tensor::Stride &stride_buff) {
+
+        const std::size_t rank = this->rank();
+
+        shape_buff = Tensor::Shape(this->shape.begin(), this->shape.end());
+        std::swap(shape_buff[rank - 1], shape_buff[rank - 2]);
+
+        stride_buff = Tensor::Shape(this->stride.begin(), this->stride.end());
+
+        std::swap(stride_buff[rank - 1], stride_buff[rank - 2]);
+
+        TensorView<T> out = *this;
+
+        out.shape = Tensor::Shape_view(shape_buff);
+        out.stride = Tensor::Shape_view(stride_buff);
+
+        return out;
+    }
 };
 
 /**
