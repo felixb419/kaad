@@ -59,13 +59,6 @@ using matmul_fn = void (*)(const T *lhs, const T *rhs, T *res, int lhs_rows,
                            int rhs_cols, int shared_dim, const int *stride_lhs,
                            const int *stride_rhs, const int *stride_res);
 
-template <typename T>
-using batch_matmul_fn = void (*)(const T *lhs, const T *rhs, T *res,
-                                 const int *stride_lhs, const int *stride_rhs,
-                                 const int *stride_res, const int *res_shape,
-                                 int lhs_dim_offset, int rhs_dim_offset,
-                                 int shared_dim, std::size_t res_rank);
-
 /**
  * @brief Applies Op to @p lhssand @p rhs .
  * @ingroup binary_primal_functions
@@ -259,79 +252,6 @@ void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
                  i++, row_lhs += stride_lhs[1], elem_rhs += stride_rhs[0]) {
                 *res += (*row_lhs) * (*elem_rhs);
             }
-        }
-    }
-}
-
-/**
- * @brief Computes Matrix product of @p lhs and @p rhs into @p res (treats
- * @ingroup binary_primal_functions
- * additional dimensions as batch dimensions).
- * @pre @p lhs, @p rhs and @p res have compatible shapes.
- * @tparam T Element type
- * @param[in] lhs Pointer to the start of tensor.
- * @param[in] rhs Pointer to the start of tensor.
- * @param[out] res Pointer to the start of tensor.
- * @param stride_lhs Stride array of @p lhs.
- * @param stride_rhs Stride array of @p rhs.
- * @param stride_res Stride array of @p res.
- * @param Pointer to shape array of @p res.
- * @param lhs_dim_offset Step size for @p lhs.
- * @param rhs_dim_offset Step size for @p rhs.
- * @param shared_dim Shared inner dimension.
- * @param res_rank Number of dimension of @p res.
- */
-template <typename T>
-void batch_matmul(const T *lhs, const T *rhs, T *res, const int *stride_lhs,
-                  const int *stride_rhs, const int *stride_res,
-                  const int *res_shape, int lhs_dim_offset, int rhs_dim_offset,
-                  int shared_dim, std::size_t res_rank) noexcept {
-    if (res_rank <= 1) {
-        for (int i = 0; i < *res_shape;
-             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            const T *row_lhs = lhs;
-            const T *col_rhs = rhs;
-            for (int j = 0; j < shared_dim;
-                 j++, row_lhs += lhs_dim_offset, col_rhs += rhs_dim_offset) {
-                *res += (*row_lhs) * (*col_rhs);
-            }
-        }
-    } else {
-        for (int i = 0; i < *res_shape;
-             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            batch_matmul(lhs, rhs, res, stride_lhs + 1, stride_rhs + 1,
-                         stride_res + 1, res_shape + 1, lhs_dim_offset,
-                         rhs_dim_offset, shared_dim, res_rank - 1);
-        }
-    }
-}
-
-/**
- * @brief Compile-time recursive version of runtime @ref batch_matmul().
- * @ingroup binary_primal_functions
- */
-template <typename T, std::size_t res_rank>
-void batch_matmul(const T *lhs, const T *rhs, T *res, const int *stride_lhs,
-                  const int *stride_rhs, const int *stride_res,
-                  const int *res_shape, int lhs_dim_offset, int rhs_dim_offset,
-                  int shared_dim,
-                  [[maybe_unused]] std::size_t unused) noexcept {
-    if constexpr (res_rank <= 1) {
-        for (int i = 0; i < *res_shape;
-             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            const T *row_lhs = lhs;
-            const T *col_rhs = rhs;
-            for (int j = 0; j < shared_dim;
-                 j++, row_lhs += lhs_dim_offset, col_rhs += rhs_dim_offset) {
-                *res += (*row_lhs) * (*col_rhs);
-            }
-        }
-    } else {
-        for (int i = 0; i < *res_shape;
-             i++, lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            batch_matmul<T, res_rank - 1>(
-                lhs, rhs, res, stride_lhs + 1, stride_rhs + 1, stride_res + 1,
-                res_shape + 1, lhs_dim_offset, rhs_dim_offset, shared_dim, 0);
         }
     }
 }

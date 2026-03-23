@@ -4,6 +4,8 @@
 (functions)    (?) maybe remove functions::unary/binary namespaces
                     remove warnings from comments in normal tensor
 
+    change all T to floating_t
+
     mark getters as nodiscard in:
         tensor
         nodes

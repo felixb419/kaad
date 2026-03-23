@@ -70,14 +70,6 @@ using matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                            int *shared_dim, int *stride_lhs, int *stride_rhs,
                            int *stride_res);
 
-template <typename T>
-using batch_matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                                 const T *d_res, int **stride_lhs,
-                                 int **stride_rhs, int **stride_res,
-                                 int **res_shape, int *lhs_dim_offset,
-                                 int *rhs_dim_offset, int *shared_dim,
-                                 std::size_t res_rank);
-
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
  * @ingroup binary_adjoint_functions
@@ -320,65 +312,6 @@ void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
         stride_lhs + 2, stride_res + 2, stride_rhs + 2);
 
     // NOLINTEND(readability-suspicious-call-argument)
-}
-
-/**
- * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
- * @ingroup binary_adjoint_functions
- * @pre @p lhs, @p rhs and @p res have compatible shapes.
- * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
- * @param[in] lhs Pointer to the start of tensor.
- * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
- * @param[in] rhs Pointer to the start of tensor.
- * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
- * @param[in] res Pointer to the start of tensor.
- * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
- * @param stride_lhs Pointer to stride arrays ({res.stride, lhs.stride^T}).
- * @param stride_rhs Pointer to stride arrays ({rhs.stride^T, res.stride}).
- * @param stride_res Pointer to stride arrays ({lhs.stride, rhs.stride}).
- * @param res_shape Pointer to shape arrays ({lhs.shape, rhs.shape}).
- * @param lhs_dim_offset Pointer to array of step sizes ({res, lhs^T}).
- * @param rhs_dim_offset Pointer to array of step sizes ({rhs^T, res}).
- * @param shared_dim Pointer to array of length of shared dimensions.
- * @param res_rank Number of dimensions of @p res.
- */
-template <typename T>
-void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                  const T *d_res, int **stride_lhs, int **stride_rhs,
-                  int **stride_res, int **res_shape, int *lhs_dim_offset,
-                  int *rhs_dim_offset, int *shared_dim,
-                  std::size_t res_rank) noexcept {
-    // d_lhs = d_res * rhs^T
-    functions::primal::binary::batch_matmul<T>(
-        d_res, rhs, d_lhs, stride_res[0], stride_rhs[0], stride_lhs[0],
-        res_shape[0], lhs_dim_offset[0], rhs_dim_offset[0], shared_dim[0],
-        res_rank);
-    // d_rhs = lhs^T * d_res
-    functions::primal::binary::batch_matmul<T>(
-        lhs, d_res, d_rhs, stride_lhs[1], stride_res[1], stride_rhs[1],
-        res_shape[1], lhs_dim_offset[1], rhs_dim_offset[1], shared_dim[1],
-        res_rank);
-}
-
-/**
- * @brief Compile-time recursive version of runtime @ref batch_matmul().
- * @ingroup binary_adjoint_functions
- */
-template <typename T, std::size_t res_rank>
-void batch_matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                  const T *d_res, int **stride_lhs, int **stride_rhs,
-                  int **stride_res, int **res_shape, int *lhs_dim_offset,
-                  int *rhs_dim_offset, int *shared_dim,
-                  [[maybe_unused]] std::size_t unused) noexcept {
-    // d_lhs = d_res * rhs^T
-    functions::primal::binary::batch_matmul<T, res_rank>(
-        d_res, rhs, d_lhs, stride_res[0], stride_rhs[0], stride_lhs[0],
-        res_shape[0], lhs_dim_offset[0], rhs_dim_offset[0], shared_dim[0], 0);
-    // d_rhs = lhs^T * d_res
-    functions::primal::binary::batch_matmul<T, res_rank>(
-        lhs, d_res, d_rhs, stride_lhs[1], stride_res[1], stride_rhs[1],
-        res_shape[1], lhs_dim_offset[1], rhs_dim_offset[1], shared_dim[1], 0);
 }
 
 } // namespace binary

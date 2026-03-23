@@ -3,6 +3,7 @@
 #include <algorithm>              // for __fill_fn, fill
 #include <kaad/exceptions.hpp>    // for argument_error
 #include <kaad/tensor/tensor.hpp> // for Tensor
+#include <vector>                 // for vector
 
 namespace kaad {
 

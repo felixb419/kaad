@@ -57,37 +57,6 @@ get_flexGrad() {
     return get_flexGrad_impl<Kernel>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
-/// @brief Returns full table of batch matmul operation implementations.
-template <typename T, std::size_t... Is>
-constexpr std::array<functions::primal::binary::batch_matmul_fn<T>,
-                     sizeof...(Is)>
-get_batch_matmul_impl(std::index_sequence<Is...>) {
-    return {&functions::primal::binary::batch_matmul<T, Is>...};
-}
-
-template <typename T>
-constexpr std::array<functions::primal::binary::batch_matmul_fn<T>,
-                     KAAD_MAX_RANK>
-get_batch_matmul() {
-    return get_batch_matmul_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
-}
-
-/// @brief Returns full table of batch matmul gradient implementations.
-template <typename T, std::size_t... Is>
-constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>,
-                     sizeof...(Is)>
-get_batch_matmul_grad_impl(std::index_sequence<Is...>) {
-    return {&functions::adjoint::binary::batch_matmul<T, Is>...};
-}
-
-template <typename T>
-constexpr std::array<functions::adjoint::binary::batch_matmul_fn<T>,
-                     KAAD_MAX_RANK>
-get_batch_matmul_grad() {
-    return get_batch_matmul_grad_impl<T>(
-        std::make_index_sequence<KAAD_MAX_RANK>());
-}
-
 /// @brief Returns full table of sum_dim operation implementations.
 template <typename T, std::size_t... Is>
 constexpr std::array<functions::primal::unary::sum_dim_fn<T>, sizeof...(Is)>
