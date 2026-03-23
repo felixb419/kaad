@@ -4,12 +4,12 @@
 #include <array>                       // for array
 #include <kaad/graph/nodes/inode.hpp>  // for INode
 #include <kaad/tensor/tensor.hpp>      // for Tensor
-#include <kaad/tensor/tensor_view.hpp> // for Tensor_view
+#include <kaad/tensor/tensor_view.hpp> // for TensorView
 
 namespace kaad {
 
-void metadata_impl(const Tensor_view_const lhs, const Tensor_view_const rhs,
-                   const Tensor_view_const value, int &a_dim, int &b_dim,
+void metadata_impl(const TensorViewConst lhs, const TensorViewConst rhs,
+                   const TensorViewConst value, int &a_dim, int &b_dim,
                    int &shared_dim, int *lhs_stride, int *rhs_stride,
                    int *value_stride) {
     a_dim = lhs.shape[0];
@@ -38,16 +38,16 @@ void metadata_impl(const Tensor_view_const lhs, const Tensor_view_const rhs,
 
 void Node_matmul::metadata() {
     // compute metadata
-    Tensor_view_const lhs = this->lhs->value().view();
-    Tensor_view_const rhs = this->rhs->value().view();
-    Tensor_view_const value = this->value().view();
+    TensorViewConst lhs = this->lhs->value().view();
+    TensorViewConst rhs = this->rhs->value().view();
+    TensorViewConst value = this->value().view();
 
     std::array<int, 2> lhs_T_shape;
     std::array<int, 2> lhs_T_stride;
     std::ranges::reverse_copy(lhs.shape, lhs_T_shape.begin());
     std::ranges::reverse_copy(lhs.stride, lhs_T_stride.begin());
 
-    Tensor_view_const lhs_T = lhs;
+    TensorViewConst lhs_T = lhs;
     lhs_T.shape = std::span<const int>(lhs_T_shape);
     lhs_T.stride = std::span<const int>(lhs_T_stride);
 
@@ -56,7 +56,7 @@ void Node_matmul::metadata() {
     std::ranges::reverse_copy(rhs.shape, rhs_T_shape.begin());
     std::ranges::reverse_copy(rhs.stride, rhs_T_stride.begin());
 
-    Tensor_view_const rhs_T = rhs;
+    TensorViewConst rhs_T = rhs;
     rhs_T.shape = std::span<const int>(rhs_T_shape);
     rhs_T.stride = std::span<const int>(rhs_T_stride);
 

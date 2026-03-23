@@ -11,7 +11,7 @@ namespace kaad {
 /// @brief A non-owning view of a tensor object, mutability is dependant on the
 /// constness of @p T.
 /// @tparam T Element type.
-template <typename T> struct Tensor_view {
+template <typename T> struct TensorView {
     using value_type = T;
     using reference = value_type &;
     using const_reference = const value_type &;
@@ -31,7 +31,7 @@ template <typename T> struct Tensor_view {
     /**
      * @brief Default constructor.
      */
-    Tensor_view() noexcept;
+    TensorView() noexcept;
 
     /**
      * @brief Constructs a tensor view.
@@ -41,8 +41,8 @@ template <typename T> struct Tensor_view {
      * @param elements Pointer to the element array.
      * @param len Length of the element array.
      */
-    Tensor_view(Tensor::Shape_view shape, Tensor::Stride_view stride,
-                std::span<value_type> elements)
+    TensorView(Tensor::Shape_view shape, Tensor::Stride_view stride,
+               std::span<value_type> elements)
         : shape(shape), stride(stride), elements(elements) {}
 
     /// @brief Get rank of the tensor.
@@ -58,17 +58,17 @@ template <typename T> struct Tensor_view {
  * @return std::ostream& The updated output stream.
  */
 template <typename T>
-std::ostream &operator<<(std::ostream &stream, const Tensor_view<T> &tensor) {
+std::ostream &operator<<(std::ostream &stream, const TensorView<T> &tensor) {
     print_tensor_impl(stream, tensor.shape, tensor.stride, tensor.elements);
     return stream;
 }
 
-/// @copybrief Tensor_view
+/// @copybrief TensorView
 /// Provides immutable access to the elements.
-using Tensor_view_const = Tensor_view<const Scalar>;
+using TensorViewConst = TensorView<const Scalar>;
 
-/// @copybrief Tensor_view
+/// @copybrief TensorView
 /// Provides mutable access to the elements.
-using Tensor_view_mut = Tensor_view<Scalar>;
+using TensorViewMut = TensorView<Scalar>;
 
 } // namespace kaad

@@ -8,14 +8,14 @@
 #include <kaad/max_rank.hpp>           // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>             // for Scalar
 #include <kaad/tensor/tensor.hpp>      // for Tensor
-#include <kaad/tensor/tensor_view.hpp> // for Tensor_view
+#include <kaad/tensor/tensor_view.hpp> // for TensorView
 #include <utility>                     // for swap
 #include <vector>                      // for vector
 
 namespace kaad {
 
-void metadata_impl(Tensor_view_const lhs, Tensor_view_const rhs,
-                   Tensor_view_const res, int *&lhs_stride, int *&rhs_stride,
+void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
+                   TensorViewConst res, int *&lhs_stride, int *&rhs_stride,
                    int *&res_stride, int *&c_shape_broadcast, int &a_off,
                    int &b_off, int &shared_dim, std::size_t &res_rank) {
     a_off = lhs.stride[lhs.rank() - 1];
@@ -53,9 +53,9 @@ void metadata_impl(Tensor_view_const lhs, Tensor_view_const rhs,
 
 void Node_batch_matmul::metadata() {
     // compute metadata
-    Tensor_view_const lhs = this->lhs->value().view();
-    Tensor_view_const rhs = this->rhs->value().view();
-    Tensor_view_const value = this->value().view();
+    TensorViewConst lhs = this->lhs->value().view();
+    TensorViewConst rhs = this->rhs->value().view();
+    TensorViewConst value = this->value().view();
 
     std::vector<int> a_T_shape(lhs.rank());
     std::vector<int> a_T_stride(lhs.rank());
@@ -66,7 +66,7 @@ void Node_batch_matmul::metadata() {
     std::ranges::copy(lhs.stride, a_T_stride.data());
     std::swap(a_T_stride[lhs.rank() - 1], a_T_stride[lhs.rank() - 2]);
 
-    Tensor_view_const a_T = lhs;
+    TensorViewConst a_T = lhs;
     a_T.shape = std::span<const int>(a_T_shape);
     a_T.stride = std::span<const int>(a_T_stride);
 
@@ -79,7 +79,7 @@ void Node_batch_matmul::metadata() {
     std::ranges::copy(rhs.stride, b_T_stride.data());
     std::swap(b_T_stride[rhs.rank() - 1], b_T_stride[rhs.rank() - 2]);
 
-    Tensor_view_const b_T = rhs;
+    TensorViewConst b_T = rhs;
     b_T.shape = std::span<const int>(b_T_shape);
     b_T.stride = std::span<const int>(b_T_stride);
 

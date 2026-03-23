@@ -12,10 +12,10 @@ namespace kaad {
 
 template <bool isConst> class iterator_impl; // IWYU pragma: keep
 
-template <typename T> struct Tensor_view;
+template <typename T> struct TensorView;
 
-using Tensor_view_const = Tensor_view<const Scalar>;
-using Tensor_view_mut = Tensor_view<Scalar>;
+using TensorViewConst = TensorView<const Scalar>;
+using TensorViewMut = TensorView<Scalar>;
 
 /**
  * @brief A class representing a multi-dimensional tensor.
@@ -270,12 +270,12 @@ class Tensor {
     [[nodiscard]] const_pointer data() const noexcept;
 
     /// @brief Creates a non-owning immutable view of the tensor.
-    /// @return A Tensor_view_const object.
-    [[nodiscard]] Tensor_view_const view() const noexcept;
+    /// @return A TensorViewConst object.
+    [[nodiscard]] TensorViewConst view() const noexcept;
 
     /// @brief Creates a non-owning mutable view of the tensor.
-    /// @return A Tensor_view_mut object.
-    Tensor_view_mut view_mut() noexcept;
+    /// @return A TensorViewMut object.
+    TensorViewMut view_mut() noexcept;
 
     friend class Graph;
     friend class INode;

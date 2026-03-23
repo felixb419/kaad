@@ -6,7 +6,7 @@
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for iterator_impl
 #include <kaad/tensor/print_tensor.hpp>  // for print_tensor
-#include <kaad/tensor/tensor_view.hpp>   // for Tensor_view
+#include <kaad/tensor/tensor_view.hpp>   // for TensorView
 #include <span>                          // for span
 #include <string>                        // for operator+, to_s...
 #include <utility>                       // for move
@@ -279,11 +279,11 @@ Tensor::const_pointer Tensor::data() const noexcept {
     return static_cast<const_pointer>(this->elements_.data());
 }
 
-Tensor_view_const Tensor::view() const noexcept {
+TensorViewConst Tensor::view() const noexcept {
     return {this->shape(), this->stride(), this->elements()};
 }
 
-Tensor_view_mut Tensor::view_mut() noexcept {
+TensorViewMut Tensor::view_mut() noexcept {
     return {this->shape(), this->stride(), this->elements()};
 }
 
