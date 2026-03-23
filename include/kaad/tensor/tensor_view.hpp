@@ -63,7 +63,7 @@ std::ostream &operator<<(std::ostream &stream,
 }
 
 /// @brief Non-owning immutable view of a tensor.
-struct Tensor_view : Tensor_view_impl<false> {
+struct Tensor_view_const : Tensor_view_impl<false> {
     using Tensor_view_impl<false>::Tensor_view_impl;
 };
 

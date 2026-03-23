@@ -14,10 +14,10 @@
 
 namespace kaad {
 
-void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
-                   int *&lhs_stride, int *&rhs_stride, int *&res_stride,
-                   int *&c_shape_broadcast, int &a_off, int &b_off,
-                   int &shared_dim, std::size_t &res_rank) {
+void metadata_impl(Tensor_view_const lhs, Tensor_view_const rhs,
+                   Tensor_view_const res, int *&lhs_stride, int *&rhs_stride,
+                   int *&res_stride, int *&c_shape_broadcast, int &a_off,
+                   int &b_off, int &shared_dim, std::size_t &res_rank) {
     a_off = lhs.stride[lhs.rank() - 1];
     b_off = rhs.stride[rhs.rank() - 2];
     shared_dim = lhs.shape[lhs.rank() - 1];
@@ -53,9 +53,9 @@ void metadata_impl(Tensor_view lhs, Tensor_view rhs, Tensor_view res,
 
 void Node_batch_matmul::metadata() {
     // compute metadata
-    Tensor_view lhs = this->lhs->value().view();
-    Tensor_view rhs = this->rhs->value().view();
-    Tensor_view value = this->value().view();
+    Tensor_view_const lhs = this->lhs->value().view();
+    Tensor_view_const rhs = this->rhs->value().view();
+    Tensor_view_const value = this->value().view();
 
     std::vector<int> a_T_shape(lhs.rank());
     std::vector<int> a_T_stride(lhs.rank());
@@ -66,7 +66,7 @@ void Node_batch_matmul::metadata() {
     std::ranges::copy(lhs.stride, a_T_stride.data());
     std::swap(a_T_stride[lhs.rank() - 1], a_T_stride[lhs.rank() - 2]);
 
-    Tensor_view a_T = lhs;
+    Tensor_view_const a_T = lhs;
     a_T.shape = std::span<const int>(a_T_shape);
     a_T.stride = std::span<const int>(a_T_stride);
 
@@ -79,7 +79,7 @@ void Node_batch_matmul::metadata() {
     std::ranges::copy(rhs.stride, b_T_stride.data());
     std::swap(b_T_stride[rhs.rank() - 1], b_T_stride[rhs.rank() - 2]);
 
-    Tensor_view b_T = rhs;
+    Tensor_view_const b_T = rhs;
     b_T.shape = std::span<const int>(b_T_shape);
     b_T.stride = std::span<const int>(b_T_stride);
 

@@ -8,8 +8,8 @@
 
 namespace kaad {
 
-void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
-                   const Tensor_view value, int &a_dim, int &b_dim,
+void metadata_impl(const Tensor_view_const lhs, const Tensor_view_const rhs,
+                   const Tensor_view_const value, int &a_dim, int &b_dim,
                    int &shared_dim, int *lhs_stride, int *rhs_stride,
                    int *value_stride) {
     a_dim = lhs.shape[0];
@@ -38,16 +38,16 @@ void metadata_impl(const Tensor_view lhs, const Tensor_view rhs,
 
 void Node_matmul::metadata() {
     // compute metadata
-    Tensor_view lhs = this->lhs->value().view();
-    Tensor_view rhs = this->rhs->value().view();
-    Tensor_view value = this->value().view();
+    Tensor_view_const lhs = this->lhs->value().view();
+    Tensor_view_const rhs = this->rhs->value().view();
+    Tensor_view_const value = this->value().view();
 
     std::array<int, 2> lhs_T_shape;
     std::array<int, 2> lhs_T_stride;
     std::ranges::reverse_copy(lhs.shape, lhs_T_shape.begin());
     std::ranges::reverse_copy(lhs.stride, lhs_T_stride.begin());
 
-    Tensor_view lhs_T = lhs;
+    Tensor_view_const lhs_T = lhs;
     lhs_T.shape = std::span<const int>(lhs_T_shape);
     lhs_T.stride = std::span<const int>(lhs_T_stride);
 
@@ -56,7 +56,7 @@ void Node_matmul::metadata() {
     std::ranges::reverse_copy(rhs.shape, rhs_T_shape.begin());
     std::ranges::reverse_copy(rhs.stride, rhs_T_stride.begin());
 
-    Tensor_view rhs_T = rhs;
+    Tensor_view_const rhs_T = rhs;
     rhs_T.shape = std::span<const int>(rhs_T_shape);
     rhs_T.stride = std::span<const int>(rhs_T_stride);
 

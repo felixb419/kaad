@@ -279,7 +279,7 @@ Tensor::const_pointer Tensor::data() const noexcept {
     return static_cast<const_pointer>(this->elements_.data());
 }
 
-Tensor_view Tensor::view() const noexcept {
+Tensor_view_const Tensor::view() const noexcept {
     return {this->shape(), this->stride(), this->elements()};
 }
 

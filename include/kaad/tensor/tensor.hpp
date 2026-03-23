@@ -12,7 +12,7 @@ namespace kaad {
 
 template <bool isConst> class iterator_impl;
 
-struct Tensor_view;
+struct Tensor_view_const;
 struct Tensor_view_mut;
 
 /**
@@ -268,8 +268,8 @@ class Tensor {
     [[nodiscard]] const_pointer data() const noexcept;
 
     /// @brief Creates a non-owning immutable view of the tensor.
-    /// @return A Tensor_view object.
-    [[nodiscard]] Tensor_view view() const noexcept;
+    /// @return A Tensor_view_const object.
+    [[nodiscard]] Tensor_view_const view() const noexcept;
 
     /// @brief Creates a non-owning mutable view of the tensor.
     /// @return A Tensor_view_mut object.
