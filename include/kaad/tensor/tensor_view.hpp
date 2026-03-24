@@ -59,7 +59,7 @@ template <typename T> struct TensorView {
     TensorView<T> transpose(Tensor::Shape &shape_buff,
                             Tensor::Stride &stride_buff) const {
 
-        const std::size_t rank = this->rank();
+        std::size_t rank = this->rank();
 
         shape_buff.resize(rank);
         std::ranges::reverse_copy(this->shape, shape_buff.begin());
@@ -85,7 +85,7 @@ template <typename T> struct TensorView {
     TensorView<T> transpose_2d(Tensor::Shape &shape_buff,
                                Tensor::Stride &stride_buff) {
 
-        const std::size_t rank = this->rank();
+        std::size_t rank = this->rank();
 
         shape_buff = Tensor::Shape(this->shape.begin(), this->shape.end());
         std::swap(shape_buff[rank - 1], shape_buff[rank - 2]);

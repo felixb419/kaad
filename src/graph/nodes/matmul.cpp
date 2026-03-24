@@ -8,8 +8,8 @@
 
 namespace kaad {
 
-void metadata_impl(const TensorViewConst lhs, const TensorViewConst rhs,
-                   const TensorViewConst value, int &a_dim, int &b_dim,
+void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
+                   TensorViewConst value, int &a_dim, int &b_dim,
                    int &shared_dim, int *lhs_stride, int *rhs_stride,
                    int *value_stride) {
     a_dim = lhs.shape[0];

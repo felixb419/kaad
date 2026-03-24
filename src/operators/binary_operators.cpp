@@ -108,7 +108,7 @@ template <class Kernel> struct BinaryKernels {
 template <class Kernel>
 Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
-    static const BinaryKernels<Kernel> kernels;
+    static const BinaryKernels<Kernel> KERNELS;
     std::size_t recLen = rec.nodes.size();
 
     INode *lhs_ptr = rec.get_node(lhs);
@@ -125,13 +125,13 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
     if (rhs_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            kernels.scalarOpRhs, kernels.scalarGradRhs, lhs_ptr, rhs_ptr,
+            KERNELS.scalarOpRhs, KERNELS.scalarGradRhs, lhs_ptr, rhs_ptr,
             lhs_val.shape())));
 
     } else if (lhs_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            kernels.scalarOpLhs, kernels.scalarGradLhs, lhs_ptr, rhs_ptr,
+            KERNELS.scalarOpLhs, KERNELS.scalarGradLhs, lhs_ptr, rhs_ptr,
             rhs_val.shape())));
 
     } else if (lhs_val.rank() == rhs_val.rank() &&
@@ -141,7 +141,7 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
                           rhs_val.stride().begin())) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            kernels.pointOp, kernels.pointGrad, lhs_ptr, rhs_ptr,
+            KERNELS.pointOp, KERNELS.pointGrad, lhs_ptr, rhs_ptr,
             lhs_val.shape())));
 
     } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),

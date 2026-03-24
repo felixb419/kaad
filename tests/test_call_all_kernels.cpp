@@ -28,11 +28,11 @@ int main() {
     kaad::Kernels::SafeExp<kaad::Scalar> safe_Exp_kernel;
 
     kaad::Scalar value;
-    value = kaad::Kernels::epsilon<kaad::Scalar>;
-    value = kaad::Kernels::max_finite<kaad::Scalar>;
-    value = kaad::Kernels::min_finite<kaad::Scalar>;
-    value = kaad::Kernels::max_exp<kaad::Scalar>;
-    value = kaad::Kernels::min_exp<kaad::Scalar>;
+    value = kaad::Kernels::EPSILON<kaad::Scalar>;
+    value = kaad::Kernels::MAX_FINITE<kaad::Scalar>;
+    value = kaad::Kernels::MIN_FINITE<kaad::Scalar>;
+    value = kaad::Kernels::MAX_EXP<kaad::Scalar>;
+    value = kaad::Kernels::MIN_EXP<kaad::Scalar>;
 
     return 0;
 }

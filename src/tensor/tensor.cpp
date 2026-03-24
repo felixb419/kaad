@@ -48,7 +48,7 @@ Tensor::size_type Tensor::compute_size(std::span<const int> shape) {
     }
 
     size_type len = 1;
-    for (const int dim : shape) {
+    for (int dim : shape) {
         len *= dim;
     }
     return len;

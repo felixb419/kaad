@@ -10,9 +10,9 @@ namespace kaad::functions {
 
 bool BatchMatmul::broadcast(Tensor::Shape_view lhs, Tensor::Shape_view rhs,
                             Tensor::Shape &new_shape) {
-    const size_t lhs_rank = lhs.size();
-    const size_t rhs_rank = rhs.size();
-    const size_t new_rank = std::max(lhs_rank, rhs_rank);
+    size_t lhs_rank = lhs.size();
+    size_t rhs_rank = rhs.size();
+    size_t new_rank = std::max(lhs_rank, rhs_rank);
 
     if (lhs[lhs_rank - 1] != rhs[rhs_rank - 2]) {
         return false;

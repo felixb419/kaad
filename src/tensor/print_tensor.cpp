@@ -12,7 +12,7 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
                          std::span<const int> stride,
                          std::span<const Scalar> elements, std::size_t idx,
                          std::size_t &indent) {
-    const std::size_t rank = shape.size();
+    std::size_t rank = shape.size();
     if (idx == rank) {
         int idx = 0;
         for (std::size_t i = 0; i < rank; i++) {
