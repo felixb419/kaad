@@ -14,10 +14,10 @@ template <bool isConst> class IteratorImpl {
   private:
     using Tensor_reference =
         std::conditional_t<isConst, const Tensor &, Tensor &>;
-    Tensor_reference origin_;    ///< Origin tensor of the iterator.
-    std::vector<int> cords_;     ///< Per-dim coordinates of the element.
-    Tensor::Shape_view shape_;   ///< Shape of the tensor.
-    Tensor::Stride_view stride_; ///< Stride array of the tensor.
+    Tensor_reference origin_; ///< Origin tensor of the iterator.
+    std::vector<int> cords_;  ///< Per-dim coordinates of the element.
+    Shape_view shape_;        ///< Shape of the tensor.
+    Stride_view stride_;      ///< Stride array of the tensor.
 
   public:
     using iterator_concept = std::bidirectional_iterator_tag;

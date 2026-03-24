@@ -1,10 +1,11 @@
 #include <kaad/graph/nodes/matmul.hpp>
 
-#include "kaad/functions/matmul.hpp"   // for Matmul
-#include <algorithm>                   // for __copy_fn, copy
-#include <kaad/graph/nodes/inode.hpp>  // for INode
-#include <kaad/tensor/tensor.hpp>      // for Tensor
-#include <kaad/tensor/tensor_view.hpp> // for TensorView, TensorViewConst
+#include "kaad/functions/matmul.hpp"    // for Matmul
+#include "kaad/tensor/tensor_types.hpp" // for Shape, Stride
+#include <algorithm>                    // for __copy_fn, copy
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_view.hpp>  // for TensorView, TensorViewConst
 
 namespace kaad {
 
@@ -45,13 +46,13 @@ NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr,
     TensorView res_v = this->value().view();
 
     // make lhs^T
-    Tensor::Shape lhs_shape_buff;
-    Tensor::Stride lhs_stride_buff;
+    Shape lhs_shape_buff;
+    Stride lhs_stride_buff;
     TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_stride_buff);
 
     // make rhs^T
-    Tensor::Shape rhs_shape_buff;
-    Tensor::Stride rhs_stride_buff;
+    Shape rhs_shape_buff;
+    Stride rhs_stride_buff;
     TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_stride_buff);
 
     // Compute metadata for individual passes

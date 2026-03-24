@@ -1,10 +1,11 @@
 #pragma once
 
-#include <cstddef>                // for size_t
-#include <iostream>               // for ostream, ptrdiff_t
-#include <kaad/scalar.hpp>        // for Scalar
-#include <kaad/tensor/tensor.hpp> // for Shape, Shape_view, Stride, Stride_view
-#include <span>                   // for span
+#include <algorithm>                    // for reverse_copy
+#include <cstddef>                      // for size_t
+#include <iostream>                     // for ostream, ptrdiff_t
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Shape, Shape_view, Stride, Stride_view
+#include <span>                         // for span
 
 namespace kaad {
 
@@ -23,9 +24,9 @@ template <typename T> struct TensorView {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    Tensor::Shape_view shape;   ///< Dimensions of the tensor.
-    Tensor::Stride_view stride; ///< Stride of the tensor (steps needed to move
-                                ///< one element in each dimension).
+    Shape_view shape;   ///< Dimensions of the tensor.
+    Stride_view stride; ///< Stride of the tensor (steps needed to move
+                        ///< one element in each dimension).
     std::span<value_type> elements; ///< Elements of the tensor.
 
     /**
@@ -41,7 +42,7 @@ template <typename T> struct TensorView {
      * @param elements Pointer to the element array.
      * @param len Length of the element array.
      */
-    TensorView(Tensor::Shape_view shape, Tensor::Stride_view stride,
+    TensorView(Shape_view shape, Stride_view stride,
                std::span<value_type> elements)
         : shape(shape), stride(stride), elements(elements) {}
 
@@ -56,8 +57,7 @@ template <typename T> struct TensorView {
      * @note The memory of @p shape_buff has to be manually freed.
      * @return View with transposed shape and stride.
      */
-    TensorView<T> transpose(Tensor::Shape &shape_buff,
-                            Tensor::Stride &stride_buff) const {
+    TensorView<T> transpose(Shape &shape_buff, Stride &stride_buff) const {
 
         std::size_t rank = this->rank();
 
@@ -69,8 +69,8 @@ template <typename T> struct TensorView {
 
         TensorView<T> out = *this;
 
-        out.shape = Tensor::Shape_view(shape_buff);
-        out.stride = Tensor::Shape_view(stride_buff);
+        out.shape = Shape_view(shape_buff);
+        out.stride = Shape_view(stride_buff);
 
         return out;
     }
@@ -82,22 +82,21 @@ template <typename T> struct TensorView {
      * @note The memory of @p shape_buff has to be manually freed.
      * @return View with transposed shape and stride.
      */
-    TensorView<T> transpose_2d(Tensor::Shape &shape_buff,
-                               Tensor::Stride &stride_buff) {
+    TensorView<T> transpose_2d(Shape &shape_buff, Stride &stride_buff) {
 
         std::size_t rank = this->rank();
 
-        shape_buff = Tensor::Shape(this->shape.begin(), this->shape.end());
+        shape_buff = Shape(this->shape.begin(), this->shape.end());
         std::swap(shape_buff[rank - 1], shape_buff[rank - 2]);
 
-        stride_buff = Tensor::Shape(this->stride.begin(), this->stride.end());
+        stride_buff = Shape(this->stride.begin(), this->stride.end());
 
         std::swap(stride_buff[rank - 1], stride_buff[rank - 2]);
 
         TensorView<T> out = *this;
 
-        out.shape = Tensor::Shape_view(shape_buff);
-        out.stride = Tensor::Shape_view(stride_buff);
+        out.shape = Shape_view(shape_buff);
+        out.stride = Shape_view(stride_buff);
 
         return out;
     }

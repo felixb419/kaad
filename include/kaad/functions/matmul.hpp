@@ -1,7 +1,8 @@
 #pragma once
 
-#include "kaad/scalar.hpp"        // for Scalar
-#include <kaad/tensor/tensor.hpp> // for TensorViewConst
+#include "kaad/scalar.hpp"              // for Scalar
+#include "kaad/tensor/tensor_types.hpp" // for Stride, Shape_view, Shape
+#include <kaad/tensor/tensor.hpp>       // for TensorViewConst
 
 namespace kaad::functions {
 
@@ -14,8 +15,7 @@ struct Matmul {
      * @return true if the broadcast was sucessful, false if the shapes are
      * incompatible
      */
-    static bool broadcast(Tensor::Shape_view lhs, Tensor::Shape_view rhs,
-                          Tensor::Shape &new_shape);
+    static bool broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape);
 
     struct Metadata {
 
@@ -23,9 +23,9 @@ struct Matmul {
         int rhs_cols;   ///< Number of cols in rhs.
         int shared_dim; ///< Size of the shared dimension of @p lhs and @p rhs.
 
-        Tensor::Stride eff_lhs; ///< Broadcasted strides for lhs.
-        Tensor::Stride eff_rhs; ///< Broadcasted strides for rhs.
-        Tensor::Stride eff_res; ///< Broadcasted strides for res.
+        Stride eff_lhs; ///< Broadcasted strides for lhs.
+        Stride eff_rhs; ///< Broadcasted strides for rhs.
+        Stride eff_res; ///< Broadcasted strides for res.
 
         Metadata() = default;
 

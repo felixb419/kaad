@@ -4,9 +4,10 @@
 #include <cstdint>         // for uint64_t
 #include <iostream>        // for ostream
 #include <kaad/scalar.hpp> // for Scalar
-#include <random>          // for random_device, mt19937_64
-#include <span>            // for span
-#include <vector>          // for vector
+#include <kaad/tensor/tensor_types.hpp>
+#include <random> // for random_device, mt19937_64
+#include <span>   // for span
+#include <vector> // for vector
 
 namespace kaad {
 
@@ -36,16 +37,6 @@ class Tensor {
 
     using iterator = IteratorImpl<false>;
     using const_iterator = IteratorImpl<true>;
-
-    /// Alias for an owning tensor shape.
-    using Shape = std::vector<int>;
-    /// Alias for non-owning immutable tensor shape.
-    using Shape_view = std::span<const int>;
-
-    /// Alias for owning tensor strides.
-    using Stride = std::vector<int>;
-    /// Alias for non-owning immutable tensor strides.
-    using Stride_view = std::span<const int>;
 
   private:
     Shape shape_;   ///< Vector containing the size of the tensor

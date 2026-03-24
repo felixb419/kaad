@@ -1,12 +1,10 @@
 #include <kaad/functions/matmul.hpp>
 
-#include "kaad/tensor/tensor.hpp"      // for Tensor
 #include <kaad/tensor/tensor_view.hpp> // for TensorViewConst
 
 namespace kaad::functions {
 
-bool Matmul::broadcast(Tensor::Shape_view lhs, Tensor::Shape_view rhs,
-                       Tensor::Shape &new_shape) {
+bool Matmul::broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape) {
 
     if (lhs.size() != 2 || rhs.size() != 2) {
         return false;
@@ -16,7 +14,7 @@ bool Matmul::broadcast(Tensor::Shape_view lhs, Tensor::Shape_view rhs,
         return false;
     }
 
-    new_shape = Tensor::Shape{lhs[0], rhs[1]};
+    new_shape = Shape{lhs[0], rhs[1]};
 
     return true;
 }
@@ -28,9 +26,9 @@ Matmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
     this->rhs_cols = rhs.shape[1];
     this->shared_dim = lhs.shape[1];
 
-    this->eff_lhs = Tensor::Stride(lhs.stride.begin(), lhs.stride.end());
-    this->eff_rhs = Tensor::Stride(rhs.stride.begin(), rhs.stride.end());
-    this->eff_res = Tensor::Stride(res.stride.begin(), res.stride.end());
+    this->eff_lhs = Stride(lhs.stride.begin(), lhs.stride.end());
+    this->eff_rhs = Stride(rhs.stride.begin(), rhs.stride.end());
+    this->eff_res = Stride(res.stride.begin(), res.stride.end());
 
     int idx;
     int res_idx;

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "kaad/tensor/tensor.hpp"      // for Tensor
-#include <array>                       // for array
-#include <cstddef>                     // for size_t
-#include <kaad/max_rank.hpp>           // for KAAD_MAX_RANK
-#include <kaad/scalar.hpp>             // for Scalar
-#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst
-#include <utility>                     // for make_index_sequence, index_se...
+#include "kaad/tensor/tensor_types.hpp" // for Stride, Shape, Shape_view
+#include <array>                        // for array
+#include <cstddef>                      // for size_t
+#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
+#include <utility>                      // for make_index_sequence, index_s...
 
 namespace kaad::functions {
 
@@ -21,8 +21,7 @@ struct BatchMatmul {
      * @return true if the broadcast was sucessful, false if the shapes are
      * incompatible
      */
-    static bool broadcast(Tensor::Shape_view lhs, Tensor::Shape_view rhs,
-                          Tensor::Shape &new_shape);
+    static bool broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape);
 
     struct Metadata {
 
@@ -30,12 +29,12 @@ struct BatchMatmul {
         int rhs_row_step; ///< Step size between rows of rhs.
         int shared_dim;   ///< Length of the shared dimension of lhs and rhs.
 
-        Tensor::Stride eff_lhs; ///< Broadcasted strides for lhs.
-        Tensor::Stride eff_rhs; ///< Broadcasted strides for rhs.
-        Tensor::Stride eff_res; ///< Broadcasted strides for res.
+        Stride eff_lhs; ///< Broadcasted strides for lhs.
+        Stride eff_rhs; ///< Broadcasted strides for rhs.
+        Stride eff_res; ///< Broadcasted strides for res.
 
-        Tensor::Shape res_broadcast; ///< Broadcast of lhs and rhs (might differ
-                                     ///< from res.shape() in backward pass)
+        Shape res_broadcast; ///< Broadcast of lhs and rhs (might differ
+                             ///< from res.shape() in backward pass)
 
         Metadata() = default;
 
