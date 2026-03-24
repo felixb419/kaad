@@ -109,7 +109,7 @@ template <class Kernel>
 Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     static const BinaryKernels<Kernel> KERNELS;
-    std::size_t recLen = rec.nodes.size();
+    std::size_t rec_len = rec.nodes.size();
 
     INode *lhs_ptr = rec.get_node(lhs);
     INode *rhs_ptr = rec.get_node(rhs);
@@ -119,8 +119,8 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
     bool lhs_scalar = lhs_val.size() == 1;
     bool rhs_scalar = rhs_val.size() == 1;
 
-    std::size_t newLen = std::max(lhs_val.rank(), rhs_val.rank());
-    std::vector<int> newShape(newLen);
+    std::size_t new_len = std::max(lhs_val.rank(), rhs_val.rank());
+    std::vector<int> new_shape(new_len);
 
     if (rhs_scalar) {
 
@@ -146,12 +146,12 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),
                                 rhs_val.shape().data(), rhs_val.rank(),
-                                newShape.data(), newLen)) {
+                                new_shape.data(), new_len)) {
         rec.nodes.push_back(std::move(std::make_unique<NodeBinaryFlex<Kernel>>(
-            lhs_ptr, rhs_ptr, newShape)));
+            lhs_ptr, rhs_ptr, new_shape)));
     } else {
         throw ShapeError(make_graph_errmsg(
-            "shape error", recLen, opName,
+            "shape error", rec_len, opName,
             "incompatible tensor shapes for binary operation",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }

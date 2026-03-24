@@ -59,9 +59,6 @@
                     note that rand and randn require a working std::random_device failing fatally otherwise
 
 [CHORE]
-            functions in snake_case
-            variable names in snake_case
-            constants in UPPER CASE
 
 [BUILD]
             Install support

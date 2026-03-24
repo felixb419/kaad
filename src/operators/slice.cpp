@@ -19,7 +19,7 @@ namespace kaad {
 
 Node slice(Graph &rec, Node input, std::initializer_list<int> size,
            std::initializer_list<int> offset) {
-    std::size_t recLen = rec.nodes.size();
+    std::size_t rec_len = rec.nodes.size();
 
     INode *input_ptr = rec.get_node(input);
     Tensor &input_val = input_ptr->value();
@@ -27,14 +27,14 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     if (size.size() > input_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());
         throw ArgumentError(make_graph_errmsg(
-            "argument error", recLen, "slice",
+            "argument error", rec_len, "slice",
             "length of size is bigger than A.rank()",
             {{"size", size_span}, {"A.shape", input_val.shape()}}));
     }
     if (offset.size() > input_val.rank()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
         throw ArgumentError(make_graph_errmsg(
-            "argument error", recLen, "slice",
+            "argument error", rec_len, "slice",
             "length of offset is bigger than A.rank()",
             {{"offset", offset_span}, {"A.shape", input_val.shape()}}));
     }
@@ -68,19 +68,19 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
             msg += idx_str;
             msg += "]";
             throw ArgumentError(make_graph_errmsg(
-                "argument error", recLen, "slice", msg.c_str(),
+                "argument error", rec_len, "slice", msg.c_str(),
                 {{"size", size_span},
                  {"offset", offset_span},
                  {"A.shape", input_val.shape()}}));
         }
     }
 
-    std::size_t newLen = input_val.rank();
-    std::vector<int> newShape(newLen);
-    std::ranges::copy(size_owned, newShape.begin());
+    std::size_t new_len = input_val.rank();
+    std::vector<int> new_shape(new_len);
+    std::ranges::copy(size_owned, new_shape.begin());
 
     rec.nodes.push_back(
-        std::make_unique<NodeSlice>(input_ptr, offset_owned.data(), newShape));
+        std::make_unique<NodeSlice>(input_ptr, offset_owned.data(), new_shape));
     return rec.back_handle();
 }
 

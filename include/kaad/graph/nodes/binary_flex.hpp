@@ -53,20 +53,20 @@ template <class Kernel> class NodeBinaryFlex : public INode {
         this->value_stride.resize(this->value_rank);
 
         int idx;
-        int idxA;
-        int idxB;
-        int idxC;
+        int idx_a;
+        int idx_b;
+        int idx_c;
         for (std::size_t i = 1; i <= this->value_rank; i++) {
             idx = this->value_rank - i;
-            idxA = lhs.rank() - i;
-            this->lhs_stride[idx] = idxA >= 0 ? lhs.stride()[idxA] : 0;
-            idxB = rhs.rank() - i;
-            this->rhs_stride[idx] = idxB >= 0 ? rhs.stride()[idxB] : 0;
-            idxC = value.rank() - i;
-            this->value_stride[idx] = idxC >= 0 ? value.stride()[idxC] : 0;
+            idx_a = lhs.rank() - i;
+            this->lhs_stride[idx] = idx_a >= 0 ? lhs.stride()[idx_a] : 0;
+            idx_b = rhs.rank() - i;
+            this->rhs_stride[idx] = idx_b >= 0 ? rhs.stride()[idx_b] : 0;
+            idx_c = value.rank() - i;
+            this->value_stride[idx] = idx_c >= 0 ? value.stride()[idx_c] : 0;
             // make sure value_stride[idx] is 1 instead of 0 if value.shape[idx]
             // is 1 for traversing in flexible function
-            if (this->value_stride[idx] == 0 && value.shape()[idxC] == 1) {
+            if (this->value_stride[idx] == 0 && value.shape()[idx_c] == 1) {
                 this->value_stride[idx] = 1;
             }
         }

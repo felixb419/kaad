@@ -20,7 +20,7 @@ namespace kaad {
 
 Node dot(Graph &rec, Node lhs, Node rhs) {
 
-    std::size_t recLen = rec.nodes.size();
+    std::size_t rec_len = rec.nodes.size();
 
     INode *lhs_ptr = rec.get_node(lhs);
     INode *rhs_ptr = rec.get_node(rhs);
@@ -55,7 +55,7 @@ Node dot(Graph &rec, Node lhs, Node rhs) {
 
     } else {
         throw ShapeError(make_graph_errmsg(
-            "shape error", recLen, "dot",
+            "shape error", rec_len, "dot",
             "incompatible tensor shapes for dot product",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }

@@ -42,33 +42,33 @@ void NodeMatmul::metadata() {
     TensorViewConst rhs = this->rhs->value().view();
     TensorViewConst value = this->value().view();
 
-    std::array<int, 2> lhs_T_shape;
-    std::array<int, 2> lhs_T_stride;
-    std::ranges::reverse_copy(lhs.shape, lhs_T_shape.begin());
-    std::ranges::reverse_copy(lhs.stride, lhs_T_stride.begin());
+    std::array<int, 2> lhs_t_shape;
+    std::array<int, 2> lhs_t_stride;
+    std::ranges::reverse_copy(lhs.shape, lhs_t_shape.begin());
+    std::ranges::reverse_copy(lhs.stride, lhs_t_stride.begin());
 
-    TensorViewConst lhs_T = lhs;
-    lhs_T.shape = std::span<const int>(lhs_T_shape);
-    lhs_T.stride = std::span<const int>(lhs_T_stride);
+    TensorViewConst lhs_t = lhs;
+    lhs_t.shape = std::span<const int>(lhs_t_shape);
+    lhs_t.stride = std::span<const int>(lhs_t_stride);
 
-    std::array<int, 2> rhs_T_shape;
-    std::array<int, 2> rhs_T_stride;
-    std::ranges::reverse_copy(rhs.shape, rhs_T_shape.begin());
-    std::ranges::reverse_copy(rhs.stride, rhs_T_stride.begin());
+    std::array<int, 2> rhs_t_shape;
+    std::array<int, 2> rhs_t_stride;
+    std::ranges::reverse_copy(rhs.shape, rhs_t_shape.begin());
+    std::ranges::reverse_copy(rhs.stride, rhs_t_stride.begin());
 
-    TensorViewConst rhs_T = rhs;
-    rhs_T.shape = std::span<const int>(rhs_T_shape);
-    rhs_T.stride = std::span<const int>(rhs_T_stride);
+    TensorViewConst rhs_t = rhs;
+    rhs_t.shape = std::span<const int>(rhs_t_shape);
+    rhs_t.stride = std::span<const int>(rhs_t_stride);
 
     metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
                   this->shared_dim[0], this->lhs_stride.data(),
                   this->rhs_stride.data(), this->value_stride.data());
     // NOLINTNEXTLINE(readability-suspicious-call-argument)
-    metadata_impl(value, rhs_T, lhs, this->lhs_rows[1], this->rhs_cols[1],
+    metadata_impl(value, rhs_t, lhs, this->lhs_rows[1], this->rhs_cols[1],
                   this->shared_dim[1], this->value_stride.data() + 2,
                   this->rhs_stride.data() + 2, this->lhs_stride.data() + 2);
     // NOLINTNEXTLINE(readability-suspicious-call-argument)
-    metadata_impl(lhs_T, value, rhs, this->lhs_rows[2], this->rhs_cols[2],
+    metadata_impl(lhs_t, value, rhs, this->lhs_rows[2], this->rhs_cols[2],
                   this->shared_dim[2], this->lhs_stride.data() + 4,
                   this->value_stride.data() + 4, this->rhs_stride.data() + 4);
 }

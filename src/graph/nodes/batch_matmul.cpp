@@ -19,12 +19,12 @@ NodeBatchMatmul::NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr,
     // make lhs^T
     Tensor::Shape lhs_shape_buff;
     Tensor::Stride lhs_stride_buff;
-    TensorView lhs_T = lhs_v.transpose_2d(lhs_shape_buff, lhs_stride_buff);
+    TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_stride_buff);
 
     // make rhs^T
     Tensor::Shape rhs_shape_buff;
     Tensor::Stride rhs_stride_buff;
-    TensorView rhs_T = rhs_v.transpose_2d(rhs_shape_buff, rhs_stride_buff);
+    TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_stride_buff);
 
     // Compute metadata for individual passes
     // lhs * rhs = res
@@ -32,11 +32,11 @@ NodeBatchMatmul::NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr,
 
     // d_res * rhs^T = d_lhs
     this->backward_wrt_lhs =
-        functions::BatchMatmul::Metadata(res_v, rhs_T, lhs_v);
+        functions::BatchMatmul::Metadata(res_v, rhs_t, lhs_v);
 
     // lhs^T * d_res = d_rhs
     this->backward_wrt_rhs =
-        functions::BatchMatmul::Metadata(lhs_T, res_v, rhs_v);
+        functions::BatchMatmul::Metadata(lhs_t, res_v, rhs_v);
 
     // assign compile-time recursive functions
     auto fn_pair = functions::BatchMatmul::dispatch(this->value().rank());

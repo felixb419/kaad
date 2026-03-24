@@ -19,14 +19,15 @@ Node outer(Graph &rec, Node lhs, Node rhs) {
     Tensor &lhs_val = lhs_ptr->value();
     Tensor &rhs_val = rhs_ptr->value();
 
-    std::size_t newLen = lhs_val.rank() + rhs_val.rank();
-    std::vector<int> newShape(newLen);
-    std::copy(lhs_val.shape().begin(), lhs_val.shape().end(), newShape.begin());
+    std::size_t new_len = lhs_val.rank() + rhs_val.rank();
+    std::vector<int> new_shape(new_len);
+    std::copy(lhs_val.shape().begin(), lhs_val.shape().end(),
+              new_shape.begin());
     std::copy(rhs_val.shape().begin(), rhs_val.shape().end(),
-              newShape.begin() + static_cast<int>(lhs_val.rank()));
+              new_shape.begin() + static_cast<int>(lhs_val.rank()));
 
     rec.nodes.push_back(
-        std::make_unique<NodeOuter>(lhs_ptr, rhs_ptr, newShape));
+        std::make_unique<NodeOuter>(lhs_ptr, rhs_ptr, new_shape));
 
     return rec.back_handle();
 }

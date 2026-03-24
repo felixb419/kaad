@@ -19,32 +19,32 @@
 namespace kaad {
 
 Node matmul(Graph &rec, Node lhs, Node rhs) {
-    std::size_t recLen = rec.nodes.size();
+    std::size_t rec_len = rec.nodes.size();
 
     INode *lhs_ptr = rec.get_node(lhs);
     INode *rhs_ptr = rec.get_node(rhs);
     Tensor &lhs_val = lhs_ptr->value();
     Tensor &rhs_val = rhs_ptr->value();
 
-    std::size_t newLen = std::max(lhs_val.rank(), rhs_val.rank());
-    std::vector<int> newShape(newLen);
+    std::size_t new_len = std::max(lhs_val.rank(), rhs_val.rank());
+    std::vector<int> new_shape(new_len);
 
-    const char *opName = newLen == 2 ? "matmul" : "batch_matmul";
+    const char *op_name = new_len == 2 ? "matmul" : "batch_matmul";
     if (!detail::combine_matrix(lhs_val.shape().data(), lhs_val.rank(),
                                 rhs_val.shape().data(), rhs_val.rank(),
-                                newShape.data(), newLen)) {
+                                new_shape.data(), new_len)) {
         throw ShapeError(make_graph_errmsg(
-            "shape error", recLen, opName,
+            "shape error", rec_len, op_name,
             "incompatible tensor shapes for matrix multiplication",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }
 
-    if (newLen == 2) {
+    if (new_len == 2) {
         rec.nodes.push_back(
-            std::make_unique<NodeMatmul>(lhs_ptr, rhs_ptr, newShape));
+            std::make_unique<NodeMatmul>(lhs_ptr, rhs_ptr, new_shape));
     } else {
         rec.nodes.push_back(
-            std::make_unique<NodeBatchMatmul>(lhs_ptr, rhs_ptr, newShape));
+            std::make_unique<NodeBatchMatmul>(lhs_ptr, rhs_ptr, new_shape));
     }
 
     return rec.back_handle();
