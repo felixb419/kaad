@@ -1,5 +1,6 @@
 #include <kaad/functions/matmul.hpp>
 
+#include "kaad/tensor/tensor.hpp"      // for Tensor
 #include <kaad/tensor/tensor_view.hpp> // for TensorViewConst
 
 namespace kaad::functions {

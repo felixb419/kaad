@@ -1,8 +1,7 @@
 #pragma once
 
-#include "kaad/scalar.hpp"              // for Scalar
-#include "kaad/tensor/tensor_types.hpp" // for Stride, Shape_view, Shape
-#include <kaad/tensor/tensor.hpp>       // for TensorViewConst
+#include "kaad/scalar.hpp"        // for Scalar
+#include <kaad/tensor/tensor.hpp> // for TensorViewConst
 
 namespace kaad::functions {
 
