@@ -11,7 +11,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_batch_matmul : public INode {
+class NodeBatchMatmul : public INode {
   private:
     INode *lhs = nullptr;
     INode *rhs = nullptr;
@@ -33,10 +33,10 @@ class Node_batch_matmul : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    Node_batch_matmul(INode *lhs_ptr, INode *rhs_ptr,
-                      std::span<const int> value_shape);
+    NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr,
+                    std::span<const int> value_shape);
 
-    ~Node_batch_matmul() noexcept override = default;
+    ~NodeBatchMatmul() noexcept override = default;
 
     /// Compute @c value for this node.
     /// Computes @c value for @c lhs and @c rhs first.

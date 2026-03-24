@@ -10,7 +10,7 @@
 
 namespace kaad {
 
-void Node_slice::metadata(const int *offset_arr) {
+void NodeSlice::metadata(const int *offset_arr) {
     // compute metadata
     Tensor &input = this->input->value();
     Tensor &value = this->value();
@@ -58,15 +58,15 @@ void Node_slice::metadata(const int *offset_arr) {
     }
 }
 
-Node_slice::Node_slice(INode *input_ptr, const int *offset_arr,
-                       std::span<const int> value_shape)
+NodeSlice::NodeSlice(INode *input_ptr, const int *offset_arr,
+                     std::span<const int> value_shape)
     : INode(value_shape, false), input(input_ptr) {
     this->metadata(offset_arr);
 }
 
-const char *Node_slice::node_type() const noexcept { return "Node_slice"; }
+const char *NodeSlice::node_type() const noexcept { return "NodeSlice"; }
 
-void Node_slice::eval() {
+void NodeSlice::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
@@ -77,7 +77,7 @@ void Node_slice::eval() {
     }
 }
 
-void Node_slice::getGrad() {
+void NodeSlice::getGrad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_stride.data(), value_stride.data(), start_offset_a.data(),
                 value_offset.data(), value_rank);

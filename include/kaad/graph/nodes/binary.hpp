@@ -16,7 +16,7 @@ namespace kaad {
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <class Kernel> class Node_binary : public INode {
+template <class Kernel> class NodeBinary : public INode {
   private:
     functions::primal::binary::pointwise_fn<Kernel> forward_op =
         functions::primal::binary::pointwise<Kernel>; ///< Function pointer to
@@ -43,10 +43,9 @@ template <class Kernel> class Node_binary : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    Node_binary(functions::primal::binary::pointwise_fn<Kernel> operation,
-                functions::adjoint::binary::pointwise_fn<Kernel> derivative,
-                INode *lhs_ptr, INode *rhs_ptr,
-                std::span<const int> value_shape)
+    NodeBinary(functions::primal::binary::pointwise_fn<Kernel> operation,
+               functions::adjoint::binary::pointwise_fn<Kernel> derivative,
+               INode *lhs_ptr, INode *rhs_ptr, std::span<const int> value_shape)
         : INode(value_shape, false), forward_op(operation),
           backward_op(derivative), lhs(lhs_ptr), rhs(rhs_ptr) {
         auto *base_ptr = static_cast<INode *>(this);
@@ -55,7 +54,7 @@ template <class Kernel> class Node_binary : public INode {
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
-        return "Node_binary";
+        return "NodeBinary";
     }
 
     /// Compute @c value for this node.

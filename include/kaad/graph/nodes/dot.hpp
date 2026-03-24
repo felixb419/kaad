@@ -16,7 +16,7 @@ class Node;
  * @ingroup nodes
  * @internal
  */
-class Node_dot : public INode {
+class NodeDot : public INode {
   private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
@@ -39,7 +39,7 @@ class Node_dot : public INode {
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
      */
-    Node_dot(INode *lhs_ptr, INode *rhs_ptr);
+    NodeDot(INode *lhs_ptr, INode *rhs_ptr);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

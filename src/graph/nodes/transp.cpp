@@ -5,17 +5,17 @@
 
 namespace kaad {
 
-Node_transp::Node_transp(INode *input_ptr, std::span<const int> value_shape,
-                         std::span<const int> value_stride)
+NodeTransp::NodeTransp(INode *input_ptr, std::span<const int> value_shape,
+                       std::span<const int> value_stride)
     : INode(value_shape, false, "", value_stride), input(input_ptr) {
     // this->input_end = this->input->value().data() +
     // this->input->value().size();
     this->value_end = this->value().data() + this->value().size();
 }
 
-const char *Node_transp::node_type() const noexcept { return "Node_transp"; }
+const char *NodeTransp::node_type() const noexcept { return "NodeTransp"; }
 
-void Node_transp::eval() {
+void NodeTransp::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
@@ -25,7 +25,7 @@ void Node_transp::eval() {
     }
 }
 
-void Node_transp::getGrad() {
+void NodeTransp::getGrad() {
     backward_op(this->input->value().data(), this->input->gradient().data(),
                 this->value().data(), this->gradient().data(), value_end);
 

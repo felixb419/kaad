@@ -12,7 +12,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_mean : public INode {
+class NodeMean : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
@@ -34,7 +34,7 @@ class Node_mean : public INode {
      * @brief Construct mean node.
      * @param input_ptr Pointer to the input node.
      */
-    Node_mean(INode *input_ptr);
+    NodeMean(INode *input_ptr);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

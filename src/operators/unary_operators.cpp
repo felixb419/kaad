@@ -3,17 +3,17 @@
 #include <kaad/functions/adjoint.hpp>      // for pointwise
 #include <kaad/functions/kernels.hpp>      // for Abs, Neg
 #include <kaad/functions/primal.hpp>       // for pointwise
-#include <kaad/functions/safe_kernels.hpp> // for safe_Exp
+#include <kaad/functions/safe_kernels.hpp> // for SafeExp
 #include <kaad/graph/graph.hpp>            // for Graph, unOp...
 #include <kaad/graph/node_handle.hpp>      // for Node
 #include <kaad/graph/nodes/inode.hpp>      // for INode
-#include <kaad/graph/nodes/unary.hpp>      // for Node_unary
+#include <kaad/graph/nodes/unary.hpp>      // for NodeUnary
 #include <kaad/scalar.hpp>                 // for Scalar
 #include <kaad/tensor/tensor.hpp>          // for Tensor
 #include <memory>                          // for make_unique
 #include <utility>                         // for move
 
-// IWYU pragma: no_forward_declare kaad::Node_unary
+// IWYU pragma: no_forward_declare kaad::NodeUnary
 
 namespace kaad {
 
@@ -52,7 +52,7 @@ template <class Kernel> Node unOperator(Graph &rec, Node input) {
     INode *input_ptr = rec.get_node(input);
     Tensor &input_val = input_ptr->value();
 
-    rec.nodes.push_back(std::move(std::make_unique<Node_unary<Kernel>>(
+    rec.nodes.push_back(std::move(std::make_unique<NodeUnary<Kernel>>(
         kernels.op, kernels.grad, input_ptr, input_val.shape())));
 
     return rec.back_handle();
@@ -67,15 +67,15 @@ Node square(Graph &rec, Node input) {
 }
 
 Node sqrt(Graph &rec, Node input) {
-    return unOperator<Kernels::safe_Sqrt<Scalar>>(rec, input);
+    return unOperator<Kernels::SafeSqrt<Scalar>>(rec, input);
 }
 
 Node log(Graph &rec, Node input) {
-    return unOperator<Kernels::safe_Log<Scalar>>(rec, input);
+    return unOperator<Kernels::SafeLog<Scalar>>(rec, input);
 }
 
 Node exp(Graph &rec, Node input) {
-    return unOperator<Kernels::safe_Exp<Scalar>>(rec, input);
+    return unOperator<Kernels::SafeExp<Scalar>>(rec, input);
 }
 
 Node abs(Graph &rec, Node input) {

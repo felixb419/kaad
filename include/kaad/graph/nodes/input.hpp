@@ -10,7 +10,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_input : public INode {
+class NodeInput : public INode {
   private:
     /// No evaluation needed for fixed value nodes.
     void eval() override {}
@@ -24,12 +24,12 @@ class Node_input : public INode {
      * @param value_shape Output/gradient shape
      * @param label Label string.
      */
-    Node_input(std::span<const int> value_shape, const char *label = "")
+    NodeInput(std::span<const int> value_shape, const char *label = "")
         : INode(value_shape, true, label) {}
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
-        return "Node_input";
+        return "NodeInput";
     }
 };
 

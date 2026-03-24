@@ -1,7 +1,7 @@
 #include <kaad/graph/node_handle.hpp>
 
 #include <cassert>                    // for assert
-#include <kaad/exceptions.hpp>        // for argument_error
+#include <kaad/exceptions.hpp>        // for ArgumentError
 #include <kaad/graph/graph.hpp>       // for Graph
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/scalar.hpp>            // for Scalar
@@ -13,7 +13,7 @@ namespace kaad {
 
 [[nodiscard]] const INode *Node::node() const {
     if (this->idx() >= this->origin_->nodes.size()) {
-        throw argument_error("idx_ of this handle is invalid");
+        throw ArgumentError("idx_ of this handle is invalid");
     }
 
     return this->origin_->nodes[this->idx()].get();

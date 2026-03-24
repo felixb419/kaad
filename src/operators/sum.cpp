@@ -3,15 +3,15 @@
 #include <algorithm>                    // for copy
 #include <array>                        // for array
 #include <cstddef>                      // for size_t
-#include <kaad/exceptions.hpp>          // for argument_error, make_graph_e...
+#include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_e...
 #include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalarOut
 #include <kaad/functions/kernels.hpp>   // for Sum
 #include <kaad/functions/primal.hpp>    // for pointwise_fn, scalarOut
 #include <kaad/graph/graph.hpp>         // for Graph, sum
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/graph/nodes/sum_dim.hpp> // for Node_sum_dim
-#include <kaad/graph/nodes/unary.hpp>   // for Node_unary
+#include <kaad/graph/nodes/sum_dim.hpp> // for NodeSumDim
+#include <kaad/graph/nodes/unary.hpp>   // for NodeUnary
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <memory>                       // for unique_ptr, make_unique
@@ -33,9 +33,9 @@ Node sum(Graph &rec, Node input) {
     functions::adjoint::unary::pointwise_fn<Kernel> grad =
         functions::adjoint::unary::scalarOut<Kernel>;
 
-    rec.nodes.push_back(std::make_unique<Node_unary<Kernel>>(
+    rec.nodes.push_back(std::make_unique<NodeUnary<Kernel>>(
         func, grad, input_ptr, std::array<int, 0>{}));
-    static_cast<Node_unary<Kernel> *>(rec.nodes.back().get())->end =
+    static_cast<NodeUnary<Kernel> *>(rec.nodes.back().get())->end =
         input_val.data() + input_val.size(); // override end from constructor
 
     return rec.back_handle();
@@ -48,7 +48,7 @@ Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
     Tensor &input_val = input_ptr->value();
 
     if (dim < 0 || std::cmp_greater_equal(dim, input_val.rank())) {
-        throw argument_error(make_graph_errmsg(
+        throw ArgumentError(make_graph_errmsg(
             "argument error", recLen, "sum",
             "dim has to be a valid index of A.shape",
             {{"A.shape", input_val.shape()}}, {{"dim", dim}}));
@@ -75,8 +75,7 @@ Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
                   newShape.begin() + dim);
     }
 
-    rec.nodes.push_back(
-        std::make_unique<Node_sum_dim>(input_ptr, dim, newShape));
+    rec.nodes.push_back(std::make_unique<NodeSumDim>(input_ptr, dim, newShape));
     return rec.back_handle();
 }
 

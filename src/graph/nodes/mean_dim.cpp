@@ -10,7 +10,7 @@
 
 namespace kaad {
 
-void Node_mean_dim::metadata(int dim) {
+void NodeMeanDim::metadata(int dim) {
 
     // compute metadata
     Tensor &input = this->input->value();
@@ -33,18 +33,16 @@ void Node_mean_dim::metadata(int dim) {
     }
 }
 
-Node_mean_dim::Node_mean_dim(INode *input_ptr, int dim,
-                             std::span<const int> value_shape)
+NodeMeanDim::NodeMeanDim(INode *input_ptr, int dim,
+                         std::span<const int> value_shape)
     : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);
 }
 
-const char *Node_mean_dim::node_type() const noexcept {
-    return "Node_mean_dim";
-}
+const char *NodeMeanDim::node_type() const noexcept { return "NodeMeanDim"; }
 
-void Node_mean_dim::eval() {
+void NodeMeanDim::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
@@ -55,7 +53,7 @@ void Node_mean_dim::eval() {
     }
 }
 
-void Node_mean_dim::getGrad() {
+void NodeMeanDim::getGrad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_stride.data(), value_stride.data(), input_offset.data(),
                 input_rank, divisor, input_grad_end);

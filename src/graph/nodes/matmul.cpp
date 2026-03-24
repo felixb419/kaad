@@ -36,7 +36,7 @@ void metadata_impl(const TensorViewConst lhs, const TensorViewConst rhs,
     }
 }
 
-void Node_matmul::metadata() {
+void NodeMatmul::metadata() {
     // compute metadata
     TensorViewConst lhs = this->lhs->value().view();
     TensorViewConst rhs = this->rhs->value().view();
@@ -73,16 +73,16 @@ void Node_matmul::metadata() {
                   this->value_stride.data() + 4, this->rhs_stride.data() + 4);
 }
 
-Node_matmul::Node_matmul(INode *lhs_ptr, INode *rhs_ptr,
-                         std::span<const int> value_shape)
+NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr,
+                       std::span<const int> value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->metadata();
 }
 
-const char *Node_matmul::node_type() const noexcept { return "Node_matmul"; }
+const char *NodeMatmul::node_type() const noexcept { return "NodeMatmul"; }
 
-void Node_matmul::eval() {
+void NodeMatmul::eval() {
     if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
@@ -95,7 +95,7 @@ void Node_matmul::eval() {
     }
 }
 
-void Node_matmul::getGrad() {
+void NodeMatmul::getGrad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->gradient().data(), lhs_rows.data() + 1,

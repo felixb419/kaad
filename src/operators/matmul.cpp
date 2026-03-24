@@ -2,13 +2,13 @@
 
 #include <algorithm>                         // for max
 #include <cstddef>                           // for size_t
-#include <kaad/exceptions.hpp>               // for shape_error, make_graph...
+#include <kaad/exceptions.hpp>               // for ShapeError, make_graph...
 #include <kaad/graph/common.hpp>             // for combine_matrix
 #include <kaad/graph/graph.hpp>              // for Graph, matmul
 #include <kaad/graph/node_handle.hpp>        // for Node
-#include <kaad/graph/nodes/batch_matmul.hpp> // for Node_batch_matmul
+#include <kaad/graph/nodes/batch_matmul.hpp> // for NodeBatchMatmul
 #include <kaad/graph/nodes/inode.hpp>        // for INode
-#include <kaad/graph/nodes/matmul.hpp>       // for Node_matmul
+#include <kaad/graph/nodes/matmul.hpp>       // for NodeMatmul
 #include <kaad/tensor/tensor.hpp>            // for Tensor
 #include <memory>                            // for unique_ptr, make_unique
 #include <span>                              // for span
@@ -33,7 +33,7 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
     if (!detail::combine_matrix(lhs_val.shape().data(), lhs_val.rank(),
                                 rhs_val.shape().data(), rhs_val.rank(),
                                 newShape.data(), newLen)) {
-        throw shape_error(make_graph_errmsg(
+        throw ShapeError(make_graph_errmsg(
             "shape error", recLen, opName,
             "incompatible tensor shapes for matrix multiplication",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
@@ -41,10 +41,10 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
 
     if (newLen == 2) {
         rec.nodes.push_back(
-            std::make_unique<Node_matmul>(lhs_ptr, rhs_ptr, newShape));
+            std::make_unique<NodeMatmul>(lhs_ptr, rhs_ptr, newShape));
     } else {
         rec.nodes.push_back(
-            std::make_unique<Node_batch_matmul>(lhs_ptr, rhs_ptr, newShape));
+            std::make_unique<NodeBatchMatmul>(lhs_ptr, rhs_ptr, newShape));
     }
 
     return rec.back_handle();

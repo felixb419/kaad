@@ -8,8 +8,8 @@
 
 namespace kaad {
 
-Node_batch_matmul::Node_batch_matmul(INode *lhs_ptr, INode *rhs_ptr,
-                                     Tensor::Shape_view value_s)
+NodeBatchMatmul::NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr,
+                                 Tensor::Shape_view value_s)
     : INode(value_s, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     TensorView lhs_v = this->lhs->value().view();
@@ -44,11 +44,11 @@ Node_batch_matmul::Node_batch_matmul(INode *lhs_ptr, INode *rhs_ptr,
     this->backward_op = fn_pair.adjoint;
 }
 
-const char *Node_batch_matmul::node_type() const noexcept {
-    return "Node_batch_matmul";
+const char *NodeBatchMatmul::node_type() const noexcept {
+    return "NodeBatchMatmul";
 }
 
-void Node_batch_matmul::eval() {
+void NodeBatchMatmul::eval() {
 
     if (!this->evaluated()) {
         this->lhs->eval();
@@ -64,7 +64,7 @@ void Node_batch_matmul::eval() {
     }
 }
 
-void Node_batch_matmul::getGrad() {
+void NodeBatchMatmul::getGrad() {
 
     const Scalar *lhs = this->lhs->value().data();
     Scalar *d_lhs = this->lhs->gradient().data();

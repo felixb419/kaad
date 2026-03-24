@@ -5,7 +5,7 @@
 #include <kaad/graph/graph.hpp>       // for Graph, outer
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/graph/nodes/outer.hpp> // for Node_outer
+#include <kaad/graph/nodes/outer.hpp> // for NodeOuter
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr, make_unique
 #include <vector>                     // for vector
@@ -26,7 +26,7 @@ Node outer(Graph &rec, Node lhs, Node rhs) {
               newShape.begin() + static_cast<int>(lhs_val.rank()));
 
     rec.nodes.push_back(
-        std::make_unique<Node_outer>(lhs_ptr, rhs_ptr, newShape));
+        std::make_unique<NodeOuter>(lhs_ptr, rhs_ptr, newShape));
 
     return rec.back_handle();
 }

@@ -9,7 +9,7 @@
 
 namespace kaad {
 
-void Node_outer::metadata() {
+void NodeOuter::metadata() {
     // compute metadata
     Tensor &lhs = this->lhs->value();
     Tensor &rhs = this->rhs->value();
@@ -37,22 +37,22 @@ void Node_outer::metadata() {
     // assign compile-time recursive function
     if (this->res_rank <= KAAD_MAX_RANK) {
         this->forward_op =
-            Dispatchers::get_flexOp<Node_outer::Kernel>()[this->res_rank];
+            Dispatchers::get_flexOp<NodeOuter::Kernel>()[this->res_rank];
         this->backward_op =
-            Dispatchers::get_flexGrad<Node_outer::Kernel>()[this->res_rank];
+            Dispatchers::get_flexGrad<NodeOuter::Kernel>()[this->res_rank];
     }
 }
 
-Node_outer::Node_outer(INode *lhs_ptr, INode *rhs_ptr,
-                       std::span<const int> value_shape)
+NodeOuter::NodeOuter(INode *lhs_ptr, INode *rhs_ptr,
+                     std::span<const int> value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->metadata();
 }
 
-const char *Node_outer::node_type() const noexcept { return "Node_outer"; }
+const char *NodeOuter::node_type() const noexcept { return "NodeOuter"; }
 
-void Node_outer::eval() {
+void NodeOuter::eval() {
     if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
@@ -64,7 +64,7 @@ void Node_outer::eval() {
     }
 }
 
-void Node_outer::getGrad() {
+void NodeOuter::getGrad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->value().data(), this->gradient().data(),

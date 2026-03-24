@@ -19,7 +19,7 @@ class Node;
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <class Kernel> class Node_unary : public INode {
+template <class Kernel> class NodeUnary : public INode {
   private:
     functions::primal::unary::pointwise_fn<Kernel> forward_op =
         functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
@@ -50,9 +50,9 @@ template <class Kernel> class Node_unary : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    Node_unary(functions::primal::unary::pointwise_fn<Kernel> operation,
-               functions::adjoint::unary::pointwise_fn<Kernel> derivative,
-               INode *input_ptr, std::span<const int> value_shape)
+    NodeUnary(functions::primal::unary::pointwise_fn<Kernel> operation,
+              functions::adjoint::unary::pointwise_fn<Kernel> derivative,
+              INode *input_ptr, std::span<const int> value_shape)
         : INode(value_shape, false), forward_op(operation),
           backward_op(derivative), input(input_ptr) {
         this->end =
@@ -63,7 +63,7 @@ template <class Kernel> class Node_unary : public INode {
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
-        return "Node_unary";
+        return "NodeUnary";
     }
 
     /// Compute @c value for this node.

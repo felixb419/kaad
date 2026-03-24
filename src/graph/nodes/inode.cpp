@@ -1,7 +1,7 @@
 #include <kaad/graph/nodes/inode.hpp>
 
 #include <algorithm>              // for __fill_fn, fill
-#include <kaad/exceptions.hpp>    // for argument_error
+#include <kaad/exceptions.hpp>    // for ArgumentError
 #include <kaad/tensor/tensor.hpp> // for Tensor
 #include <vector>                 // for vector
 
@@ -13,8 +13,8 @@ INode::INode(std::span<const int> value_shape, bool is_input_node,
       is_input_node_(is_input_node) {
 
     if (this->value_.empty() || this->gradient_.empty()) {
-        throw argument_error("given value_shape results in tensor with no "
-                             "elements which is not allowed");
+        throw ArgumentError("given value_shape results in tensor with no "
+                            "elements which is not allowed");
     }
 
     // if @p value_stride is given its used to construct value_

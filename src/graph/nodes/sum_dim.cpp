@@ -10,7 +10,7 @@
 
 namespace kaad {
 
-void Node_sum_dim::metadata(int dim) {
+void NodeSumDim::metadata(int dim) {
     // compute metadata
     Tensor &input = this->input->value();
     Tensor &value = this->value();
@@ -27,16 +27,16 @@ void Node_sum_dim::metadata(int dim) {
     }
 }
 
-Node_sum_dim::Node_sum_dim(INode *input_ptr, int dim,
-                           std::span<const int> value_shape)
+NodeSumDim::NodeSumDim(INode *input_ptr, int dim,
+                       std::span<const int> value_shape)
     : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);
 }
 
-const char *Node_sum_dim::node_type() const noexcept { return "Node_sum_dim"; }
+const char *NodeSumDim::node_type() const noexcept { return "NodeSumDim"; }
 
-void Node_sum_dim::eval() {
+void NodeSumDim::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
@@ -47,7 +47,7 @@ void Node_sum_dim::eval() {
     }
 }
 
-void Node_sum_dim::getGrad() {
+void NodeSumDim::getGrad() {
     grad_func(this->input->gradient().data(), this->gradient().data(),
               input_stride.data(), value_stride.data(), input_offset.data(),
               value_rank);

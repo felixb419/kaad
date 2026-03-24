@@ -8,7 +8,7 @@
 
 namespace kaad {
 
-Node_mean::Node_mean(INode *input_ptr)
+NodeMean::NodeMean(INode *input_ptr)
     : INode(std::array<int, 0>{}, false), input(input_ptr) {
     this->input_end = input_ptr->value().data() + input_ptr->value().size();
     this->input_grad_end =
@@ -16,9 +16,9 @@ Node_mean::Node_mean(INode *input_ptr)
     this->divisor = static_cast<Scalar>(input_ptr->value().size());
 }
 
-const char *Node_mean::node_type() const noexcept { return "Node_mean"; }
+const char *NodeMean::node_type() const noexcept { return "NodeMean"; }
 
-void Node_mean::eval() {
+void NodeMean::eval() {
     if (!this->evaluated()) {
         this->input->eval();
 
@@ -28,7 +28,7 @@ void Node_mean::eval() {
     }
 }
 
-void Node_mean::getGrad() {
+void NodeMean::getGrad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_grad_end, divisor);
 

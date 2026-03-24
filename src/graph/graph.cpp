@@ -2,10 +2,10 @@
 
 #include <algorithm>                  // for fill
 #include <cstddef>                    // for size_t
-#include <kaad/exceptions.hpp>        // for argument_error
+#include <kaad/exceptions.hpp>        // for ArgumentError
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/graph/nodes/input.hpp> // for Node_input
+#include <kaad/graph/nodes/input.hpp> // for NodeInput
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr, make_unique
 #include <string>                     // for operator+, to_string, basic_st...
@@ -19,11 +19,11 @@ Node Graph::back_handle() noexcept {
 
 INode *Graph::get_node(Node node) {
     if (node.origin_ != this) {
-        throw argument_error("node does not belong to this instance of Graph");
+        throw ArgumentError("node does not belong to this instance of Graph");
     }
     if (node.idx_ >= this->nodes.size()) {
-        throw argument_error(std::to_string(node.idx_) +
-                             "is not a valid index for this Graph");
+        throw ArgumentError(std::to_string(node.idx_) +
+                            "is not a valid index for this Graph");
     }
 
     return this->nodes[node.idx_].get();
@@ -31,7 +31,7 @@ INode *Graph::get_node(Node node) {
 
 Node Graph::add_input_node(std::span<const int> value_shape,
                            const char *label) {
-    this->nodes.push_back(std::make_unique<Node_input>(value_shape, label));
+    this->nodes.push_back(std::make_unique<NodeInput>(value_shape, label));
 
     return Node(this->nodes.size() - 1, this);
 }

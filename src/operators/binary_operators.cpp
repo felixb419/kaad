@@ -2,15 +2,15 @@
 
 #include <algorithm>                        // for equal, max, move
 #include <cstddef>                          // for size_t
-#include <kaad/exceptions.hpp>              // for shape_error, make_graph_...
+#include <kaad/exceptions.hpp>              // for ShapeError, make_graph_...
 #include <kaad/functions/adjoint.hpp>       // for pointwise_fn, flexible
 #include <kaad/functions/kernels.hpp>       // for Add, Max, Min, Mul, Sub
 #include <kaad/functions/primal.hpp>        // for pointwise_fn, flexible
-#include <kaad/functions/safe_kernels.hpp>  // for safe_Div, safe_Pow
+#include <kaad/functions/safe_kernels.hpp>  // for SafeDiv, SafePow
 #include <kaad/graph/graph.hpp>             // for Graph, binOperator
 #include <kaad/graph/node_handle.hpp>       // for Node
-#include <kaad/graph/nodes/binary.hpp>      // for Node_binary
-#include <kaad/graph/nodes/binary_flex.hpp> // for Node_binary_flex
+#include <kaad/graph/nodes/binary.hpp>      // for NodeBinary
+#include <kaad/graph/nodes/binary_flex.hpp> // for NodeBinaryFlex
 #include <kaad/graph/nodes/inode.hpp>       // for INode
 #include <kaad/scalar.hpp>                  // for Scalar
 #include <kaad/tensor/tensor.hpp>           // for Tensor
@@ -20,8 +20,8 @@
 #include <utility>                          // for move, pair
 #include <vector>                           // for vector
 
-// IWYU pragma: no_forward_declare kaad::Node_binary
-// IWYU pragma: no_forward_declare kaad::Node_binary_flex
+// IWYU pragma: no_forward_declare kaad::NodeBinary
+// IWYU pragma: no_forward_declare kaad::NodeBinaryFlex
 
 namespace kaad {
 
@@ -124,13 +124,13 @@ Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     if (rhs_scalar) {
 
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
+        rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
             kernels.scalarOpRhs, kernels.scalarGradRhs, lhs_ptr, rhs_ptr,
             lhs_val.shape())));
 
     } else if (lhs_scalar) {
 
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
+        rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
             kernels.scalarOpLhs, kernels.scalarGradLhs, lhs_ptr, rhs_ptr,
             rhs_val.shape())));
 
@@ -140,18 +140,17 @@ Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName) {
                std::equal(lhs_val.stride().begin(), lhs_val.stride().end(),
                           rhs_val.stride().begin())) {
 
-        rec.nodes.push_back(std::move(std::make_unique<Node_binary<Kernel>>(
+        rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
             kernels.pointOp, kernels.pointGrad, lhs_ptr, rhs_ptr,
             lhs_val.shape())));
 
     } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),
                                 rhs_val.shape().data(), rhs_val.rank(),
                                 newShape.data(), newLen)) {
-        rec.nodes.push_back(
-            std::move(std::make_unique<Node_binary_flex<Kernel>>(
-                lhs_ptr, rhs_ptr, newShape)));
+        rec.nodes.push_back(std::move(std::make_unique<NodeBinaryFlex<Kernel>>(
+            lhs_ptr, rhs_ptr, newShape)));
     } else {
-        throw shape_error(make_graph_errmsg(
+        throw ShapeError(make_graph_errmsg(
             "shape error", recLen, opName,
             "incompatible tensor shapes for binary operation",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
@@ -172,11 +171,11 @@ Node mul(Graph &rec, Node lhs, Node rhs) {
 }
 
 Node div(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::safe_Div<Scalar>>(rec, lhs, rhs, "div");
+    return binOperator<Kernels::SafeDiv<Scalar>>(rec, lhs, rhs, "div");
 }
 
 Node pow(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::safe_Pow<Scalar>>(rec, lhs, rhs, "pow");
+    return binOperator<Kernels::SafePow<Scalar>>(rec, lhs, rhs, "pow");
 }
 
 Node min(Graph &rec, Node lhs, Node rhs) {

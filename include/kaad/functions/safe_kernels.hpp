@@ -38,7 +38,7 @@ template <typename T> static inline const T min_exp = std::log(min_finite<T>);
 
 /// Numerically safe division kernel with forward/backward operations.
 /// @ingroup binary_kernels
-template <typename T> struct safe_Div {
+template <typename T> struct SafeDiv {
     using value_type = T;
 
     /// Forward op: res = lhs / max(rhs, epsilon)
@@ -63,7 +63,7 @@ template <typename T> struct safe_Div {
 
 /// Numerically safe power kernel with forward/backward operations.
 /// @ingroup binary_kernels
-template <typename T> struct safe_Pow {
+template <typename T> struct SafePow {
     using value_type = T;
 
     /// Forward op: res = e ^ (rhs * log(abs(lhs)))
@@ -111,7 +111,7 @@ template <typename T> struct safe_Pow {
 
 /// Numerically safe squareroot kernel with forward/backward operations.
 /// @ingroup unary_kernels
-template <typename T> struct safe_Sqrt {
+template <typename T> struct SafeSqrt {
     using value_type = T;
 
     /// Forward op: res = sqrt(max(inp, 0))
@@ -128,7 +128,7 @@ template <typename T> struct safe_Sqrt {
 
 /// Numerically safe logarithm kernel with forward/backward operations.
 /// @ingroup unary_kernels
-template <typename T> struct safe_Log {
+template <typename T> struct SafeLog {
     using value_type = T;
 
     /// Forward op: res = log(max(inp, epsilon))
@@ -145,7 +145,7 @@ template <typename T> struct safe_Log {
 
 /// Numerically safe exponent kernel with forward/backward operations.
 /// @ingroup unary_kernels
-template <typename T> struct safe_Exp {
+template <typename T> struct SafeExp {
     using value_type = T;
 
     /// Forward op: res = e ^ (max(min_exp, min(max_exp, inp)))

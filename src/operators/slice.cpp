@@ -3,11 +3,11 @@
 #include <algorithm>                  // for copy, __copy_fn, fill
 #include <cstddef>                    // for size_t
 #include <initializer_list>           // for initializer_list
-#include <kaad/exceptions.hpp>        // for argument_error, make_graph_e...
+#include <kaad/exceptions.hpp>        // for ArgumentError, make_graph_e...
 #include <kaad/graph/graph.hpp>       // for Graph, slice
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/graph/nodes/slice.hpp> // for Node_slice
+#include <kaad/graph/nodes/slice.hpp> // for NodeSlice
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr, make_unique
 #include <span>                       // for span
@@ -26,14 +26,14 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
 
     if (size.size() > input_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());
-        throw argument_error(make_graph_errmsg(
+        throw ArgumentError(make_graph_errmsg(
             "argument error", recLen, "slice",
             "length of size is bigger than A.rank()",
             {{"size", size_span}, {"A.shape", input_val.shape()}}));
     }
     if (offset.size() > input_val.rank()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
-        throw argument_error(make_graph_errmsg(
+        throw ArgumentError(make_graph_errmsg(
             "argument error", recLen, "slice",
             "length of offset is bigger than A.rank()",
             {{"offset", offset_span}, {"A.shape", input_val.shape()}}));
@@ -67,7 +67,7 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
             msg += "] > A.shape[";
             msg += idx_str;
             msg += "]";
-            throw argument_error(make_graph_errmsg(
+            throw ArgumentError(make_graph_errmsg(
                 "argument error", recLen, "slice", msg.c_str(),
                 {{"size", size_span},
                  {"offset", offset_span},
@@ -80,7 +80,7 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     std::ranges::copy(size_owned, newShape.begin());
 
     rec.nodes.push_back(
-        std::make_unique<Node_slice>(input_ptr, offset_owned.data(), newShape));
+        std::make_unique<NodeSlice>(input_ptr, offset_owned.data(), newShape));
     return rec.back_handle();
 }
 

@@ -3,11 +3,11 @@
 #include <algorithm>                   // for reverse_copy
 #include <cstddef>                     // for size_t
 #include <initializer_list>            // for initializer_list
-#include <kaad/exceptions.hpp>         // for argument_error, make_graph_e...
+#include <kaad/exceptions.hpp>         // for ArgumentError, make_graph_e...
 #include <kaad/graph/graph.hpp>        // for Graph, transpose
 #include <kaad/graph/node_handle.hpp>  // for Node
 #include <kaad/graph/nodes/inode.hpp>  // for INode
-#include <kaad/graph/nodes/transp.hpp> // for Node_transp
+#include <kaad/graph/nodes/transp.hpp> // for NodeTransp
 #include <kaad/tensor/tensor.hpp>      // for Tensor
 #include <memory>                      // for unique_ptr, make_unique
 #include <span>                        // for span
@@ -24,9 +24,9 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
     Tensor &input_val = input_ptr->value();
 
     if (input_val.rank() < 2) {
-        throw shape_error(make_graph_errmsg("shape error", recLen, "transpose",
-                                            "A.rank() hast to be > 1",
-                                            {{"A.shape", input_val.shape()}}));
+        throw ShapeError(make_graph_errmsg("shape error", recLen, "transpose",
+                                           "A.rank() hast to be > 1",
+                                           {{"A.shape", input_val.shape()}}));
     }
 
     std::vector<int> shape_T(input_val.rank());
@@ -40,7 +40,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
 
     } else {
         if (perm.size() != input_val.rank()) {
-            throw argument_error(
+            throw ArgumentError(
                 make_graph_errmsg("argument erro", recLen, "transpose",
                                   "perm.size() has to be same as A.rank()",
                                   {{"A.shape", input_val.shape()}}));
@@ -59,7 +59,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
         }
         for (int count_elem : count) {
             if (count_elem != 1) {
-                throw argument_error(make_graph_errmsg(
+                throw ArgumentError(make_graph_errmsg(
                     "argument error", recLen, "transpose",
                     "perm has to contain index of every dimension exactly once",
                     {{"perm", perm}}));
@@ -68,7 +68,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
     }
 
     rec.nodes.push_back(
-        std::make_unique<Node_transp>(input_ptr, shape_T, stride_T));
+        std::make_unique<NodeTransp>(input_ptr, shape_T, stride_T));
 
     return rec.back_handle();
 }

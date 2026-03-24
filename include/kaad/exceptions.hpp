@@ -13,23 +13,23 @@ namespace kaad {
 
 std::string to_string(std::span<const int> array);
 
-class kaad_error : public std::runtime_error {
+class KaadError : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };
 
-class argument_error : public kaad_error {
+class ArgumentError : public KaadError {
   public:
     inline static const char *err_type = "argument error";
 
-    using kaad_error::kaad_error;
+    using KaadError::KaadError;
 };
 
-class shape_error : public kaad_error {
+class ShapeError : public KaadError {
   public:
     inline static const char *err_type = "shape error";
 
-    using kaad_error::kaad_error;
+    using KaadError::KaadError;
 };
 
 std::string make_graph_errmsg(

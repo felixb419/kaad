@@ -15,7 +15,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_slice : public INode {
+class NodeSlice : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
@@ -41,8 +41,8 @@ class Node_slice : public INode {
      * @param offset_arr Array with the offset of the start of @c value.
      * @param value_shape Output/gradient shape
      */
-    Node_slice(INode *input_ptr, const int *offset_arr,
-               std::span<const int> value_shape);
+    NodeSlice(INode *input_ptr, const int *offset_arr,
+              std::span<const int> value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

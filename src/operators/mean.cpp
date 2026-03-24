@@ -2,12 +2,12 @@
 
 #include <algorithm>                     // for copy
 #include <cstddef>                       // for size_t
-#include <kaad/exceptions.hpp>           // for argument_error, make_graph_...
+#include <kaad/exceptions.hpp>           // for ArgumentError, make_graph_...
 #include <kaad/graph/graph.hpp>          // for Graph, mean
 #include <kaad/graph/node_handle.hpp>    // for Node
 #include <kaad/graph/nodes/inode.hpp>    // for INode
-#include <kaad/graph/nodes/mean.hpp>     // for Node_mean
-#include <kaad/graph/nodes/mean_dim.hpp> // for Node_mean_dim
+#include <kaad/graph/nodes/mean.hpp>     // for NodeMean
+#include <kaad/graph/nodes/mean_dim.hpp> // for NodeMeanDim
 #include <kaad/tensor/tensor.hpp>        // for Tensor
 #include <memory>                        // for unique_ptr, make_unique
 #include <span>                          // for span
@@ -19,7 +19,7 @@ namespace kaad {
 
 Node mean(Graph &rec, Node input) {
 
-    rec.nodes.push_back(std::make_unique<Node_mean>(rec.get_node(input)));
+    rec.nodes.push_back(std::make_unique<NodeMean>(rec.get_node(input)));
     return rec.back_handle();
 }
 
@@ -30,7 +30,7 @@ Node mean(Graph &rec, Node input, int dim, bool keep_rank) {
     Tensor &input_val = input_ptr->value();
 
     if (dim < 0 || std::cmp_greater_equal(dim, input_val.rank())) {
-        throw argument_error(make_graph_errmsg(
+        throw ArgumentError(make_graph_errmsg(
             "argument error", recLen, "mean",
             "dim has to be a valid index of A.shape",
             {{"A.shape", input_val.shape()}}, {{"dim", dim}}));
@@ -58,7 +58,7 @@ Node mean(Graph &rec, Node input, int dim, bool keep_rank) {
     }
 
     rec.nodes.push_back(
-        std::make_unique<Node_mean_dim>(input_ptr, dim, newShape));
+        std::make_unique<NodeMeanDim>(input_ptr, dim, newShape));
     return rec.back_handle();
 }
 

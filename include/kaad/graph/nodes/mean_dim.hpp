@@ -15,7 +15,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_mean_dim : public INode {
+class NodeMeanDim : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
@@ -47,7 +47,7 @@ class Node_mean_dim : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    Node_mean_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
+    NodeMeanDim(INode *input_ptr, int dim, std::span<const int> value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

@@ -14,7 +14,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_transp : public INode {
+class NodeTransp : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
@@ -41,8 +41,8 @@ class Node_transp : public INode {
      * @param value_shape Output/gradient shape
      * @param value_shape Output/gradient stride
      */
-    Node_transp(INode *input_ptr, std::span<const int> value_shape,
-                std::span<const int> value_stride);
+    NodeTransp(INode *input_ptr, std::span<const int> value_shape,
+               std::span<const int> value_stride);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

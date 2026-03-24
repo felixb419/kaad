@@ -2,9 +2,9 @@
 
 #include <algorithm>                     // for copy, fill, fill_n
 #include <iostream>                      // for char_traits
-#include <kaad/exceptions.hpp>           // for argument_error
+#include <kaad/exceptions.hpp>           // for ArgumentError
 #include <kaad/scalar.hpp>               // for Scalar
-#include <kaad/tensor/iterator_impl.hpp> // for iterator_impl
+#include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
 #include <kaad/tensor/print_tensor.hpp>  // for print_tensor
 #include <kaad/tensor/tensor_view.hpp>   // for TensorView
 #include <span>                          // for span
@@ -14,8 +14,8 @@
 
 namespace kaad {
 
-template class iterator_impl<false>;
-template class iterator_impl<true>;
+template class IteratorImpl<false>;
+template class IteratorImpl<true>;
 
 std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
 
@@ -58,7 +58,7 @@ std::vector<int> checked_stride(std::span<const int> stride,
                                 std::span<const int> shape) {
 
     if (shape.size() != stride.size()) {
-        throw argument_error(
+        throw ArgumentError(
             "size of shape param (" + std::to_string(shape.size()) +
             ") and size of stride param (" + std::to_string(stride.size()) +
             ") need to be equal");
@@ -72,7 +72,7 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
 
     Tensor::size_type implied_len = Tensor::compute_size(shape);
     if (implied_len != elements.size()) {
-        throw argument_error(
+        throw ArgumentError(
             "size of elements param: " + std::to_string(elements.size()) +
             ", size implied by shape param: " + std::to_string(implied_len));
     }

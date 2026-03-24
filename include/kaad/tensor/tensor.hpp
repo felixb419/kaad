@@ -10,7 +10,7 @@
 
 namespace kaad {
 
-template <bool isConst> class iterator_impl; // IWYU pragma: keep
+template <bool isConst> class IteratorImpl; // IWYU pragma: keep
 
 template <typename T> struct TensorView;
 
@@ -34,8 +34,8 @@ class Tensor {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    using iterator = iterator_impl<false>;
-    using const_iterator = iterator_impl<true>;
+    using iterator = IteratorImpl<false>;
+    using const_iterator = IteratorImpl<true>;
 
     /// Alias for an owning tensor shape.
     using Shape = std::vector<int>;
@@ -272,19 +272,19 @@ class Tensor {
     friend class Graph;
     friend class INode;
 
-    template <class Kernel> friend class Node_binary;
-    template <class Kernel> friend class Node_binary_flex;
-    friend class Node_dot;
-    friend class Node_matmul;
-    friend class Node_batch_matmul;
-    friend class Node_outer;
+    template <class Kernel> friend class NodeBinary;
+    template <class Kernel> friend class NodeBinaryFlex;
+    friend class NodeDot;
+    friend class NodeMatmul;
+    friend class NodeBatchMatmul;
+    friend class NodeOuter;
 
-    template <class Kernel> friend class Node_unary;
-    friend class Node_slice;
-    friend class Node_transp;
-    friend class Node_sum_dim;
-    friend class Node_mean;
-    friend class Node_mean_dim;
+    template <class Kernel> friend class NodeUnary;
+    friend class NodeSlice;
+    friend class NodeTransp;
+    friend class NodeSumDim;
+    friend class NodeMean;
+    friend class NodeMeanDim;
 };
 
 /// @brief Prints @p tensor to @p stream.

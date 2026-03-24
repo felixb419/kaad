@@ -12,7 +12,7 @@
 
 namespace kaad {
 
-template <class Kernel> class Node_binary_flex;
+template <class Kernel> class NodeBinaryFlex;
 
 /**
  * @brief A binary flex operation node for a @ref kaad::Graph
@@ -21,7 +21,7 @@ template <class Kernel> class Node_binary_flex;
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <class Kernel> class Node_binary_flex : public INode {
+template <class Kernel> class NodeBinaryFlex : public INode {
   private:
     functions::primal::binary::flexible_fn<Kernel> forward_op =
         functions::primal::binary::flexible<Kernel>; ///< Function pointer to
@@ -93,8 +93,8 @@ template <class Kernel> class Node_binary_flex : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    Node_binary_flex(INode *lhs_ptr, INode *rhs_ptr,
-                     std::span<const int> value_shape)
+    NodeBinaryFlex(INode *lhs_ptr, INode *rhs_ptr,
+                   std::span<const int> value_shape)
         : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
         this->metadata();
@@ -102,7 +102,7 @@ template <class Kernel> class Node_binary_flex : public INode {
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override {
-        return "Node_binary_flex";
+        return "NodeBinaryFlex";
     }
 
     /// Compute @c value for this node.

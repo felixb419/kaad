@@ -15,7 +15,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_sum_dim : public INode {
+class NodeSumDim : public INode {
   private:
     INode *input = nullptr; ///< Pointer to the input Node.
 
@@ -41,7 +41,7 @@ class Node_sum_dim : public INode {
      * @param dim Index of the dimension summed over.
      * @param value_shape Output/gradient shape
      */
-    Node_sum_dim(INode *input_ptr, int dim, std::span<const int> value_shape);
+    NodeSumDim(INode *input_ptr, int dim, std::span<const int> value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

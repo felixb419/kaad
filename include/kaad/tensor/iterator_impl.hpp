@@ -10,7 +10,7 @@
 
 namespace kaad {
 
-template <bool isConst> class iterator_impl {
+template <bool isConst> class IteratorImpl {
   private:
     using Tensor_reference =
         std::conditional_t<isConst, const Tensor &, Tensor &>;
@@ -27,7 +27,7 @@ template <bool isConst> class iterator_impl {
     using pointer = std::conditional_t<isConst, const Scalar *, Scalar *>;
     using reference = std::conditional_t<isConst, const Scalar &, Scalar &>;
 
-    iterator_impl(Tensor_reference &origin, std::vector<int> &&cords)
+    IteratorImpl(Tensor_reference &origin, std::vector<int> &&cords)
         : origin_(origin), cords_(cords), shape_(origin_.shape()),
           stride_(origin_.stride()) {}
 
@@ -41,7 +41,7 @@ template <bool isConst> class iterator_impl {
         return this->origin_.data()[idx];
     }
 
-    iterator_impl &operator++() {
+    IteratorImpl &operator++() {
         if (this->origin_.rank() == 0) {
             this->cords_[0] = 1;
             return *this;
@@ -72,13 +72,13 @@ template <bool isConst> class iterator_impl {
         return *this;
     }
 
-    iterator_impl operator++(int) {
-        iterator_impl old = *this;
+    IteratorImpl operator++(int) {
+        IteratorImpl old = *this;
         ++(*this);
         return old;
     }
 
-    iterator_impl &operator--() {
+    IteratorImpl &operator--() {
         int rank = static_cast<int>(this->origin_.rank() - 1);
 
         this->cords_[rank]--;
@@ -100,19 +100,19 @@ template <bool isConst> class iterator_impl {
         return *this;
     }
 
-    iterator_impl operator--(int) {
-        iterator_impl old = *this;
+    IteratorImpl operator--(int) {
+        IteratorImpl old = *this;
         --(*this);
         return old;
     }
 
-    bool operator==(const iterator_impl &other) const {
+    bool operator==(const IteratorImpl &other) const {
         return (&this->origin_ == &other.origin_) &&
                std::equal(this->cords_.begin(), this->cords_.end(),
                           other.cords_.begin());
     }
 
-    bool operator!=(const iterator_impl &other) const {
+    bool operator!=(const IteratorImpl &other) const {
         return !(*this == other);
     }
 };

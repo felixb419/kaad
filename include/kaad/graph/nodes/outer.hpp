@@ -16,7 +16,7 @@ namespace kaad {
  * @ingroup nodes
  * @internal
  */
-class Node_outer : public INode {
+class NodeOuter : public INode {
   private:
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
@@ -47,8 +47,7 @@ class Node_outer : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    Node_outer(INode *lhs_ptr, INode *rhs_ptr,
-               std::span<const int> value_shape);
+    NodeOuter(INode *lhs_ptr, INode *rhs_ptr, std::span<const int> value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

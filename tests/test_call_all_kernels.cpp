@@ -21,11 +21,11 @@ int main() {
     kaad::Kernels::Exp<kaad::Scalar> Exp_kernel;
     kaad::Kernels::Abs<kaad::Scalar> Abs_kernel;
 
-    kaad::Kernels::safe_Div<kaad::Scalar> safe_Div_kernel;
-    kaad::Kernels::safe_Pow<kaad::Scalar> safe_Pow_kernel;
-    kaad::Kernels::safe_Sqrt<kaad::Scalar> safe_Sqrt_kernel;
-    kaad::Kernels::safe_Log<kaad::Scalar> safe_Log_kernel;
-    kaad::Kernels::safe_Exp<kaad::Scalar> safe_Exp_kernel;
+    kaad::Kernels::SafeDiv<kaad::Scalar> safe_Div_kernel;
+    kaad::Kernels::SafePow<kaad::Scalar> safe_Pow_kernel;
+    kaad::Kernels::SafeSqrt<kaad::Scalar> safe_Sqrt_kernel;
+    kaad::Kernels::SafeLog<kaad::Scalar> safe_Log_kernel;
+    kaad::Kernels::SafeExp<kaad::Scalar> safe_Exp_kernel;
 
     kaad::Scalar value;
     value = kaad::Kernels::epsilon<kaad::Scalar>;
