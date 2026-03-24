@@ -79,12 +79,12 @@ template <class Kernel> class NodeUnary : public INode {
 
     /// Compute @c gradient for this node.
     /// Computes @c gradient for @c lhs and @c rhs after.
-    void getGrad() override {
+    void get_grad() override {
         backward_op(this->input->value().data(), this->input->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
 
-        if (!this->input->isInput()) {
-            this->input->getGrad();
+        if (!this->input->is_input()) {
+            this->input->get_grad();
         }
     }
 

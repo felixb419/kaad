@@ -73,7 +73,7 @@ class Graph {
      * @brief Computes gradients of the computation graph with respect to the
      * given input nodes.
      * @warning evaluate has to be called on @p output before this.
-     * @warning getGradient should only be called once before resetting and
+     * @warning get_gradient should only be called once before resetting and
      * evaluating again.
      *
      * Initializes the gradient of the output node `output` to 1 and performs
@@ -89,8 +89,8 @@ class Graph {
      * @return An array of Tensor* pointers representing the gradients df/dx
      * for each input node.
      */
-    std::vector<const Tensor *> getGradient(Node output,
-                                            std::span<const Node> inputs);
+    std::vector<const Tensor *> get_gradient(Node output,
+                                             std::span<const Node> inputs);
 
     /**
      * @brief Resets all node values and gradients in the computation graph.
@@ -104,7 +104,8 @@ class Graph {
     friend class Node;
 
     template <class Kernel>
-    friend Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName);
+    friend Node binary_operator(Graph &rec, Node lhs, Node rhs,
+                                const char *opName);
     friend Node dot(Graph &rec, Node lhs, Node rhs);
     friend Node matmul(Graph &rec, Node lhs, Node rhs);
     friend Node mean(Graph &rec, Node input);
@@ -116,7 +117,7 @@ class Graph {
     friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
     friend Node transpose(Graph &rec, Node input,
                           std::initializer_list<int> perm);
-    template <class Kernel> friend Node unOperator(Graph &rec, Node input);
+    template <class Kernel> friend Node unary_operator(Graph &rec, Node input);
 };
 
 } // namespace kaad

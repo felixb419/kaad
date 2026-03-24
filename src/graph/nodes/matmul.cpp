@@ -95,7 +95,7 @@ void NodeMatmul::eval() {
     }
 }
 
-void NodeMatmul::getGrad() {
+void NodeMatmul::get_grad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->gradient().data(), lhs_rows.data() + 1,
@@ -103,11 +103,11 @@ void NodeMatmul::getGrad() {
                 lhs_stride.data() + 2, rhs_stride.data() + 2,
                 value_stride.data() + 2);
 
-    if (!this->lhs->isInput()) {
-        this->lhs->getGrad();
+    if (!this->lhs->is_input()) {
+        this->lhs->get_grad();
     }
-    if (!this->rhs->isInput()) {
-        this->rhs->getGrad();
+    if (!this->rhs->is_input()) {
+        this->rhs->get_grad();
     }
 }
 

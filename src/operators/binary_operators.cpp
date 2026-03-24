@@ -7,7 +7,7 @@
 #include <kaad/functions/kernels.hpp>       // for Add, Max, Min, Mul, Sub
 #include <kaad/functions/primal.hpp>        // for pointwise_fn, flexible
 #include <kaad/functions/safe_kernels.hpp>  // for SafeDiv, SafePow
-#include <kaad/graph/graph.hpp>             // for Graph, binOperator
+#include <kaad/graph/graph.hpp>             // for Graph, binary_operator
 #include <kaad/graph/node_handle.hpp>       // for Node
 #include <kaad/graph/nodes/binary.hpp>      // for NodeBinary
 #include <kaad/graph/nodes/binary_flex.hpp> // for NodeBinaryFlex
@@ -61,26 +61,26 @@ static inline bool combine_flexible(const int *shape1, std::size_t rank1,
 
 /**
  * @brief Contains a collection of binary functions for multiple versions
- * (sclalarRhs, scalarLhs, pointwise, flexible) of the operation and gradient of
- * a given binary Kernel.
+ * (sclalarRhs, scalar_lhs, pointwise, flexible) of the operation and gradient
+ * of a given binary Kernel.
  *
  * @tparam T Datatype the operations are performed on (e.g. float, double, ...).
  * @tparam Kernel Kernel the functions should be using.
  */
 template <class Kernel> struct BinaryKernels {
     functions::primal::binary::pointwise_fn<Kernel> scalarOpRhs =
-        functions::primal::binary::scalarRhs<Kernel>;
+        functions::primal::binary::scalar_rhs<Kernel>;
     functions::primal::binary::pointwise_fn<Kernel> scalarOpLhs =
-        functions::primal::binary::scalarLhs<Kernel>;
+        functions::primal::binary::scalar_lhs<Kernel>;
     functions::primal::binary::pointwise_fn<Kernel> pointOp =
         functions::primal::binary::pointwise<Kernel>;
     functions::primal::binary::flexible_fn<Kernel> flexOp =
         functions::primal::binary::flexible<Kernel>;
 
     functions::adjoint::binary::pointwise_fn<Kernel> scalarGradRhs =
-        functions::adjoint::binary::scalarRhs<Kernel>;
+        functions::adjoint::binary::scalar_rhs<Kernel>;
     functions::adjoint::binary::pointwise_fn<Kernel> scalarGradLhs =
-        functions::adjoint::binary::scalarLhs<Kernel>;
+        functions::adjoint::binary::scalar_lhs<Kernel>;
     functions::adjoint::binary::pointwise_fn<Kernel> pointGrad =
         functions::adjoint::binary::pointwise<Kernel>;
     functions::adjoint::binary::flexible_fn<Kernel> flexGrad =
@@ -106,7 +106,7 @@ template <class Kernel> struct BinaryKernels {
  * @return Handle of the newly created binary operation node.
  */
 template <class Kernel>
-Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName) {
+Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     static const BinaryKernels<Kernel> kernels;
     std::size_t recLen = rec.nodes.size();
@@ -159,31 +159,31 @@ Node binOperator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 }
 
 Node add(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::Add<Scalar>>(rec, lhs, rhs, "add");
+    return binary_operator<Kernels::Add<Scalar>>(rec, lhs, rhs, "add");
 }
 
 Node sub(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::Sub<Scalar>>(rec, lhs, rhs, "sub");
+    return binary_operator<Kernels::Sub<Scalar>>(rec, lhs, rhs, "sub");
 }
 
 Node mul(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::Mul<Scalar>>(rec, lhs, rhs, "mul");
+    return binary_operator<Kernels::Mul<Scalar>>(rec, lhs, rhs, "mul");
 }
 
 Node div(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::SafeDiv<Scalar>>(rec, lhs, rhs, "div");
+    return binary_operator<Kernels::SafeDiv<Scalar>>(rec, lhs, rhs, "div");
 }
 
 Node pow(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::SafePow<Scalar>>(rec, lhs, rhs, "pow");
+    return binary_operator<Kernels::SafePow<Scalar>>(rec, lhs, rhs, "pow");
 }
 
 Node min(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::Min<Scalar>>(rec, lhs, rhs, "minimum");
+    return binary_operator<Kernels::Min<Scalar>>(rec, lhs, rhs, "minimum");
 }
 
 Node max(Graph &rec, Node lhs, Node rhs) {
-    return binOperator<Kernels::Max<Scalar>>(rec, lhs, rhs, "minimum");
+    return binary_operator<Kernels::Max<Scalar>>(rec, lhs, rhs, "minimum");
 }
 
 } // namespace kaad

@@ -33,7 +33,7 @@ namespace binary {
 
 template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
-        Kernel::Op(std::declval<const typename Kernel::value_type &>(),
+        Kernel::op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<const typename Kernel::value_type &>(),
                    std::declval<typename Kernel::value_type &>()));
 }
@@ -70,13 +70,13 @@ using matmul_fn = void (*)(const T *lhs, const T *rhs, T *res, int lhs_rows,
  * @param res_end Pointer to the end of @p res.
  */
 template <binary_kernel_class Kernel>
-void scalarRhs(const typename Kernel::value_type *lhs,
-               const typename Kernel::value_type *rhs,
-               typename Kernel::value_type *res,
-               const typename Kernel::value_type
-                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+void scalar_rhs(const typename Kernel::value_type *lhs,
+                const typename Kernel::value_type *rhs,
+                typename Kernel::value_type *res,
+                const typename Kernel::value_type
+                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; lhs++, res++) {
-        Kernel::Op(*lhs, *rhs, *res);
+        Kernel::op(*lhs, *rhs, *res);
     }
 }
 
@@ -91,13 +91,13 @@ void scalarRhs(const typename Kernel::value_type *lhs,
  * @param res_end Pointer to the end of @p res.
  */
 template <binary_kernel_class Kernel>
-void scalarLhs(const typename Kernel::value_type *lhs,
-               const typename Kernel::value_type *rhs,
-               typename Kernel::value_type *res,
-               const typename Kernel::value_type
-                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+void scalar_lhs(const typename Kernel::value_type *lhs,
+                const typename Kernel::value_type *rhs,
+                typename Kernel::value_type *res,
+                const typename Kernel::value_type
+                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; rhs++, res++) {
-        Kernel::Op(*lhs, *rhs, *res);
+        Kernel::op(*lhs, *rhs, *res);
     }
 }
 
@@ -118,7 +118,7 @@ void pointwise(const typename Kernel::value_type *lhs,
                const typename Kernel::value_type
                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; lhs++, rhs++, res++) {
-        Kernel::Op(*lhs, *rhs, *res);
+        Kernel::op(*lhs, *rhs, *res);
     }
 }
 
@@ -146,7 +146,7 @@ void flexible(const typename Kernel::value_type *lhs,
     if (rank <= 1) {
         for (; res != end;
              lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            Kernel::Op(*lhs, *rhs, *res);
+            Kernel::op(*lhs, *rhs, *res);
         }
     } else {
         for (; res < end;
@@ -172,7 +172,7 @@ void flexible(
     if constexpr (rank <= 1) {
         for (; res != end;
              lhs += *stride_lhs, rhs += *stride_rhs, res += *stride_res) {
-            Kernel::Op(*lhs, *rhs, *res);
+            Kernel::op(*lhs, *rhs, *res);
         }
     } else {
         for (; res < end;
@@ -196,7 +196,7 @@ void flexible(
  * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
-void scalarDot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
+void scalar_dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
     for (; lhs != lhs_end; lhs++) {
         *res += *lhs * (*rhs);
     }
@@ -266,7 +266,7 @@ namespace unary {
 
 template <unary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
-        Kernel::Op(std::declval<const typename Kernel::value_type &>(),
+        Kernel::op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<typename Kernel::value_type &>()));
 }
 
@@ -302,12 +302,12 @@ using slice_fn = void (*)(const T *inp, T *res, int *stride_inp,
  * @param inp_end Pointer to the end of @p inp.
  */
 template <unary_kernel_class Kernel>
-void scalarOut(const typename Kernel::value_type *inp,
-               typename Kernel::value_type *res,
-               const typename Kernel::value_type
-                   *inp_end) noexcept(kernel_noexcept<Kernel>()) {
+void scalar_out(const typename Kernel::value_type *inp,
+                typename Kernel::value_type *res,
+                const typename Kernel::value_type
+                    *inp_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; inp != inp_end; inp++) {
-        Kernel::Op(*inp, *res);
+        Kernel::op(*inp, *res);
     }
 }
 
@@ -326,7 +326,7 @@ void pointwise(const typename Kernel::value_type *inp,
                const typename Kernel::value_type
                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; inp++, res++) {
-        Kernel::Op(*inp, *res);
+        Kernel::op(*inp, *res);
     }
 }
 

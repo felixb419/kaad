@@ -53,13 +53,13 @@ void NodeMeanDim::eval() {
     }
 }
 
-void NodeMeanDim::getGrad() {
+void NodeMeanDim::get_grad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_stride.data(), value_stride.data(), input_offset.data(),
                 input_rank, divisor, input_grad_end);
 
-    if (!this->input->isInput()) {
-        this->input->getGrad();
+    if (!this->input->is_input()) {
+        this->input->get_grad();
     }
 }
 

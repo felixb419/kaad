@@ -33,7 +33,7 @@ namespace binary {
 
 template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
-        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+        Kernel::grad(std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
@@ -85,16 +85,16 @@ using matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
  * @param res_end Pointer to the end of @p res.
  */
 template <binary_kernel_class Kernel>
-void scalarRhs(const typename Kernel::value_type *lhs,
-               typename Kernel::value_type *d_lhs,
-               const typename Kernel::value_type *rhs,
-               typename Kernel::value_type *d_rhs,
-               const typename Kernel::value_type *res,
-               const typename Kernel::value_type *d_res,
-               const typename Kernel::value_type
-                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+void scalar_rhs(const typename Kernel::value_type *lhs,
+                typename Kernel::value_type *d_lhs,
+                const typename Kernel::value_type *rhs,
+                typename Kernel::value_type *d_rhs,
+                const typename Kernel::value_type *res,
+                const typename Kernel::value_type *d_res,
+                const typename Kernel::value_type
+                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; lhs++, d_lhs++, res++, d_res++) {
-        Kernel::Grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
+        Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
     }
 }
 
@@ -113,16 +113,16 @@ void scalarRhs(const typename Kernel::value_type *lhs,
  * @param res_end Pointer to the end of @p res.
  */
 template <binary_kernel_class Kernel>
-void scalarLhs(const typename Kernel::value_type *lhs,
-               typename Kernel::value_type *d_lhs,
-               const typename Kernel::value_type *rhs,
-               typename Kernel::value_type *d_rhs,
-               const typename Kernel::value_type *res,
-               const typename Kernel::value_type *d_res,
-               const typename Kernel::value_type
-                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+void scalar_lhs(const typename Kernel::value_type *lhs,
+                typename Kernel::value_type *d_lhs,
+                const typename Kernel::value_type *rhs,
+                typename Kernel::value_type *d_rhs,
+                const typename Kernel::value_type *res,
+                const typename Kernel::value_type *d_res,
+                const typename Kernel::value_type
+                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; rhs++, d_rhs++, res++, d_res++) {
-        Kernel::Grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
+        Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
     }
 }
 
@@ -150,7 +150,7 @@ void pointwise(const typename Kernel::value_type *lhs,
                const typename Kernel::value_type
                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; lhs++, d_lhs++, rhs++, d_rhs++, res++, d_res++) {
-        Kernel::Grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
+        Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
     }
 }
 
@@ -186,7 +186,7 @@ void flexible(const typename Kernel::value_type *lhs,
         for (; res != end; lhs += *stride_lhs, rhs += *stride_rhs,
                            res += *stride_res, d_lhs += *stride_lhs,
                            d_rhs += *stride_rhs, d_res += *stride_res) {
-            Kernel::Grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
+            Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
         }
     } else {
         for (; res < end; lhs += *stride_lhs, rhs += *stride_rhs,
@@ -216,7 +216,7 @@ void flexible(
         for (; res != end; lhs += *stride_lhs, rhs += *stride_rhs,
                            res += *stride_res, d_lhs += *stride_lhs,
                            d_rhs += *stride_rhs, d_res += *stride_res) {
-            Kernel::Grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
+            Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
         }
     } else {
         for (; res != end; lhs += *stride_lhs, rhs += *stride_rhs,
@@ -245,8 +245,8 @@ void flexible(
  * @param lhs_end Pointer to the end of @p lhs.
  */
 template <typename T>
-void scalarDot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
-               const T *lhs_end) noexcept {
+void scalar_dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
+                const T *lhs_end) noexcept {
     for (; lhs != lhs_end; lhs++, d_lhs++) {
         *d_lhs += *d_res * (*rhs);
         *d_rhs += *d_res * (*lhs);
@@ -324,7 +324,7 @@ namespace unary {
 
 template <unary_kernel_class Kernel> constexpr bool kernel_noexcept() {
     return noexcept(
-        Kernel::Grad(std::declval<const typename Kernel::value_type &>(),
+        Kernel::grad(std::declval<const typename Kernel::value_type &>(),
                      std::declval<typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>(),
                      std::declval<const typename Kernel::value_type &>()));
@@ -369,14 +369,14 @@ using slice_fn = void (*)(T *d_inp, const T *d_res, int *stride_inp,
  * @param inp_end Pointer to the end of @p inp.
  */
 template <unary_kernel_class Kernel>
-void scalarOut(const typename Kernel::value_type *inp,
-               typename Kernel::value_type *d_inp,
-               const typename Kernel::value_type *res,
-               const typename Kernel::value_type *d_res,
-               const typename Kernel::value_type
-                   *inp_end) noexcept(kernel_noexcept<Kernel>()) {
+void scalar_out(const typename Kernel::value_type *inp,
+                typename Kernel::value_type *d_inp,
+                const typename Kernel::value_type *res,
+                const typename Kernel::value_type *d_res,
+                const typename Kernel::value_type
+                    *inp_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; inp != inp_end; inp++, d_inp++) {
-        Kernel::Grad(*inp, *d_inp, *res, *d_res);
+        Kernel::grad(*inp, *d_inp, *res, *d_res);
     }
 }
 
@@ -400,7 +400,7 @@ void pointwise(const typename Kernel::value_type *inp,
                const typename Kernel::value_type
                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
     for (; res != res_end; inp++, d_inp++, res++, d_res++) {
-        Kernel::Grad(*inp, *d_inp, *res, *d_res);
+        Kernel::grad(*inp, *d_inp, *res, *d_res);
     }
 }
 

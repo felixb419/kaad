@@ -130,7 +130,7 @@ int main() {
 
     rec.evaluate(std::array{res});
 
-    rec.getGradient(res, std::array{input_a, input_b, input_c});
+    rec.get_gradient(res, std::array{input_a, input_b, input_c});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

@@ -25,12 +25,12 @@ void NodeTransp::eval() {
     }
 }
 
-void NodeTransp::getGrad() {
+void NodeTransp::get_grad() {
     backward_op(this->input->value().data(), this->input->gradient().data(),
                 this->value().data(), this->gradient().data(), value_end);
 
-    if (!this->input->isInput()) {
-        this->input->getGrad();
+    if (!this->input->is_input()) {
+        this->input->get_grad();
     }
 }
 

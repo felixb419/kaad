@@ -64,18 +64,18 @@ void NodeOuter::eval() {
     }
 }
 
-void NodeOuter::getGrad() {
+void NodeOuter::get_grad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->value().data(), this->gradient().data(),
                 lhs_stride.data(), rhs_stride.data(), res_stride.data(),
                 res_offset.data(), res_rank);
 
-    if (!this->lhs->isInput()) {
-        this->lhs->getGrad();
+    if (!this->lhs->is_input()) {
+        this->lhs->get_grad();
     }
-    if (!this->rhs->isInput()) {
-        this->rhs->getGrad();
+    if (!this->rhs->is_input()) {
+        this->rhs->get_grad();
     }
 }
 

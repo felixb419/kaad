@@ -4,9 +4,9 @@
 #include <array>                        // for array
 #include <cstddef>                      // for size_t
 #include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_e...
-#include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalarOut
+#include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalar_out
 #include <kaad/functions/kernels.hpp>   // for Sum
-#include <kaad/functions/primal.hpp>    // for pointwise_fn, scalarOut
+#include <kaad/functions/primal.hpp>    // for pointwise_fn, scalar_out
 #include <kaad/graph/graph.hpp>         // for Graph, sum
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
@@ -29,9 +29,9 @@ Node sum(Graph &rec, Node input) {
 
     using Kernel = struct Kernels::Sum<Scalar>;
     functions::primal::unary::pointwise_fn<Kernel> func =
-        functions::primal::unary::scalarOut<Kernel>;
+        functions::primal::unary::scalar_out<Kernel>;
     functions::adjoint::unary::pointwise_fn<Kernel> grad =
-        functions::adjoint::unary::scalarOut<Kernel>;
+        functions::adjoint::unary::scalar_out<Kernel>;
 
     rec.nodes.push_back(std::make_unique<NodeUnary<Kernel>>(
         func, grad, input_ptr, std::array<int, 0>{}));

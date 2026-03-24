@@ -16,9 +16,9 @@ namespace kaad {
  * Each node holds a value tensor and a corresponding gradient tensor.
  * Nodes can be evaluated to compute their output, and gradients can be
  * backpropagated through them. Derived classes must implement the `eval` and
- * `getGrad` methods. Traversal-related members (e.g., strides, offsets) are not
- * initialized in the node constructors but are instead set externally by the
- * corresponding helper functions in the Strides namespace.
+ * `get_grad` methods. Traversal-related members (e.g., strides, offsets) are
+ * not initialized in the node constructors but are instead set externally by
+ * the corresponding helper functions in the Strides namespace.
  */
 class INode {
   protected:
@@ -71,7 +71,7 @@ class INode {
     [[nodiscard]] bool evaluated() const noexcept;
 
     /// @return True if the node is an input node, false otherwise.
-    [[nodiscard]] bool isInput() const noexcept;
+    [[nodiscard]] bool is_input() const noexcept;
 
     /**
      * @brief Resets the value and gradient of the node.
@@ -90,7 +90,7 @@ class INode {
      * @brief Computes the gradient for this node. Must be implemented by
      * derived classes.
      */
-    inline virtual void getGrad() = 0;
+    inline virtual void get_grad() = 0;
 
     friend class Computation_grap;
 };

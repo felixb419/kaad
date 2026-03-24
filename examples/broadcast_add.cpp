@@ -42,7 +42,7 @@ int main() {
     rec.evaluate(std::array{res});
 
     // Compute the gradient of res w.r.t. to a, b, c and d.
-    rec.getGradient(res, std::array{input_a, input_b, input_c, input_d});
+    rec.get_gradient(res, std::array{input_a, input_b, input_c, input_d});
 
     // Print values of nodes.
     std::cout << "A:\n" << input_a << '\n';

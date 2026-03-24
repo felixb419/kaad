@@ -64,7 +64,7 @@ void NodeBatchMatmul::eval() {
     }
 }
 
-void NodeBatchMatmul::getGrad() {
+void NodeBatchMatmul::get_grad() {
 
     const Scalar *lhs = this->lhs->value().data();
     Scalar *d_lhs = this->lhs->gradient().data();
@@ -75,11 +75,11 @@ void NodeBatchMatmul::getGrad() {
     this->backward_op(lhs, d_lhs, rhs, d_rhs, d_res, this->backward_wrt_lhs,
                       this->backward_wrt_rhs);
 
-    if (!this->lhs->isInput()) {
-        this->lhs->getGrad();
+    if (!this->lhs->is_input()) {
+        this->lhs->get_grad();
     }
-    if (!this->rhs->isInput()) {
-        this->rhs->getGrad();
+    if (!this->rhs->is_input()) {
+        this->rhs->get_grad();
     }
 }
 

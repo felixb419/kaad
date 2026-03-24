@@ -31,7 +31,7 @@
  * 1. Use `reset()` to reset all values of non-leaf nodes to 0 and reset all
  * gradients to 0.
  * 2. Call `eval()` on a `CompGraph` object to evaluate specific nodes.
- * 3. Use `getGrad()` to compute gradients of one or more tensors.
+ * 3. Use `get_grad()` to compute gradients of one or more tensors.
  *
  * This structure allows you to easily compose and differentiate complex
  * tensor-based computations.

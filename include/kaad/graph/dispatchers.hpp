@@ -26,6 +26,7 @@
 namespace kaad::Dispatchers {
 
 // NOLINTBEGIN(readability-named-parameter)
+// NOLINTBEGIN(readability-identifier-naming) // will be removed soon anyway
 
 /// @brief Returns full table of flexible binary operation implementations.
 template <class Kernel, std::size_t... Is>
@@ -135,6 +136,7 @@ get_slice_grad() {
     return get_slice_grad_impl<T>(std::make_index_sequence<KAAD_MAX_RANK>());
 }
 
+// NOLINTEND(readability-identifier-naming)
 // NOLINTEND(readability-named-parameter)
 
 } // namespace kaad::Dispatchers

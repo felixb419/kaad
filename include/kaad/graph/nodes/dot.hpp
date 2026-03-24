@@ -50,7 +50,7 @@ class NodeDot : public INode {
 
     /// Compute @c gradient for this node.
     /// Computes @c gradient for @c lhs and @c rhs after.
-    void getGrad() override;
+    void get_grad() override;
 
     friend Node dot(Graph &rec, Node lhs, Node rhs);
 };

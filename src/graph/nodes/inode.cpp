@@ -35,7 +35,7 @@ const Tensor &INode::gradient() const noexcept { return this->gradient_; }
 
 bool INode::evaluated() const noexcept { return this->evaluated_; }
 
-bool INode::isInput() const noexcept { return this->is_input_node_; }
+bool INode::is_input() const noexcept { return this->is_input_node_; }
 
 void INode::reset() {
     if (!this->is_input_node_) {

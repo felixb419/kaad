@@ -58,7 +58,7 @@ class NodeMeanDim : public INode {
 
     /// Compute @c gradient for this node.
     /// Computes @c gradient for @c lhs and @c rhs after.
-    void getGrad() override;
+    void get_grad() override;
 };
 
 } // namespace kaad

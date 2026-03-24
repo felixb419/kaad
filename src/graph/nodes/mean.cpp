@@ -28,12 +28,12 @@ void NodeMean::eval() {
     }
 }
 
-void NodeMean::getGrad() {
+void NodeMean::get_grad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_grad_end, divisor);
 
-    if (!this->input->isInput()) {
-        this->input->getGrad();
+    if (!this->input->is_input()) {
+        this->input->get_grad();
     }
 }
 

@@ -72,16 +72,16 @@ template <class Kernel> class NodeBinary : public INode {
 
     /// Compute @c gradient for this node.
     /// Computes @c gradient for @c lhs and @c rhs after.
-    void getGrad() override {
+    void get_grad() override {
         backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                     this->rhs->value().data(), this->rhs->gradient().data(),
                     this->value().data(), this->gradient().data(), end);
 
-        if (!this->lhs->isInput()) {
-            this->lhs->getGrad();
+        if (!this->lhs->is_input()) {
+            this->lhs->get_grad();
         }
-        if (!this->rhs->isInput()) {
-            this->rhs->getGrad();
+        if (!this->rhs->is_input()) {
+            this->rhs->get_grad();
         }
     }
 };

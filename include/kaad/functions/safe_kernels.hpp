@@ -42,14 +42,14 @@ template <typename T> struct SafeDiv {
     using value_type = T;
 
     /// Forward op: res = lhs / max(rhs, epsilon)
-    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+    constexpr static void op(T lhs, T rhs, T &res) noexcept {
         res =
             lhs / ((std::abs(rhs) < epsilon<T>) ? std::copysign(epsilon<T>, rhs)
                                                 : rhs);
     }
 
     /// Backward op: accumulates d_res into d_lhs and d_rhs.
-    constexpr static void Grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
+    constexpr static void grad(T lhs, T &d_lhs, T rhs, T &d_rhs,
                                [[maybe_unused]] T res, T d_res) noexcept {
         T rhs_safe =
             (std::abs(rhs) < epsilon<T>) ? std::copysign(epsilon<T>, rhs) : rhs;
@@ -67,7 +67,7 @@ template <typename T> struct SafePow {
     using value_type = T;
 
     /// Forward op: res = e ^ (rhs * log(abs(lhs)))
-    constexpr static void Op(T lhs, T rhs, T &res) noexcept {
+    constexpr static void op(T lhs, T rhs, T &res) noexcept {
         if (lhs == 0) {
             res = (rhs == 0 ? 1 : 0); // 0^0=1 policy
             return;
@@ -99,7 +99,7 @@ template <typename T> struct SafePow {
     }
 
     /// Backward op: accumulates d_res into d_lhs and d_rhs.
-    constexpr static void Grad(T lhs, T &d_lhs, [[maybe_unused]] T rhs,
+    constexpr static void grad(T lhs, T &d_lhs, [[maybe_unused]] T rhs,
                                T &d_rhs, T res, T d_res) noexcept {
         if (lhs == 0 || std::abs(lhs) < epsilon<T>) {
             return;
@@ -115,11 +115,11 @@ template <typename T> struct SafeSqrt {
     using value_type = T;
 
     /// Forward op: res = sqrt(max(inp, 0))
-    constexpr static void Op(T inp, T &res) noexcept {
+    constexpr static void op(T inp, T &res) noexcept {
         res = std::sqrt(std::max(inp, T(0)));
     }
     /// Backward op: accumulates d_res into d_inp.
-    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp, T res,
+    constexpr static void grad([[maybe_unused]] T inp, T &d_inp, T res,
                                T d_res) noexcept {
 
         d_inp += res < epsilon<T> ? 0 : d_res / (2 * res);
@@ -132,12 +132,12 @@ template <typename T> struct SafeLog {
     using value_type = T;
 
     /// Forward op: res = log(max(inp, epsilon))
-    constexpr static void Op(T inp, T &res) noexcept {
+    constexpr static void op(T inp, T &res) noexcept {
         res = std::log(std::max(inp, epsilon<T>));
     }
 
     /// Backward op: accumulates d_res into d_inp.
-    constexpr static void Grad(T inp, T &d_inp, [[maybe_unused]] T res,
+    constexpr static void grad(T inp, T &d_inp, [[maybe_unused]] T res,
                                T d_res) noexcept {
         d_inp += d_res / std::max(inp, epsilon<T>);
     }
@@ -149,13 +149,13 @@ template <typename T> struct SafeExp {
     using value_type = T;
 
     /// Forward op: res = e ^ (max(min_exp, min(max_exp, inp)))
-    constexpr static void Op(T inp, T &res) noexcept {
+    constexpr static void op(T inp, T &res) noexcept {
 
         res = std::exp(std::max(min_exp<T>, std::min(max_exp<T>, inp)));
     }
 
     /// Backward op: accumulates d_res into d_inp.
-    constexpr static void Grad([[maybe_unused]] T inp, T &d_inp, T res,
+    constexpr static void grad([[maybe_unused]] T inp, T &d_inp, T res,
                                T d_res) noexcept {
         d_inp += d_res * res;
     }

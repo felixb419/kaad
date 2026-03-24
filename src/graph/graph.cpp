@@ -55,14 +55,14 @@ void Graph::reset() {
     }
 }
 
-std::vector<const Tensor *> Graph::getGradient(Node output,
-                                               std::span<const Node> inputs) {
+std::vector<const Tensor *> Graph::get_gradient(Node output,
+                                                std::span<const Node> inputs) {
 
     INode *output_node = this->get_node(output);
     std::fill(output_node->gradient().elements_.begin(),
               output_node->gradient().elements_.end(), 1.0);
 
-    output_node->getGrad();
+    output_node->get_grad();
 
     std::vector<const Tensor *> partials(inputs.size());
 

@@ -77,13 +77,13 @@ void NodeSlice::eval() {
     }
 }
 
-void NodeSlice::getGrad() {
+void NodeSlice::get_grad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
                 input_stride.data(), value_stride.data(), start_offset_a.data(),
                 value_offset.data(), value_rank);
 
-    if (!this->input->isInput()) {
-        this->input->getGrad();
+    if (!this->input->is_input()) {
+        this->input->get_grad();
     }
 }
 

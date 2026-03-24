@@ -3,8 +3,8 @@
 #include <algorithm>                  // for equal
 #include <cstddef>                    // for size_t
 #include <kaad/exceptions.hpp>        // for ShapeError, make_graph_errmsg
-#include <kaad/functions/adjoint.hpp> // for scalarDot
-#include <kaad/functions/primal.hpp>  // for scalarDot
+#include <kaad/functions/adjoint.hpp> // for scalar_dot
+#include <kaad/functions/primal.hpp>  // for scalar_dot
 #include <kaad/graph/graph.hpp>       // for Graph, dot
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/graph/nodes/dot.hpp>   // for NodeDot, dot
@@ -43,9 +43,9 @@ Node dot(Graph &rec, Node lhs, Node rhs) {
 
         // override functions to ScalarDot
         static_cast<NodeDot *>(rec.nodes.back().get())->forward_op =
-            functions::primal::binary::scalarDot;
+            functions::primal::binary::scalar_dot;
         static_cast<NodeDot *>(rec.nodes.back().get())->backward_op =
-            functions::adjoint::binary::scalarDot;
+            functions::adjoint::binary::scalar_dot;
 
     } else if (lhs_val.rank() == 1 && rhs_val.rank() == 1 &&
                std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),

@@ -20,7 +20,7 @@ namespace kaad {
 }
 
 std::span<Scalar> Node::value_elements() {
-    assert(this->node()->isInput());
+    assert(this->node()->is_input());
 
     Tensor &value = this->origin_->get_node(*this)->value();
     return {value.data(), value.size()};

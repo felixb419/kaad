@@ -47,13 +47,13 @@ void NodeSumDim::eval() {
     }
 }
 
-void NodeSumDim::getGrad() {
+void NodeSumDim::get_grad() {
     grad_func(this->input->gradient().data(), this->gradient().data(),
               input_stride.data(), value_stride.data(), input_offset.data(),
               value_rank);
 
-    if (!this->input->isInput()) {
-        this->input->getGrad();
+    if (!this->input->is_input()) {
+        this->input->get_grad();
     }
 }
 
