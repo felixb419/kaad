@@ -1,20 +1,22 @@
 [FIX]
 
 [REFACTOR]
-            change all T to floating_t
-
             mark getters as nodiscard in:
                 tensor
                 nodes
                 graph
 
-(graph)     remove "Node_" from node type
 (tensor)    use Tensor::stride and Tensor::shape everywhere
 (functions) make new functions use std::mdspan
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    Change TensorView to std::mdspan
+                check commands:
+                    Matmul::primal
+                    Matmul::adjoint
+                    BatchMatmul::primal
+                    BatchMatmul::adjoint
 (tensor)(?) make strided_Tensor child class
 
 [PERF]

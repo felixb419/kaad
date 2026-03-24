@@ -54,11 +54,6 @@ using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
 template <typename T>
 using dot_fn = void (*)(const T *lhs, const T *rhs, T *res, const T *lhs_end);
 
-template <typename T>
-using matmul_fn = void (*)(const T *lhs, const T *rhs, T *res, int lhs_rows,
-                           int rhs_cols, int shared_dim, const int *stride_lhs,
-                           const int *stride_rhs, const int *stride_res);
-
 /**
  * @brief Applies Op to @p lhssand @p rhs .
  * @ingroup binary_primal_functions
@@ -217,42 +212,6 @@ template <typename T>
 void dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
     for (; lhs != lhs_end; lhs++, rhs++) {
         *res += *lhs * (*rhs);
-    }
-}
-
-/**
- * @brief Computes matrix product of @p lhs and @p rhs into @p res.
- * @ingroup binary_primal_functions
- * @pre @p lhs, @p rhs and @p res have compatible shapes.
- * @tparam T Element type
- * @param[in] lhs Pointer to the start of rank-2 tensor.
- * @param[in] rhs Pointer to the start of rank-2 tensor.
- * @param[out] res Pointer to the start of rank-2 tensor.
- * @param lhs_rows Number of rows in @p lhs.
- * @param rhs_cols Number of columns in @p rhs.
- * @param stride_lhs Stride array of @p lhs.
- * @param stride_rhs Stride array of @p rhs.
- * @param stride_res Stride array of @p res.
- */
-template <typename T>
-void matmul(const T *lhs, const T *rhs, T *res, int lhs_rows, int rhs_cols,
-            int shared_dim, const int *stride_lhs, const int *stride_rhs,
-            const int *stride_res) noexcept {
-    const T *row_lhs;
-    const T *col_rhs;
-    const T *elem_rhs;
-    for (int lhs_idx = 0; lhs_idx < lhs_rows;
-         lhs_idx++, lhs += stride_lhs[0], res += stride_res[0]) {
-        col_rhs = rhs;
-        for (int rhs_idx = 0; rhs_idx < rhs_cols;
-             rhs_idx++, col_rhs += stride_rhs[1], res += stride_res[1]) {
-            row_lhs = lhs;
-            elem_rhs = col_rhs;
-            for (int i = 0; i < shared_dim;
-                 i++, row_lhs += stride_lhs[1], elem_rhs += stride_rhs[0]) {
-                *res += (*row_lhs) * (*elem_rhs);
-            }
-        }
     }
 }
 

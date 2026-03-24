@@ -1,10 +1,11 @@
 #include <kaad/graph/nodes/matmul.hpp>
 
-#include <algorithm>                   // for reverse_copy
-#include <array>                       // for array
-#include <kaad/graph/nodes/inode.hpp>  // for INode
-#include <kaad/tensor/tensor.hpp>      // for Tensor
-#include <kaad/tensor/tensor_view.hpp> // for TensorView
+#include "kaad/functions/matmul.hpp"    // for Matmul
+#include "kaad/tensor/tensor_types.hpp" // for Shape, Stride
+#include <algorithm>                    // for __copy_fn, copy
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_view.hpp>  // for TensorView, TensorViewConst
 
 namespace kaad {
 
@@ -36,48 +37,33 @@ void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
     }
 }
 
-void NodeMatmul::metadata() {
-    // compute metadata
-    TensorViewConst lhs = this->lhs->value().view();
-    TensorViewConst rhs = this->rhs->value().view();
-    TensorViewConst value = this->value().view();
-
-    std::array<int, 2> lhs_t_shape;
-    std::array<int, 2> lhs_t_stride;
-    std::ranges::reverse_copy(lhs.shape, lhs_t_shape.begin());
-    std::ranges::reverse_copy(lhs.stride, lhs_t_stride.begin());
-
-    TensorViewConst lhs_t = lhs;
-    lhs_t.shape = std::span<const int>(lhs_t_shape);
-    lhs_t.stride = std::span<const int>(lhs_t_stride);
-
-    std::array<int, 2> rhs_t_shape;
-    std::array<int, 2> rhs_t_stride;
-    std::ranges::reverse_copy(rhs.shape, rhs_t_shape.begin());
-    std::ranges::reverse_copy(rhs.stride, rhs_t_stride.begin());
-
-    TensorViewConst rhs_t = rhs;
-    rhs_t.shape = std::span<const int>(rhs_t_shape);
-    rhs_t.stride = std::span<const int>(rhs_t_stride);
-
-    metadata_impl(lhs, rhs, value, this->lhs_rows[0], this->rhs_cols[0],
-                  this->shared_dim[0], this->lhs_stride.data(),
-                  this->rhs_stride.data(), this->value_stride.data());
-    // NOLINTNEXTLINE(readability-suspicious-call-argument)
-    metadata_impl(value, rhs_t, lhs, this->lhs_rows[1], this->rhs_cols[1],
-                  this->shared_dim[1], this->value_stride.data() + 2,
-                  this->rhs_stride.data() + 2, this->lhs_stride.data() + 2);
-    // NOLINTNEXTLINE(readability-suspicious-call-argument)
-    metadata_impl(lhs_t, value, rhs, this->lhs_rows[2], this->rhs_cols[2],
-                  this->shared_dim[2], this->lhs_stride.data() + 4,
-                  this->value_stride.data() + 4, this->rhs_stride.data() + 4);
-}
-
 NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr,
                        std::span<const int> value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
-    this->metadata();
+    TensorView lhs_v = this->lhs->value().view();
+    TensorView rhs_v = this->rhs->value().view();
+    TensorView res_v = this->value().view();
+
+    // make lhs^T
+    Tensor::Shape lhs_shape_buff;
+    Tensor::Stride lhs_stride_buff;
+    TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_stride_buff);
+
+    // make rhs^T
+    Tensor::Shape rhs_shape_buff;
+    Tensor::Stride rhs_stride_buff;
+    TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_stride_buff);
+
+    // Compute metadata for individual passes
+    // lhs * rhs = res
+    this->forward = functions::Matmul::Metadata(lhs_v, rhs_v, res_v);
+
+    // d_res * rhs^T = d_lhs
+    this->backward_wrt_lhs = functions::Matmul::Metadata(res_v, rhs_t, lhs_v);
+
+    // lhs^T * d_res = d_rhs
+    this->backward_wrt_rhs = functions::Matmul::Metadata(lhs_t, res_v, rhs_v);
 }
 
 const char *NodeMatmul::node_type() const noexcept { return "NodeMatmul"; }
@@ -88,9 +74,8 @@ void NodeMatmul::eval() {
         this->rhs->eval();
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                   this->value().data(), lhs_rows[0], rhs_cols[0],
-                   shared_dim[0], lhs_stride.data(), rhs_stride.data(),
-                   value_stride.data());
+                   this->value().data(), this->forward);
+
         this->evaluated_ = true;
     }
 }
@@ -98,14 +83,13 @@ void NodeMatmul::eval() {
 void NodeMatmul::get_grad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
-                this->gradient().data(), lhs_rows.data() + 1,
-                rhs_cols.data() + 1, shared_dim.data() + 1,
-                lhs_stride.data() + 2, rhs_stride.data() + 2,
-                value_stride.data() + 2);
+                this->gradient().data(), this->backward_wrt_lhs,
+                this->backward_wrt_rhs);
 
     if (!this->lhs->is_input()) {
         this->lhs->get_grad();
     }
+
     if (!this->rhs->is_input()) {
         this->rhs->get_grad();
     }

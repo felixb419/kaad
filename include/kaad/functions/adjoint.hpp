@@ -64,12 +64,6 @@ template <typename T>
 using dot_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
                         const T *d_res, const T *lhs_end);
 
-template <typename T>
-using matmul_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                           const T *d_res, int *lhs_rows, int *rhs_cols,
-                           int *shared_dim, int *stride_lhs, int *stride_rhs,
-                           int *stride_res);
-
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
  * @ingroup binary_adjoint_functions
@@ -276,42 +270,6 @@ void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
         *d_lhs += *d_res * (*rhs);
         *d_rhs += *d_res * (*lhs);
     }
-}
-
-/**
- * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
- * @ingroup binary_adjoint_functions
- * @pre @p lhs, @p rhs and @p res have compatible shapes.
- * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
- * @param[in] lhs Pointer to the start of 2-rank tensor.
- * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
- * @param[in] rhs Pointer to the start of 2-rank tensor.
- * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
- * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
- * @param lhs_rows Number of rows in @p lhs.
- * @param rhs_cols Number of columns in @p rhs.
- * @param shared_dim Length of the shared dimension of @p lhs and @p rhs.
- * @param stride_lhs Stride array of @p lhs.
- * @param stride_rhs Stride array of @p rhs.
- * @param stride_res Stride array of @p res.
- */
-template <typename T>
-void matmul(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
-            int *lhs_rows, int *rhs_cols, int *shared_dim, int *stride_lhs,
-            int *stride_rhs, int *stride_res) noexcept {
-    // NOLINTBEGIN(readability-suspicious-call-argument)
-
-    // d_lhs = d_res * rhs^T
-    functions::primal::binary::matmul(d_res, rhs, d_lhs, lhs_rows[0],
-                                      rhs_cols[0], shared_dim[0], stride_res,
-                                      stride_rhs, stride_lhs);
-    // d_rhs = lhs^T * d_res
-    functions::primal::binary::matmul(
-        lhs, d_res, d_rhs, lhs_rows[1], rhs_cols[1], shared_dim[1],
-        stride_lhs + 2, stride_res + 2, stride_rhs + 2);
-
-    // NOLINTEND(readability-suspicious-call-argument)
 }
 
 } // namespace binary
