@@ -1,17 +1,16 @@
 #pragma once
 
-#include <cstddef>         // for ptrdiff_t, size_t
-#include <cstdint>         // for uint64_t
-#include <iostream>        // for ostream
-#include <kaad/scalar.hpp> // for Scalar
+#include <cstddef>                       // for ptrdiff_t, size_t
+#include <cstdint>                       // for uint64_t
+#include <iostream>                      // for ostream
+#include <kaad/scalar.hpp>               // for Scalar
+#include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
 #include <kaad/tensor/tensor_types.hpp>
 #include <random> // for random_device, mt19937_64
 #include <span>   // for span
 #include <vector> // for vector
 
 namespace kaad {
-
-template <bool isConst> class IteratorImpl; // IWYU pragma: keep
 
 template <typename T> struct TensorView;
 
@@ -282,5 +281,3 @@ class Tensor {
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor);
 
 } // namespace kaad
-
-#include <kaad/tensor/iterator_impl.hpp> // IWYU pragma: keep

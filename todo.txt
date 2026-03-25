@@ -3,6 +3,7 @@
 [REFACTOR]
 (graph)     mark getters as nodiscard in nodes
 (tensor)    use Tensor::stride and Tensor::shape everywhere
+(tensor)    replace TensorView tparam with isMut
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)

@@ -192,14 +192,16 @@ Tensor::iterator Tensor::begin() {
     std::vector<int> cords(std::max(this->rank(), static_cast<size_type>(1)));
     std::ranges::fill(cords, 0);
 
-    return {*this, std::move(cords)};
+    return {this, std::move(cords), this->shape(), this->stride(),
+            this->elements()};
 }
 
 Tensor::const_iterator Tensor::begin() const {
     std::vector<int> cords(std::max(this->rank(), static_cast<size_t>(1)));
     std::ranges::fill(cords, 0);
 
-    return {*this, std::move(cords)};
+    return {this, std::move(cords), this->shape(), this->stride(),
+            this->elements()};
 }
 
 Tensor::iterator Tensor::end() {
@@ -218,7 +220,8 @@ Tensor::iterator Tensor::end() {
         }
     }
 
-    return {*this, std::move(cords)};
+    return {this, std::move(cords), this->shape(), this->stride(),
+            this->elements()};
 }
 
 Tensor::const_iterator Tensor::end() const {
@@ -236,7 +239,8 @@ Tensor::const_iterator Tensor::end() const {
         }
     }
 
-    return {*this, std::move(cords)};
+    return {this, std::move(cords), this->shape(), this->stride(),
+            this->elements()};
 }
 
 Tensor::size_type Tensor::size() const noexcept {
