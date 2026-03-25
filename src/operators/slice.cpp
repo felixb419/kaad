@@ -1,13 +1,13 @@
 #include <kaad/operators/operators.hpp> // for slice
 
+#include "../exceptions.hpp"          // for ArgumentError, make_graph_e...
+#include "../graph/nodes/slice.hpp"   // for NodeSlice
 #include <algorithm>                  // for copy, __copy_fn, fill
 #include <cstddef>                    // for size_t
 #include <initializer_list>           // for initializer_list
-#include <kaad/exceptions.hpp>        // for ArgumentError, make_graph_e...
 #include <kaad/graph/graph.hpp>       // for Graph, slice
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/graph/nodes/slice.hpp> // for NodeSlice
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr, make_unique
 #include <span>                       // for span

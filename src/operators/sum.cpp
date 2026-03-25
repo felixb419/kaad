@@ -1,24 +1,24 @@
 #include <kaad/operators/operators.hpp> // for sum
 
-#include <algorithm>                    // for copy
-#include <array>                        // for array
-#include <cstddef>                      // for size_t
-#include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_e...
-#include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalar_out
-#include <kaad/functions/kernels.hpp>   // for Sum
-#include <kaad/functions/primal.hpp>    // for pointwise_fn, scalar_out
-#include <kaad/graph/graph.hpp>         // for Graph, sum
-#include <kaad/graph/node_handle.hpp>   // for Node
-#include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/graph/nodes/sum_dim.hpp> // for NodeSumDim
-#include <kaad/graph/nodes/unary.hpp>   // for NodeUnary
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <memory>                       // for unique_ptr, make_unique
-#include <span>                         // for span
-#include <string>                       // for basic_string
-#include <utility>                      // for cmp_greater_equal, pair
-#include <vector>                       // for vector
+#include "../exceptions.hpp"          // for ArgumentError, make_graph_e...
+#include "../graph/nodes/sum_dim.hpp" // for NodeSumDim
+#include "../graph/nodes/unary.hpp"   // for NodeUnary
+#include <algorithm>                  // for copy
+#include <array>                      // for array
+#include <cstddef>                    // for size_t
+#include <kaad/functions/adjoint.hpp> // for pointwise_fn, scalar_out
+#include <kaad/functions/kernels.hpp> // for Sum
+#include <kaad/functions/primal.hpp>  // for pointwise_fn, scalar_out
+#include <kaad/graph/graph.hpp>       // for Graph, sum
+#include <kaad/graph/node_handle.hpp> // for Node
+#include <kaad/graph/nodes/inode.hpp> // for INode
+#include <kaad/scalar.hpp>            // for Scalar
+#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <memory>                     // for unique_ptr, make_unique
+#include <span>                       // for span
+#include <string>                     // for basic_string
+#include <utility>                    // for cmp_greater_equal, pair
+#include <vector>                     // for vector
 
 namespace kaad {
 

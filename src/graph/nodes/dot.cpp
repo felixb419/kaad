@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/dot.hpp>
+#include "dot.hpp"
 
 #include <array>                      // for array
 #include <kaad/graph/nodes/inode.hpp> // for INode

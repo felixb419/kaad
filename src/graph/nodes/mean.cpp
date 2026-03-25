@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/mean.hpp>
+#include "mean.hpp"
 
 #include <array>                      // for array
 #include <kaad/graph/nodes/inode.hpp> // for INode

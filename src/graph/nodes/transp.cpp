@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/transp.hpp>
+#include "transp.hpp"
 
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/tensor/tensor.hpp>     // for Tensor

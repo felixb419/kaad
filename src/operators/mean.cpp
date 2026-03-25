@@ -1,19 +1,19 @@
 #include <kaad/operators/operators.hpp> // for mean
 
-#include <algorithm>                     // for copy
-#include <cstddef>                       // for size_t
-#include <kaad/exceptions.hpp>           // for ArgumentError, make_graph_...
-#include <kaad/graph/graph.hpp>          // for Graph, mean
-#include <kaad/graph/node_handle.hpp>    // for Node
-#include <kaad/graph/nodes/inode.hpp>    // for INode
-#include <kaad/graph/nodes/mean.hpp>     // for NodeMean
-#include <kaad/graph/nodes/mean_dim.hpp> // for NodeMeanDim
-#include <kaad/tensor/tensor.hpp>        // for Tensor
-#include <memory>                        // for unique_ptr, make_unique
-#include <span>                          // for span
-#include <string>                        // for basic_string
-#include <utility>                       // for cmp_greater_equal, pair
-#include <vector>                        // for vector
+#include "../exceptions.hpp"           // for ArgumentError, make_graph_...
+#include "../graph/nodes/mean.hpp"     // for NodeMean
+#include "../graph/nodes/mean_dim.hpp" // for NodeMeanDim
+#include <algorithm>                   // for copy
+#include <cstddef>                     // for size_t
+#include <kaad/graph/graph.hpp>        // for Graph, mean
+#include <kaad/graph/node_handle.hpp>  // for Node
+#include <kaad/graph/nodes/inode.hpp>  // for INode
+#include <kaad/tensor/tensor.hpp>      // for Tensor
+#include <memory>                      // for unique_ptr, make_unique
+#include <span>                        // for span
+#include <string>                      // for basic_string
+#include <utility>                     // for cmp_greater_equal, pair
+#include <vector>                      // for vector
 
 namespace kaad {
 

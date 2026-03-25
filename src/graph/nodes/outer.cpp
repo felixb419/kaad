@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/outer.hpp>
+#include "outer.hpp"
 
 #include <algorithm>                  // for copy
 #include <array>                      // for array

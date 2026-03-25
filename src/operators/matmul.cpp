@@ -1,20 +1,20 @@
 #include <kaad/operators/operators.hpp> // for matmul
 
-#include <algorithm>                         // for max
-#include <cstddef>                           // for size_t
-#include <kaad/exceptions.hpp>               // for ShapeError, make_graph...
-#include <kaad/graph/common.hpp>             // for combine_matrix
-#include <kaad/graph/graph.hpp>              // for Graph, matmul
-#include <kaad/graph/node_handle.hpp>        // for Node
-#include <kaad/graph/nodes/batch_matmul.hpp> // for NodeBatchMatmul
-#include <kaad/graph/nodes/inode.hpp>        // for INode
-#include <kaad/graph/nodes/matmul.hpp>       // for NodeMatmul
-#include <kaad/tensor/tensor.hpp>            // for Tensor
-#include <memory>                            // for unique_ptr, make_unique
-#include <span>                              // for span
-#include <string>                            // for basic_string
-#include <utility>                           // for pair
-#include <vector>                            // for vector
+#include "../exceptions.hpp"               // for ShapeError, make_graph...
+#include "../graph/common.hpp"             // for combine_matrix
+#include "../graph/nodes/batch_matmul.hpp" // for NodeBatchMatmul
+#include "../graph/nodes/matmul.hpp"       // for NodeMatmul
+#include <algorithm>                       // for max
+#include <cstddef>                         // for size_t
+#include <kaad/graph/graph.hpp>            // for Graph, matmul
+#include <kaad/graph/node_handle.hpp>      // for Node
+#include <kaad/graph/nodes/inode.hpp>      // for INode
+#include <kaad/tensor/tensor.hpp>          // for Tensor
+#include <memory>                          // for unique_ptr, make_unique
+#include <span>                            // for span
+#include <string>                          // for basic_string
+#include <utility>                         // for pair
+#include <vector>                          // for vector
 
 namespace kaad {
 

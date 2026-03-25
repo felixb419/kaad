@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/matmul.hpp>
+#include "matmul.hpp"
 
 #include <algorithm>                    // for __copy_fn, copy
 #include <kaad/functions/matmul.hpp>    // for Matmul

@@ -1,11 +1,11 @@
 #include <kaad/tensor/tensor.hpp>
 
+#include "../exceptions.hpp"             // for ArgumentError
+#include "print_tensor.hpp"              // for print_tensor
 #include <algorithm>                     // for copy, fill, fill_n
 #include <iostream>                      // for char_traits
-#include <kaad/exceptions.hpp>           // for ArgumentError
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/print_tensor.hpp>  // for print_tensor
 #include <kaad/tensor/tensor_view.hpp>   // for TensorView
 #include <span>                          // for span
 #include <string>                        // for operator+, to_s...

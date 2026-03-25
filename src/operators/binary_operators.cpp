@@ -1,24 +1,24 @@
 #include <kaad/operators/operators.hpp>
 
-#include <algorithm>                        // for equal, max, move
-#include <cstddef>                          // for size_t
-#include <kaad/exceptions.hpp>              // for ShapeError, make_graph_...
-#include <kaad/functions/adjoint.hpp>       // for pointwise_fn, flexible
-#include <kaad/functions/kernels.hpp>       // for Add, Max, Min, Mul, Sub
-#include <kaad/functions/primal.hpp>        // for pointwise_fn, flexible
-#include <kaad/functions/safe_kernels.hpp>  // for SafeDiv, SafePow
-#include <kaad/graph/graph.hpp>             // for Graph, binary_operator
-#include <kaad/graph/node_handle.hpp>       // for Node
-#include <kaad/graph/nodes/binary.hpp>      // for NodeBinary
-#include <kaad/graph/nodes/binary_flex.hpp> // for NodeBinaryFlex
-#include <kaad/graph/nodes/inode.hpp>       // for INode
-#include <kaad/scalar.hpp>                  // for Scalar
-#include <kaad/tensor/tensor.hpp>           // for Tensor
-#include <memory>                           // for make_unique, unique_ptr
-#include <span>                             // for span
-#include <string>                           // for basic_string
-#include <utility>                          // for move, pair
-#include <vector>                           // for vector
+#include "../exceptions.hpp"              // for ShapeError, make_graph_...
+#include "../functions/safe_kernels.hpp"  // for SafeDiv, SafePow
+#include "../graph/nodes/binary.hpp"      // for NodeBinary
+#include "../graph/nodes/binary_flex.hpp" // for NodeBinaryFlex
+#include <algorithm>                      // for equal, max, move
+#include <cstddef>                        // for size_t
+#include <kaad/functions/adjoint.hpp>     // for pointwise_fn, flexible
+#include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
+#include <kaad/functions/primal.hpp>      // for pointwise_fn, flexible
+#include <kaad/graph/graph.hpp>           // for Graph, binary_operator
+#include <kaad/graph/node_handle.hpp>     // for Node
+#include <kaad/graph/nodes/inode.hpp>     // for INode
+#include <kaad/scalar.hpp>                // for Scalar
+#include <kaad/tensor/tensor.hpp>         // for Tensor
+#include <memory>                         // for make_unique, unique_ptr
+#include <span>                           // for span
+#include <string>                         // for basic_string
+#include <utility>                        // for move, pair
+#include <vector>                         // for vector
 
 // IWYU pragma: no_forward_declare kaad::NodeBinary
 // IWYU pragma: no_forward_declare kaad::NodeBinaryFlex

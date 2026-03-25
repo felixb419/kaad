@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/slice.hpp>
+#include "slice.hpp"
 
 #include <algorithm>                  // for copy
 #include <array>                      // for array

@@ -1,4 +1,4 @@
-#include <kaad/graph/nodes/batch_matmul.hpp>
+#include "batch_matmul.hpp"
 
 #include <kaad/functions/batch_matmul.hpp> // for BatchMatmul
 #include <kaad/graph/nodes/inode.hpp>      // for INode

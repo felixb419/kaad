@@ -1,13 +1,13 @@
 #include <kaad/operators/operators.hpp> // for dot
 
+#include "../exceptions.hpp"          // for ShapeError, make_graph_errmsg
+#include "../graph/nodes/dot.hpp"     // for NodeDot, dot
 #include <algorithm>                  // for equal
 #include <cstddef>                    // for size_t
-#include <kaad/exceptions.hpp>        // for ShapeError, make_graph_errmsg
 #include <kaad/functions/adjoint.hpp> // for scalar_dot
 #include <kaad/functions/primal.hpp>  // for scalar_dot
 #include <kaad/graph/graph.hpp>       // for Graph, dot
 #include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/dot.hpp>   // for NodeDot, dot
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/tensor/tensor.hpp>     // for Tensor
 #include <memory>                     // for unique_ptr, make_unique

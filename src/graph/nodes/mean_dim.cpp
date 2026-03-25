@@ -1,7 +1,7 @@
-#include <kaad/graph/nodes/mean_dim.hpp>
+#include "mean_dim.hpp"
 
+#include "../common.hpp"              // for along_dim_met...
 #include <array>                      // for array
-#include <kaad/graph/common.hpp>      // for along_dim_met...
 #include <kaad/graph/dispatchers.hpp> // for get_meanDim
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK

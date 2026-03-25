@@ -1,7 +1,7 @@
 #include <kaad/graph/node_handle.hpp>
 
+#include "../exceptions.hpp"          // for ArgumentError
 #include <cassert>                    // for assert
-#include <kaad/exceptions.hpp>        // for ArgumentError
 #include <kaad/graph/graph.hpp>       // for Graph
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/scalar.hpp>            // for Scalar
