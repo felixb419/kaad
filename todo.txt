@@ -2,7 +2,6 @@
 
 [REFACTOR]
             mark getters as nodiscard in:
-                tensor
                 nodes
                 graph
 

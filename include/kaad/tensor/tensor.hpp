@@ -188,7 +188,7 @@ class Tensor {
      * contiguous raw access.
      * @return Read/write iterator to the first element.
      */
-    iterator begin();
+    [[nodiscard]] iterator begin();
 
     /**
      * @copybrief Tensor::begin()
@@ -204,7 +204,7 @@ class Tensor {
      * contiguous raw access.
      * @return Read/write iterator to one past the last element.
      */
-    iterator end();
+    [[nodiscard]] iterator end();
 
     /**
      * @copybrief Tensor::end()
@@ -223,13 +223,13 @@ class Tensor {
     [[nodiscard]] bool empty() const noexcept;
 
     /// @return Reference to the first element.
-    reference front() noexcept;
+    [[nodiscard]] reference front() noexcept;
 
     /// @return Immutable reference to the first element.
     [[nodiscard]] const_reference front() const noexcept;
 
     /// @return Reference to the first element.
-    reference back() noexcept;
+    [[nodiscard]] reference back() noexcept;
 
     /// @return Reference to the last element.
     [[nodiscard]] const_reference back() const noexcept;
@@ -241,7 +241,7 @@ class Tensor {
      * then).
      * @return Pointer to the first element in memory.
      */
-    pointer data() noexcept;
+    [[nodiscard]] pointer data() noexcept;
 
     /*
      * @copybrief Tensor::data()
@@ -258,7 +258,7 @@ class Tensor {
 
     /// @brief Creates a non-owning mutable view of the tensor.
     /// @return A TensorViewMut object.
-    TensorViewMut view_mut() noexcept;
+    [[nodiscard]] TensorViewMut view_mut() noexcept;
 
     friend class Graph;
     friend class INode;
