@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../include/kaad/scalar.hpp"        // for Scalar
-#include "../include/kaad/tensor/tensor.hpp" // for Tensor
-#include <algorithm>                         // for equal
+#include <algorithm> // for equal
 #include <iostream>
-#include <span>   // for span
-#include <vector> // for vector
+#include <kaad/scalar.hpp>        // for Scalar
+#include <kaad/tensor/tensor.hpp> // for Tensor
+#include <span>                   // for span
+#include <vector>                 // for vector
 
 inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
                       kaad::Scalar rel_tol) {

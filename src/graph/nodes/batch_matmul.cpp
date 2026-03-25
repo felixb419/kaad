@@ -1,10 +1,10 @@
 #include <kaad/graph/nodes/batch_matmul.hpp>
 
-#include "kaad/functions/batch_matmul.hpp" // for BatchMatmul
-#include "kaad/tensor/tensor.hpp"          // for Tensor
-#include "kaad/tensor/tensor_types.hpp"    // for Shape, Stride, Shape_view
+#include <kaad/functions/batch_matmul.hpp> // for BatchMatmul
 #include <kaad/graph/nodes/inode.hpp>      // for INode
 #include <kaad/scalar.hpp>                 // for Scalar
+#include <kaad/tensor/tensor.hpp>          // for Tensor
+#include <kaad/tensor/tensor_types.hpp>    // for Shape, Stride, Shape_view
 #include <kaad/tensor/tensor_view.hpp>     // for TensorView
 
 namespace kaad {

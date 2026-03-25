@@ -3,17 +3,9 @@
 [REFACTOR]
 (graph)     mark getters as nodiscard in nodes
 (tensor)    use Tensor::stride and Tensor::shape everywhere
-(functions) make new functions use std::mdspan
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
-(tensor)    Change TensorView to std::mdspan
-                check comments:
-                    Matmul::primal
-                    Matmul::adjoint
-                    BatchMatmul::primal
-                    BatchMatmul::adjoint
-(tensor)(?) make strided_Tensor child class
 
 [PERF]
 (tensor)    change shape and stride to std::array<size_t, KAAD_MAX_RANK>
@@ -63,11 +55,10 @@
         (?) kaadConfig.cmake.in
 
 [LATER]
-        (?) add proper test system
-        (?) Add system for inference
+(functions) make new functions use std::mdspan as soon as available
+(graph) (?) Add system for inference
 (tensor)    make Tensor variant with compile time shape
 (tensor)(?) combine shape and stride into shape struct
 (graph)     make stride function transpose dimensions so biggest is highest
 (graph) (?) label member for computation nodes
 (graph) (?) put reset, evaluate and getGradient into single function
-(examples)(?) more example programs

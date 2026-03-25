@@ -1,10 +1,10 @@
 #pragma once
 
-#include "kaad/tensor/tensor_types.hpp" // for Stride, Shape, Shape_view
 #include <array>                        // for array
 #include <cstddef>                      // for size_t
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, Shape_view
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <utility>                      // for make_index_sequence, index_s...
 
