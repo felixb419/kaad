@@ -2,7 +2,7 @@
 
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for TensorViewConst
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape_view, Shape
+#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView, Shape
 
 namespace kaad::functions {
 
@@ -15,7 +15,7 @@ struct Matmul {
      * @return true if the broadcast was sucessful, false if the shapes are
      * incompatible
      */
-    static bool broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape);
+    static bool broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape);
 
     struct Metadata {
 

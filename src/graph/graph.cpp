@@ -7,7 +7,7 @@
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
 #include <memory>                       // for unique_ptr, make_unique
 #include <string>                       // for basic_string, operator+, to_...
 #include <vector>                       // for vector
@@ -30,7 +30,7 @@ INode *Graph::get_node(Node node) {
     return this->nodes[node.idx_].get();
 }
 
-Node Graph::add_input_node(Shape_view value_shape, const char *label) {
+Node Graph::add_input_node(ShapeView value_shape, const char *label) {
     this->nodes.push_back(std::make_unique<NodeInput>(value_shape, label));
 
     return Node(this->nodes.size() - 1, this);

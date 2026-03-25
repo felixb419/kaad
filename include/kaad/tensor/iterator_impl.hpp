@@ -3,7 +3,7 @@
 #include <algorithm>                    // for copy
 #include <iterator>                     // for bidirectional_iterator_tag
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view, Stride_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Stride_view
 #include <span>                         // for span
 #include <type_traits>                  // for conditional_t
 #include <vector>                       // for vector
@@ -25,14 +25,14 @@ template <bool isConst> class IteratorImpl {
 
     std::vector<int> cords_; ///< Per-dim coordinates of the current element.
 
-    Shape_view shape_;
+    ShapeView shape_;
     Stride_view stride_;
 
     std::span<value_type> elements_;
 
   public:
     IteratorImpl(const Tensor *origin, std::vector<int> &&cords,
-                 Shape_view shape, Stride_view stride,
+                 ShapeView shape, Stride_view stride,
                  std::span<value_type> elements)
         : origin_(origin), cords_(cords), shape_(shape), stride_(stride),
           elements_(elements) {}

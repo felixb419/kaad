@@ -6,7 +6,7 @@
 #include <iostream>                      // for char_traits, ostream
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_types.hpp>  // for Stride, Shape_view
+#include <kaad/tensor/tensor_types.hpp>  // for Stride, ShapeView
 #include <kaad/tensor/tensor_view.hpp>   // for TensorViewConst, TensorViewMut
 #include <span>                          // for span
 #include <string>                        // for operator+, basic_string
@@ -18,7 +18,7 @@ namespace kaad {
 template class IteratorImpl<false>;
 template class IteratorImpl<true>;
 
-Stride Tensor::compute_stride(Shape_view shape) {
+Stride Tensor::compute_stride(ShapeView shape) {
 
     if (shape.empty()) {
         return Stride{};
@@ -42,7 +42,7 @@ Stride Tensor::compute_stride(Shape_view shape) {
     return stride;
 }
 
-Tensor::size_type Tensor::compute_size(Shape_view shape) {
+Tensor::size_type Tensor::compute_size(ShapeView shape) {
 
     if (shape.empty()) {
         return 1;
@@ -55,7 +55,7 @@ Tensor::size_type Tensor::compute_size(Shape_view shape) {
     return len;
 }
 
-Stride checked_stride(Stride_view stride, Shape_view shape) {
+Stride checked_stride(Stride_view stride, ShapeView shape) {
 
     if (shape.size() != stride.size()) {
         throw ArgumentError(
@@ -68,7 +68,7 @@ Stride checked_stride(Stride_view stride, Shape_view shape) {
 }
 
 std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
-                                     Shape_view shape) {
+                                     ShapeView shape) {
 
     Tensor::size_type implied_len = Tensor::compute_size(shape);
     if (implied_len != elements.size()) {
@@ -82,7 +82,7 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
 
 Tensor::Tensor() : elements_{0} {}
 
-Tensor::Tensor(Shape_view shape)
+Tensor::Tensor(ShapeView shape)
     : shape_(shape.begin(), shape.end()),
       stride_(Tensor::compute_stride(shape_)),
       elements_(Tensor::compute_size(shape_)) {}
@@ -92,42 +92,42 @@ Tensor::Tensor(std::span<const Scalar> elements)
       stride_(Tensor::compute_stride(shape_)),
       elements_(elements.begin(), elements.end()) {}
 
-Tensor::Tensor(Shape_view shape, Stride_view stride)
+Tensor::Tensor(ShapeView shape, Stride_view stride)
     : shape_(shape.begin(), shape.end()),
       stride_(checked_stride(stride, shape)),
       elements_(Tensor::compute_size(shape_)) {}
 
-Tensor::Tensor(Shape_view shape, std::span<const Scalar> elements)
+Tensor::Tensor(ShapeView shape, std::span<const Scalar> elements)
     : shape_(shape.begin(), shape.end()),
       stride_(Tensor::compute_stride(shape_)),
       elements_(checked_elements(elements, shape)) {}
 
-Tensor::Tensor(Shape_view shape, Stride_view stride,
+Tensor::Tensor(ShapeView shape, Stride_view stride,
                std::span<const Scalar> elements)
     : shape_(shape.begin(), shape.end()),
       stride_(checked_stride(stride, shape)),
       elements_(checked_elements(elements, shape)) {}
 
-Tensor Tensor::full(Shape_view shape, Scalar fill_value) {
-    Tensor out(Shape_view(shape.begin(), shape.end()));
+Tensor Tensor::full(ShapeView shape, Scalar fill_value) {
+    Tensor out(ShapeView(shape.begin(), shape.end()));
     std::fill(out.data(), out.data() + out.size(), fill_value);
 
     return out;
 }
 
-Tensor Tensor::zeros(Shape_view shape) {
-    return Tensor(Shape_view(shape.begin(), shape.end()));
+Tensor Tensor::zeros(ShapeView shape) {
+    return Tensor(ShapeView(shape.begin(), shape.end()));
 }
 
-Tensor Tensor::ones(Shape_view shape) {
-    Tensor out(Shape_view(shape.begin(), shape.end()));
+Tensor Tensor::ones(ShapeView shape) {
+    Tensor out(ShapeView(shape.begin(), shape.end()));
     std::fill(out.data(), out.data() + out.size(), 1);
 
     return out;
 }
 
-Tensor Tensor::sequential(Shape_view shape, Scalar starting_value) {
-    Tensor out(Shape_view(shape.begin(), shape.end()));
+Tensor Tensor::sequential(ShapeView shape, Scalar starting_value) {
+    Tensor out(ShapeView(shape.begin(), shape.end()));
 
     for (auto it = out.begin(); it != out.end(); it++) {
         *it = starting_value++;
@@ -136,8 +136,8 @@ Tensor Tensor::sequential(Shape_view shape, Scalar starting_value) {
     return out;
 }
 
-Tensor Tensor::linspace(Shape_view shape, Scalar start, Scalar step) {
-    Tensor out(Shape_view(shape.begin(), shape.end()));
+Tensor Tensor::linspace(ShapeView shape, Scalar start, Scalar step) {
+    Tensor out(ShapeView(shape.begin(), shape.end()));
 
     Scalar value = start;
     for (auto it = out.begin(); it != out.end(); it++) {
@@ -148,11 +148,11 @@ Tensor Tensor::linspace(Shape_view shape, Scalar start, Scalar step) {
     return out;
 }
 
-Tensor Tensor::rand(Shape_view shape, Scalar min, Scalar max) {
+Tensor Tensor::rand(ShapeView shape, Scalar min, Scalar max) {
 
     std::uniform_real_distribution<Scalar> dist{min, max};
 
-    Tensor out(Shape_view(shape.begin(), shape.end()));
+    Tensor out(ShapeView(shape.begin(), shape.end()));
     for (size_type i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::get_rng());
     }
@@ -160,11 +160,11 @@ Tensor Tensor::rand(Shape_view shape, Scalar min, Scalar max) {
     return out;
 }
 
-Tensor Tensor::randn(Shape_view shape, Scalar mean, Scalar std) {
+Tensor Tensor::randn(ShapeView shape, Scalar mean, Scalar std) {
 
     std::normal_distribution<Scalar> dist{mean, std};
 
-    Tensor out(Shape_view(shape.begin(), shape.end()));
+    Tensor out(ShapeView(shape.begin(), shape.end()));
     for (size_type i = 0; i < out.size(); i++) {
         out.data()[i] = dist(Tensor::get_rng());
     }
@@ -178,7 +178,7 @@ Tensor::size_type Tensor::rank() const noexcept {
     return static_cast<size_type>(this->shape_.size());
 }
 
-Shape_view Tensor::shape() const noexcept { return this->shape_; }
+ShapeView Tensor::shape() const noexcept { return this->shape_; }
 
 Stride_view Tensor::stride() const noexcept { return this->stride_; }
 

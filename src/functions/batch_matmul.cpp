@@ -1,6 +1,6 @@
 #include <kaad/functions/batch_matmul.hpp>
 
-#include "kaad/tensor/tensor_types.hpp" // for Shape_view, Shape
+#include "kaad/tensor/tensor_types.hpp" // for ShapeView, Shape
 #include <algorithm>                    // for __copy_fn, copy, max
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <utility>                      // for cmp_less_equal
@@ -8,7 +8,7 @@
 
 namespace kaad::functions {
 
-bool BatchMatmul::broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape) {
+bool BatchMatmul::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
     size_t lhs_rank = lhs.size();
     size_t rhs_rank = rhs.size();
     size_t new_rank = std::max(lhs_rank, rhs_rank);

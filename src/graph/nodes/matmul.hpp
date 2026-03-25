@@ -2,7 +2,7 @@
 
 #include <kaad/functions/matmul.hpp>    // for Matmul
 #include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
 
 namespace kaad {
 
@@ -33,7 +33,7 @@ class NodeMatmul : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape);
+    NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape);
 
     /// Compute @c value for this node.
     /// Computes @c value for @c lhs and @c rhs first.

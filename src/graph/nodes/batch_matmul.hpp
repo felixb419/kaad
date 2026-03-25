@@ -1,6 +1,6 @@
 #pragma once
 
-#include "kaad/tensor/tensor_types.hpp"    // for Shape_view
+#include "kaad/tensor/tensor_types.hpp"    // for ShapeView
 #include <kaad/functions/batch_matmul.hpp> // for BatchMatmul
 #include <kaad/graph/nodes/inode.hpp>      // for INode
 
@@ -33,7 +33,7 @@ class NodeBatchMatmul : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape);
+    NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape);
 
     ~NodeBatchMatmul() noexcept override = default;
 

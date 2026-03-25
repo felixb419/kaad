@@ -6,7 +6,7 @@
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
 
 namespace kaad {
 
@@ -44,7 +44,7 @@ void NodeOuter::metadata() {
     }
 }
 
-NodeOuter::NodeOuter(INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape)
+NodeOuter::NodeOuter(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->metadata();

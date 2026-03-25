@@ -53,10 +53,10 @@ class Tensor {
 
   public:
     /// @return Stride array based on @p shape.
-    static Stride compute_stride(Shape_view shape);
+    static Stride compute_stride(ShapeView shape);
 
     /// @return Number of elements based on @p shape.
-    static size_type compute_size(Shape_view shape);
+    static size_type compute_size(ShapeView shape);
 
     /// @brief Constructs 0-rank tensor initialized to 0.
     Tensor();
@@ -66,7 +66,7 @@ class Tensor {
      * @note The elements array is initialized ot 0.
      * @param shape Dimensions of the tensor.
      */
-    explicit Tensor(Shape_view shape);
+    explicit Tensor(ShapeView shape);
 
     /// @brief Constructs a rank-1 tensor with given @p elements.
     /// @param elements Elements of the tensor.
@@ -78,14 +78,14 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param stride Per-dim strides of the tensor.
      */
-    Tensor(Shape_view shape, Stride_view stride);
+    Tensor(ShapeView shape, Stride_view stride);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p elements.
      * @param shape Dimensions of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(Shape_view shape, std::span<const value_type> elements);
+    Tensor(ShapeView shape, std::span<const value_type> elements);
 
     /**
      * @brief Constructs a tensor with given @p shape, @p stride and @p
@@ -94,7 +94,7 @@ class Tensor {
      * @param stride Per-dim strides of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(Shape_view shape, Stride_view stride,
+    Tensor(ShapeView shape, Stride_view stride,
            std::span<const value_type> elements);
 
     /**
@@ -103,15 +103,15 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param fill_value Value to fill the element array.
      */
-    static Tensor full(Shape_view shape, value_type fill_value);
+    static Tensor full(ShapeView shape, value_type fill_value);
 
     /// @brief Returns a tensor with given shape and filled with 0.
     /// @param shape Dimensions of the tensor.
-    static Tensor zeros(Shape_view shape);
+    static Tensor zeros(ShapeView shape);
 
     /// @brief Returns a tensor with given shape and filled with 1.
     /// @param shape Dimensions of the tensor.
-    static Tensor ones(Shape_view shape);
+    static Tensor ones(ShapeView shape);
 
     /**
      * @brief Returns a tensor with given shape and sequentially increasing
@@ -119,11 +119,11 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param starting_value The value to start the sequence at.
      */
-    static Tensor sequential(Shape_view shape, value_type starting_value = 1);
+    static Tensor sequential(ShapeView shape, value_type starting_value = 1);
 
     /// @brief Returns a tensor with given shape and linearly spaced values.
     /// @param shape Dimensions of the tensor.
-    static Tensor linspace(Shape_view shape, value_type start, value_type step);
+    static Tensor linspace(ShapeView shape, value_type start, value_type step);
 
     /**
      * @brief Returns a tensor with given shape and filled with random values.
@@ -131,7 +131,7 @@ class Tensor {
      * @param min Minimum random value.
      * @param min Maximum random value.
      */
-    static Tensor rand(Shape_view shape, value_type min = 0,
+    static Tensor rand(ShapeView shape, value_type min = 0,
                        value_type max = 1);
 
     /**
@@ -141,7 +141,7 @@ class Tensor {
      * @param mean Mean of the produced values.
      * @param std Standard deviation of the produced values.
      */
-    static Tensor randn(Shape_view shape, value_type mean = 0,
+    static Tensor randn(ShapeView shape, value_type mean = 0,
                         value_type std = 1);
 
     /**
@@ -159,7 +159,7 @@ class Tensor {
 
     /// @brief Get shape of the tensor.
     /// @return Read-only span representing the dimensions of the tensor.
-    [[nodiscard]] Shape_view shape() const noexcept;
+    [[nodiscard]] ShapeView shape() const noexcept;
 
     /// @brief Get strides of the tensor.
     /// @return Read-only span representing the stride array.

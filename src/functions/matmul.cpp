@@ -1,12 +1,12 @@
 #include <kaad/functions/matmul.hpp>
 
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 
 namespace kaad::functions {
 
-bool Matmul::broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape) {
+bool Matmul::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
 
     if (lhs.size() != 2 || rhs.size() != 2) {
         return false;

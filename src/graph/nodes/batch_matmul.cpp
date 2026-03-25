@@ -4,13 +4,13 @@
 #include <kaad/graph/nodes/inode.hpp>      // for INode
 #include <kaad/scalar.hpp>                 // for Scalar
 #include <kaad/tensor/tensor.hpp>          // for Tensor
-#include <kaad/tensor/tensor_types.hpp>    // for Shape, Stride, Shape_view
+#include <kaad/tensor/tensor_types.hpp>    // for Shape, Stride, ShapeView
 #include <kaad/tensor/tensor_view.hpp>     // for TensorView
 
 namespace kaad {
 
 NodeBatchMatmul::NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr,
-                                 Shape_view value_s)
+                                 ShapeView value_s)
     : INode(value_s, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     TensorView lhs_v = this->lhs->value().view();

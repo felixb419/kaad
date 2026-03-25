@@ -3,12 +3,12 @@
 #include "../../exceptions.hpp"         // for ArgumentError
 #include <algorithm>                    // for __fill_fn, fill
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view, Stride_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Stride_view
 #include <vector>                       // for vector
 
 namespace kaad {
 
-INode::INode(Shape_view value_shape, bool is_input_node, const char *label,
+INode::INode(ShapeView value_shape, bool is_input_node, const char *label,
              Stride_view value_stride)
     : gradient_(value_shape), label_(label), evaluated_(is_input_node),
       is_input_node_(is_input_node) {

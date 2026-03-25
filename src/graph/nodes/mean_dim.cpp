@@ -7,7 +7,7 @@
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
 
 namespace kaad {
 
@@ -34,7 +34,7 @@ void NodeMeanDim::metadata(int dim) {
     }
 }
 
-NodeMeanDim::NodeMeanDim(INode *input_ptr, int dim, Shape_view value_shape)
+NodeMeanDim::NodeMeanDim(INode *input_ptr, int dim, ShapeView value_shape)
     : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);

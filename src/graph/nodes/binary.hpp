@@ -45,7 +45,7 @@ template <class Kernel> class NodeBinary : public INode {
      */
     NodeBinary(functions::primal::binary::pointwise_fn<Kernel> operation,
                functions::adjoint::binary::pointwise_fn<Kernel> derivative,
-               INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape)
+               INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
         : INode(value_shape, false), forward_op(operation),
           backward_op(derivative), lhs(lhs_ptr), rhs(rhs_ptr) {
         auto *base_ptr = static_cast<INode *>(this);

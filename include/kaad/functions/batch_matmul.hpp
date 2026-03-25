@@ -4,7 +4,7 @@
 #include <cstddef>                      // for size_t
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <utility>                      // for make_index_sequence, index_s...
 
@@ -21,7 +21,7 @@ struct BatchMatmul {
      * @return true if the broadcast was sucessful, false if the shapes are
      * incompatible
      */
-    static bool broadcast(Shape_view lhs, Shape_view rhs, Shape &new_shape);
+    static bool broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape);
 
     struct Metadata {
 

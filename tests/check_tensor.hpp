@@ -21,7 +21,7 @@ inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
 }
 
 inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
-                         kaad::Shape_view shape_correct,
+                         kaad::ShapeView shape_correct,
                          std::span<const kaad::Scalar> elements_correct) {
     constexpr bool SCALAR_IS_DOUBLE = std::same_as<kaad::Scalar, double>;
     constexpr kaad::Scalar ABS_TOL = SCALAR_IS_DOUBLE ? 1e-12 : 1e-6;

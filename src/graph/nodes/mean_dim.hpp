@@ -5,7 +5,7 @@
 #include <kaad/functions/primal.hpp>    // for mean_dim, mean_dim_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
 #include <vector>                       // for vector
 
 namespace kaad {
@@ -47,7 +47,7 @@ class NodeMeanDim : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    NodeMeanDim(INode *input_ptr, int dim, Shape_view value_shape);
+    NodeMeanDim(INode *input_ptr, int dim, ShapeView value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

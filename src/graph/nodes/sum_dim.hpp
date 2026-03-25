@@ -5,7 +5,7 @@
 #include <kaad/functions/primal.hpp>    // for sum_dim, sum_dim_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
 #include <vector>                       // for vector
 
 namespace kaad {
@@ -41,7 +41,7 @@ class NodeSumDim : public INode {
      * @param dim Index of the dimension summed over.
      * @param value_shape Output/gradient shape
      */
-    NodeSumDim(INode *input_ptr, int dim, Shape_view value_shape);
+    NodeSumDim(INode *input_ptr, int dim, ShapeView value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

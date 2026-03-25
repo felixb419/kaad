@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view, Stride_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Stride_view
 
 namespace kaad {
 
@@ -40,7 +40,7 @@ class INode {
      * @param value_stride Stride array of the value tensor (can be omitted if
      * tensor is contigous).
      */
-    INode(Shape_view value_shape, bool is_input_node, const char *label = "",
+    INode(ShapeView value_shape, bool is_input_node, const char *label = "",
           Stride_view value_stride = {});
 
   public:

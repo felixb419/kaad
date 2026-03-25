@@ -5,7 +5,7 @@
 #include <kaad/functions/primal.hpp>    // for slice, slice_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
 #include <vector>                       // for vector
 
 namespace kaad {
@@ -41,7 +41,7 @@ class NodeSlice : public INode {
      * @param offset_arr Array with the offset of the start of @c value.
      * @param value_shape Output/gradient shape
      */
-    NodeSlice(INode *input_ptr, const int *offset_arr, Shape_view value_shape);
+    NodeSlice(INode *input_ptr, const int *offset_arr, ShapeView value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

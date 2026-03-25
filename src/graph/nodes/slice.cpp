@@ -7,7 +7,7 @@
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
 
 namespace kaad {
 
@@ -60,7 +60,7 @@ void NodeSlice::metadata(const int *offset_arr) {
 }
 
 NodeSlice::NodeSlice(INode *input_ptr, const int *offset_arr,
-                     Shape_view value_shape)
+                     ShapeView value_shape)
     : INode(value_shape, false), input(input_ptr) {
     this->metadata(offset_arr);
 }

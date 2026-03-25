@@ -7,7 +7,7 @@
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
 
 namespace kaad {
 
@@ -28,7 +28,7 @@ void NodeSumDim::metadata(int dim) {
     }
 }
 
-NodeSumDim::NodeSumDim(INode *input_ptr, int dim, Shape_view value_shape)
+NodeSumDim::NodeSumDim(INode *input_ptr, int dim, ShapeView value_shape)
     : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);
