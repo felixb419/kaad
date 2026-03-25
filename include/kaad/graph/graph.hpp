@@ -26,7 +26,7 @@ class Graph {
      * @brief Get the last node in the graph.
      * @return Handle of the node at the back of the node vector.
      */
-    Node back_handle() noexcept;
+    [[nodiscard]] Node back_handle() noexcept;
 
     /**
      * @brief Returns a pointer to a node handle.
@@ -35,7 +35,7 @@ class Graph {
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.
      */
-    INode *get_node(Node node);
+    [[nodiscard]] INode *get_node(Node node);
 
   public:
     /**
@@ -49,8 +49,8 @@ class Graph {
      * @param label Label string for the node.
      * @return A handle of the newly created InputNode.
      */
-    Node add_input_node(std::span<const int> value_shape,
-                        const char *label = "");
+    [[nodiscard]] Node add_input_node(std::span<const int> value_shape,
+                                      const char *label = "");
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.

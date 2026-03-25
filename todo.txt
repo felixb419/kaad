@@ -1,17 +1,14 @@
 [FIX]
 
 [REFACTOR]
-            mark getters as nodiscard in:
-                nodes
-                graph
-
+(graph)     mark getters as nodiscard in nodes
 (tensor)    use Tensor::stride and Tensor::shape everywhere
 (functions) make new functions use std::mdspan
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    Change TensorView to std::mdspan
-                check commands:
+                check comments:
                     Matmul::primal
                     Matmul::adjoint
                     BatchMatmul::primal
