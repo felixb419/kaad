@@ -13,6 +13,6 @@ using ShapeView = std::span<const int>;
 /// Alias for owning tensor strides.
 using Stride = std::vector<int>;
 /// Alias for non-owning immutable tensor strides.
-using Stride_view = std::span<const int>;
+using StrideView = std::span<const int>;
 
 } // namespace kaad

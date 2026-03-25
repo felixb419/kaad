@@ -55,7 +55,7 @@ Tensor::size_type Tensor::compute_size(ShapeView shape) {
     return len;
 }
 
-Stride checked_stride(Stride_view stride, ShapeView shape) {
+Stride checked_stride(StrideView stride, ShapeView shape) {
 
     if (shape.size() != stride.size()) {
         throw ArgumentError(
@@ -92,7 +92,7 @@ Tensor::Tensor(std::span<const Scalar> elements)
       stride_(Tensor::compute_stride(shape_)),
       elements_(elements.begin(), elements.end()) {}
 
-Tensor::Tensor(ShapeView shape, Stride_view stride)
+Tensor::Tensor(ShapeView shape, StrideView stride)
     : shape_(shape.begin(), shape.end()),
       stride_(checked_stride(stride, shape)),
       elements_(Tensor::compute_size(shape_)) {}
@@ -102,7 +102,7 @@ Tensor::Tensor(ShapeView shape, std::span<const Scalar> elements)
       stride_(Tensor::compute_stride(shape_)),
       elements_(checked_elements(elements, shape)) {}
 
-Tensor::Tensor(ShapeView shape, Stride_view stride,
+Tensor::Tensor(ShapeView shape, StrideView stride,
                std::span<const Scalar> elements)
     : shape_(shape.begin(), shape.end()),
       stride_(checked_stride(stride, shape)),
@@ -180,7 +180,7 @@ Tensor::size_type Tensor::rank() const noexcept {
 
 ShapeView Tensor::shape() const noexcept { return this->shape_; }
 
-Stride_view Tensor::stride() const noexcept { return this->stride_; }
+StrideView Tensor::stride() const noexcept { return this->stride_; }
 
 std::span<Scalar> Tensor::elements() noexcept { return this->elements_; }
 

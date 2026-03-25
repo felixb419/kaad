@@ -4,7 +4,7 @@
 #include <cstddef>                      // for size_t
 #include <iostream>                     // for ostream, ptrdiff_t
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Stride, Stride_view
+#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Stride, StrideView
 #include <span>                         // for span
 
 namespace kaad {
@@ -25,7 +25,7 @@ template <typename T> struct TensorView {
     using size_type = std::size_t;
 
     ShapeView shape;   ///< Dimensions of the tensor.
-    Stride_view stride; ///< Stride of the tensor (steps needed to move
+    StrideView stride; ///< Stride of the tensor (steps needed to move
                         ///< one element in each dimension).
     std::span<value_type> elements; ///< Elements of the tensor.
 
@@ -42,7 +42,7 @@ template <typename T> struct TensorView {
      * @param elements Pointer to the element array.
      * @param len Length of the element array.
      */
-    TensorView(ShapeView shape, Stride_view stride,
+    TensorView(ShapeView shape, StrideView stride,
                std::span<value_type> elements)
         : shape(shape), stride(stride), elements(elements) {}
 

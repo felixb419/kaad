@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Stride_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
 
 namespace kaad {
 
@@ -41,7 +41,7 @@ class INode {
      * tensor is contigous).
      */
     INode(ShapeView value_shape, bool is_input_node, const char *label = "",
-          Stride_view value_stride = {});
+          StrideView value_stride = {});
 
   public:
     /// Virtual destructor for polymorphic deletion

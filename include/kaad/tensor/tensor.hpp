@@ -78,7 +78,7 @@ class Tensor {
      * @param shape Dimensions of the tensor.
      * @param stride Per-dim strides of the tensor.
      */
-    Tensor(ShapeView shape, Stride_view stride);
+    Tensor(ShapeView shape, StrideView stride);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p elements.
@@ -94,7 +94,7 @@ class Tensor {
      * @param stride Per-dim strides of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(ShapeView shape, Stride_view stride,
+    Tensor(ShapeView shape, StrideView stride,
            std::span<const value_type> elements);
 
     /**
@@ -163,7 +163,7 @@ class Tensor {
 
     /// @brief Get strides of the tensor.
     /// @return Read-only span representing the stride array.
-    [[nodiscard]] Stride_view stride() const noexcept;
+    [[nodiscard]] StrideView stride() const noexcept;
 
     /**
      * @brief Get the elements of the tensor.

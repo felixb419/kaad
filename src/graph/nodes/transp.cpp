@@ -2,12 +2,12 @@
 
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Stride_view
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
 
 namespace kaad {
 
 NodeTransp::NodeTransp(INode *input_ptr, ShapeView value_shape,
-                       Stride_view value_stride)
+                       StrideView value_stride)
     : INode(value_shape, false, "", value_stride), input(input_ptr) {
     // this->input_end = this->input->value().data() +
     // this->input->value().size();
