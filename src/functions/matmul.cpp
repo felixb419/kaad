@@ -1,6 +1,8 @@
 #include <kaad/functions/matmul.hpp>
 
-#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, Shape_view
+#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 
 namespace kaad::functions {
 
