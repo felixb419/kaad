@@ -1,15 +1,16 @@
-#include <kaad/graph/graph.hpp>
+#include "kaad/graph/graph.hpp"
 
-#include "../exceptions.hpp"          // for ArgumentError
-#include "nodes/input.hpp"            // for NodeInput
-#include <algorithm>                  // for fill
-#include <cstddef>                    // for size_t
-#include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr, make_unique
-#include <string>                     // for operator+, to_string, basic_st...
-#include <vector>                     // for vector
+#include "../exceptions.hpp"            // for ArgumentError
+#include "nodes/input.hpp"              // for NodeInput
+#include <algorithm>                    // for fill
+#include <cstddef>                      // for size_t
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <memory>                       // for unique_ptr, make_unique
+#include <string>                       // for basic_string, operator+, to_...
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -29,8 +30,7 @@ INode *Graph::get_node(Node node) {
     return this->nodes[node.idx_].get();
 }
 
-Node Graph::add_input_node(std::span<const int> value_shape,
-                           const char *label) {
+Node Graph::add_input_node(Shape_view value_shape, const char *label) {
     this->nodes.push_back(std::make_unique<NodeInput>(value_shape, label));
 
     return Node(this->nodes.size() - 1, this);

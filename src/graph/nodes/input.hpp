@@ -24,7 +24,7 @@ class NodeInput : public INode {
      * @param value_shape Output/gradient shape
      * @param label Label string.
      */
-    NodeInput(std::span<const int> value_shape, const char *label = "")
+    NodeInput(Shape_view value_shape, const char *label = "")
         : INode(value_shape, true, label) {}
 
     /// @return Type of the node as a string.

@@ -6,6 +6,8 @@
 (graph)     mark getters as nodiscard in nodes
 (tensor)    use Tensor::stride and Tensor::shape everywhere
 (tensor)    replace TensorView tparam with isMut
+(operators) rework slice parameters
+(operators) rework slice size_span offset_span code duplication
 
 [FEAT]
 (tensor)    constructor for all shapes (comment out other cnstrctrs and checkk all errors)

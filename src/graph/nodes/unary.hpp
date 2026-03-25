@@ -52,7 +52,7 @@ template <class Kernel> class NodeUnary : public INode {
      */
     NodeUnary(functions::primal::unary::pointwise_fn<Kernel> operation,
               functions::adjoint::unary::pointwise_fn<Kernel> derivative,
-              INode *input_ptr, std::span<const int> value_shape)
+              INode *input_ptr, Shape_view value_shape)
         : INode(value_shape, false), forward_op(operation),
           backward_op(derivative), input(input_ptr) {
         this->end =

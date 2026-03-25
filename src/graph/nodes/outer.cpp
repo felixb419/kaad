@@ -1,11 +1,12 @@
 #include "outer.hpp"
 
-#include <algorithm>                  // for copy
-#include <array>                      // for array
-#include <kaad/graph/dispatchers.hpp> // for get_flexGrad
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
-#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <algorithm>                    // for copy
+#include <array>                        // for array
+#include <kaad/graph/dispatchers.hpp>   // for get_flexGrad, get_flexOp
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view
 
 namespace kaad {
 
@@ -43,8 +44,7 @@ void NodeOuter::metadata() {
     }
 }
 
-NodeOuter::NodeOuter(INode *lhs_ptr, INode *rhs_ptr,
-                     std::span<const int> value_shape)
+NodeOuter::NodeOuter(INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     this->metadata();

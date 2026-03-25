@@ -1,11 +1,12 @@
 #pragma once
 
 #include <algorithm> // for equal
+#include <concepts>
 #include <iostream>
 #include <kaad/scalar.hpp>        // for Scalar
 #include <kaad/tensor/tensor.hpp> // for Tensor
-#include <span>                   // for span
-#include <vector>                 // for vector
+#include <kaad/tensor/tensor_types.hpp>
+#include <span> // for span
 
 inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
                       kaad::Scalar rel_tol) {
@@ -20,7 +21,7 @@ inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
 }
 
 inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
-                         std::span<const int> shape_correct,
+                         kaad::Shape_view shape_correct,
                          std::span<const kaad::Scalar> elements_correct) {
     constexpr bool SCALAR_IS_DOUBLE = std::same_as<kaad::Scalar, double>;
     constexpr kaad::Scalar ABS_TOL = SCALAR_IS_DOUBLE ? 1e-12 : 1e-6;

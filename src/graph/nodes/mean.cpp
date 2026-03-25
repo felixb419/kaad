@@ -4,7 +4,6 @@
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/scalar.hpp>            // for Scalar
 #include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <span>                       // for span
 
 namespace kaad {
 

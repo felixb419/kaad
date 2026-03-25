@@ -1,11 +1,11 @@
 #pragma once
 
-#include <kaad/functions/adjoint.hpp> // for pointwise, pointwise_fn
-#include <kaad/functions/kernels.hpp> // for NoOp
-#include <kaad/functions/primal.hpp>  // for pointwise, pointwise_fn
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <span>                       // for span
+#include <kaad/functions/adjoint.hpp>   // for pointwise, pointwise_fn
+#include <kaad/functions/kernels.hpp>   // for NoOp
+#include <kaad/functions/primal.hpp>    // for pointwise, pointwise_fn
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view, Stride_view
 
 namespace kaad {
 
@@ -41,8 +41,8 @@ class NodeTransp : public INode {
      * @param value_shape Output/gradient shape
      * @param value_shape Output/gradient stride
      */
-    NodeTransp(INode *input_ptr, std::span<const int> value_shape,
-               std::span<const int> value_stride);
+    NodeTransp(INode *input_ptr, Shape_view value_shape,
+               Stride_view value_stride);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

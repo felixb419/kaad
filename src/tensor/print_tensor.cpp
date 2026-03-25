@@ -1,15 +1,15 @@
 #include "print_tensor.hpp"
 
-#include <cstddef>                // for size_t
-#include <kaad/scalar.hpp>        // for Scalar
-#include <kaad/tensor/tensor.hpp> // for Tensor
-#include <vector>                 // for vector
+#include <cstddef>                      // for size_t
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view, Stride_view
+#include <vector>                       // for vector
 
 namespace kaad {
 
 void print_tensor_values(std::ostream &stream, std::span<int> cords,
-                         std::span<const int> shape,
-                         std::span<const int> stride,
+                         Shape_view shape, Stride_view stride,
                          std::span<const Scalar> elements, std::size_t idx,
                          std::size_t &indent) {
     std::size_t rank = shape.size();
@@ -49,9 +49,8 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
     }
 }
 
-void print_tensor_impl(std::ostream &stream, std::span<const int> shape,
-                       std::span<const int> stride,
-                       std::span<const Scalar> elements) {
+void print_tensor_impl(std::ostream &stream, Shape_view shape,
+                       Stride_view stride, std::span<const Scalar> elements) {
 
     stream << "shape: (";
     if (!shape.empty()) {

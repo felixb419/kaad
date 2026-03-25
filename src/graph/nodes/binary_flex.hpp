@@ -93,8 +93,7 @@ template <class Kernel> class NodeBinaryFlex : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    NodeBinaryFlex(INode *lhs_ptr, INode *rhs_ptr,
-                   std::span<const int> value_shape)
+    NodeBinaryFlex(INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape)
         : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
         this->metadata();

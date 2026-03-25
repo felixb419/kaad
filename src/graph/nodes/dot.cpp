@@ -3,7 +3,6 @@
 #include <array>                      // for array
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <span>                       // for span
 
 namespace kaad {
 

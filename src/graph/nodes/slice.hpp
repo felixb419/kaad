@@ -1,12 +1,11 @@
 #pragma once
 
-#include "kaad/tensor/tensor_types.hpp" // for Stride
 #include <cstddef>                      // for size_t
 #include <kaad/functions/adjoint.hpp>   // for slice, slice_fn
 #include <kaad/functions/primal.hpp>    // for slice, slice_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
-#include <span>                         // for span
+#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape_view
 #include <vector>                       // for vector
 
 namespace kaad {
@@ -42,8 +41,7 @@ class NodeSlice : public INode {
      * @param offset_arr Array with the offset of the start of @c value.
      * @param value_shape Output/gradient shape
      */
-    NodeSlice(INode *input_ptr, const int *offset_arr,
-              std::span<const int> value_shape);
+    NodeSlice(INode *input_ptr, const int *offset_arr, Shape_view value_shape);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

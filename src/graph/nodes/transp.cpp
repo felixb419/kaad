@@ -1,12 +1,13 @@
 #include "transp.hpp"
 
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view, Stride_view
 
 namespace kaad {
 
-NodeTransp::NodeTransp(INode *input_ptr, std::span<const int> value_shape,
-                       std::span<const int> value_stride)
+NodeTransp::NodeTransp(INode *input_ptr, Shape_view value_shape,
+                       Stride_view value_stride)
     : INode(value_shape, false, "", value_stride), input(input_ptr) {
     // this->input_end = this->input->value().data() +
     // this->input->value().size();

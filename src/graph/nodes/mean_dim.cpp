@@ -1,12 +1,13 @@
 #include "mean_dim.hpp"
 
-#include "../common.hpp"              // for along_dim_met...
-#include <array>                      // for array
-#include <kaad/graph/dispatchers.hpp> // for get_meanDim
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
-#include <kaad/scalar.hpp>            // for Scalar
-#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include "../common.hpp"                // for along_dim_metadata_impl
+#include <array>                        // for array
+#include <kaad/graph/dispatchers.hpp>   // for get_meanDim, get_meanDim_grad
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view
 
 namespace kaad {
 
@@ -33,8 +34,7 @@ void NodeMeanDim::metadata(int dim) {
     }
 }
 
-NodeMeanDim::NodeMeanDim(INode *input_ptr, int dim,
-                         std::span<const int> value_shape)
+NodeMeanDim::NodeMeanDim(INode *input_ptr, int dim, Shape_view value_shape)
     : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);

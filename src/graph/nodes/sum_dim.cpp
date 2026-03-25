@@ -1,12 +1,13 @@
 #include "sum_dim.hpp"
 
-#include "../common.hpp"              // for along_dim_met...
-#include <array>                      // for array
-#include <kaad/graph/dispatchers.hpp> // for get_sumDim
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
-#include <kaad/scalar.hpp>            // for Scalar
-#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include "../common.hpp"                // for along_dim_metadata_impl
+#include <array>                        // for array
+#include <kaad/graph/dispatchers.hpp>   // for get_sumDim, get_sumDim_grad
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view
 
 namespace kaad {
 
@@ -27,8 +28,7 @@ void NodeSumDim::metadata(int dim) {
     }
 }
 
-NodeSumDim::NodeSumDim(INode *input_ptr, int dim,
-                       std::span<const int> value_shape)
+NodeSumDim::NodeSumDim(INode *input_ptr, int dim, Shape_view value_shape)
     : INode(value_shape, false), input(input_ptr) {
 
     this->metadata(dim);

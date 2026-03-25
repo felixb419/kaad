@@ -37,8 +37,7 @@ void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
     }
 }
 
-NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr,
-                       std::span<const int> value_shape)
+NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, Shape_view value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     TensorView lhs_v = this->lhs->value().view();

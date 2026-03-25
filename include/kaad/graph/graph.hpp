@@ -1,11 +1,12 @@
 #pragma once
 
-#include <initializer_list>           // for initializer_list
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr
-#include <span>                       // for span
-#include <vector>                     // for vector
+#include <initializer_list>             // for initializer_list
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape_view
+#include <memory>                       // for unique_ptr
+#include <span>                         // for span
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -49,7 +50,7 @@ class Graph {
      * @param label Label string for the node.
      * @return A handle of the newly created InputNode.
      */
-    [[nodiscard]] Node add_input_node(std::span<const int> value_shape,
+    [[nodiscard]] Node add_input_node(Shape_view value_shape,
                                       const char *label = "");
 
     /**
