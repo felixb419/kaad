@@ -65,11 +65,10 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
 inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
                                     std::size_t &input_rank,
                                     std::vector<std::size_t> &input_offset,
-                                    std::vector<int> &input_stride,
-                                    std::vector<int> &output_stride) {
+                                    Stride &input_stride,
+                                    Stride &output_stride) {
     input_rank = input.rank();
-    input_stride =
-        std::vector<int>(input.stride().begin(), input.stride().end());
+    input_stride = Stride(input.stride().begin(), input.stride().end());
 
     // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
@@ -79,8 +78,7 @@ inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
         }
     }
 
-    output_stride =
-        std::vector<int>(output.stride().begin(), output.stride().end());
+    output_stride = Stride(output.stride().begin(), output.stride().end());
 
     // adjust output_stride if keep_rank was not set
     if (input.rank() > output.rank()) {

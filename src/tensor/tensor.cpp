@@ -1,29 +1,30 @@
 #include <kaad/tensor/tensor.hpp>
 
 #include "../exceptions.hpp"             // for ArgumentError
-#include "print_tensor.hpp"              // for print_tensor
-#include <algorithm>                     // for copy, fill, fill_n
-#include <iostream>                      // for char_traits
+#include "print_tensor.hpp"              // for print_tensor_impl
+#include <algorithm>                     // for fill, __fill_fn, max
+#include <iostream>                      // for char_traits, ostream
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_view.hpp>   // for TensorView
+#include <kaad/tensor/tensor_types.hpp>  // for Stride, Shape_view
+#include <kaad/tensor/tensor_view.hpp>   // for TensorViewConst, TensorViewMut
 #include <span>                          // for span
-#include <string>                        // for operator+, to_s...
+#include <string>                        // for operator+, basic_string
 #include <utility>                       // for move
-#include <vector>                        // for allocator, vector
+#include <vector>                        // for vector, allocator
 
 namespace kaad {
 
 template class IteratorImpl<false>;
 template class IteratorImpl<true>;
 
-std::vector<int> Tensor::compute_stride(std::span<const int> shape) {
+Stride Tensor::compute_stride(Shape_view shape) {
 
     if (shape.empty()) {
-        return std::vector<int>{};
+        return Stride{};
     }
 
-    std::vector<int> stride(shape.size());
+    Stride stride(shape.size());
     int idx = static_cast<int>(shape.size()) - 1;
 
     stride[idx--] = 1;
@@ -54,8 +55,7 @@ Tensor::size_type Tensor::compute_size(std::span<const int> shape) {
     return len;
 }
 
-std::vector<int> checked_stride(std::span<const int> stride,
-                                std::span<const int> shape) {
+Stride checked_stride(std::span<const int> stride, std::span<const int> shape) {
 
     if (shape.size() != stride.size()) {
         throw ArgumentError(

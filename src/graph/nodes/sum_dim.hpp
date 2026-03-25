@@ -1,12 +1,13 @@
 #pragma once
 
-#include <cstddef>                    // for size_t
-#include <kaad/functions/adjoint.hpp> // for sum_dim, sum_dim_fn
-#include <kaad/functions/primal.hpp>  // for sum_dim, sum_dim_fn
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <span>                       // for span
-#include <vector>                     // for vector
+#include <cstddef>                      // for size_t
+#include <kaad/functions/adjoint.hpp>   // for sum_dim, sum_dim_fn
+#include <kaad/functions/primal.hpp>    // for sum_dim, sum_dim_fn
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Stride
+#include <span>                         // for span
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -26,8 +27,8 @@ class NodeSumDim : public INode {
         functions::adjoint::unary::sum_dim; ///< Function pointer to the
                                             ///< sum_dim gradient.
 
-    std::vector<int> input_stride; ///< stride Array for input.
-    std::vector<int> value_stride; ///< stride Array for value.
+    Stride input_stride; ///< stride Array for input.
+    Stride value_stride; ///< stride Array for value.
     std::vector<std::size_t>
         input_offset;           ///< Per-dim offset to the end of input buffer.
     std::size_t value_rank = 0; ///< Number of dimensions of value.

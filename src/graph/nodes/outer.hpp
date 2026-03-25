@@ -1,13 +1,14 @@
 #pragma once
 
-#include <cstddef>                    // for size_t
-#include <kaad/functions/adjoint.hpp> // for flexible, flexible_fn
-#include <kaad/functions/kernels.hpp> // for Mul
-#include <kaad/functions/primal.hpp>  // for flexible, flexible_fn
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <span>                       // for span
-#include <vector>                     // for vector
+#include <cstddef>                      // for size_t
+#include <kaad/functions/adjoint.hpp>   // for flexible, flexible_fn
+#include <kaad/functions/kernels.hpp>   // for Mul
+#include <kaad/functions/primal.hpp>    // for flexible, flexible_fn
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Stride
+#include <span>                         // for span
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -31,9 +32,9 @@ class NodeOuter : public INode {
         functions::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
 
-    std::vector<int> lhs_stride; ///< stride Array for lhs.
-    std::vector<int> rhs_stride; ///< stride Array for rhs.
-    std::vector<int> res_stride; ///< stride Array for res.
+    Stride lhs_stride; ///< stride Array for lhs.
+    Stride rhs_stride; ///< stride Array for rhs.
+    Stride res_stride; ///< stride Array for res.
     std::vector<std::size_t>
         res_offset;           ///< Per-dim offset to the end of res buffer.
     std::size_t res_rank = 0; ///< Number of the dimensions of the res tensor.

@@ -1,11 +1,14 @@
 [FIX]
 
 [REFACTOR]
+(tensor)    make Shape_view Stride_view CamelCase
+(tensor)    make shape and stride use size_t
 (graph)     mark getters as nodiscard in nodes
 (tensor)    use Tensor::stride and Tensor::shape everywhere
 (tensor)    replace TensorView tparam with isMut
 
 [FEAT]
+(tensor)    constructor for all shapes (comment out other cnstrctrs and checkk all errors)
 (tensor)    Tensor(std::vector<Scalar> &&)
 
 [PERF]

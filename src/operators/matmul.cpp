@@ -1,6 +1,6 @@
 #include <kaad/operators/operators.hpp> // for matmul
 
-#include "../exceptions.hpp"               // for ShapeError, make_graph...
+#include "../exceptions.hpp"               // for ShapeError, make_graph_er...
 #include "../graph/common.hpp"             // for combine_matrix
 #include "../graph/nodes/batch_matmul.hpp" // for NodeBatchMatmul
 #include "../graph/nodes/matmul.hpp"       // for NodeMatmul
@@ -10,6 +10,7 @@
 #include <kaad/graph/node_handle.hpp>      // for Node
 #include <kaad/graph/nodes/inode.hpp>      // for INode
 #include <kaad/tensor/tensor.hpp>          // for Tensor
+#include <kaad/tensor/tensor_types.hpp>    // for Shape
 #include <memory>                          // for unique_ptr, make_unique
 #include <span>                            // for span
 #include <string>                          // for basic_string
@@ -27,7 +28,7 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
     Tensor &rhs_val = rhs_ptr->value();
 
     std::size_t new_len = std::max(lhs_val.rank(), rhs_val.rank());
-    std::vector<int> new_shape(new_len);
+    Shape new_shape(new_len);
 
     const char *op_name = new_len == 2 ? "matmul" : "batch_matmul";
     if (!detail::combine_matrix(lhs_val.shape().data(), lhs_val.rank(),

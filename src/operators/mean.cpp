@@ -1,19 +1,20 @@
 #include <kaad/operators/operators.hpp> // for mean
 
-#include "../exceptions.hpp"           // for ArgumentError, make_graph_...
-#include "../graph/nodes/mean.hpp"     // for NodeMean
-#include "../graph/nodes/mean_dim.hpp" // for NodeMeanDim
-#include <algorithm>                   // for copy
-#include <cstddef>                     // for size_t
-#include <kaad/graph/graph.hpp>        // for Graph, mean
-#include <kaad/graph/node_handle.hpp>  // for Node
-#include <kaad/graph/nodes/inode.hpp>  // for INode
-#include <kaad/tensor/tensor.hpp>      // for Tensor
-#include <memory>                      // for unique_ptr, make_unique
-#include <span>                        // for span
-#include <string>                      // for basic_string
-#include <utility>                     // for cmp_greater_equal, pair
-#include <vector>                      // for vector
+#include "../exceptions.hpp"            // for ArgumentError, make_graph_er...
+#include "../graph/nodes/mean.hpp"      // for NodeMean
+#include "../graph/nodes/mean_dim.hpp"  // for NodeMeanDim
+#include <algorithm>                    // for copy
+#include <cstddef>                      // for size_t
+#include <kaad/graph/graph.hpp>         // for Graph, mean
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape
+#include <memory>                       // for unique_ptr, make_unique
+#include <span>                         // for span
+#include <string>                       // for basic_string
+#include <utility>                      // for pair, cmp_greater_equal
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -41,7 +42,7 @@ Node mean(Graph &rec, Node input, int dim, bool keep_rank) {
     }
 
     std::size_t new_len = input_val.rank();
-    std::vector<int> new_shape(new_len);
+    Shape new_shape(new_len);
     if (keep_rank) {
         std::copy(input_val.shape().begin(), input_val.shape().end(),
                   new_shape.begin());

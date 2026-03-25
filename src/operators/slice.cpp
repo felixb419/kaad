@@ -1,19 +1,20 @@
 #include <kaad/operators/operators.hpp> // for slice
 
-#include "../exceptions.hpp"          // for ArgumentError, make_graph_e...
-#include "../graph/nodes/slice.hpp"   // for NodeSlice
-#include <algorithm>                  // for copy, __copy_fn, fill
-#include <cstddef>                    // for size_t
-#include <initializer_list>           // for initializer_list
-#include <kaad/graph/graph.hpp>       // for Graph, slice
-#include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr, make_unique
-#include <span>                       // for span
-#include <string>                     // for basic_string, string, to_string
-#include <utility>                    // for pair
-#include <vector>                     // for vector
+#include "../exceptions.hpp"            // for ArgumentError, make_graph_er...
+#include "../graph/nodes/slice.hpp"     // for NodeSlice
+#include <algorithm>                    // for copy, __copy_fn, fill
+#include <cstddef>                      // for size_t
+#include <initializer_list>             // for initializer_list
+#include <kaad/graph/graph.hpp>         // for Graph, slice
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape
+#include <memory>                       // for unique_ptr, make_unique
+#include <span>                         // for span
+#include <string>                       // for basic_string, string, to_string
+#include <utility>                      // for pair
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -76,7 +77,7 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     }
 
     std::size_t new_len = input_val.rank();
-    std::vector<int> new_shape(new_len);
+    Shape new_shape(new_len);
     std::ranges::copy(size_owned, new_shape.begin());
 
     rec.nodes.push_back(

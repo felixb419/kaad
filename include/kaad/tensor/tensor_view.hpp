@@ -89,7 +89,7 @@ template <typename T> struct TensorView {
         shape_buff = Shape(this->shape.begin(), this->shape.end());
         std::swap(shape_buff[rank - 1], shape_buff[rank - 2]);
 
-        stride_buff = Shape(this->stride.begin(), this->stride.end());
+        stride_buff = Stride(this->stride.begin(), this->stride.end());
 
         std::swap(stride_buff[rank - 1], stride_buff[rank - 2]);
 

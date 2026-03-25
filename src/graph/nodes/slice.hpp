@@ -1,12 +1,13 @@
 #pragma once
 
-#include <cstddef>                    // for size_t
-#include <kaad/functions/adjoint.hpp> // for slice, slice_fn
-#include <kaad/functions/primal.hpp>  // for slice, slice_fn
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <span>                       // for span
-#include <vector>                     // for vector
+#include "kaad/tensor/tensor_types.hpp" // for Stride
+#include <cstddef>                      // for size_t
+#include <kaad/functions/adjoint.hpp>   // for slice, slice_fn
+#include <kaad/functions/primal.hpp>    // for slice, slice_fn
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <span>                         // for span
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -24,8 +25,8 @@ class NodeSlice : public INode {
     functions::adjoint::unary::slice_fn<Scalar> backward_op =
         functions::adjoint::unary::slice;
 
-    std::vector<int> input_stride;           ///< Stride array for tensor input.
-    std::vector<int> value_stride;           ///< Stride array for tensor value.
+    Stride input_stride;                     ///< Stride array for tensor input.
+    Stride value_stride;                     ///< Stride array for tensor value.
     std::vector<std::size_t> start_offset_a; ///< Offset for the start of input.
     std::vector<std::size_t>
         value_offset; ///< Per-dim offset to the end of value buffer.

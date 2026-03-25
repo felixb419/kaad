@@ -1,12 +1,13 @@
 #pragma once
 
-#include <cstddef>                    // for size_t
-#include <kaad/functions/adjoint.hpp> // for mean_dim, mean_dim_fn
-#include <kaad/functions/primal.hpp>  // for mean_dim, mean_dim_fn
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <span>                       // for span
-#include <vector>                     // for vector
+#include <cstddef>                      // for size_t
+#include <kaad/functions/adjoint.hpp>   // for mean_dim, mean_dim_fn
+#include <kaad/functions/primal.hpp>    // for mean_dim, mean_dim_fn
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor_types.hpp> // for Stride
+#include <span>                         // for span
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -24,8 +25,8 @@ class NodeMeanDim : public INode {
     functions::adjoint::unary::mean_dim_fn<Scalar> backward_op =
         functions::adjoint::unary::mean_dim;
 
-    std::vector<int> input_stride; ///< stride Array for input tensor.
-    std::vector<int> value_stride; ///< stride Array for value tensor.
+    Stride input_stride; ///< stride Array for input tensor.
+    Stride value_stride; ///< stride Array for value tensor.
     std::vector<std::size_t>
         input_offset; ///< Per-dim offset to the end of input buffer.
     const Scalar *value_end = nullptr; ///< Pointer to the end of the value

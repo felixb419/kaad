@@ -1,10 +1,10 @@
-#include <kaad/operators/operators.hpp>
+#include <kaad/operators/operators.hpp> // for add, div, max, min, mul, pow
 
-#include "../exceptions.hpp"              // for ShapeError, make_graph_...
+#include "../exceptions.hpp"              // for ShapeError, make_graph_errmsg
 #include "../functions/safe_kernels.hpp"  // for SafeDiv, SafePow
 #include "../graph/nodes/binary.hpp"      // for NodeBinary
 #include "../graph/nodes/binary_flex.hpp" // for NodeBinaryFlex
-#include <algorithm>                      // for equal, max, move
+#include <algorithm>                      // for move, equal, max
 #include <cstddef>                        // for size_t
 #include <kaad/functions/adjoint.hpp>     // for pointwise_fn, flexible
 #include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
@@ -14,6 +14,7 @@
 #include <kaad/graph/nodes/inode.hpp>     // for INode
 #include <kaad/scalar.hpp>                // for Scalar
 #include <kaad/tensor/tensor.hpp>         // for Tensor
+#include <kaad/tensor/tensor_types.hpp>   // for Shape
 #include <memory>                         // for make_unique, unique_ptr
 #include <span>                           // for span
 #include <string>                         // for basic_string
@@ -120,7 +121,7 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
     bool rhs_scalar = rhs_val.size() == 1;
 
     std::size_t new_len = std::max(lhs_val.rank(), rhs_val.rank());
-    std::vector<int> new_shape(new_len);
+    Shape new_shape(new_len);
 
     if (rhs_scalar) {
 

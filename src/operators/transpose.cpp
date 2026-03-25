@@ -1,19 +1,20 @@
 #include <kaad/operators/operators.hpp> // for transpose
 
-#include "../exceptions.hpp"          // for ArgumentError, make_graph_e...
-#include "../graph/nodes/transp.hpp"  // for NodeTransp
-#include <algorithm>                  // for reverse_copy
-#include <cstddef>                    // for size_t
-#include <initializer_list>           // for initializer_list
-#include <kaad/graph/graph.hpp>       // for Graph, transpose
-#include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr, make_unique
-#include <span>                       // for span
-#include <string>                     // for basic_string
-#include <utility>                    // for pair
-#include <vector>                     // for vector
+#include "../exceptions.hpp"            // for ArgumentError, ShapeError
+#include "../graph/nodes/transp.hpp"    // for NodeTransp
+#include <algorithm>                    // for reverse_copy
+#include <cstddef>                      // for size_t
+#include <initializer_list>             // for initializer_list
+#include <kaad/graph/graph.hpp>         // for Graph, transpose
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape, Stride
+#include <memory>                       // for unique_ptr, make_unique
+#include <span>                         // for span
+#include <string>                       // for basic_string
+#include <utility>                      // for pair
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -29,8 +30,8 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
                                            {{"A.shape", input_val.shape()}}));
     }
 
-    std::vector<int> shape_t(input_val.rank());
-    std::vector<int> stride_t(input_val.rank());
+    Shape shape_t(input_val.rank());
+    Stride stride_t(input_val.rank());
     if (perm.size() == 0) {
 
         std::reverse_copy(input_val.shape().begin(), input_val.shape().end(),

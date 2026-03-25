@@ -1,24 +1,25 @@
 #include <kaad/operators/operators.hpp> // for sum
 
-#include "../exceptions.hpp"          // for ArgumentError, make_graph_e...
-#include "../graph/nodes/sum_dim.hpp" // for NodeSumDim
-#include "../graph/nodes/unary.hpp"   // for NodeUnary
-#include <algorithm>                  // for copy
-#include <array>                      // for array
-#include <cstddef>                    // for size_t
-#include <kaad/functions/adjoint.hpp> // for pointwise_fn, scalar_out
-#include <kaad/functions/kernels.hpp> // for Sum
-#include <kaad/functions/primal.hpp>  // for pointwise_fn, scalar_out
-#include <kaad/graph/graph.hpp>       // for Graph, sum
-#include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr, make_unique
-#include <span>                       // for span
-#include <string>                     // for basic_string
-#include <utility>                    // for cmp_greater_equal, pair
-#include <vector>                     // for vector
+#include "../exceptions.hpp"            // for ArgumentError, make_graph_er...
+#include "../graph/nodes/sum_dim.hpp"   // for NodeSumDim
+#include "../graph/nodes/unary.hpp"     // for NodeUnary
+#include <algorithm>                    // for copy
+#include <array>                        // for array
+#include <cstddef>                      // for size_t
+#include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalar_out
+#include <kaad/functions/kernels.hpp>   // for Sum
+#include <kaad/functions/primal.hpp>    // for pointwise_fn, scalar_out
+#include <kaad/graph/graph.hpp>         // for Graph, sum
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape
+#include <memory>                       // for unique_ptr, make_unique
+#include <span>                         // for span
+#include <string>                       // for basic_string
+#include <utility>                      // for pair, cmp_greater_equal
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -59,7 +60,7 @@ Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
     }
 
     std::size_t new_len = input_val.rank();
-    std::vector<int> new_shape(new_len);
+    Shape new_shape(new_len);
     if (keep_rank) {
         std::copy(input_val.shape().begin(), input_val.shape().end(),
                   new_shape.begin());

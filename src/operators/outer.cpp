@@ -1,14 +1,15 @@
 #include <kaad/operators/operators.hpp> // for outer
 
-#include "../graph/nodes/outer.hpp"   // for NodeOuter
-#include <algorithm>                  // for copy
-#include <cstddef>                    // for size_t
-#include <kaad/graph/graph.hpp>       // for Graph, outer
-#include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr, make_unique
-#include <vector>                     // for vector
+#include "../graph/nodes/outer.hpp"     // for NodeOuter
+#include <algorithm>                    // for copy
+#include <cstddef>                      // for size_t
+#include <kaad/graph/graph.hpp>         // for Graph, outer
+#include <kaad/graph/node_handle.hpp>   // for Node
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape
+#include <memory>                       // for unique_ptr, make_unique
+#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -20,7 +21,7 @@ Node outer(Graph &rec, Node lhs, Node rhs) {
     Tensor &rhs_val = rhs_ptr->value();
 
     std::size_t new_len = lhs_val.rank() + rhs_val.rank();
-    std::vector<int> new_shape(new_len);
+    Shape new_shape(new_len);
     std::copy(lhs_val.shape().begin(), lhs_val.shape().end(),
               new_shape.begin());
     std::copy(rhs_val.shape().begin(), rhs_val.shape().end(),
