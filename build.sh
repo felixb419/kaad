@@ -73,6 +73,6 @@ if $FAST; then
 fi
 
 # Build everything
-cmake --build .
+cmake --build . --parallel
 
 ctest --output-on-failure
