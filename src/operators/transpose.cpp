@@ -8,6 +8,7 @@
 #include <kaad/graph/graph.hpp>         // for Graph, transpose
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for Shape, Stride
 #include <memory>                       // for unique_ptr, make_unique
@@ -47,7 +48,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
                                   {{"A.shape", input_val.shape()}}));
         }
 
-        std::vector<int> count(input_val.rank());
+        StaticVector<int> count(input_val.rank());
 
         auto *shape_it = shape_t.begin();
         auto *stride_it = stride_t.begin();

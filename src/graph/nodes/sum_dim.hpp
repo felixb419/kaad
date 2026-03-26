@@ -5,8 +5,8 @@
 #include <kaad/functions/primal.hpp>    // for sum_dim, sum_dim_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
-#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -28,7 +28,7 @@ class NodeSumDim : public INode {
 
     Stride input_stride; ///< stride Array for input.
     Stride value_stride; ///< stride Array for value.
-    std::vector<std::size_t>
+    StaticVector<std::size_t>
         input_offset;           ///< Per-dim offset to the end of input buffer.
     std::size_t value_rank = 0; ///< Number of dimensions of value.
 

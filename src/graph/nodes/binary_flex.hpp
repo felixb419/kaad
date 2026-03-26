@@ -37,7 +37,7 @@ template <class Kernel> class NodeBinaryFlex : public INode {
     Stride lhs_stride;   ///< stride Array for A.
     Stride rhs_stride;   ///< stride Array for B.
     Stride value_stride; ///< stride Array for C.
-    std::vector<std::size_t>
+    StaticVector<std::size_t>
         C_offset;               ///< Per-dim offset to the end of C buffer.
     std::size_t value_rank = 0; ///< Number of the dimensions of the C tensor.
 

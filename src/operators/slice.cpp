@@ -8,6 +8,7 @@
 #include <kaad/graph/graph.hpp>         // for Graph, slice
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for Shape
 #include <memory>                       // for unique_ptr, make_unique
@@ -41,7 +42,7 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     }
 
     int size_diff = static_cast<int>(input_val.rank() - size.size());
-    std::vector<int> size_owned(input_val.rank());
+    StaticVector<int> size_owned(input_val.rank());
 
     // if length of size is smaller than rank of A, the left out dimensions stay
     // the same.
@@ -52,7 +53,7 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     // if length of offset is smaller than rank of A, the left out offsets are
     // set to 0.
     int offset_diff = static_cast<int>(input_val.rank() - offset.size());
-    std::vector<int> offset_owned(input_val.rank());
+    StaticVector<int> offset_owned(input_val.rank());
     std::fill(offset_owned.begin(), offset_owned.begin() + offset_diff, 0);
     std::ranges::copy(offset, offset_owned.begin() + offset_diff);
 

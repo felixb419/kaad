@@ -5,8 +5,8 @@
 #include <kaad/functions/primal.hpp>    // for slice, slice_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
-#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -24,10 +24,11 @@ class NodeSlice : public INode {
     functions::adjoint::unary::slice_fn<Scalar> backward_op =
         functions::adjoint::unary::slice;
 
-    Stride input_stride;                     ///< Stride array for tensor input.
-    Stride value_stride;                     ///< Stride array for tensor value.
-    std::vector<std::size_t> start_offset_a; ///< Offset for the start of input.
-    std::vector<std::size_t>
+    Stride input_stride; ///< Stride array for tensor input.
+    Stride value_stride; ///< Stride array for tensor value.
+    StaticVector<std::size_t>
+        start_offset_a; ///< Offset for the start of input.
+    StaticVector<std::size_t>
         value_offset; ///< Per-dim offset to the end of value buffer.
     std::size_t value_rank =
         0; ///< Number of the dimensions of the value tensor.

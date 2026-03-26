@@ -64,7 +64,7 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
  */
 inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
                                     std::size_t &input_rank,
-                                    std::vector<std::size_t> &input_offset,
+                                    StaticVector<std::size_t> &input_offset,
                                     Stride &input_stride,
                                     Stride &output_stride) {
     input_rank = input.rank();

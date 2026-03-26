@@ -26,7 +26,7 @@ template <MUTABILITY M> class IteratorImpl {
   private:
     const Tensor *origin_;
 
-    std::vector<int> cords_; ///< Per-dim coordinates of the current element.
+    StaticVector<int> cords_; ///< Per-dim coordinates of the current element.
 
     ShapeView shape_;
     StrideView stride_;
@@ -34,9 +34,8 @@ template <MUTABILITY M> class IteratorImpl {
     std::span<value_type> elements_;
 
   public:
-    IteratorImpl(const Tensor *origin, std::vector<int> &&cords,
-                 ShapeView shape, StrideView stride,
-                 std::span<value_type> elements)
+    IteratorImpl(const Tensor *origin, StaticVector<int> cords, ShapeView shape,
+                 StrideView stride, std::span<value_type> elements)
         : origin_(origin), cords_(cords), shape_(shape), stride_(stride),
           elements_(elements) {}
 

@@ -5,6 +5,7 @@
 #include <kaad/graph/dispatchers.hpp>   // for get_flexGrad, get_flexOp
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
+#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView
 

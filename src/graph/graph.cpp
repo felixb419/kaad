@@ -1,4 +1,4 @@
-#include "kaad/graph/graph.hpp"
+#include <kaad/graph/graph.hpp>
 
 #include "../exceptions.hpp"            // for ArgumentError
 #include "nodes/input.hpp"              // for NodeInput

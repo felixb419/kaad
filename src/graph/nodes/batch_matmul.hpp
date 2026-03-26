@@ -1,8 +1,8 @@
 #pragma once
 
-#include "kaad/tensor/tensor_types.hpp"    // for ShapeView
 #include <kaad/functions/batch_matmul.hpp> // for BatchMatmul
 #include <kaad/graph/nodes/inode.hpp>      // for INode
+#include <kaad/tensor/tensor_types.hpp>    // for ShapeView
 
 namespace kaad {
 

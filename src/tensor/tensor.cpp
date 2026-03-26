@@ -5,13 +5,13 @@
 #include <algorithm>                     // for fill, __fill_fn, max
 #include <iostream>                      // for char_traits, ostream
 #include <kaad/scalar.hpp>               // for Scalar
+#include <kaad/static_vector.hpp>        // for StaticVector
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_types.hpp>  // for Stride, ShapeView
+#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, Stride, StrideView
 #include <kaad/tensor/tensor_view.hpp>   // for TensorViewConst, TensorViewMut
 #include <span>                          // for span
 #include <string>                        // for operator+, basic_string
-#include <utility>                       // for move
-#include <vector>                        // for vector, allocator
+#include <vector>                        // for vector
 
 namespace kaad {
 
@@ -122,8 +122,8 @@ Tensor Tensor::ones(ShapeView shape) {
 Tensor Tensor::sequential(ShapeView shape, Scalar starting_value) {
     Tensor out(ShapeView(shape.begin(), shape.end()));
 
-    for (auto it = out.begin(); it != out.end(); it++) {
-        *it = starting_value++;
+    for (Scalar &elem : out) {
+        elem = starting_value++;
     }
 
     return out;
@@ -133,8 +133,8 @@ Tensor Tensor::linspace(ShapeView shape, Scalar start, Scalar step) {
     Tensor out(ShapeView(shape.begin(), shape.end()));
 
     Scalar value = start;
-    for (auto it = out.begin(); it != out.end(); it++) {
-        *it = value;
+    for (Scalar &elem : out) {
+        elem = value;
         value += step;
     }
 
@@ -182,24 +182,22 @@ std::span<const Scalar> Tensor::elements() const noexcept {
 }
 
 Tensor::iterator Tensor::begin() {
-    std::vector<int> cords(std::max(this->rank(), static_cast<size_type>(1)));
+    StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)));
     std::ranges::fill(cords, 0);
 
-    return {this, std::move(cords), this->shape(), this->stride(),
-            this->elements()};
+    return {this, cords, this->shape(), this->stride(), this->elements()};
 }
 
 Tensor::const_iterator Tensor::begin() const {
-    std::vector<int> cords(std::max(this->rank(), static_cast<size_t>(1)));
+    StaticVector<int> cords(std::max(this->rank(), static_cast<size_t>(1)));
     std::ranges::fill(cords, 0);
 
-    return {this, std::move(cords), this->shape(), this->stride(),
-            this->elements()};
+    return {this, cords, this->shape(), this->stride(), this->elements()};
 }
 
 Tensor::iterator Tensor::end() {
 
-    std::vector<int> cords(this->shape_.begin(), this->shape_.end());
+    StaticVector<int> cords(this->shape_.begin(), this->shape_.end());
 
     if (this->rank() == 0) {
 
@@ -213,12 +211,11 @@ Tensor::iterator Tensor::end() {
         }
     }
 
-    return {this, std::move(cords), this->shape(), this->stride(),
-            this->elements()};
+    return {this, cords, this->shape(), this->stride(), this->elements()};
 }
 
 Tensor::const_iterator Tensor::end() const {
-    std::vector<int> cords(this->shape_.begin(), this->shape_.end());
+    StaticVector<int> cords(this->shape_.begin(), this->shape_.end());
 
     if (this->rank() == 0) {
 
@@ -232,8 +229,7 @@ Tensor::const_iterator Tensor::end() const {
         }
     }
 
-    return {this, std::move(cords), this->shape(), this->stride(),
-            this->elements()};
+    return {this, cords, this->shape(), this->stride(), this->elements()};
 }
 
 Tensor::size_type Tensor::size() const noexcept {

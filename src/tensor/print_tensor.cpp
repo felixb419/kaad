@@ -2,9 +2,9 @@
 
 #include <cstddef>                      // for size_t
 #include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
-#include <vector>                       // for vector
 
 namespace kaad {
 
@@ -49,8 +49,8 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
     }
 }
 
-void print_tensor_impl(std::ostream &stream, ShapeView shape,
-                       StrideView stride, std::span<const Scalar> elements) {
+void print_tensor_impl(std::ostream &stream, ShapeView shape, StrideView stride,
+                       std::span<const Scalar> elements) {
 
     stream << "shape: (";
     if (!shape.empty()) {
@@ -69,7 +69,7 @@ void print_tensor_impl(std::ostream &stream, ShapeView shape,
     } else {
         stream << "\n";
 
-        std::vector<int> cords(shape.size());
+        StaticVector<int> cords(shape.size());
         std::size_t indent = 0;
         std::size_t idx = 0;
 

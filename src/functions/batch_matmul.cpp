@@ -1,7 +1,7 @@
 #include <kaad/functions/batch_matmul.hpp>
 
-#include "kaad/tensor/tensor_types.hpp" // for ShapeView, Shape
 #include <algorithm>                    // for __copy_fn, copy, max
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Shape
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <utility>                      // for cmp_less_equal
 

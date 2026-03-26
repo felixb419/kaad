@@ -1,4 +1,4 @@
-#include "kaad/graph/nodes/inode.hpp"
+#include <kaad/graph/nodes/inode.hpp>
 
 #include "../../exceptions.hpp"         // for ArgumentError
 #include <algorithm>                    // for __fill_fn, fill
