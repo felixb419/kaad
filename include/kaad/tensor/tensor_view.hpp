@@ -35,7 +35,7 @@ template <MUTABILITY M> struct TensorView {
     /**
      * @brief Default constructor.
      */
-    TensorView() noexcept;
+    TensorView() = default;
 
     /**
      * @brief Constructs a tensor view.
