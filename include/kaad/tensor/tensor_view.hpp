@@ -79,6 +79,37 @@ template <MUTABILITY M> struct TensorView {
     }
 
     /**
+     * @brief Get a copy of the view transposed according to @p perm.
+     * @pre @p perm has size equal to @c rank() and doesnt contain
+     * duplicates values or values >= @c rank().
+     * @param shape_buff The new shape will be stored in this.
+     * @param stride_buff The new strides will be stored in this.
+     * @param perm Permutation for transposition.
+     * @note The memory of @p shape_buff has to be manually freed.
+     * @return View with transposed shape and stride.
+     */
+    TensorView<M> transpose(Shape &shape_buff, Stride &stride_buff,
+                            std::span<const int> perm) const {
+
+        std::size_t rank = this->rank();
+
+        shape_buff.resize(rank);
+        stride_buff.resize(rank);
+
+        for (std::size_t i = 0; i < this->rank(); i++) {
+            shape_buff[i] = this->shape[perm[i]];
+            stride_buff[i] = this->stride[perm[i]];
+        }
+
+        TensorView<M> out = *this;
+
+        out.shape = ShapeView(shape_buff);
+        out.stride = ShapeView(stride_buff);
+
+        return out;
+    }
+
+    /**
      * @brief Get a copy of the view with the lowest 2 dimensions transposed.
      * @param shape_buff The new shape will be stored in this.
      * @param stride_buff The new strides will be stored in this.

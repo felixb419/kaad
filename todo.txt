@@ -8,7 +8,28 @@
 (operators) rework transpose parameters (make StaticVector)
 (operators) rework slice parameters (make StaticVector)
 (operators) rework slice size_span offset_span code duplication
-(operators) go through and simplify (rework comments in the same vein)
+(operators) go through and simplify
+                binary_operators.cpp
+                dot.cpp
+                matmul.cpp
+                mean.cpp
+                outer.cpp
+                slice.cpp
+                sum.cpp
+                unary_operators.cpp
+
+(functions) go through and unify into struct
+                dot
+                flexible
+                mean
+                mean_dim
+                pointwise
+                scalar_dot
+                scalar_lhs
+                scalar_out
+                scalar_rhs
+                slice
+                sum_dim
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
