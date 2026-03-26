@@ -26,7 +26,7 @@ template <typename T> struct TensorView {
 
     ShapeView shape;   ///< Dimensions of the tensor.
     StrideView stride; ///< Stride of the tensor (steps needed to move
-                        ///< one element in each dimension).
+                       ///< one element in each dimension).
     std::span<value_type> elements; ///< Elements of the tensor.
 
     /**
@@ -86,10 +86,10 @@ template <typename T> struct TensorView {
 
         std::size_t rank = this->rank();
 
-        shape_buff = Shape(this->shape.begin(), this->shape.end());
+        shape_buff = Shape(this->shape);
         std::swap(shape_buff[rank - 1], shape_buff[rank - 2]);
 
-        stride_buff = Stride(this->stride.begin(), this->stride.end());
+        stride_buff = Stride(this->stride);
 
         std::swap(stride_buff[rank - 1], stride_buff[rank - 2]);
 

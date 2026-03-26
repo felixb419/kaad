@@ -16,7 +16,9 @@ bool Matmul::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
         return false;
     }
 
-    new_shape = Shape{lhs[0], rhs[1]};
+    new_shape = Shape(2);
+    new_shape[0] = lhs[0];
+    new_shape[1] = rhs[1];
 
     return true;
 }
@@ -28,9 +30,9 @@ Matmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
     this->rhs_cols = rhs.shape[1];
     this->shared_dim = lhs.shape[1];
 
-    this->eff_lhs = Stride(lhs.stride.begin(), lhs.stride.end());
-    this->eff_rhs = Stride(rhs.stride.begin(), rhs.stride.end());
-    this->eff_res = Stride(res.stride.begin(), res.stride.end());
+    this->eff_lhs = Stride(lhs.stride);
+    this->eff_rhs = Stride(rhs.stride);
+    this->eff_res = Stride(res.stride);
 
     int idx;
     int res_idx;

@@ -5,10 +5,10 @@
 #include <iostream>                      // for ostream
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_types.hpp>
-#include <random> // for random_device, mt19937_64
-#include <span>   // for span
-#include <vector> // for vector
+#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, StrideView, Stride
+#include <random>                        // for random_device, mt19937_64
+#include <span>                          // for span
+#include <vector>                        // for vector
 
 namespace kaad {
 
@@ -131,8 +131,7 @@ class Tensor {
      * @param min Minimum random value.
      * @param min Maximum random value.
      */
-    static Tensor rand(ShapeView shape, value_type min = 0,
-                       value_type max = 1);
+    static Tensor rand(ShapeView shape, value_type min = 0, value_type max = 1);
 
     /**
      * @brief Returns a tensor with given shape and filled with normally

@@ -1,18 +1,20 @@
 #pragma once
 
-#include <span>
-#include <vector>
+#include <kaad/max_rank.hpp>      // for KAAD_MAX_RANK
+#include <kaad/static_vector.hpp> // for StaticVector
 
 namespace kaad {
 
 /// Alias for an owning tensor shape.
-using Shape = std::vector<int>;
+using Shape = StaticVector<int>;
+
 /// Alias for non-owning immutable tensor shape.
-using ShapeView = std::span<const int>;
+using ShapeView = Shape::view_type;
 
 /// Alias for owning tensor strides.
-using Stride = std::vector<int>;
+using Stride = StaticVector<int>;
+
 /// Alias for non-owning immutable tensor strides.
-using StrideView = std::span<const int>;
+using StrideView = Stride::view_type;
 
 } // namespace kaad

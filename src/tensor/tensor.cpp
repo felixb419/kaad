@@ -64,7 +64,7 @@ Stride checked_stride(StrideView stride, ShapeView shape) {
             ") need to be equal");
     }
 
-    return {stride.begin(), stride.end()};
+    return {stride};
 }
 
 std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
@@ -83,29 +83,25 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
 Tensor::Tensor() : elements_{0} {}
 
 Tensor::Tensor(ShapeView shape)
-    : shape_(shape.begin(), shape.end()),
-      stride_(Tensor::compute_stride(shape_)),
+    : shape_(shape), stride_(Tensor::compute_stride(shape_)),
       elements_(Tensor::compute_size(shape_)) {}
 
 Tensor::Tensor(std::span<const Scalar> elements)
-    : shape_{static_cast<int>(elements.size())},
+    : shape_{static_cast<std::size_t>(elements.size())},
       stride_(Tensor::compute_stride(shape_)),
       elements_(elements.begin(), elements.end()) {}
 
 Tensor::Tensor(ShapeView shape, StrideView stride)
-    : shape_(shape.begin(), shape.end()),
-      stride_(checked_stride(stride, shape)),
+    : shape_(shape), stride_(checked_stride(stride, shape)),
       elements_(Tensor::compute_size(shape_)) {}
 
 Tensor::Tensor(ShapeView shape, std::span<const Scalar> elements)
-    : shape_(shape.begin(), shape.end()),
-      stride_(Tensor::compute_stride(shape_)),
+    : shape_(shape), stride_(Tensor::compute_stride(shape_)),
       elements_(checked_elements(elements, shape)) {}
 
 Tensor::Tensor(ShapeView shape, StrideView stride,
                std::span<const Scalar> elements)
-    : shape_(shape.begin(), shape.end()),
-      stride_(checked_stride(stride, shape)),
+    : shape_(shape), stride_(checked_stride(stride, shape)),
       elements_(checked_elements(elements, shape)) {}
 
 Tensor Tensor::full(ShapeView shape, Scalar fill_value) {
@@ -206,7 +202,7 @@ Tensor::const_iterator Tensor::begin() const {
 
 Tensor::iterator Tensor::end() {
 
-    std::vector<int> cords(this->shape_);
+    std::vector<int> cords(this->shape_.begin(), this->shape_.end());
 
     if (this->rank() == 0) {
 
@@ -225,7 +221,7 @@ Tensor::iterator Tensor::end() {
 }
 
 Tensor::const_iterator Tensor::end() const {
-    std::vector<int> cords(this->shape_);
+    std::vector<int> cords(this->shape_.begin(), this->shape_.end());
 
     if (this->rank() == 0) {
 

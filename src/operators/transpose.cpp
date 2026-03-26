@@ -49,8 +49,8 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
 
         std::vector<int> count(input_val.rank());
 
-        auto shape_it = shape_t.begin();
-        auto stride_it = stride_t.begin();
+        auto *shape_it = shape_t.begin();
+        auto *stride_it = stride_t.begin();
         for (int idx : perm) {
 
             count[idx]++;

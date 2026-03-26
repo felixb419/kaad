@@ -4,7 +4,6 @@
 #include <algorithm>                    // for __copy_fn, copy, max
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <utility>                      // for cmp_less_equal
-#include <vector>                       // for vector
 
 namespace kaad::functions {
 

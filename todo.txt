@@ -2,12 +2,15 @@
 
 [REFACTOR]
 (tensor)    make Shape_view Stride_view CamelCase
+(tensor)    stop using getters inside Tensor
 (tensor)    make shape and stride use size_t
 (graph)     mark getters as nodiscard in nodes
 (tensor)    use Tensor::stride and Tensor::shape everywhere
 (tensor)    replace TensorView tparam with isMut
-(operators) rework slice parameters
+(operators) rework transpose parameters (make StaticVector)
+(operators) rework slice parameters (make StaticVector)
 (operators) rework slice size_span offset_span code duplication
+(operators) go through and simplify (rework comments in the same vein)
 
 [FEAT]
 (tensor)    constructor for all shapes (comment out other cnstrctrs and checkk all errors)
@@ -15,23 +18,22 @@
 
 [PERF]
 (tensor)    change shape and stride to std::array<size_t, KAAD_MAX_RANK>
+                (?) add exceptions instead of assert
+            change applicable std::vector to StaticVector
 (graph)     arena allocation
 
 [DOC]
             Rework comments in:
                 ./include/kaad/tensor/tensor_view.hpp
-                ./include/kaad/tensor/iterator_impl.hpp
                 ./include/kaad/graph/graph.hpp
                 ./include/kaad/graph/common.hpp
                 ./include/kaad/graph/node_handle.hpp
                 ./include/kaad/graph/dispatchers.hpp
                 ./include/kaad/graph/nodes/slice.hpp
-                ./include/kaad/graph/nodes/matmul.hpp
                 ./include/kaad/graph/nodes/binary_flex.hpp
                 ./include/kaad/graph/nodes/mean.hpp
                 ./include/kaad/graph/nodes/inode.hpp
                 ./include/kaad/graph/nodes/sum_dim.hpp
-                ./include/kaad/graph/nodes/batch_matmul.hpp
                 ./include/kaad/graph/nodes/mean_dim.hpp
                 ./include/kaad/graph/nodes/transp.hpp
                 ./include/kaad/graph/nodes/input.hpp
