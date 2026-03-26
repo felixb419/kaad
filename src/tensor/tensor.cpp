@@ -15,9 +15,6 @@
 
 namespace kaad {
 
-template class IteratorImpl<false>;
-template class IteratorImpl<true>;
-
 Stride Tensor::compute_stride(ShapeView shape) {
 
     if (shape.empty()) {

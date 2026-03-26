@@ -2,6 +2,7 @@
 
 #include <algorithm>                    // for copy
 #include <iterator>                     // for bidirectional_iterator_tag
+#include <kaad/mutability_enum.hpp>     // for MUTABILITY
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
 #include <span>                         // for span
@@ -12,8 +13,10 @@ namespace kaad {
 
 class Tensor;
 
-template <bool isConst> class IteratorImpl {
-    using value_type = std::conditional_t<isConst, const Scalar, Scalar>;
+template <MUTABILITY M> class IteratorImpl {
+    static constexpr bool IS_MUT = M == MUTABLE;
+
+    using value_type = std::conditional_t<IS_MUT, Scalar, const Scalar>;
     using pointer = value_type *;
     using reference = value_type &;
 

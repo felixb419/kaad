@@ -35,8 +35,8 @@ class Tensor {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    using iterator = IteratorImpl<false>;
-    using const_iterator = IteratorImpl<true>;
+    using iterator = IteratorImpl<MUTABLE>;
+    using const_iterator = IteratorImpl<IMMUTABLE>;
 
   private:
     Shape shape_;   ///< Vector containing the size of the tensor
