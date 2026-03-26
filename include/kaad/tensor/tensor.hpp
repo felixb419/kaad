@@ -3,6 +3,7 @@
 #include <cstddef>                       // for ptrdiff_t, size_t
 #include <cstdint>                       // for uint64_t
 #include <iostream>                      // for ostream
+#include <kaad/mutability_enum.hpp>      // for MUTABILITY
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
 #include <kaad/tensor/tensor_types.hpp>  // for ShapeView, StrideView, Stride
@@ -12,10 +13,10 @@
 
 namespace kaad {
 
-template <typename T> struct TensorView;
+template <MUTABILITY M> struct TensorView;
 
-using TensorViewConst = TensorView<const Scalar>;
-using TensorViewMut = TensorView<Scalar>;
+using TensorViewConst = TensorView<IMMUTABLE>;
+using TensorViewMut = TensorView<MUTABLE>;
 
 /**
  * @brief A class representing a multi-dimensional tensor.

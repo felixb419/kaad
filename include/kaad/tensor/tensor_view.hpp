@@ -3,6 +3,7 @@
 #include <algorithm>                    // for reverse_copy
 #include <cstddef>                      // for size_t
 #include <iostream>                     // for ostream, ptrdiff_t
+#include <kaad/mutability_enum.hpp>     // for MUTABILITY
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Stride, StrideView
 #include <span>                         // for span
@@ -12,8 +13,10 @@ namespace kaad {
 /// @brief A non-owning view of a tensor object, mutability is dependant on the
 /// constness of @p T.
 /// @tparam T Element type.
-template <typename T> struct TensorView {
-    using value_type = T;
+template <MUTABILITY M> struct TensorView {
+    static constexpr bool IS_MUT = (M == MUTABLE);
+
+    using value_type = std::conditional_t<IS_MUT, Scalar, const Scalar>;
     using reference = value_type &;
     using const_reference = const value_type &;
     using pointer = value_type *;
@@ -57,7 +60,7 @@ template <typename T> struct TensorView {
      * @note The memory of @p shape_buff has to be manually freed.
      * @return View with transposed shape and stride.
      */
-    TensorView<T> transpose(Shape &shape_buff, Stride &stride_buff) const {
+    TensorView<M> transpose(Shape &shape_buff, Stride &stride_buff) const {
 
         std::size_t rank = this->rank();
 
@@ -67,7 +70,7 @@ template <typename T> struct TensorView {
         stride_buff.resize(rank);
         std::ranges::reverse_copy(this->stride, stride_buff.begin());
 
-        TensorView<T> out = *this;
+        TensorView<M> out = *this;
 
         out.shape = ShapeView(shape_buff);
         out.stride = ShapeView(stride_buff);
@@ -82,7 +85,7 @@ template <typename T> struct TensorView {
      * @note The memory of @p shape_buff has to be manually freed.
      * @return View with transposed shape and stride.
      */
-    TensorView<T> transpose_2d(Shape &shape_buff, Stride &stride_buff) {
+    TensorView<M> transpose_2d(Shape &shape_buff, Stride &stride_buff) {
 
         std::size_t rank = this->rank();
 
@@ -93,7 +96,7 @@ template <typename T> struct TensorView {
 
         std::swap(stride_buff[rank - 1], stride_buff[rank - 2]);
 
-        TensorView<T> out = *this;
+        TensorView<M> out = *this;
 
         out.shape = ShapeView(shape_buff);
         out.stride = ShapeView(stride_buff);
@@ -109,18 +112,18 @@ template <typename T> struct TensorView {
  * @param view The tensor view to print.
  * @return std::ostream& The updated output stream.
  */
-template <typename T>
-std::ostream &operator<<(std::ostream &stream, const TensorView<T> &tensor) {
+template <MUTABILITY M>
+std::ostream &operator<<(std::ostream &stream, const TensorView<M> &tensor) {
     print_tensor_impl(stream, tensor.shape, tensor.stride, tensor.elements);
     return stream;
 }
 
 /// @copybrief TensorView
 /// Provides immutable access to the elements.
-using TensorViewConst = TensorView<const Scalar>;
+using TensorViewConst = TensorView<IMMUTABLE>;
 
 /// @copybrief TensorView
 /// Provides mutable access to the elements.
-using TensorViewMut = TensorView<Scalar>;
+using TensorViewMut = TensorView<MUTABLE>;
 
 } // namespace kaad
