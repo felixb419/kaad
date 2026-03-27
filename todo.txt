@@ -1,5 +1,4 @@
 [FIX]
-(tensor)    (?) StaticVector add exceptions instead of assert
 
 [REFACTOR]
 (tensor)    stop using getters inside Tensor

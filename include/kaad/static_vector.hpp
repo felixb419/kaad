@@ -1,7 +1,8 @@
 #pragma once
 
-#include <array>             // for array
-#include <cassert>           // for assert
+#include <array>   // for array
+#include <cassert> // for assert
+#include <kaad/exceptions.hpp>
 #include <kaad/max_rank.hpp> // for KAAD_MAX_RANK
 #include <span>              // for span
 
@@ -34,7 +35,10 @@ template <typename T> struct StaticVector {
     /// @note Elements are value initialized.
     StaticVector(size_type size) {
 
-        assert(size <= KAAD_MAX_RANK);
+        if (size > KAAD_MAX_RANK) {
+            throw CapacityError("size param must not be larger than maximum "
+                                "size (KAAD_MAX_RANK)");
+        }
 
         this->size_ = size;
         std::fill(this->elements_.data(), this->elements_.data() + size,
@@ -43,7 +47,10 @@ template <typename T> struct StaticVector {
 
     StaticVector(const_pointer begin, size_type size) {
 
-        assert(size <= KAAD_MAX_RANK);
+        if (size > KAAD_MAX_RANK) {
+            throw CapacityError("size param must not be larger than maximum "
+                                "size (KAAD_MAX_RANK)");
+        }
 
         this->size_ = size;
         std::copy(begin, begin + size, this->elements_.data());
@@ -51,8 +58,13 @@ template <typename T> struct StaticVector {
 
     StaticVector(const_pointer first, const_pointer last) {
 
-        assert(first <= last);
-        assert(size_ <= KAAD_MAX_RANK);
+        if (first > last) {
+            throw ArgumentError("first pointer must not be after last");
+        }
+        if ((last - first) > KAAD_MAX_RANK) {
+            throw CapacityError("distance between first and last must not be "
+                                "bigger than maximum size (KAAD_MAX_RANK)");
+        }
 
         this->size_ = last - first;
         std::copy(first, last, elements_.data());
@@ -63,8 +75,16 @@ template <typename T> struct StaticVector {
         auto end = std::ranges::end(init);
         std::size_t size = end - begin;
 
-        assert(begin <= end);
-        assert(size <= KAAD_MAX_RANK);
+        if (begin > end) {
+            throw ArgumentError(
+                "begin of range must not be after end of range");
+        }
+
+        if (size > KAAD_MAX_RANK) {
+            throw CapacityError(
+                "size dictated by init param must not be larger "
+                "than maximum size (KAAD_MAX_RANK)");
+        }
 
         this->size_ = size;
         std::copy(begin, end, this->elements_.data());
@@ -94,7 +114,10 @@ template <typename T> struct StaticVector {
     /// @note If new elements are created they are value initialized.
     void resize(size_type count) {
 
-        assert(count <= KAAD_MAX_RANK);
+        if (count > KAAD_MAX_RANK) {
+            throw CapacityError("new size must not be larger than maximum size "
+                                "(KAAD_MAX_RANK)");
+        }
 
         if (count > this->size_) {
             std::fill(this->elements_.data() + this->size_,
@@ -106,7 +129,9 @@ template <typename T> struct StaticVector {
 
     void push_back(value_type value) {
 
-        assert(this->size_ + 1 <= KAAD_MAX_RANK);
+        if (this->size_ >= KAAD_MAX_RANK) {
+            throw CapacityError("vector size at maximum size (KAAD_MAX_RANK)");
+        }
 
         this->elements_[this->size_] = value;
         this->size_++;
