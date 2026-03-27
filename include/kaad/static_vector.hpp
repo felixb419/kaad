@@ -31,6 +31,43 @@ template <typename T> class StaticVector {
 
     std::size_t size_ = 0;
 
+    struct UncheckedType {
+        UncheckedType() = default;
+    };
+    static constexpr UncheckedType UNCHECKED{};
+
+    // NOLINTBEGIN(readability-named-parameter)
+    StaticVector(size_type size, UncheckedType) {
+
+        assert(size <= KAAD_MAX_RANK);
+
+        this->size_ = size;
+        std::fill(this->elements_.data(), this->elements_.data() + size,
+                  value_type{});
+    }
+
+    void resize(size_type count, UncheckedType) {
+
+        assert(count <= KAAD_MAX_RANK);
+
+        if (count > this->size_) {
+            std::fill(this->elements_.data() + this->size_,
+                      this->elements_.data() + count, value_type{});
+        }
+
+        this->size_ = count;
+    }
+
+    void push_back(value_type value, UncheckedType) {
+
+        assert(this->size_ < KAAD_MAX_RANK);
+
+        this->elements_[this->size_] = value;
+        this->size_++;
+    }
+
+    // NOLINTEND(readability-named-parameter)
+
   public:
     StaticVector() = default;
 
@@ -123,12 +160,7 @@ template <typename T> class StaticVector {
                                 "(KAAD_MAX_RANK)");
         }
 
-        if (count > this->size_) {
-            std::fill(this->elements_.data() + this->size_,
-                      this->elements_.data() + count, value_type{});
-        }
-
-        this->size_ = count;
+        this->resize(count, UNCHECKED);
     }
 
     void push_back(value_type value) {
@@ -137,8 +169,7 @@ template <typename T> class StaticVector {
             throw CapacityError("vector size at maximum size (KAAD_MAX_RANK)");
         }
 
-        this->elements_[this->size_] = value;
-        this->size_++;
+        this->push_back(value, UNCHECKED);
     }
 
     [[nodiscard]] pointer data() noexcept { return this->elements_.data(); }
