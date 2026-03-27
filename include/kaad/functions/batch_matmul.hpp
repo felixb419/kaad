@@ -17,7 +17,6 @@ struct BatchMatmul {
      * @brief Broadcasts @p lhs_shape and @p rhs_shape according to matrix
      * multiplication, additional dimensions will be treated as batch
      * dimensions.
-     * @note @p new_shape will be resized.
      * @return true if the broadcast was sucessful, false if the shapes are
      * incompatible
      */

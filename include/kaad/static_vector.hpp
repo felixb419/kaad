@@ -62,7 +62,7 @@ template <typename T> struct StaticVector {
             throw ArgumentError("first pointer must not be after last");
         }
         if ((last - first) > KAAD_MAX_RANK) {
-            throw CapacityError("distance between first and last must not be "
+            throw CapacityError("distance between first and last must not be"
                                 "bigger than maximum size (KAAD_MAX_RANK)");
         }
 

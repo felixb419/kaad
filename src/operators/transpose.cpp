@@ -52,7 +52,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
                 {{"A.shape", input_val.shape}}));
         }
 
-        if (contains_duplicates(StaticVector<int>(perm.begin(), perm.end()))) {
+        if (contains_duplicates(perm)) {
             throw ArgumentError(make_graph_errmsg(
                 rec_len, "transpose",
                 "perm has to contain index of every dimension exactly once",

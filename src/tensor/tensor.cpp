@@ -198,7 +198,7 @@ Tensor::const_iterator Tensor::begin() const {
 
 Tensor::iterator Tensor::end() {
 
-    StaticVector<int> cords(this->shape_.begin(), this->shape_.end());
+    StaticVector<int> cords(this->shape_);
 
     if (this->rank() == 0) {
 
@@ -216,7 +216,7 @@ Tensor::iterator Tensor::end() {
 }
 
 Tensor::const_iterator Tensor::end() const {
-    StaticVector<int> cords(this->shape_.begin(), this->shape_.end());
+    StaticVector<int> cords(this->shape_);
 
     if (this->rank() == 0) {
 
