@@ -13,8 +13,8 @@ namespace kaad {
  * size is limited to @c KAAD_MAX_RANK.
  * @tparam T Element type
  */
-template <typename T> struct StaticVector {
-
+template <typename T> class StaticVector {
+  public:
     using value_type = T;
     using reference = value_type &;
     using const_reference = const value_type &;
@@ -26,10 +26,12 @@ template <typename T> struct StaticVector {
 
     using view_type = std::span<const value_type>;
 
+  private:
     std::array<value_type, KAAD_MAX_RANK> elements_;
 
     std::size_t size_ = 0;
 
+  public:
     StaticVector() = default;
 
     /// @note Elements are value initialized.
