@@ -1,11 +1,11 @@
 #include <kaad/operators/operators.hpp> // for add, div, max, min, mul, pow
 
-#include "../exceptions.hpp"              // for ShapeError, make_graph_errmsg
 #include "../functions/safe_kernels.hpp"  // for SafeDiv, SafePow
 #include "../graph/nodes/binary.hpp"      // for NodeBinary
 #include "../graph/nodes/binary_flex.hpp" // for NodeBinaryFlex
 #include <algorithm>                      // for move, equal, max
 #include <cstddef>                        // for size_t
+#include <kaad/exceptions.hpp>            // for ShapeError, make_graph_errmsg
 #include <kaad/functions/adjoint.hpp>     // for pointwise_fn, flexible
 #include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
 #include <kaad/functions/primal.hpp>      // for pointwise_fn, flexible

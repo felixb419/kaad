@@ -1,7 +1,7 @@
 #include <kaad/graph/nodes/inode.hpp>
 
-#include "../../exceptions.hpp"         // for ArgumentError
 #include <algorithm>                    // for __fill_fn, fill
+#include <kaad/exceptions.hpp>          // for ArgumentError
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
 #include <vector>                       // for vector

@@ -1,11 +1,11 @@
 #include <kaad/operators/operators.hpp> // for sum
 
-#include "../exceptions.hpp"            // for ArgumentError, make_graph_er...
 #include "../graph/nodes/sum_dim.hpp"   // for NodeSumDim
 #include "../graph/nodes/unary.hpp"     // for NodeUnary
 #include <algorithm>                    // for copy
 #include <array>                        // for array
 #include <cstddef>                      // for size_t
+#include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_er...
 #include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalar_out
 #include <kaad/functions/kernels.hpp>   // for Sum
 #include <kaad/functions/primal.hpp>    // for pointwise_fn, scalar_out

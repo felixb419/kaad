@@ -1,10 +1,10 @@
 #include <kaad/operators/operators.hpp> // for slice
 
-#include "../exceptions.hpp"            // for ArgumentError, make_graph_er...
 #include "../graph/nodes/slice.hpp"     // for NodeSlice
 #include <algorithm>                    // for copy, __copy_fn, fill
 #include <cstddef>                      // for size_t
 #include <initializer_list>             // for initializer_list
+#include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_er...
 #include <kaad/graph/graph.hpp>         // for Graph, slice
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode

@@ -1,9 +1,9 @@
 #include <kaad/tensor/tensor.hpp>
 
-#include "../exceptions.hpp"             // for ArgumentError
 #include "print_tensor.hpp"              // for print_tensor_impl
 #include <algorithm>                     // for fill, __fill_fn, max
 #include <iostream>                      // for char_traits, ostream
+#include <kaad/exceptions.hpp>           // for ArgumentError
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/static_vector.hpp>        // for StaticVector
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl

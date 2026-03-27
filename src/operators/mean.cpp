@@ -1,10 +1,10 @@
 #include <kaad/operators/operators.hpp> // for mean
 
-#include "../exceptions.hpp"            // for ArgumentError, make_graph_er...
 #include "../graph/nodes/mean.hpp"      // for NodeMean
 #include "../graph/nodes/mean_dim.hpp"  // for NodeMeanDim
 #include <algorithm>                    // for copy
 #include <cstddef>                      // for size_t
+#include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_er...
 #include <kaad/graph/graph.hpp>         // for Graph, mean
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode

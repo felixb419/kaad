@@ -1,9 +1,9 @@
 #include <kaad/graph/graph.hpp>
 
-#include "../exceptions.hpp"            // for ArgumentError
 #include "nodes/input.hpp"              // for NodeInput
 #include <algorithm>                    // for fill
 #include <cstddef>                      // for size_t
+#include <kaad/exceptions.hpp>          // for ArgumentError
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor

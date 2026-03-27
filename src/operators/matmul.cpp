@@ -1,11 +1,11 @@
 #include <kaad/operators/operators.hpp> // for matmul
 
-#include "../exceptions.hpp"               // for ShapeError, make_graph_er...
 #include "../graph/common.hpp"             // for combine_matrix
 #include "../graph/nodes/batch_matmul.hpp" // for NodeBatchMatmul
 #include "../graph/nodes/matmul.hpp"       // for NodeMatmul
 #include <algorithm>                       // for max
 #include <cstddef>                         // for size_t
+#include <kaad/exceptions.hpp>             // for ShapeError, make_graph_er...
 #include <kaad/graph/graph.hpp>            // for Graph, matmul
 #include <kaad/graph/node_handle.hpp>      // for Node
 #include <kaad/graph/nodes/inode.hpp>      // for INode
