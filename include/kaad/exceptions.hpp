@@ -27,6 +27,12 @@ struct LogicError : public Exception {
     using Exception::Exception;
 };
 
+/// @brief Exception for errors caused by exceeding the capacity of a container.
+struct CapacityError : public LogicError {
+  public:
+    using LogicError::LogicError;
+};
+
 /// @brief Exception for invalid or malformed arguments.
 struct ArgumentError : public LogicError {
   public:
