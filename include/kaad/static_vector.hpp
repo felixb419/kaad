@@ -195,6 +195,8 @@ template <typename T> class StaticVector {
     [[nodiscard]] view_type view() const noexcept {
         return std::span<value_type>(elements_.data(), this->size_);
     }
+
+    friend class Tensor;
 };
 
 } // namespace kaad

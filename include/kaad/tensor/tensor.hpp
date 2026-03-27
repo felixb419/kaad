@@ -187,7 +187,7 @@ class Tensor {
      * contiguous raw access.
      * @return Read/write iterator to the first element.
      */
-    [[nodiscard]] iterator begin();
+    [[nodiscard]] iterator begin() noexcept;
 
     /**
      * @copybrief Tensor::begin()
@@ -195,7 +195,7 @@ class Tensor {
      * contiguous raw access.
      * @return Read iterator to the first element.
      */
-    [[nodiscard]] const_iterator begin() const;
+    [[nodiscard]] const_iterator begin() const noexcept;
 
     /**
      * @brief Returns an iterator to one past the last logical element.
@@ -203,7 +203,7 @@ class Tensor {
      * contiguous raw access.
      * @return Read/write iterator to one past the last element.
      */
-    [[nodiscard]] iterator end();
+    [[nodiscard]] iterator end() noexcept;
 
     /**
      * @copybrief Tensor::end()
@@ -211,7 +211,7 @@ class Tensor {
      * contiguous raw access.
      * @return Read iterator to one past the last element.
      */
-    [[nodiscard]] const_iterator end() const;
+    [[nodiscard]] const_iterator end() const noexcept;
 
     /// @brief Get number of elements in the tensor.
     /// @return Length of the element array.

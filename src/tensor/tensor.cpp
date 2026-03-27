@@ -1,9 +1,10 @@
 #include <kaad/tensor/tensor.hpp>
 
+#include "kaad/max_rank.hpp"             // for KAAD_MAX_RANK
 #include "print_tensor.hpp"              // for print_tensor_impl
-#include <algorithm>                     // for fill, __fill_fn, max
+#include <algorithm>                     // for fill, max
 #include <iostream>                      // for char_traits, ostream
-#include <kaad/exceptions.hpp>           // for ArgumentError
+#include <kaad/exceptions.hpp>           // for ShapeError
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/static_vector.hpp>        // for StaticVector
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
@@ -11,7 +12,7 @@
 #include <kaad/tensor/tensor_view.hpp>   // for TensorViewConst, TensorViewMut
 #include <span>                          // for span
 #include <string>                        // for operator+, basic_string
-#include <vector>                        // for vector
+#include <vector>                        // for allocator, vector
 
 namespace kaad {
 
@@ -182,27 +183,30 @@ std::span<const Scalar> Tensor::elements() const noexcept {
     return this->elements_;
 }
 
-Tensor::iterator Tensor::begin() {
-    StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)));
-    std::ranges::fill(cords, 0);
+Tensor::iterator Tensor::begin() noexcept {
+    static_assert(KAAD_MAX_RANK >= 1);
+    StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),
+                            StaticVector<int>::UNCHECKED);
 
     return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
-Tensor::const_iterator Tensor::begin() const {
-    StaticVector<int> cords(std::max(this->rank(), static_cast<size_t>(1)));
-    std::ranges::fill(cords, 0);
+Tensor::const_iterator Tensor::begin() const noexcept {
+    static_assert(KAAD_MAX_RANK >= 1);
+    StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),
+                            StaticVector<int>::UNCHECKED);
 
     return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
-Tensor::iterator Tensor::end() {
+Tensor::iterator Tensor::end() noexcept {
 
     StaticVector<int> cords(this->shape_);
 
     if (this->rank() == 0) {
 
-        cords.resize(1);
+        static_assert(KAAD_MAX_RANK >= 1);
+        cords.resize(1, StaticVector<int>::UNCHECKED);
         cords[0] = 0;
     } else {
 
@@ -215,12 +219,13 @@ Tensor::iterator Tensor::end() {
     return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
-Tensor::const_iterator Tensor::end() const {
+Tensor::const_iterator Tensor::end() const noexcept {
     StaticVector<int> cords(this->shape_);
 
     if (this->rank() == 0) {
 
-        cords.resize(1);
+        static_assert(KAAD_MAX_RANK >= 1);
+        cords.resize(1, StaticVector<int>::UNCHECKED);
         cords[0] = 0;
     } else {
 
