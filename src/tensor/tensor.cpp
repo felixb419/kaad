@@ -186,14 +186,14 @@ Tensor::iterator Tensor::begin() {
     StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)));
     std::ranges::fill(cords, 0);
 
-    return {this, cords, this->shape(), this->stride(), this->elements()};
+    return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::begin() const {
     StaticVector<int> cords(std::max(this->rank(), static_cast<size_t>(1)));
     std::ranges::fill(cords, 0);
 
-    return {this, cords, this->shape(), this->stride(), this->elements()};
+    return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
 Tensor::iterator Tensor::end() {
@@ -212,7 +212,7 @@ Tensor::iterator Tensor::end() {
         }
     }
 
-    return {this, cords, this->shape(), this->stride(), this->elements()};
+    return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::end() const {
@@ -230,7 +230,7 @@ Tensor::const_iterator Tensor::end() const {
         }
     }
 
-    return {this, cords, this->shape(), this->stride(), this->elements()};
+    return {this, cords, this->shape_, this->stride_, this->elements()};
 }
 
 Tensor::size_type Tensor::size() const noexcept {
@@ -260,11 +260,11 @@ Tensor::const_pointer Tensor::data() const noexcept {
 }
 
 TensorViewConst Tensor::view() const noexcept {
-    return {this->shape(), this->stride(), this->elements()};
+    return {this->shape_, this->stride_, this->elements()};
 }
 
 TensorViewMut Tensor::view_mut() noexcept {
-    return {this->shape(), this->stride(), this->elements()};
+    return {this->shape_, this->stride_, this->elements()};
 }
 
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
