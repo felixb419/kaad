@@ -70,7 +70,9 @@ template <typename T> struct StaticVector {
         std::copy(first, last, elements_.data());
     }
 
-    template <std::ranges::input_range IR> StaticVector(IR init) {
+    template <std::ranges::input_range IR>
+        requires std::convertible_to<std::ranges::range_value_t<IR>, T>
+    StaticVector(IR init) {
         auto begin = std::ranges::begin(init);
         auto end = std::ranges::end(init);
         std::size_t size = end - begin;
