@@ -55,10 +55,10 @@ Tensor::size_type Tensor::compute_size(ShapeView shape) {
 Stride checked_stride(StrideView stride, ShapeView shape) {
 
     if (shape.size() != stride.size()) {
-        throw ArgumentError(
-            "size of shape param (" + std::to_string(shape.size()) +
-            ") and size of stride param (" + std::to_string(stride.size()) +
-            ") need to be equal");
+        throw ShapeError("size of shape param (" +
+                         std::to_string(shape.size()) +
+                         ") and size of stride param (" +
+                         std::to_string(stride.size()) + ") need to be equal");
     }
 
     return {stride};
@@ -69,9 +69,10 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
 
     Tensor::size_type implied_len = Tensor::compute_size(shape);
     if (implied_len != elements.size()) {
-        throw ArgumentError(
-            "size of elements param: " + std::to_string(elements.size()) +
-            ", size implied by shape param: " + std::to_string(implied_len));
+        throw ShapeError("size of elements param (" +
+                         std::to_string(elements.size()) +
+                         ") must be equal to size implied by shape param (" +
+                         std::to_string(implied_len) + ")");
     }
 
     return {elements.begin(), elements.end()};

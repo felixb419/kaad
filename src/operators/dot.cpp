@@ -54,9 +54,8 @@ Node dot(Graph &rec, Node lhs, Node rhs) {
         rec.nodes.push_back(std::make_unique<NodeDot>(lhs_ptr, rhs_ptr));
 
     } else {
-        throw ShapeError(make_graph_errmsg(
-            "shape error", rec_len, "dot",
-            "incompatible tensor shapes for dot product",
+        throw BroadcastError(make_graph_errmsg(
+            rec_len, "dot", "incompatible tensor shapes for dot product",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }
 

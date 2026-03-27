@@ -19,8 +19,7 @@ std::string to_string(std::span<const int> array) {
 }
 
 std::string make_graph_errmsg(
-    const char *err_type, std::size_t graph_idx, const char *op_name,
-    const char *msg,
+    std::size_t graph_idx, const char *op_name, const char *msg,
     std::initializer_list<std::pair<const char *, std::span<const int>>> arrays,
     std::initializer_list<std::pair<const char *, int>> numbers) {
 
@@ -28,8 +27,7 @@ std::string make_graph_errmsg(
     const std::size_t MAX_MSG_LEN = 128;
     errmsg.reserve(MAX_MSG_LEN);
 
-    errmsg += err_type;
-    errmsg += " in node[";
+    errmsg += "in node[";
     errmsg += std::to_string(graph_idx);
     errmsg += "] (";
     errmsg += op_name;

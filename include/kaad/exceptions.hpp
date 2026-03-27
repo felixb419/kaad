@@ -2,39 +2,61 @@
 
 #include <cstddef>          // for size_t
 #include <initializer_list> // for initializer_list
+#include <span>             // for span
 #include <stdexcept>        // for runtime_error
 #include <string>           // for string
-
-// here to statisfy (likely buggy) iwyu
-#include <span>    // for span // IWYU pragma: keep
-#include <utility> // for pair // IWYU pragma: keep
+#include <utility>          // for pair
 
 namespace kaad {
 
-std::string to_string(std::span<const int> array);
-
-class KaadError : public std::runtime_error {
+/// @brief Base exception type for kaad.
+struct Exception : public std::runtime_error {
   public:
     using std::runtime_error::runtime_error;
 };
 
-class ArgumentError : public KaadError {
+/// @brief Exception for errors caused by conditions detected only at runtime.
+struct RuntimeError : public Exception {
+  public:
+    using Exception::Exception;
+};
+
+/// @brief Exception for errors caused by incorrect API usage.
+struct LogicError : public Exception {
+  public:
+    using Exception::Exception;
+};
+
+/// @brief Exception for invalid or malformed arguments.
+struct ArgumentError : public LogicError {
   public:
     inline static const char *err_type = "argument error";
 
-    using KaadError::KaadError;
+    using LogicError::LogicError;
 };
 
-class ShapeError : public KaadError {
+/// @brief Exception for invalid shapes.
+struct ShapeError : public ArgumentError {
   public:
     inline static const char *err_type = "shape error";
 
-    using KaadError::KaadError;
+    using ArgumentError::ArgumentError;
 };
 
+/// @brief Exception for errors that occur during shape broadcasting.
+struct BroadcastError : public ShapeError {
+  public:
+    inline static const char *err_type = "broadcast error";
+
+    using ShapeError::ShapeError;
+};
+
+/// @return A string containing the elements of @p array in square brackets.
+std::string to_string(std::span<const int> array);
+
+/// @return An error message formatted for a @ref Graph.
 std::string make_graph_errmsg(
-    const char *err_type, std::size_t graph_idx, const char *op_name,
-    const char *msg,
+    std::size_t graph_idx, const char *op_name, const char *msg,
     std::initializer_list<std::pair<const char *, std::span<const int>>>
         arrays = std::initializer_list<
             std::pair<const char *, std::span<const int>>>{},

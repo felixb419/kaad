@@ -1,10 +1,11 @@
 #include <kaad/graph/nodes/inode.hpp>
 
 #include <algorithm>                    // for __fill_fn, fill
-#include <kaad/exceptions.hpp>          // for ArgumentError
+#include <kaad/exceptions.hpp>          // for ShapeError, to_string
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
-#include <vector>                       // for vector
+#include <string>                       // for char_traits, operator+, basi...
+#include <vector>                       // for allocator, vector
 
 namespace kaad {
 
@@ -14,8 +15,9 @@ INode::INode(ShapeView value_shape, bool is_input_node, const char *label,
       is_input_node_(is_input_node) {
 
     if (this->value_.empty() || this->gradient_.empty()) {
-        throw ArgumentError("given value_shape results in tensor with no "
-                            "elements which is not allowed");
+        throw ShapeError("given value_shape (" + to_string(value_shape) +
+                         ") results in tensor with no "
+                         "elements which is not allowed");
     }
 
     // if @p value_stride is given its used to construct value_

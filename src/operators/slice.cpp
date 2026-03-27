@@ -29,15 +29,13 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
     if (size.size() > input_val.rank()) {
         std::span<const int> size_span(size.begin(), size.size());
         throw ArgumentError(make_graph_errmsg(
-            "argument error", rec_len, "slice",
-            "length of size is bigger than A.rank()",
+            rec_len, "slice", "length of size is bigger than A.rank()",
             {{"size", size_span}, {"A.shape", input_val.shape()}}));
     }
     if (offset.size() > input_val.rank()) {
         std::span<const int> offset_span(offset.begin(), offset.size());
         throw ArgumentError(make_graph_errmsg(
-            "argument error", rec_len, "slice",
-            "length of offset is bigger than A.rank()",
+            rec_len, "slice", "length of offset is bigger than A.rank()",
             {{"offset", offset_span}, {"A.shape", input_val.shape()}}));
     }
 
@@ -69,11 +67,11 @@ Node slice(Graph &rec, Node input, std::initializer_list<int> size,
             msg += "] > A.shape[";
             msg += idx_str;
             msg += "]";
-            throw ArgumentError(make_graph_errmsg(
-                "argument error", rec_len, "slice", msg.c_str(),
-                {{"size", size_span},
-                 {"offset", offset_span},
-                 {"A.shape", input_val.shape()}}));
+            throw ArgumentError(
+                make_graph_errmsg(rec_len, "slice", msg.c_str(),
+                                  {{"size", size_span},
+                                   {"offset", offset_span},
+                                   {"A.shape", input_val.shape()}}));
         }
     }
 

@@ -50,8 +50,7 @@ Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
 
     if (dim < 0 || std::cmp_greater_equal(dim, input_val.rank())) {
         throw ArgumentError(make_graph_errmsg(
-            "argument error", rec_len, "sum",
-            "dim has to be a valid index of A.shape",
+            rec_len, "sum", "dim has to be a valid index of A.shape",
             {{"A.shape", input_val.shape()}}, {{"dim", dim}}));
     }
 

@@ -34,8 +34,8 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
     if (!detail::combine_matrix(lhs_val.shape().data(), lhs_val.rank(),
                                 rhs_val.shape().data(), rhs_val.rank(),
                                 new_shape.data(), new_len)) {
-        throw ShapeError(make_graph_errmsg(
-            "shape error", rec_len, op_name,
+        throw BroadcastError(make_graph_errmsg(
+            rec_len, op_name,
             "incompatible tensor shapes for matrix multiplication",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }

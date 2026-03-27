@@ -151,9 +151,8 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
         rec.nodes.push_back(std::move(std::make_unique<NodeBinaryFlex<Kernel>>(
             lhs_ptr, rhs_ptr, new_shape)));
     } else {
-        throw ShapeError(make_graph_errmsg(
-            "shape error", rec_len, opName,
-            "incompatible tensor shapes for binary operation",
+        throw BroadcastError(make_graph_errmsg(
+            rec_len, opName, "incompatible tensor shapes for binary operation",
             {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
     }
     return rec.back_handle();

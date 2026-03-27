@@ -33,7 +33,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
     TensorViewConst input_val = input_ptr->value().view();
 
     if (input_val.rank() < 2) {
-        throw ShapeError(make_graph_errmsg("shape error", rec_len, "transpose",
+        throw ShapeError(make_graph_errmsg(rec_len, "transpose",
                                            "A.rank() hast to be > 1",
                                            {{"A.shape", input_val.shape}}));
     }
@@ -47,15 +47,14 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
 
     } else {
         if (perm.size() != input_val.rank()) {
-            throw ArgumentError(
-                make_graph_errmsg("argument error ", rec_len, "transpose",
-                                  "perm.size() has to be same as A.rank()",
-                                  {{"A.shape", input_val.shape}}));
+            throw ArgumentError(make_graph_errmsg(
+                rec_len, "transpose", "perm.size() has to be same as A.rank()",
+                {{"A.shape", input_val.shape}}));
         }
 
         if (contains_duplicates(StaticVector<int>(perm.begin(), perm.end()))) {
             throw ArgumentError(make_graph_errmsg(
-                "argument error", rec_len, "transpose",
+                rec_len, "transpose",
                 "perm has to contain index of every dimension exactly once",
                 {{"perm", perm}}));
         }
