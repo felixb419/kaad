@@ -86,7 +86,7 @@ Tensor::Tensor(ShapeView shape)
       elements_(Tensor::compute_size(shape_)) {}
 
 Tensor::Tensor(std::span<const Scalar> elements)
-    : shape_{static_cast<std::size_t>(elements.size())},
+    : shape_(static_cast<std::size_t>(elements.size())),
       stride_(Tensor::compute_stride(shape_)),
       elements_(elements.begin(), elements.end()) {}
 

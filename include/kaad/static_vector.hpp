@@ -131,6 +131,9 @@ template <typename T> class StaticVector {
         std::copy(begin, end, this->elements_.data());
     }
 
+    StaticVector(std::initializer_list<value_type> init)
+        : StaticVector(init.begin(), init.end()) {}
+
     [[nodiscard]] size_type size() const noexcept { return this->size_; }
 
     /// @return KAAD_MAX_RANK.
