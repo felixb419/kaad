@@ -14,6 +14,9 @@ using Shape = StaticVector<extent>;
 /// Alias for non-owning immutable tensor shape.
 using ShapeView = Shape::view_type;
 
+/// Alias for a singular stride along a singular tensor dimension.
+using stride = int;
+
 /// Alias for owning tensor strides.
 using Strides = StaticVector<extent>;
 
