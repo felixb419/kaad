@@ -1,20 +1,19 @@
 #include <kaad/operators/operators.hpp> // for dot
 
-#include "../graph/nodes/dot.hpp"     // for NodeDot, dot
-#include <algorithm>                  // for equal
-#include <cstddef>                    // for size_t
-#include <kaad/exceptions.hpp>        // for ShapeError, make_graph_errmsg
-#include <kaad/functions/adjoint.hpp> // for scalar_dot
-#include <kaad/functions/primal.hpp>  // for scalar_dot
-#include <kaad/graph/graph.hpp>       // for Graph, dot
-#include <kaad/graph/node_handle.hpp> // for Node
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/tensor/tensor.hpp>     // for Tensor
-#include <memory>                     // for unique_ptr, make_unique
-#include <span>                       // for span
-#include <string>                     // for basic_string
-#include <utility>                    // for pair
-#include <vector>                     // for vector
+#include "../graph/nodes/dot.hpp"         // for NodeDot, dot
+#include <cstddef>                        // for size_t
+#include <kaad/exceptions.hpp>            // for BroadcastError, make_graph...
+#include <kaad/functions/dot_product.hpp> // for DotProduct
+#include <kaad/graph/graph.hpp>           // for Graph, dot
+#include <kaad/graph/node_handle.hpp>     // for Node
+#include <kaad/graph/nodes/inode.hpp>     // for INode
+#include <kaad/tensor/tensor.hpp>         // for Tensor
+#include <kaad/tensor/tensor_types.hpp>   // for Shape
+#include <memory>                         // for unique_ptr, make_unique
+#include <span>                           // for span
+#include <string>                         // for basic_string
+#include <utility>                        // for pair
+#include <vector>                         // for vector
 
 namespace kaad {
 
@@ -27,29 +26,10 @@ Node dot(Graph &rec, Node lhs, Node rhs) {
     Tensor &lhs_val = lhs_ptr->value();
     Tensor &rhs_val = rhs_ptr->value();
 
-    bool lhs_scalar = lhs_val.size() == 1;
-    bool rhs_scalar = rhs_val.size() == 1;
+    Shape new_shape; // not actually needed since it will always be {1}.
 
-    if (lhs_scalar || rhs_scalar) {
-
-        if (rhs_scalar) {
-
-            rec.nodes.push_back(std::make_unique<NodeDot>(lhs_ptr, rhs_ptr));
-
-        } else if (lhs_scalar) {
-
-            rec.nodes.push_back(std::make_unique<NodeDot>(rhs_ptr, lhs_ptr));
-        }
-
-        // override functions to ScalarDot
-        static_cast<NodeDot *>(rec.nodes.back().get())->forward_op =
-            functions::primal::binary::scalar_dot;
-        static_cast<NodeDot *>(rec.nodes.back().get())->backward_op =
-            functions::adjoint::binary::scalar_dot;
-
-    } else if (lhs_val.rank() == 1 && rhs_val.rank() == 1 &&
-               std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),
-                          rhs_val.shape().begin())) {
+    if (functions::DotProduct::broadcast(lhs_val.shape(), rhs_val.shape(),
+                                         new_shape)) {
 
         rec.nodes.push_back(std::make_unique<NodeDot>(lhs_ptr, rhs_ptr));
 

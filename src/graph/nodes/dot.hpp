@@ -1,9 +1,8 @@
 #pragma once
 
-#include <kaad/functions/adjoint.hpp> // for dot, dot_fn
-#include <kaad/functions/primal.hpp>  // for dot, dot_fn
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
+#include <kaad/functions/dot_product.hpp> // for DotProduct
+#include <kaad/graph/nodes/inode.hpp>     // for INode
+#include <kaad/scalar.hpp>                // for Scalar
 
 namespace kaad {
 
@@ -18,20 +17,16 @@ class Node;
  */
 class NodeDot : public INode {
   private:
-    INode *lhs = nullptr; ///< Pointer to the first input Node.
-    INode *rhs = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr;
+    INode *rhs = nullptr;
 
-    functions::primal::binary::dot_fn<Scalar> forward_op =
-        functions::primal::binary::dot<Scalar>; ///< Function pointer to
-                                                ///< the value
-                                                ///< operation.
+    functions::DotProduct::primal_fn forward_op = functions::DotProduct::primal;
 
-    functions::adjoint::binary::dot_fn<Scalar> backward_op =
-        functions::adjoint::binary::dot<Scalar>; ///< Function pointer to the
-                                                 ///< gradient operation.
+    functions::DotProduct::adjoint_fn backward_op =
+        functions::DotProduct::adjoint;
 
-    const Scalar *lhs_end =
-        nullptr; ///< Pointer to the end of the A buffer (used for iteration).
+    const Scalar *end; ///< Is set to the end of the elements of @c lhs or @c
+                       ///< rhs depending on inputs.
 
   public:
     /**

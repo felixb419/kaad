@@ -51,9 +51,6 @@ using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
                              int *stride_rhs, int *stride_res,
                              std::size_t *res_dim_offset, std::size_t res_rank);
 
-template <typename T>
-using dot_fn = void (*)(const T *lhs, const T *rhs, T *res, const T *lhs_end);
-
 /**
  * @brief Applies Op to @p lhssand @p rhs .
  * @ingroup binary_primal_functions
@@ -176,42 +173,6 @@ void flexible(
                                        stride_rhs + 1, stride_res + 1,
                                        res_dim_offset + 1, 0);
         }
-    }
-}
-
-/**
- * @brief Computes the dot product of @p lhs and @p rhs into @p res.
- * @ingroup binary_primal_functions
- * @pre @p lhs is rank-2 and @p rhs and @p res are rank-0.
- * @tparam T Element type
- * @tparam Kernel (Only needed for signature).
- * @param[in] lhs Pointer to the start of rank-1 tensor.
- * @param[in] rhs Pointer to rank-0 tensor
- * @param[out] res Pointer to rank-0 tensor.
- * @param lhs_end Pointer to the end of @p lhs.
- */
-template <typename T>
-void scalar_dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
-    for (; lhs != lhs_end; lhs++) {
-        *res += *lhs * (*rhs);
-    }
-}
-
-/**
- * @brief Computes the dot product of @p lhs and @p rhs into @p res.
- * @ingroup binary_primal_functions
- * @pre @p lhs and @p rhs are rank-1 and @p res is rank-0.
- * @tparam T Element type
- * @tparam Kernel (Only needed for signature).
- * @param[in] lhs Pointer to the start of rank-1 tensor.
- * @param[in] rhs Pointer to the start of rank-1 tensor
- * @param[out] res Pointer to rank-0 tensor.
- * @param lhs_end Pointer to the end of @p lhs.
- */
-template <typename T>
-void dot(const T *lhs, const T *rhs, T *res, const T *lhs_end) noexcept {
-    for (; lhs != lhs_end; lhs++, rhs++) {
-        *res += *lhs * (*rhs);
     }
 }
 

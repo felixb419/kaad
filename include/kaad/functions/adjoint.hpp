@@ -60,10 +60,6 @@ using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
                              int *stride_lhs, int *stride_rhs, int *stride_res,
                              std::size_t *res_dim_offset, std::size_t res_rank);
 
-template <typename T>
-using dot_fn = void (*)(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs,
-                        const T *d_res, const T *lhs_end);
-
 /**
  * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
  * @ingroup binary_adjoint_functions
@@ -220,55 +216,6 @@ void flexible(
                 lhs, d_lhs, rhs, d_rhs, res, d_res, stride_lhs + 1,
                 stride_rhs + 1, stride_res + 1, res_dim_offset + 1, 0);
         }
-    }
-}
-
-/**
- * @brief Accumulates the gradient of the dot-product of @p lhs and @p rhs.
- * @ingroup binary_adjoint_functions
- * @pre @p lhs is a 1-rank and @p rhs and @p res is 0-rank.
- * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
- * @tparam Kernel (Only neede for signature)
- * @param[in] lhs Pointer to the start of 1-rank tensor.
- * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
- * @param[in] rhs Pointer to the start of 0-rank tensor.
- * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
- * @param[in] res Pointer to the start of 0-rank tensor.
- * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
- * @param lhs_end Pointer to the end of @p lhs.
- */
-template <typename T>
-void scalar_dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
-                const T *lhs_end) noexcept {
-    for (; lhs != lhs_end; lhs++, d_lhs++) {
-        *d_lhs += *d_res * (*rhs);
-        *d_rhs += *d_res * (*lhs);
-    }
-}
-
-/**
- * @brief Accumulates the gradient of the dot-product of @p lhs and
- * @ingroup binary_adjoint_functions
- * @p rhs.
- * @pre @p lhs and @p rhs are 2-rank and @p res is 0-rank.
- * @pre Every operand must have the same shape as their gradient.
- * @tparam T Element type.
- * @tparam Kernel (Only neede for signature)
- * @param[in] lhs Pointer to the start of 1-rank tensor.
- * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
- * @param[in] rhs Pointer to the start of 1-rank tensor.
- * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
- * @param[in] res Pointer to the start of 0-rank tensor.
- * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
- * @param lhs_end Pointer to the end of @p lhs.
- */
-template <typename T>
-void dot(const T *lhs, T *d_lhs, const T *rhs, T *d_rhs, const T *d_res,
-         const T *lhs_end) noexcept {
-    for (; lhs != lhs_end; lhs++, d_lhs++, rhs++, d_rhs++) {
-        *d_lhs += *d_res * (*rhs);
-        *d_rhs += *d_res * (*lhs);
     }
 }
 
