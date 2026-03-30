@@ -5,7 +5,7 @@
 #include <kaad/functions/primal.hpp>    // for pointwise, pointwise_fn
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StridesView
 
 namespace kaad {
 
@@ -39,10 +39,10 @@ class NodeTransp : public INode {
      * @brief Construct tranposition node.
      * @param input_ptr Pointer to the first input node.
      * @param value_shape Output/gradient shape
-     * @param value_shape Output/gradient stride
+     * @param value_shape Output/gradient strides
      */
     NodeTransp(INode *input_ptr, ShapeView value_shape,
-               StrideView value_stride);
+               StridesView value_strides);
 
     /// @return Type of the node as a string.
     [[nodiscard]] const char *node_type() const noexcept override;

@@ -34,9 +34,9 @@ template <class Kernel> class NodeBinaryFlex : public INode {
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
 
-    Stride lhs_stride;   ///< stride Array for A.
-    Stride rhs_stride;   ///< stride Array for B.
-    Stride value_stride; ///< stride Array for C.
+    Strides lhs_strides;   ///< Stride array for A.
+    Strides rhs_strides;   ///< Stride array for B.
+    Strides value_strides; ///< Stride array for C.
     StaticVector<std::size_t>
         C_offset;               ///< Per-dim offset to the end of C buffer.
     std::size_t value_rank = 0; ///< Number of the dimensions of the C tensor.
@@ -48,9 +48,9 @@ template <class Kernel> class NodeBinaryFlex : public INode {
         Tensor &value = this->value();
 
         this->value_rank = value.rank();
-        this->lhs_stride.resize(this->value_rank);
-        this->rhs_stride.resize(this->value_rank);
-        this->value_stride.resize(this->value_rank);
+        this->lhs_strides.resize(this->value_rank);
+        this->rhs_strides.resize(this->value_rank);
+        this->value_strides.resize(this->value_rank);
 
         int idx;
         int idx_a;
@@ -59,22 +59,22 @@ template <class Kernel> class NodeBinaryFlex : public INode {
         for (std::size_t i = 1; i <= this->value_rank; i++) {
             idx = this->value_rank - i;
             idx_a = lhs.rank() - i;
-            this->lhs_stride[idx] = idx_a >= 0 ? lhs.stride()[idx_a] : 0;
+            this->lhs_strides[idx] = idx_a >= 0 ? lhs.strides()[idx_a] : 0;
             idx_b = rhs.rank() - i;
-            this->rhs_stride[idx] = idx_b >= 0 ? rhs.stride()[idx_b] : 0;
+            this->rhs_strides[idx] = idx_b >= 0 ? rhs.strides()[idx_b] : 0;
             idx_c = value.rank() - i;
-            this->value_stride[idx] = idx_c >= 0 ? value.stride()[idx_c] : 0;
-            // make sure value_stride[idx] is 1 instead of 0 if value.shape[idx]
-            // is 1 for traversing in flexible function
-            if (this->value_stride[idx] == 0 && value.shape()[idx_c] == 1) {
-                this->value_stride[idx] = 1;
+            this->value_strides[idx] = idx_c >= 0 ? value.strides()[idx_c] : 0;
+            // make sure value_strides[idx] is 1 instead of 0 if
+            // value.shape[idx] is 1 for traversing in flexible function
+            if (this->value_strides[idx] == 0 && value.shape()[idx_c] == 1) {
+                this->value_strides[idx] = 1;
             }
         }
 
         this->C_offset.resize(this->value_rank);
         for (std::size_t i = 0; i < this->value_rank; i++) {
             this->C_offset[i] = static_cast<std::size_t>(value.shape()[i]) *
-                                this->value_stride[i];
+                                this->value_strides[i];
         }
 
         // assign compile-time recursive function
@@ -112,9 +112,9 @@ template <class Kernel> class NodeBinaryFlex : public INode {
             this->rhs->eval();
 
             forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                       this->value().data(), lhs_stride.data(),
-                       rhs_stride.data(), value_stride.data(), C_offset.data(),
-                       value_rank);
+                       this->value().data(), lhs_strides.data(),
+                       rhs_strides.data(), value_strides.data(),
+                       C_offset.data(), value_rank);
             this->evaluated_ = true;
         }
     }
@@ -125,8 +125,8 @@ template <class Kernel> class NodeBinaryFlex : public INode {
         backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                     this->rhs->value().data(), this->rhs->gradient().data(),
                     this->value().data(), this->gradient().data(),
-                    lhs_stride.data(), rhs_stride.data(), value_stride.data(),
-                    C_offset.data(), value_rank);
+                    lhs_strides.data(), rhs_strides.data(),
+                    value_strides.data(), C_offset.data(), value_rank);
 
         if (!this->lhs->is_input()) {
             this->lhs->get_grad();

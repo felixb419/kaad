@@ -4,7 +4,7 @@
 #include <kaad/graph/nodes/inode.hpp>      // for INode
 #include <kaad/scalar.hpp>                 // for Scalar
 #include <kaad/tensor/tensor.hpp>          // for Tensor
-#include <kaad/tensor/tensor_types.hpp>    // for Shape, Stride, ShapeView
+#include <kaad/tensor/tensor_types.hpp>    // for Shape, Strides, ShapeView
 #include <kaad/tensor/tensor_view.hpp>     // for TensorView
 
 namespace kaad {
@@ -19,13 +19,13 @@ NodeBatchMatmul::NodeBatchMatmul(INode *lhs_ptr, INode *rhs_ptr,
 
     // make lhs^T
     Shape lhs_shape_buff;
-    Stride lhs_stride_buff;
-    TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_stride_buff);
+    Strides lhs_strides_buff;
+    TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_strides_buff);
 
     // make rhs^T
     Shape rhs_shape_buff;
-    Stride rhs_stride_buff;
-    TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_stride_buff);
+    Strides rhs_strides_buff;
+    TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_strides_buff);
 
     // Compute metadata for individual passes
     // lhs * rhs = res

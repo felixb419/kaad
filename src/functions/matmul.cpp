@@ -1,7 +1,7 @@
 #include <kaad/functions/matmul.hpp>
 
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Stride, Shape, ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for Strides, Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 
 namespace kaad::functions {
@@ -30,9 +30,9 @@ Matmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
     this->rhs_cols = rhs.shape[1];
     this->shared_dim = lhs.shape[1];
 
-    this->eff_lhs = Stride(lhs.stride);
-    this->eff_rhs = Stride(rhs.stride);
-    this->eff_res = Stride(res.stride);
+    this->eff_lhs = Strides(lhs.strides);
+    this->eff_rhs = Strides(rhs.strides);
+    this->eff_res = Strides(res.strides);
 
     int idx;
     int res_idx;

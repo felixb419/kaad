@@ -41,8 +41,8 @@ bool BatchMatmul::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
 BatchMatmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
                                 TensorViewConst res) {
 
-    this->lhs_col_step = lhs.stride[lhs.rank() - 1];
-    this->rhs_row_step = rhs.stride[rhs.rank() - 2];
+    this->lhs_col_step = lhs.strides[lhs.rank() - 1];
+    this->rhs_row_step = rhs.strides[rhs.rank() - 2];
     this->shared_dim = lhs.shape[lhs.rank() - 1];
 
     broadcast(lhs.shape, rhs.shape, this->res_broadcast);
@@ -52,15 +52,15 @@ BatchMatmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
     // copying strides into effective strides starting from the back
     this->eff_lhs.resize(res_rank);
     int lhs_rank_diff = static_cast<int>(res_rank - lhs.rank());
-    std::ranges::copy(lhs.stride, eff_lhs.begin() + lhs_rank_diff);
+    std::ranges::copy(lhs.strides, eff_lhs.begin() + lhs_rank_diff);
 
     this->eff_rhs.resize(res_rank);
     int rhs_rank_diff = static_cast<int>(res_rank - rhs.rank());
-    std::ranges::copy(rhs.stride, eff_rhs.begin() + rhs_rank_diff);
+    std::ranges::copy(rhs.strides, eff_rhs.begin() + rhs_rank_diff);
 
     this->eff_res.resize(res_rank);
     int res_rank_diff = static_cast<int>(res_rank - res.rank());
-    std::ranges::copy(res.stride, eff_res.begin() + res_rank_diff);
+    std::ranges::copy(res.strides, eff_res.begin() + res_rank_diff);
 
     eff_lhs[res_rank - 1] = 0;
     eff_rhs[res_rank - 2] = 0;

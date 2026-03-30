@@ -37,11 +37,11 @@ class INode {
      * @param value_shape Output/gradient shape
      * @param is_input_node Flag indicating wheter it is an input node.
      * @param label Label string for the node.
-     * @param value_stride Stride array of the value tensor (can be omitted if
+     * @param value_strides Stride array of the value tensor (can be omitted if
      * tensor is contigous).
      */
     INode(ShapeView value_shape, bool is_input_node, const char *label = "",
-          StrideView value_stride = {});
+          StridesView value_strides = {});
 
   public:
     /// Virtual destructor for polymorphic deletion

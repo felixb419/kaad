@@ -8,7 +8,7 @@
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/static_vector.hpp>        // for StaticVector
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, Stride, StrideView
+#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, Strides, StridesView
 #include <kaad/tensor/tensor_view.hpp>   // for TensorViewConst, TensorViewMut
 #include <span>                          // for span
 #include <string>                        // for operator+, basic_string
@@ -16,28 +16,28 @@
 
 namespace kaad {
 
-Stride Tensor::compute_stride(ShapeView shape) {
+Strides Tensor::compute_strides(ShapeView shape) {
 
     if (shape.empty()) {
-        return Stride{};
+        return Strides{};
     }
 
-    Stride stride(shape.size());
+    Strides strides(shape.size());
     int idx = static_cast<int>(shape.size()) - 1;
 
-    stride[idx--] = 1;
+    strides[idx--] = 1;
 
     for (; idx >= 0; idx--) {
-        stride[idx] = shape[idx + 1] * stride[idx + 1];
+        strides[idx] = shape[idx + 1] * strides[idx + 1];
     }
 
-    for (size_type i = 0; i < stride.size(); i++) {
+    for (size_type i = 0; i < strides.size(); i++) {
         if (shape[i] <= 1) {
-            stride[i] = 0;
+            strides[i] = 0;
         }
     }
 
-    return stride;
+    return strides;
 }
 
 Tensor::size_type Tensor::compute_size(ShapeView shape) {
@@ -53,16 +53,16 @@ Tensor::size_type Tensor::compute_size(ShapeView shape) {
     return len;
 }
 
-Stride checked_stride(StrideView stride, ShapeView shape) {
+Strides checked_strides(StridesView strides, ShapeView shape) {
 
-    if (shape.size() != stride.size()) {
+    if (shape.size() != strides.size()) {
         throw ShapeError("size of shape param (" +
                          std::to_string(shape.size()) +
-                         ") and size of stride param (" +
-                         std::to_string(stride.size()) + ") need to be equal");
+                         ") and size of strides param (" +
+                         std::to_string(strides.size()) + ") need to be equal");
     }
 
-    return {stride};
+    return {strides};
 }
 
 std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
@@ -82,25 +82,25 @@ std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
 Tensor::Tensor() : elements_{0} {}
 
 Tensor::Tensor(ShapeView shape)
-    : shape_(shape), stride_(Tensor::compute_stride(shape_)),
+    : shape_(shape), strides_(Tensor::compute_strides(shape_)),
       elements_(Tensor::compute_size(shape_)) {}
 
 Tensor::Tensor(std::span<const Scalar> elements)
     : shape_(static_cast<std::size_t>(elements.size())),
-      stride_(Tensor::compute_stride(shape_)),
+      strides_(Tensor::compute_strides(shape_)),
       elements_(elements.begin(), elements.end()) {}
 
-Tensor::Tensor(ShapeView shape, StrideView stride)
-    : shape_(shape), stride_(checked_stride(stride, shape)),
+Tensor::Tensor(ShapeView shape, StridesView strides)
+    : shape_(shape), strides_(checked_strides(strides, shape)),
       elements_(Tensor::compute_size(shape_)) {}
 
 Tensor::Tensor(ShapeView shape, std::span<const Scalar> elements)
-    : shape_(shape), stride_(Tensor::compute_stride(shape_)),
+    : shape_(shape), strides_(Tensor::compute_strides(shape_)),
       elements_(checked_elements(elements, shape)) {}
 
-Tensor::Tensor(ShapeView shape, StrideView stride,
+Tensor::Tensor(ShapeView shape, StridesView strides,
                std::span<const Scalar> elements)
-    : shape_(shape), stride_(checked_stride(stride, shape)),
+    : shape_(shape), strides_(checked_strides(strides, shape)),
       elements_(checked_elements(elements, shape)) {}
 
 Tensor Tensor::full(ShapeView shape, Scalar fill_value) {
@@ -175,7 +175,7 @@ Tensor::size_type Tensor::rank() const noexcept {
 
 ShapeView Tensor::shape() const noexcept { return this->shape_; }
 
-StrideView Tensor::stride() const noexcept { return this->stride_; }
+StridesView Tensor::strides() const noexcept { return this->strides_; }
 
 std::span<Scalar> Tensor::elements() noexcept { return this->elements_; }
 
@@ -190,7 +190,7 @@ Tensor::iterator Tensor::begin() noexcept {
     StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),
                             StaticVector<int>::UNCHECKED);
 
-    return {this, cords, this->shape_, this->stride_, this->elements()};
+    return {this, cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::begin() const noexcept {
@@ -198,7 +198,7 @@ Tensor::const_iterator Tensor::begin() const noexcept {
     StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),
                             StaticVector<int>::UNCHECKED);
 
-    return {this, cords, this->shape_, this->stride_, this->elements()};
+    return {this, cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::iterator Tensor::end() noexcept {
@@ -218,7 +218,7 @@ Tensor::iterator Tensor::end() noexcept {
         }
     }
 
-    return {this, cords, this->shape_, this->stride_, this->elements()};
+    return {this, cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::end() const noexcept {
@@ -237,7 +237,7 @@ Tensor::const_iterator Tensor::end() const noexcept {
         }
     }
 
-    return {this, cords, this->shape_, this->stride_, this->elements()};
+    return {this, cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::size_type Tensor::size() const noexcept {
@@ -267,16 +267,16 @@ Tensor::const_pointer Tensor::data() const noexcept {
 }
 
 TensorViewConst Tensor::view() const noexcept {
-    return {this->shape_, this->stride_, this->elements()};
+    return {this->shape_, this->strides_, this->elements()};
 }
 
 TensorViewMut Tensor::view_mut() noexcept {
-    return {this->shape_, this->stride_, this->elements()};
+    return {this->shape_, this->strides_, this->elements()};
 }
 
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
 
-    print_tensor_impl(stream, tensor.shape(), tensor.stride(),
+    print_tensor_impl(stream, tensor.shape(), tensor.strides(),
                       tensor.elements());
 
     return stream;

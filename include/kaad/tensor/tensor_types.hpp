@@ -15,9 +15,9 @@ using Shape = StaticVector<extent>;
 using ShapeView = Shape::view_type;
 
 /// Alias for owning tensor strides.
-using Stride = StaticVector<extent>;
+using Strides = StaticVector<extent>;
 
 /// Alias for non-owning immutable tensor strides.
-using StrideView = Stride::view_type;
+using StridesView = Strides::view_type;
 
 } // namespace kaad

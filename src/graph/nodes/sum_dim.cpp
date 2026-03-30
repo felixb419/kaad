@@ -18,8 +18,8 @@ void NodeSumDim::metadata(int dim) {
     Tensor &value = this->value();
 
     detail::along_dim_metadata_impl(input, value, dim, this->value_rank,
-                                    this->input_offset, this->input_stride,
-                                    this->value_stride);
+                                    this->input_offset, this->input_strides,
+                                    this->value_strides);
 
     // assign compile-time recursive function
     std::size_t input_rank = input.rank();
@@ -42,15 +42,15 @@ void NodeSumDim::eval() {
         this->input->eval();
 
         val_func(this->input->value().data(), this->value().data(),
-                 input_stride.data(), value_stride.data(), input_offset.data(),
-                 value_rank);
+                 input_strides.data(), value_strides.data(),
+                 input_offset.data(), value_rank);
         this->evaluated_ = true;
     }
 }
 
 void NodeSumDim::get_grad() {
     grad_func(this->input->gradient().data(), this->gradient().data(),
-              input_stride.data(), value_stride.data(), input_offset.data(),
+              input_strides.data(), value_strides.data(), input_offset.data(),
               value_rank);
 
     if (!this->input->is_input()) {

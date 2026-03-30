@@ -19,21 +19,21 @@ void NodeOuter::metadata() {
 
     this->res_rank = res.rank();
 
-    this->lhs_stride.resize(this->res_rank);
-    this->rhs_stride.resize(this->res_rank);
-    this->res_stride.resize(this->res_rank);
+    this->lhs_strides.resize(this->res_rank);
+    this->rhs_strides.resize(this->res_rank);
+    this->res_strides.resize(this->res_rank);
 
-    std::copy(res.stride().begin(), res.stride().end(),
-              this->res_stride.data());
-    std::copy(lhs.stride().begin(), lhs.stride().end(),
-              this->lhs_stride.data());
-    std::copy(rhs.stride().begin(), rhs.stride().end(),
-              this->rhs_stride.data() + lhs.rank());
+    std::copy(res.strides().begin(), res.strides().end(),
+              this->res_strides.data());
+    std::copy(lhs.strides().begin(), lhs.strides().end(),
+              this->lhs_strides.data());
+    std::copy(rhs.strides().begin(), rhs.strides().end(),
+              this->rhs_strides.data() + lhs.rank());
 
     this->res_offset.resize(this->res_rank);
     for (std::size_t i = 0; i < this->res_rank; i++) {
         this->res_offset[i] =
-            static_cast<std::size_t>(res.shape()[i]) * this->res_stride[i];
+            static_cast<std::size_t>(res.shape()[i]) * this->res_strides[i];
     }
 
     // assign compile-time recursive function
@@ -59,8 +59,8 @@ void NodeOuter::eval() {
         this->rhs->eval();
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                   this->value().data(), lhs_stride.data(), rhs_stride.data(),
-                   res_stride.data(), res_offset.data(), res_rank);
+                   this->value().data(), lhs_strides.data(), rhs_strides.data(),
+                   res_strides.data(), res_offset.data(), res_rank);
         this->evaluated_ = true;
     }
 }
@@ -69,7 +69,7 @@ void NodeOuter::get_grad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
                 this->value().data(), this->gradient().data(),
-                lhs_stride.data(), rhs_stride.data(), res_stride.data(),
+                lhs_strides.data(), rhs_strides.data(), res_strides.data(),
                 res_offset.data(), res_rank);
 
     if (!this->lhs->is_input()) {

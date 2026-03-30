@@ -3,10 +3,10 @@
 #include <cstddef>                       // for ptrdiff_t, size_t
 #include <cstdint>                       // for uint64_t
 #include <iostream>                      // for ostream
-#include <kaad/enums.hpp>      // for MUTABILITY
+#include <kaad/enums.hpp>                // for MUTABILITY
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, StrideView, Stride
+#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, StridesView, Strides
 #include <random>                        // for random_device, mt19937_64
 #include <span>                          // for span
 #include <vector>                        // for vector
@@ -39,10 +39,10 @@ class Tensor {
     using const_iterator = IteratorImpl<IMMUTABLE>;
 
   private:
-    Shape shape_;   ///< Vector containing the size of the tensor
-                    ///< in each dimension.
-    Stride stride_; ///< Vector containing the stride of the tensor (steps
-                    ///< needed to move one element in each dimension).
+    Shape shape_;     ///< Vector containing the size of the tensor
+                      ///< in each dimension.
+    Strides strides_; ///< Vector containing the strides of the tensor (steps
+                      ///< needed to move one element in each dimension).
     std::vector<value_type>
         elements_; ///< Vector containing the elements of the Tensor.
 
@@ -53,8 +53,8 @@ class Tensor {
     }
 
   public:
-    /// @return Stride array based on @p shape.
-    static Stride compute_stride(ShapeView shape);
+    /// @return Strides array based on @p shape.
+    static Strides compute_strides(ShapeView shape);
 
     /// @return Number of elements based on @p shape.
     static size_type compute_size(ShapeView shape);
@@ -74,12 +74,12 @@ class Tensor {
     explicit Tensor(std::span<const value_type> elements);
 
     /**
-     * @brief Constructs a tensor with given @p shape and @p stride.
+     * @brief Constructs a tensor with given @p shape and @p strides.
      * @note The elements array is initialized to 0.
      * @param shape Dimensions of the tensor.
-     * @param stride Per-dim strides of the tensor.
+     * @param strides Per-dim strides of the tensor.
      */
-    Tensor(ShapeView shape, StrideView stride);
+    Tensor(ShapeView shape, StridesView strides);
 
     /**
      * @brief Constructs a tensor with given @p shape and @p elements.
@@ -89,13 +89,13 @@ class Tensor {
     Tensor(ShapeView shape, std::span<const value_type> elements);
 
     /**
-     * @brief Constructs a tensor with given @p shape, @p stride and @p
+     * @brief Constructs a tensor with given @p shape, @p strides and @p
      * elements.
      * @param shape Dimensions of the tensor.
-     * @param stride Per-dim strides of the tensor.
+     * @param strides Per-dim strides of the tensor.
      * @param elements Elements of the tensor.
      */
-    Tensor(ShapeView shape, StrideView stride,
+    Tensor(ShapeView shape, StridesView strides,
            std::span<const value_type> elements);
 
     /**
@@ -162,8 +162,8 @@ class Tensor {
     [[nodiscard]] ShapeView shape() const noexcept;
 
     /// @brief Get strides of the tensor.
-    /// @return Read-only span representing the stride array.
-    [[nodiscard]] StrideView stride() const noexcept;
+    /// @return Read-only span representing the strides array.
+    [[nodiscard]] StridesView strides() const noexcept;
 
     /**
      * @brief Get the elements of the tensor.

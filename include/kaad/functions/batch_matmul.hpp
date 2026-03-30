@@ -28,9 +28,9 @@ struct BatchMatmul {
         int rhs_row_step; ///< Step size between rows of rhs.
         int shared_dim;   ///< Length of the shared dimension of lhs and rhs.
 
-        Stride eff_lhs; ///< Broadcasted strides for lhs.
-        Stride eff_rhs; ///< Broadcasted strides for rhs.
-        Stride eff_res; ///< Broadcasted strides for res.
+        Strides eff_lhs; ///< Broadcasted strides for lhs.
+        Strides eff_rhs; ///< Broadcasted strides for rhs.
+        Strides eff_res; ///< Broadcasted strides for res.
 
         Shape res_broadcast; ///< Broadcast of lhs and rhs (might differ
                              ///< from res.shape() in backward pass)

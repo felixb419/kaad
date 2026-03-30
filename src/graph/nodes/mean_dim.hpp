@@ -6,7 +6,7 @@
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for Strides, ShapeView
 
 namespace kaad {
 
@@ -24,8 +24,8 @@ class NodeMeanDim : public INode {
     functions::adjoint::unary::mean_dim_fn<Scalar> backward_op =
         functions::adjoint::unary::mean_dim;
 
-    Stride input_stride; ///< stride Array for input tensor.
-    Stride value_stride; ///< stride Array for value tensor.
+    Strides input_strides; ///< Stride array for input tensor.
+    Strides value_strides; ///< Stride array for value tensor.
     StaticVector<std::size_t>
         input_offset; ///< Per-dim offset to the end of input buffer.
     const Scalar *value_end = nullptr; ///< Pointer to the end of the value

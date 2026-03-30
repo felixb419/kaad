@@ -24,8 +24,8 @@ void NodeMeanDim::metadata(int dim) {
     this->input_grad_end = input_grad.data() + input_grad.size();
 
     detail::along_dim_metadata_impl(input, value, dim, this->input_rank,
-                                    this->input_offset, this->input_stride,
-                                    this->value_stride);
+                                    this->input_offset, this->input_strides,
+                                    this->value_strides);
 
     // assign compile-time recursive function
     std::size_t input_rank = input.rank();
@@ -48,7 +48,7 @@ void NodeMeanDim::eval() {
         this->input->eval();
 
         forward_op(this->input->value().data(), this->value().data(),
-                   input_stride.data(), value_stride.data(),
+                   input_strides.data(), value_strides.data(),
                    input_offset.data(), input_rank, divisor, value_end);
         this->evaluated_ = true;
     }
@@ -56,7 +56,7 @@ void NodeMeanDim::eval() {
 
 void NodeMeanDim::get_grad() {
     backward_op(this->input->gradient().data(), this->gradient().data(),
-                input_stride.data(), value_stride.data(), input_offset.data(),
+                input_strides.data(), value_strides.data(), input_offset.data(),
                 input_rank, divisor, input_grad_end);
 
     if (!this->input->is_input()) {

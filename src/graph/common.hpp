@@ -50,7 +50,7 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
 }
 
 /**
- * @brief Computes stride and offset metadata for operations along a
+ * @brief Computes strides and offset metadata for operations along a
  * specific tensor dimension.
  * @param input Input tensor.
  * @param output Output tensor (e.g., reduced along `dim`).
@@ -58,46 +58,46 @@ inline bool combine_matrix(const int *shape1, std::size_t rank1,
  * @param input_rank (out) Number of dimensions in input.
  * @param input_offset (out) Array storing the maximum valid offset per
  * dimension for @p input.
- * @param input_stride (out) Stride array for @p input.
- * @param output_stride (out) Stride array for @p output, adjusted to zero along
- * `dim`.
+ * @param input_strides (out) Stride array for @p input.
+ * @param output_strides (out) Stride array for @p output, adjusted to zero
+ * along `dim`.
  */
 inline void along_dim_metadata_impl(Tensor &input, Tensor &output, int dim,
                                     std::size_t &input_rank,
                                     StaticVector<std::size_t> &input_offset,
-                                    Stride &input_stride,
-                                    Stride &output_stride) {
+                                    Strides &input_strides,
+                                    Strides &output_strides) {
     input_rank = input.rank();
-    input_stride = Stride(input.stride());
+    input_strides = Strides(input.strides());
 
-    // make sure stride[i] is 1 instead of 0 if shape[i] is 1 for
+    // make sure strides[i] is 1 instead of 0 if shape[i] is 1 for
     // traversing in flexible function
     for (std::size_t i = 0; i < input_rank; i++) {
-        if (input_stride[i] == 0 && input.shape()[i] == 1) {
-            input_stride[i] = 1;
+        if (input_strides[i] == 0 && input.shape()[i] == 1) {
+            input_strides[i] = 1;
         }
     }
 
-    output_stride = Stride(output.stride());
+    output_strides = Strides(output.strides());
 
-    // adjust output_stride if keep_rank was not set
+    // adjust output_strides if keep_rank was not set
     if (input.rank() > output.rank()) {
 
-        output_stride.push_back(0);
+        output_strides.push_back(0);
 
-        std::move(output_stride.begin() + dim, output_stride.end() - 1,
-                  output_stride.begin() + dim + 1);
+        std::move(output_strides.begin() + dim, output_strides.end() - 1,
+                  output_strides.begin() + dim + 1);
     }
 
-    output_stride[dim] = 0;
+    output_strides[dim] = 0;
     for (int i = 0; i < dim; i++) {
-        output_stride[i] /= input.shape()[dim];
+        output_strides[i] /= input.shape()[dim];
     }
 
     input_offset.resize(input_rank);
     for (std::size_t i = 0; i < input_rank; i++) {
         input_offset[i] =
-            static_cast<std::size_t>(input.shape()[i]) * input_stride[i];
+            static_cast<std::size_t>(input.shape()[i]) * input_strides[i];
     }
 }
 

@@ -2,7 +2,7 @@
 
 #include <algorithm>                    // for copy
 #include <iterator>                     // for bidirectional_iterator_tag
-#include <kaad/enums.hpp>     // for MUTABILITY
+#include <kaad/enums.hpp>               // for MUTABILITY
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
 #include <span>                         // for span
@@ -29,14 +29,14 @@ template <MUTABILITY M> class IteratorImpl {
     StaticVector<int> cords_; ///< Per-dim coordinates of the current element.
 
     ShapeView shape_;
-    StrideView stride_;
+    StridesView strides_;
 
     std::span<value_type> elements_;
 
   public:
     IteratorImpl(const Tensor *origin, StaticVector<int> cords, ShapeView shape,
-                 StrideView stride, std::span<value_type> elements)
-        : origin_(origin), cords_(cords), shape_(shape), stride_(stride),
+                 StridesView strides, std::span<value_type> elements)
+        : origin_(origin), cords_(cords), shape_(shape), strides_(strides),
           elements_(elements) {}
 
     const Tensor *origin() { return this->origin_; }
@@ -44,7 +44,7 @@ template <MUTABILITY M> class IteratorImpl {
     reference operator*() const {
         int idx = 0;
         for (std::size_t i = 0; i < this->shape_.size(); i++) {
-            idx += this->cords_[i] * this->stride_[i];
+            idx += this->cords_[i] * this->strides_[i];
         }
         return this->elements_.data()[idx];
     }

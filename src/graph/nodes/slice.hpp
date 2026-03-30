@@ -6,7 +6,7 @@
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for Strides, ShapeView
 
 namespace kaad {
 
@@ -24,8 +24,8 @@ class NodeSlice : public INode {
     functions::adjoint::unary::slice_fn<Scalar> backward_op =
         functions::adjoint::unary::slice;
 
-    Stride input_stride; ///< Stride array for tensor input.
-    Stride value_stride; ///< Stride array for tensor value.
+    Strides input_strides; ///< Stride array for tensor input.
+    Strides value_strides; ///< Stride array for tensor value.
     StaticVector<std::size_t>
         start_offset_a; ///< Offset for the start of input.
     StaticVector<std::size_t>

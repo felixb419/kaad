@@ -4,22 +4,22 @@
 #include <kaad/functions/matmul.hpp>    // for Matmul
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape, Stride
+#include <kaad/tensor/tensor_types.hpp> // for Shape, Strides
 #include <kaad/tensor/tensor_view.hpp>  // for TensorView, TensorViewConst
 
 namespace kaad {
 
 void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
                    TensorViewConst value, int &a_dim, int &b_dim,
-                   int &shared_dim, int *lhs_stride, int *rhs_stride,
-                   int *value_stride) {
+                   int &shared_dim, int *lhs_strides, int *rhs_strides,
+                   int *value_strides) {
     a_dim = lhs.shape[0];
     b_dim = rhs.shape[1];
     shared_dim = lhs.shape[1];
 
-    std::ranges::copy(lhs.stride, lhs_stride);
-    std::ranges::copy(rhs.stride, rhs_stride);
-    std::ranges::copy(value.stride, value_stride);
+    std::ranges::copy(lhs.strides, lhs_strides);
+    std::ranges::copy(rhs.strides, rhs_strides);
+    std::ranges::copy(value.strides, value_strides);
 
     int idx;
     int value_idx;
@@ -31,9 +31,9 @@ void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
         value_idx = static_cast<int>(value.rank()) - i;
         value_prev = value_offset;
         value_offset += ((value_idx >= 0 ? value.shape[value_idx] : i) - 1) *
-                        value_stride[idx];
-        value_stride[idx] -=
-            value_prev + (value_idx + 1 < 2 ? value_stride[value_idx + 1] : 0);
+                        value_strides[idx];
+        value_strides[idx] -=
+            value_prev + (value_idx + 1 < 2 ? value_strides[value_idx + 1] : 0);
     }
 }
 
@@ -46,13 +46,13 @@ NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
 
     // make lhs^T
     Shape lhs_shape_buff;
-    Stride lhs_stride_buff;
-    TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_stride_buff);
+    Strides lhs_strides_buff;
+    TensorView lhs_t = lhs_v.transpose_2d(lhs_shape_buff, lhs_strides_buff);
 
     // make rhs^T
     Shape rhs_shape_buff;
-    Stride rhs_stride_buff;
-    TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_stride_buff);
+    Strides rhs_strides_buff;
+    TensorView rhs_t = rhs_v.transpose_2d(rhs_shape_buff, rhs_strides_buff);
 
     // Compute metadata for individual passes
     // lhs * rhs = res

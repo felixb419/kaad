@@ -23,9 +23,9 @@ struct Matmul {
         int rhs_cols;   ///< Number of cols in rhs.
         int shared_dim; ///< Size of the shared dimension of @p lhs and @p rhs.
 
-        Stride eff_lhs; ///< Broadcasted strides for lhs.
-        Stride eff_rhs; ///< Broadcasted strides for rhs.
-        Stride eff_res; ///< Broadcasted strides for res.
+        Strides eff_lhs; ///< Broadcasted strides for lhs.
+        Strides eff_rhs; ///< Broadcasted strides for rhs.
+        Strides eff_res; ///< Broadcasted strides for res.
 
         Metadata() = default;
 

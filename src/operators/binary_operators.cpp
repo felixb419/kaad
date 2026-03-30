@@ -138,8 +138,8 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
     } else if (lhs_val.rank() == rhs_val.rank() &&
                std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),
                           rhs_val.shape().begin()) &&
-               std::equal(lhs_val.stride().begin(), lhs_val.stride().end(),
-                          rhs_val.stride().begin())) {
+               std::equal(lhs_val.strides().begin(), lhs_val.strides().end(),
+                          rhs_val.strides().begin())) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
             KERNELS.pointOp, KERNELS.pointGrad, lhs_ptr, rhs_ptr,

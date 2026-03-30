@@ -3,14 +3,14 @@
 #include <algorithm>                    // for __fill_fn, fill
 #include <kaad/exceptions.hpp>          // for ShapeError, to_string
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StridesView
 #include <string>                       // for char_traits, operator+, basi...
 #include <vector>                       // for allocator, vector
 
 namespace kaad {
 
 INode::INode(ShapeView value_shape, bool is_input_node, const char *label,
-             StrideView value_stride)
+             StridesView value_strides)
     : gradient_(value_shape), label_(label), evaluated_(is_input_node),
       is_input_node_(is_input_node) {
 
@@ -20,9 +20,9 @@ INode::INode(ShapeView value_shape, bool is_input_node, const char *label,
                          "elements which is not allowed");
     }
 
-    // if @p value_stride is given its used to construct value_
-    if (!value_stride.empty()) {
-        this->value_ = Tensor(value_shape, value_stride);
+    // if @p value_strides is given its used to construct value_
+    if (!value_strides.empty()) {
+        this->value_ = Tensor(value_shape, value_strides);
     } else {
         this->value_ = Tensor(value_shape);
     }

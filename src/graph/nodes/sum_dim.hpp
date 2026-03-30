@@ -6,7 +6,7 @@
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for Strides, ShapeView
 
 namespace kaad {
 
@@ -26,8 +26,8 @@ class NodeSumDim : public INode {
         functions::adjoint::unary::sum_dim; ///< Function pointer to the
                                             ///< sum_dim gradient.
 
-    Stride input_stride; ///< stride Array for input.
-    Stride value_stride; ///< stride Array for value.
+    Strides input_strides; ///< Stride array for input.
+    Strides value_strides; ///< Stride array for value.
     StaticVector<std::size_t>
         input_offset;           ///< Per-dim offset to the end of input buffer.
     std::size_t value_rank = 0; ///< Number of dimensions of value.

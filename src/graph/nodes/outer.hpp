@@ -7,7 +7,7 @@
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for Stride, ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for Strides, ShapeView
 
 namespace kaad {
 
@@ -31,9 +31,9 @@ class NodeOuter : public INode {
         functions::adjoint::binary::flexible<
             Kernel>; ///< Function pointer to the gradient operation.
 
-    Stride lhs_stride; ///< stride Array for lhs.
-    Stride rhs_stride; ///< stride Array for rhs.
-    Stride res_stride; ///< stride Array for res.
+    Strides lhs_strides; ///< Stride array for lhs.
+    Strides rhs_strides; ///< Stride array for rhs.
+    Strides res_strides; ///< Stride array for res.
     StaticVector<std::size_t>
         res_offset;           ///< Per-dim offset to the end of res buffer.
     std::size_t res_rank = 0; ///< Number of the dimensions of the res tensor.
