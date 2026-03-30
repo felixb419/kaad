@@ -5,14 +5,17 @@
 
 namespace kaad {
 
+/// Alias for the size of a shape along a singular tensor dimension.
+using extent = int;
+
 /// Alias for an owning tensor shape.
-using Shape = StaticVector<int>;
+using Shape = StaticVector<extent>;
 
 /// Alias for non-owning immutable tensor shape.
 using ShapeView = Shape::view_type;
 
 /// Alias for owning tensor strides.
-using Stride = StaticVector<int>;
+using Stride = StaticVector<extent>;
 
 /// Alias for non-owning immutable tensor strides.
 using StrideView = Stride::view_type;
