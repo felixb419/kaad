@@ -183,6 +183,8 @@ std::span<const Scalar> Tensor::elements() const noexcept {
     return this->elements_;
 }
 
+bool Tensor::scalar() const noexcept { return this->rank() == 0; }
+
 Tensor::iterator Tensor::begin() noexcept {
     static_assert(KAAD_MAX_RANK >= 1);
     StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),

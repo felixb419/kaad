@@ -181,6 +181,10 @@ class Tensor {
      */
     [[nodiscard]] std::span<const value_type> elements() const noexcept;
 
+    /// @brief Checks if tensor is a scalar.
+    /// @return True if tensor is a scalar false otherwise.
+    [[nodiscard]] bool scalar() const noexcept;
+
     /**
      * @brief Returns an iterator to the first logical element.
      * @note Iterates in logical (transposed) order; use @c data() for
