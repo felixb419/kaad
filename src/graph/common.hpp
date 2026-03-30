@@ -9,47 +9,6 @@
 namespace kaad::detail {
 
 /**
- * @brief Computes the resulting shape of matrix multiplication using
- * broadcasting.
- * Supports matmul-style broadcasting:
- *   (n?,k) x (k,m?) => (n?,m?)
- * @param shape1 Shape of first matrix.
- * @param rank1 Number of dimensions of first matrix.
- * @param shape2 Shape of second matrix.
- * @param rank2 Number of dimensions of second matrix.
- * @param newShape Output array to hold the result shape.
- * @param newLen Total number of dimensions in the result.
- * @return true if matmul broadcasting is possible, false otherwise.
- */
-inline bool combine_matrix(const int *shape1, std::size_t rank1,
-                           const int *shape2, std::size_t rank2, int *newShape,
-                           std::size_t newLen) {
-    if (shape1[rank1 - 1] != shape2[rank2 - 2]) {
-        return false;
-    }
-    std::fill(newShape, newShape + newLen, 0);
-
-    newShape[newLen - 1] = shape2[rank2 - 1];
-    newShape[newLen - 2] = shape1[rank1 - 2];
-
-    std::size_t ind = newLen - 3;
-    for (int i = 3; std::cmp_less_equal(i, newLen); i++, ind--) {
-        int ind1 = static_cast<int>(rank1) - i;
-        int ind2 = static_cast<int>(rank2) - i;
-        if (ind1 >= 0 && ind2 >= 0) {
-            if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 &&
-                shape2[ind2] != 1) {
-                return false;
-            }
-            newShape[ind] = std::max(shape1[ind1], shape2[ind2]);
-        } else {
-            newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
-        }
-    }
-    return true;
-}
-
-/**
  * @brief Computes strides and offset metadata for operations along a
  * specific tensor dimension.
  * @param input Input tensor.
