@@ -2,7 +2,7 @@
 
 #include <algorithm>                    // for copy
 #include <iterator>                     // for bidirectional_iterator_tag
-#include <kaad/mutability_enum.hpp>     // for MUTABILITY
+#include <kaad/enums.hpp>     // for MUTABILITY
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
 #include <span>                         // for span

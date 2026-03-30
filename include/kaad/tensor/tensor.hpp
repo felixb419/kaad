@@ -3,7 +3,7 @@
 #include <cstddef>                       // for ptrdiff_t, size_t
 #include <cstdint>                       // for uint64_t
 #include <iostream>                      // for ostream
-#include <kaad/mutability_enum.hpp>      // for MUTABILITY
+#include <kaad/enums.hpp>      // for MUTABILITY
 #include <kaad/scalar.hpp>               // for Scalar
 #include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
 #include <kaad/tensor/tensor_types.hpp>  // for ShapeView, StrideView, Stride

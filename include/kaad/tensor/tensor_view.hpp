@@ -3,7 +3,7 @@
 #include <algorithm>                    // for reverse_copy
 #include <cstddef>                      // for size_t
 #include <iostream>                     // for ostream, ptrdiff_t
-#include <kaad/mutability_enum.hpp>     // for MUTABILITY
+#include <kaad/enums.hpp>     // for MUTABILITY
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Stride, StrideView
 #include <span>                         // for span
