@@ -124,7 +124,7 @@ std::array<kaad::Scalar, 40> res_grad{
     1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
     1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-int main() {
+int main() { // NOLINT(bugprone-exception-escape)
 
     kaad::Graph rec;
 

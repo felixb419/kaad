@@ -3,7 +3,6 @@
 #include "../graph/nodes/transp.hpp"    // for NodeTransp
 #include <algorithm>                    // for __sort_fn, adjacent_find, sort
 #include <cstddef>                      // for size_t
-#include <initializer_list>             // for initializer_list
 #include <kaad/exceptions.hpp>          // for ArgumentError, ShapeError
 #include <kaad/graph/graph.hpp>         // for Graph, transpose
 #include <kaad/graph/node_handle.hpp>   // for Node
@@ -26,7 +25,7 @@ bool contains_duplicates(StaticVector<int> vals) {
     return std::ranges::adjacent_find(vals) != vals.end();
 }
 
-Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
+Node transpose(Graph &rec, Node input, StaticVector<int> perm) {
     std::size_t rec_len = rec.nodes.size();
 
     INode *input_ptr = rec.get_node(input);
@@ -41,7 +40,7 @@ Node transpose(Graph &rec, Node input, std::initializer_list<int> perm) {
     Shape shape_buff;
     Stride stride_buff;
     TensorViewConst value_t;
-    if (perm.size() == 0) {
+    if (perm.empty()) {
 
         value_t = input_val.transpose(shape_buff, stride_buff);
 

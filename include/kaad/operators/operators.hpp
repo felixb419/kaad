@@ -2,6 +2,7 @@
 
 #include <initializer_list>           // for initializer_list
 #include <kaad/graph/node_handle.hpp> // for Node
+#include <kaad/static_vector.hpp>     // for StaticVector
 
 namespace kaad {
 
@@ -189,7 +190,7 @@ Node mean(Graph &rec, Node input, int dim, bool keep_rank = false);
  * @return A handle of the new node representing the transposed tensor,
  *         with shape adjusted according to @p perm or full transpose.
  */
-Node transpose(Graph &rec, Node input, std::initializer_list<int> perm = {});
+Node transpose(Graph &rec, Node input, StaticVector<int> perm = {});
 
 /**
  * @defgroup binary_operators Binary operators.

@@ -11,6 +11,7 @@
 namespace kaad {
 
 class Node;
+template <typename T> class StaticVector;
 
 /**
  * @brief Represents a computation graph for automatic differentiation.
@@ -116,8 +117,7 @@ class Graph {
                       std::initializer_list<int> offset);
     friend Node sum(Graph &rec, Node input);
     friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
-    friend Node transpose(Graph &rec, Node input,
-                          std::initializer_list<int> perm);
+    friend Node transpose(Graph &rec, Node input, StaticVector<int> perm);
     template <class Kernel> friend Node unary_operator(Graph &rec, Node input);
 };
 
