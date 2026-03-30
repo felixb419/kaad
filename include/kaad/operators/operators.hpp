@@ -92,15 +92,13 @@ Node abs(Graph &rec, Node input);
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
- * @param size An initializer list specifying the size (length) of the slice
+ * @param start The offset of the slice from the beginning of @p input.
+ * @param size An initializer list specifying the size of the slice
  * along each dimension, unspecified dimensions stay the same.
- * @param offset An initializer list specifying the starting indices (offset)
- * for the slice along each dimension, unspecified dimensions are assumed to be
- * 0.
  * @return A handle of the new node representing the sliced tensor.
  */
-Node slice(Graph &rec, Node input, std::initializer_list<int> size,
-           std::initializer_list<int> offset);
+Node slice(Graph &rec, Node input, StaticVector<int> start,
+           StaticVector<int> size);
 
 /**
  * @brief Adds a unary sum node to the computation graph.

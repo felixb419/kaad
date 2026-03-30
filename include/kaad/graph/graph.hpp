@@ -1,6 +1,5 @@
 #pragma once
 
-#include <initializer_list>             // for initializer_list
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView
@@ -113,8 +112,8 @@ class Graph {
     friend Node mean(Graph &rec, Node input);
     friend Node mean(Graph &rec, Node input, int dim, bool keep_rank);
     friend Node outer(Graph &rec, Node lhs, Node rhs);
-    friend Node slice(Graph &rec, Node input, std::initializer_list<int> size,
-                      std::initializer_list<int> offset);
+    friend Node slice(Graph &rec, Node input, StaticVector<int> start,
+                      StaticVector<int> size);
     friend Node sum(Graph &rec, Node input);
     friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
     friend Node transpose(Graph &rec, Node input, StaticVector<int> perm);
