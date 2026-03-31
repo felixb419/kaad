@@ -1,41 +1,12 @@
 #include "matmul.hpp"
 
-#include <algorithm>                    // for __copy_fn, copy
 #include <kaad/functions/matmul.hpp>    // for Matmul
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape, Strides
-#include <kaad/tensor/tensor_view.hpp>  // for TensorView, TensorViewConst
+#include <kaad/tensor/tensor_types.hpp> // for Shape, Strides, ShapeView
+#include <kaad/tensor/tensor_view.hpp>  // for TensorView
 
 namespace kaad {
-
-void metadata_impl(TensorViewConst lhs, TensorViewConst rhs,
-                   TensorViewConst value, int &a_dim, int &b_dim,
-                   int &shared_dim, int *lhs_strides, int *rhs_strides,
-                   int *value_strides) {
-    a_dim = lhs.shape[0];
-    b_dim = rhs.shape[1];
-    shared_dim = lhs.shape[1];
-
-    std::ranges::copy(lhs.strides, lhs_strides);
-    std::ranges::copy(rhs.strides, rhs_strides);
-    std::ranges::copy(value.strides, value_strides);
-
-    int idx;
-    int value_idx;
-    int value_offset = 0;
-    int value_prev;
-    for (int i = 1; i <= 2; i++) {
-        idx = 2 - i;
-
-        value_idx = static_cast<int>(value.rank()) - i;
-        value_prev = value_offset;
-        value_offset += ((value_idx >= 0 ? value.shape[value_idx] : i) - 1) *
-                        value_strides[idx];
-        value_strides[idx] -=
-            value_prev + (value_idx + 1 < 2 ? value_strides[value_idx + 1] : 0);
-    }
-}
 
 NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
     : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
