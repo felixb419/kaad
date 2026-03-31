@@ -325,20 +325,20 @@ Node dot(Graph &rec, Node lhs, Node rhs);
  * @brief Adds a matrix multiplication node to the computation graph.
  * @ingroup binary_operators
  *
- * Performs matrix multiplication between two input tensor nodes @p lhs and
- * @p rhs. Supports both standard 2D matrix multiplication and batched matrix
- * multiplication:
- * - If both tensors are rank-2, performs standard matrix multiplication.
- * - If tensors have more than 2 dimensions, performs batched matrix
- * multiplication over the leading dimensions. For example, multiplying tensors
- * of shape (batch, M, K) x (batch, K, N) yields a result of shape (batch, M,
- * N).
+ * This operator supports standard matrix multiplication as well as batch
+ * matrix multiplication. For 2-D inputs, it performs a classic matrix product.
+ * For higher-rank tensors, the two leading dimensions are treated as batch
+ * dimensions and are broadcast according to standard broadcasting rules before
+ * performing the matrix multiplication on the last two dimensions.
+ *
+ * @pre @p lhs and @p rhs need to have shapes compatible for matrix
+ * multiplication.
  *
  * @param rec The computation graph to which the node will be added.
- * @param lhs Handle of the left-hand-side input node.
- * @param rhs Handle of the right-hand-side input node.
- * @return A handle of the new node representing the matrix (or batched)
- * product of @p lhs and @p rhs.
+ * @param lhs Handle of the first input node.
+ * @param rhs Handle of the second input node.
+ * @return A handle of the new node representing the matrix product of @p lhs
+ * and @p rhs.
  */
 Node matmul(Graph &rec, Node lhs, Node rhs);
 
