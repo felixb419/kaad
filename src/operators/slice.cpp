@@ -10,7 +10,6 @@
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView
 #include <memory>                       // for allocator, unique_ptr, make_...
-#include <span>                         // for span
 #include <string>                       // for char_traits, basic_string
 #include <vector>                       // for vector
 

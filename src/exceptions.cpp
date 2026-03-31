@@ -2,20 +2,6 @@
 
 namespace kaad {
 
-std::string to_string(std::span<const int> array) {
-    std::string str = "[";
-    bool first = true;
-    for (auto elem : array) {
-        if (!first) {
-            str += ", ";
-        }
-        first = false;
-        str += std::to_string(elem);
-    }
-    str += "]";
-    return str;
-}
-
 std::string make_graph_errmsg(std::size_t graph_idx, const char *op_name,
                               std::string_view msg) {
 

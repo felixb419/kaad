@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstddef>     // for size_t
-#include <span>        // for span
+#include <ranges>      // for range
 #include <stdexcept>   // for runtime_error
-#include <string>      // for string
+#include <string>      // for basic_string, string, to_string
 #include <string_view> // for string_view
 
 namespace kaad {
@@ -57,7 +57,21 @@ struct BroadcastError : public ShapeError {
 };
 
 /// @return A string containing the elements of @p array in square brackets.
-std::string to_string(std::span<const int> array);
+template <std::ranges::range R> std::string to_string(const R &range) {
+    std::string str = "[";
+    bool first = true;
+
+    for (auto &&elem : range) {
+        if (!first) {
+            str += ", ";
+        }
+        first = false;
+        str += std::to_string(elem);
+    }
+
+    str += "]";
+    return str;
+}
 
 /// @return An error message formatted for a @ref Graph.
 std::string make_graph_errmsg(std::size_t graph_idx, const char *op_name,
