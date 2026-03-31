@@ -2,17 +2,15 @@
 
 #include "../graph/nodes/dot.hpp"         // for NodeDot, dot
 #include <cstddef>                        // for size_t
-#include <kaad/exceptions.hpp>            // for BroadcastError, make_graph...
+#include <kaad/exceptions.hpp>            // for BroadcastError, to_string
 #include <kaad/functions/dot_product.hpp> // for DotProduct
 #include <kaad/graph/graph.hpp>           // for Graph, dot
 #include <kaad/graph/node_handle.hpp>     // for Node
 #include <kaad/graph/nodes/inode.hpp>     // for INode
 #include <kaad/tensor/tensor.hpp>         // for Tensor
 #include <kaad/tensor/tensor_types.hpp>   // for Shape
-#include <memory>                         // for unique_ptr, make_unique
-#include <span>                           // for span
-#include <string>                         // for basic_string
-#include <utility>                        // for pair
+#include <memory>                         // for unique_ptr, allocator, mak...
+#include <string>                         // for char_traits, basic_string
 #include <vector>                         // for vector
 
 namespace kaad {
@@ -35,8 +33,10 @@ Node dot(Graph &rec, Node lhs, Node rhs) {
 
     } else {
         throw BroadcastError(make_graph_errmsg(
-            rec_len, "dot", "incompatible tensor shapes for dot product",
-            {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
+            rec_len, "dot",
+            "incompatible tensor shapes for dot product, A.shape=" +
+                to_string(lhs_val.shape()) +
+                ", B.shape=" + to_string(rhs_val.shape())));
     }
 
     return rec.back_handle();

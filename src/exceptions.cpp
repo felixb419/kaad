@@ -1,7 +1,5 @@
 #include <kaad/exceptions.hpp>
 
-#include <utility> // for pair
-
 namespace kaad {
 
 std::string to_string(std::span<const int> array) {
@@ -18,10 +16,8 @@ std::string to_string(std::span<const int> array) {
     return str;
 }
 
-std::string make_graph_errmsg(
-    std::size_t graph_idx, const char *op_name, const char *msg,
-    std::initializer_list<std::pair<const char *, std::span<const int>>> arrays,
-    std::initializer_list<std::pair<const char *, int>> numbers) {
+std::string make_graph_errmsg(std::size_t graph_idx, const char *op_name,
+                              std::string_view msg) {
 
     std::string errmsg;
     const std::size_t MAX_MSG_LEN = 128;
@@ -33,37 +29,6 @@ std::string make_graph_errmsg(
     errmsg += op_name;
     errmsg += "), ";
     errmsg += msg;
-
-    bool empty = arrays.size() > 0 && numbers.size() > 0;
-    if (empty) {
-        errmsg += " (";
-    }
-
-    bool first = true;
-    for (auto pair : numbers) {
-        if (!first) {
-            errmsg += ", ";
-        }
-        first = false;
-        errmsg += pair.first;
-        errmsg += "=";
-        errmsg += std::to_string(pair.second);
-    }
-
-    first = false;
-    for (auto pair : arrays) {
-        if (!first) {
-            errmsg += ", ";
-        }
-        first = false;
-        errmsg += pair.first;
-        errmsg += "=";
-        errmsg += to_string(pair.second);
-    }
-
-    if (empty) {
-        errmsg += ")";
-    }
 
     return errmsg;
 }

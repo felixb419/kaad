@@ -1,21 +1,20 @@
 #include <kaad/operators/operators.hpp> // for transpose
 
 #include "../graph/nodes/transp.hpp"    // for NodeTransp
-#include <algorithm>                    // for __sort_fn, adjacent_find, sort
+#include <algorithm>                    // for __all_of_fn, __sort_fn, adja...
 #include <cstddef>                      // for size_t
-#include <kaad/exceptions.hpp>          // for ArgumentError, ShapeError
+#include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_er...
 #include <kaad/graph/graph.hpp>         // for Graph, transpose
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape, Strides
+#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Strides
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorView
-#include <memory>                       // for unique_ptr, make_unique
+#include <memory>                       // for unique_ptr, allocator, make_...
 #include <ranges>                       // for __adjacent_find_fn
 #include <span>                         // for span
-#include <string>                       // for basic_string
-#include <utility>                      // for pair
+#include <string>                       // for basic_string, char_traits
 #include <vector>                       // for vector
 
 namespace kaad {
@@ -33,9 +32,10 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
     ShapeView input_shape = input.shape();
 
     if (input_rank < 2) {
-        throw ShapeError(make_graph_errmsg(rec_len, "transpose",
-                                           "input.rank() hast to be > 1",
-                                           {{"input.shape()", input_shape}}));
+        throw ShapeError(
+            make_graph_errmsg(rec_len, "transpose",
+                              "input.rank() hast to be > 1, input.shape()=" +
+                                  to_string(input_shape)));
     }
 
     Shape shape_buff;
@@ -49,10 +49,10 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
 
         if (perm.size() != input_rank) {
 
-            throw ArgumentError(
-                make_graph_errmsg(rec_len, "transpose",
-                                  "perm.size() has to be same as input.rank()",
-                                  {{"input.shape()", input_shape}}));
+            throw ArgumentError(make_graph_errmsg(
+                rec_len, "transpose",
+                "perm.size() has to be same as input.rank(), input.shape()=" +
+                    to_string(input_shape)));
         }
 
         // Temporary fix
@@ -63,10 +63,11 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
 
         if (contains_duplicates(perm)) {
 
-            throw ArgumentError(make_graph_errmsg(
-                rec_len, "transpose",
-                "perm has to contain index of every dimension exactly once",
-                {{"perm", cast_perm}}));
+            throw ArgumentError(
+                make_graph_errmsg(rec_len, "transpose",
+                                  "perm has to contain index of every "
+                                  "dimension exactly once, perm=" +
+                                      to_string(cast_perm)));
         }
 
         // throw if any element of perm is not a valid index
@@ -77,8 +78,8 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
             throw ArgumentError(
                 make_graph_errmsg(rec_len, "transpose",
                                   "every element of perm has to be a valid "
-                                  "index of input.shape()",
-                                  {{"perm", cast_perm}}));
+                                  "index of input.shape(), perm=" +
+                                      to_string(cast_perm)));
         }
 
         value_t = input_view.transpose(shape_buff, strides_buff, perm);

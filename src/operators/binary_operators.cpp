@@ -5,7 +5,7 @@
 #include "../graph/nodes/binary_flex.hpp" // for NodeBinaryFlex
 #include <algorithm>                      // for move, equal, max
 #include <cstddef>                        // for size_t
-#include <kaad/exceptions.hpp>            // for ShapeError, make_graph_errmsg
+#include <kaad/exceptions.hpp>            // for BroadcastError, to_string
 #include <kaad/functions/adjoint.hpp>     // for pointwise_fn, flexible
 #include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
 #include <kaad/functions/primal.hpp>      // for pointwise_fn, flexible
@@ -15,10 +15,9 @@
 #include <kaad/scalar.hpp>                // for Scalar
 #include <kaad/tensor/tensor.hpp>         // for Tensor
 #include <kaad/tensor/tensor_types.hpp>   // for Shape
-#include <memory>                         // for make_unique, unique_ptr
-#include <span>                           // for span
-#include <string>                         // for basic_string
-#include <utility>                        // for move, pair
+#include <memory>                         // for allocator, make_unique
+#include <string>                         // for char_traits, basic_string
+#include <utility>                        // for move
 #include <vector>                         // for vector
 
 // IWYU pragma: no_forward_declare kaad::NodeBinary
@@ -151,9 +150,12 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
         rec.nodes.push_back(std::move(std::make_unique<NodeBinaryFlex<Kernel>>(
             lhs_ptr, rhs_ptr, new_shape)));
     } else {
+
         throw BroadcastError(make_graph_errmsg(
-            rec_len, opName, "incompatible tensor shapes for binary operation",
-            {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
+            rec_len, opName,
+            "incompatible tensor shapes for binary operation, A.shape=" +
+                to_string(lhs_val.shape()) +
+                ", B.shape=" + to_string(rhs_val.shape())));
     }
     return rec.back_handle();
 }

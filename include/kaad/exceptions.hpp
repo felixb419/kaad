@@ -1,11 +1,10 @@
 #pragma once
 
-#include <cstddef>          // for size_t
-#include <initializer_list> // for initializer_list
-#include <span>             // for span
-#include <stdexcept>        // for runtime_error
-#include <string>           // for string
-#include <utility>          // for pair
+#include <cstddef>     // for size_t
+#include <span>        // for span
+#include <stdexcept>   // for runtime_error
+#include <string>      // for string
+#include <string_view> // for string_view
 
 namespace kaad {
 
@@ -61,12 +60,7 @@ struct BroadcastError : public ShapeError {
 std::string to_string(std::span<const int> array);
 
 /// @return An error message formatted for a @ref Graph.
-std::string make_graph_errmsg(
-    std::size_t graph_idx, const char *op_name, const char *msg,
-    std::initializer_list<std::pair<const char *, std::span<const int>>>
-        arrays = std::initializer_list<
-            std::pair<const char *, std::span<const int>>>{},
-    std::initializer_list<std::pair<const char *, int>> numbers =
-        std::initializer_list<std::pair<const char *, int>>{});
+std::string make_graph_errmsg(std::size_t graph_idx, const char *op_name,
+                              std::string_view msg);
 
 } // namespace kaad

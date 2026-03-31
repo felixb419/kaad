@@ -3,7 +3,7 @@
 #include "../graph/nodes/batch_matmul.hpp" // for NodeBatchMatmul
 #include "../graph/nodes/matmul.hpp"       // for NodeMatmul
 #include <cstddef>                         // for size_t
-#include <kaad/exceptions.hpp>             // for BroadcastError, make_grap...
+#include <kaad/exceptions.hpp>             // for BroadcastError, to_string
 #include <kaad/functions/batch_matmul.hpp> // for BatchMatmul
 #include <kaad/functions/matmul.hpp>       // for Matmul
 #include <kaad/graph/graph.hpp>            // for Graph, matmul
@@ -11,10 +11,8 @@
 #include <kaad/graph/nodes/inode.hpp>      // for INode
 #include <kaad/tensor/tensor.hpp>          // for Tensor
 #include <kaad/tensor/tensor_types.hpp>    // for Shape
-#include <memory>                          // for unique_ptr, make_unique
-#include <span>                            // for span
-#include <string>                          // for basic_string
-#include <utility>                         // for pair
+#include <memory>                          // for unique_ptr, allocator
+#include <string>                          // for char_traits, basic_string
 #include <vector>                          // for vector
 
 namespace kaad {
@@ -32,10 +30,12 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
         Shape new_shape;
         if (!functions::Matmul::broadcast(lhs_val.shape(), rhs_val.shape(),
                                           new_shape)) {
-            throw BroadcastError(make_graph_errmsg(
-                rec_len, "matmul",
-                "incompatible tensor shapes for matrix multiplication",
-                {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
+            throw BroadcastError(
+                make_graph_errmsg(rec_len, "matmul",
+                                  "incompatible tensor shapes for matrix "
+                                  "multiplication, A.shape" +
+                                      to_string(lhs_val.shape()) + ", B.shape" +
+                                      to_string(rhs_val.shape())));
         }
 
         rec.nodes.push_back(
@@ -48,8 +48,10 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
                                                new_shape)) {
             throw BroadcastError(make_graph_errmsg(
                 rec_len, "batch matmul",
-                "incompatible tensor shapes for batched matrix multiplication",
-                {{"A.shape", lhs_val.shape()}, {"B.shape", rhs_val.shape()}}));
+                "incompatible tensor shapes for batched matrix multiplication, "
+                "A.shape=" +
+                    to_string(lhs_val.shape()) +
+                    ", B.shape=" + to_string(rhs_val.shape())));
         }
 
         rec.nodes.push_back(

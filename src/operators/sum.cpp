@@ -15,10 +15,9 @@
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for Shape
-#include <memory>                       // for unique_ptr, make_unique
-#include <span>                         // for span
-#include <string>                       // for basic_string
-#include <utility>                      // for pair, cmp_greater_equal
+#include <memory>                       // for unique_ptr, allocator, make_...
+#include <string>                       // for char_traits, basic_string
+#include <utility>                      // for cmp_greater_equal
 #include <vector>                       // for vector
 
 namespace kaad {
@@ -50,8 +49,9 @@ Node sum(Graph &rec, Node input, int dim, bool keep_rank) {
 
     if (dim < 0 || std::cmp_greater_equal(dim, input_val.rank())) {
         throw ArgumentError(make_graph_errmsg(
-            rec_len, "sum", "dim has to be a valid index of A.shape",
-            {{"A.shape", input_val.shape()}}, {{"dim", dim}}));
+            rec_len, "sum",
+            "dim has to be a valid index of A.shape, A.shape=" +
+                to_string(input_val.shape()) + ", dim=" + std::to_string(dim)));
     }
 
     if (input_val.rank() == 1) {
