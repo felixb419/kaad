@@ -25,7 +25,7 @@ bool contains_duplicates(StaticVector<int> vals) {
     return std::ranges::adjacent_find(vals) != vals.end();
 }
 
-Node transpose(Graph &rec, Node input, StaticVector<int> perm) {
+Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
     std::size_t rec_len = rec.nodes.size();
 
     TensorViewConst input_view = input.value().view();
@@ -46,18 +46,39 @@ Node transpose(Graph &rec, Node input, StaticVector<int> perm) {
         value_t = input_view.transpose(shape_buff, strides_buff);
 
     } else {
+
         if (perm.size() != input_rank) {
+
             throw ArgumentError(
                 make_graph_errmsg(rec_len, "transpose",
                                   "perm.size() has to be same as input.rank()",
                                   {{"input.shape()", input_shape}}));
         }
 
+        // Temporary fix
+        StaticVector<int> cast_perm(perm.size());
+        for (std::size_t i = 0; i < perm.size(); i++) {
+            cast_perm[i] = static_cast<int>(perm[i]);
+        }
+
         if (contains_duplicates(perm)) {
+
             throw ArgumentError(make_graph_errmsg(
                 rec_len, "transpose",
                 "perm has to contain index of every dimension exactly once",
-                {{"perm", perm}}));
+                {{"perm", cast_perm}}));
+        }
+
+        // throw if any element of perm is not a valid index
+        if (!std::ranges::all_of(perm, [input_rank](std::size_t elem) {
+                return elem < input_rank;
+            })) {
+
+            throw ArgumentError(
+                make_graph_errmsg(rec_len, "transpose",
+                                  "every element of perm has to be a valid "
+                                  "index of input.shape()",
+                                  {{"perm", cast_perm}}));
         }
 
         value_t = input_view.transpose(shape_buff, strides_buff, perm);

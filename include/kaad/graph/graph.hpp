@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstddef>                      // for size_t
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView
 #include <memory>                       // for unique_ptr
 #include <span>                         // for span
 #include <vector>                       // for vector
@@ -116,7 +117,8 @@ class Graph {
                       StaticVector<int> start);
     friend Node sum(Graph &rec, Node input);
     friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
-    friend Node transpose(Graph &rec, Node input, StaticVector<int> perm);
+    friend Node transpose(Graph &rec, Node input,
+                          StaticVector<std::size_t> perm);
     template <class Kernel> friend Node unary_operator(Graph &rec, Node input);
 };
 

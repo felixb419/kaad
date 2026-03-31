@@ -182,15 +182,18 @@ Node mean(Graph &rec, Node input, int dim, bool keep_rank = false);
  * perm. If @p perm is empty, the tensor is fully transposed by reversing its
  * dimensions.
  *
+ * @pre perm must have the same number of elements as @c input.shape() and
+ * contain only valid indeces of @c input.shape().
+ *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @param perm An optional initializer list specifying the permutation of axes.
- *             If not provided or empty, a full transpose (reverse of all axes)
- * is performed.
- * @return A handle of the new node representing the transposed tensor,
- *         with shape adjusted according to @p perm or full transpose.
+ * If not provided or empty, a full transpose (reverse of all axes) is
+ * performed.
+ * @return A handle of the new node representing the transposed tensor, with
+ * shape adjusted according to @p perm or full transpose.
  */
-Node transpose(Graph &rec, Node input, StaticVector<int> perm = {});
+Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm = {});
 
 /**
  * @defgroup binary_operators Binary operators.
