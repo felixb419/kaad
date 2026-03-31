@@ -1,15 +1,17 @@
 #include "matmul.hpp"
 
-#include <kaad/functions/matmul.hpp>    // for Matmul
-#include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape, Strides, ShapeView
-#include <kaad/tensor/tensor_view.hpp>  // for TensorView
+#include <kaad/functions/matmul.hpp> // for Matmul
+#include <kaad/graph/nodes/inode.hpp>      // for INode
+#include <kaad/scalar.hpp>                 // for Scalar
+#include <kaad/tensor/tensor.hpp>          // for Tensor
+#include <kaad/tensor/tensor_types.hpp>    // for Shape, Strides, ShapeView
+#include <kaad/tensor/tensor_view.hpp>     // for TensorView
 
 namespace kaad {
 
-NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
-    : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
+NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr,
+                                 ShapeView value_s)
+    : INode(value_s, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     TensorView lhs_v = this->lhs->value().view();
     TensorView rhs_v = this->rhs->value().view();
@@ -30,36 +32,53 @@ NodeMatmul::NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
     this->forward = functions::Matmul::Metadata(lhs_v, rhs_v, res_v);
 
     // d_res * rhs^T = d_lhs
-    this->backward_wrt_lhs = functions::Matmul::Metadata(res_v, rhs_t, lhs_v);
+    this->backward_wrt_lhs =
+        functions::Matmul::Metadata(res_v, rhs_t, lhs_v);
 
     // lhs^T * d_res = d_rhs
-    this->backward_wrt_rhs = functions::Matmul::Metadata(lhs_t, res_v, rhs_v);
+    this->backward_wrt_rhs =
+        functions::Matmul::Metadata(lhs_t, res_v, rhs_v);
+
+    // assign compile-time recursive functions
+    auto fn_pair = functions::Matmul::dispatch(this->value().rank());
+    this->forward_op = fn_pair.primal;
+    this->backward_op = fn_pair.adjoint;
 }
 
-const char *NodeMatmul::node_type() const noexcept { return "NodeMatmul"; }
+const char *NodeMatmul::node_type() const noexcept {
+    return "NodeMatmul";
+}
 
 void NodeMatmul::eval() {
+
     if (!this->evaluated()) {
         this->lhs->eval();
         this->rhs->eval();
 
-        forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                   this->value().data(), this->forward);
+        const Scalar *lhs = this->lhs->value().data();
+        const Scalar *rhs = this->rhs->value().data();
+        Scalar *res = this->value().data();
+
+        this->forward_op(lhs, rhs, res, this->forward);
 
         this->evaluated_ = true;
     }
 }
 
 void NodeMatmul::get_grad() {
-    backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
-                this->rhs->value().data(), this->rhs->gradient().data(),
-                this->gradient().data(), this->backward_wrt_lhs,
-                this->backward_wrt_rhs);
+
+    const Scalar *lhs = this->lhs->value().data();
+    Scalar *d_lhs = this->lhs->gradient().data();
+    const Scalar *rhs = this->rhs->value().data();
+    Scalar *d_rhs = this->rhs->gradient().data();
+    const Scalar *d_res = this->gradient().data();
+
+    this->backward_op(lhs, d_lhs, rhs, d_rhs, d_res, this->backward_wrt_lhs,
+                      this->backward_wrt_rhs);
 
     if (!this->lhs->is_input()) {
         this->lhs->get_grad();
     }
-
     if (!this->rhs->is_input()) {
         this->rhs->get_grad();
     }

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <kaad/functions/matmul.hpp>    // for Matmul
-#include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView
+#include <kaad/functions/matmul.hpp> // for Matmul
+#include <kaad/graph/nodes/inode.hpp>      // for INode
+#include <kaad/tensor/tensor_types.hpp>    // for ShapeView
 
 namespace kaad {
 
 /**
- * @brief A matmul operation node for a @ref kaad::Graph
+ * @brief A batch matmuloperation node for a @ref kaad::Graph
  * @ingroup nodes
  * @internal
  */
@@ -16,8 +16,8 @@ class NodeMatmul : public INode {
     INode *lhs = nullptr;
     INode *rhs = nullptr;
 
-    functions::Matmul::primal_fn forward_op = functions::Matmul::primal;
-    functions::Matmul::adjoint_fn backward_op = functions::Matmul::adjoint;
+    functions::Matmul::primal_fn forward_op;
+    functions::Matmul::adjoint_fn backward_op;
 
     functions::Matmul::Metadata forward;
     functions::Matmul::Metadata backward_wrt_lhs;
@@ -28,12 +28,14 @@ class NodeMatmul : public INode {
     [[nodiscard]] const char *node_type() const noexcept override;
 
     /**
-     * @brief Construct matmul node.
+     * @brief Construct batch_matmul node.
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
     NodeMatmul(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape);
+
+    ~NodeMatmul() noexcept override = default;
 
     /// Compute @c value for this node.
     /// Computes @c value for @c lhs and @c rhs first.

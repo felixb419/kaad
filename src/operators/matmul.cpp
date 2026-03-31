@@ -1,10 +1,10 @@
 #include <kaad/operators/operators.hpp> // for matmul
 
-#include "../graph/nodes/batch_matmul.hpp" // for NodeBatchMatmul
+#include "../graph/nodes/matmul.hpp" // for NodeMatmul
 #include "../graph/nodes/matmul.hpp"       // for NodeMatmul
 #include <cstddef>                         // for size_t
 #include <kaad/exceptions.hpp>             // for BroadcastError, to_string
-#include <kaad/functions/batch_matmul.hpp> // for BatchMatmul
+#include <kaad/functions/matmul.hpp> // for Matmul
 #include <kaad/functions/matmul.hpp>       // for Matmul
 #include <kaad/graph/graph.hpp>            // for Graph, matmul
 #include <kaad/graph/node_handle.hpp>      // for Node
@@ -44,7 +44,7 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
     } else {
 
         Shape new_shape;
-        if (!functions::BatchMatmul::broadcast(lhs_val.shape(), rhs_val.shape(),
+        if (!functions::Matmul::broadcast(lhs_val.shape(), rhs_val.shape(),
                                                new_shape)) {
             throw BroadcastError(make_graph_errmsg(
                 rec_len, "batch matmul",
@@ -55,7 +55,7 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
         }
 
         rec.nodes.push_back(
-            std::make_unique<NodeBatchMatmul>(lhs_ptr, rhs_ptr, new_shape));
+            std::make_unique<NodeMatmul>(lhs_ptr, rhs_ptr, new_shape));
     }
 
     return rec.back_handle();

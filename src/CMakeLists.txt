@@ -1,11 +1,9 @@
 add_library(kaad
     ./exceptions.cpp
-    ./functions/batch_matmul.cpp
     ./functions/dot_product.cpp
     ./functions/matmul.cpp
     ./graph/graph.cpp
     ./graph/node_handle.cpp
-    ./graph/nodes/batch_matmul.cpp
     ./graph/nodes/dot.cpp
     ./graph/nodes/inode.cpp
     ./graph/nodes/matmul.cpp

@@ -1,90 +1,69 @@
 #include <kaad/functions/matmul.hpp>
 
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Strides, Shape, ShapeView
+#include <algorithm>                    // for __copy_fn, copy, max
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Shape
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
+#include <utility>                      // for cmp_less_equal
 
 namespace kaad::functions {
 
 bool Matmul::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
+    size_t lhs_rank = lhs.size();
+    size_t rhs_rank = rhs.size();
+    size_t new_rank = std::max(lhs_rank, rhs_rank);
 
-    if (lhs.size() != 2 || rhs.size() != 2) {
+    if (lhs[lhs_rank - 1] != rhs[rhs_rank - 2]) {
         return false;
     }
 
-    if (lhs[1] != rhs[0]) {
-        return false;
+    new_shape.resize(new_rank);
+
+    new_shape[new_rank - 1] = rhs[rhs_rank - 1];
+    new_shape[new_rank - 2] = lhs[lhs_rank - 2];
+
+    std::size_t idx_new = new_rank - 3;
+    for (int i = 3; std::cmp_less_equal(i, new_rank); i++, idx_new--) {
+        int idx_lhs = static_cast<int>(lhs_rank) - i;
+        int idx_rhs = static_cast<int>(rhs_rank) - i;
+        if (idx_lhs >= 0 && idx_rhs >= 0) {
+            if (lhs[idx_lhs] != rhs[idx_rhs] && lhs[idx_lhs] != 1 &&
+                rhs[idx_rhs] != 1) {
+                return false;
+            }
+            new_shape[idx_new] = std::max(lhs[idx_lhs], rhs[idx_rhs]);
+        } else {
+            new_shape[idx_new] = idx_lhs >= 0 ? lhs[idx_lhs] : rhs[idx_rhs];
+        }
     }
-
-    new_shape = Shape(2);
-    new_shape[0] = lhs[0];
-    new_shape[1] = rhs[1];
-
     return true;
 }
 
 Matmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
-                           TensorViewConst res) {
+                                TensorViewConst res) {
 
-    this->lhs_rows = lhs.shape[0];
-    this->rhs_cols = rhs.shape[1];
-    this->shared_dim = lhs.shape[1];
+    this->lhs_col_step = lhs.strides[lhs.rank() - 1];
+    this->rhs_row_step = rhs.strides[rhs.rank() - 2];
+    this->shared_dim = lhs.shape[lhs.rank() - 1];
 
-    this->eff_lhs = Strides(lhs.strides);
-    this->eff_rhs = Strides(rhs.strides);
-    this->eff_res = Strides(res.strides);
+    broadcast(lhs.shape, rhs.shape, this->res_broadcast);
 
-    int idx;
-    int res_idx;
-    int res_offset = 0;
-    int res_prev;
-    for (int i = 1; i <= 2; i++) {
-        idx = 2 - i;
+    std::size_t res_rank = res_broadcast.size();
 
-        res_idx = static_cast<int>(res.rank()) - i;
-        res_prev = res_offset;
-        res_offset +=
-            ((res_idx >= 0 ? res.shape[res_idx] : i) - 1) * this->eff_res[idx];
-        this->eff_res[idx] -=
-            res_prev + (res_idx + 1 < 2 ? this->eff_res[res_idx + 1] : 0);
-    }
-}
+    // copying strides into effective strides starting from the back
+    this->eff_lhs.resize(res_rank);
+    int lhs_rank_diff = static_cast<int>(res_rank - lhs.rank());
+    std::ranges::copy(lhs.strides, eff_lhs.begin() + lhs_rank_diff);
 
-void Matmul::primal(const Scalar *lhs, const Scalar *rhs, Scalar *res,
-                    const Metadata &mdata) noexcept {
-    const Scalar *row_lhs;
-    const Scalar *col_rhs;
-    const Scalar *elem_rhs;
-    for (int lhs_idx = 0; lhs_idx < mdata.lhs_rows;
-         lhs_idx++, lhs += mdata.eff_lhs[0], res += mdata.eff_res[0]) {
+    this->eff_rhs.resize(res_rank);
+    int rhs_rank_diff = static_cast<int>(res_rank - rhs.rank());
+    std::ranges::copy(rhs.strides, eff_rhs.begin() + rhs_rank_diff);
 
-        col_rhs = rhs;
+    this->eff_res.resize(res_rank);
+    int res_rank_diff = static_cast<int>(res_rank - res.rank());
+    std::ranges::copy(res.strides, eff_res.begin() + res_rank_diff);
 
-        for (int rhs_idx = 0; rhs_idx < mdata.rhs_cols;
-             rhs_idx++, col_rhs += mdata.eff_rhs[1], res += mdata.eff_res[1]) {
-
-            row_lhs = lhs;
-            elem_rhs = col_rhs;
-
-            for (int i = 0; i < mdata.shared_dim; i++,
-                     row_lhs += mdata.eff_lhs[1],
-                     elem_rhs += mdata.eff_rhs[0]) {
-
-                *res += (*row_lhs) * (*elem_rhs);
-            }
-        }
-    }
-}
-
-void Matmul::adjoint(const Scalar *lhs, Scalar *d_lhs, const Scalar *rhs,
-                     Scalar *d_rhs, const Scalar *d_res,
-                     const Metadata &wrt_lhs,
-                     const Metadata &wrt_rhs) noexcept {
-    // d_res * rhs^T = d_lhs
-    primal(d_res, rhs, d_lhs, wrt_lhs);
-
-    // lhs^T * d_res = d_rhs
-    primal(lhs, d_res, d_rhs, wrt_rhs);
+    eff_lhs[res_rank - 1] = 0;
+    eff_rhs[res_rank - 2] = 0;
 }
 
 } // namespace kaad::functions

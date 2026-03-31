@@ -270,7 +270,7 @@ class Tensor {
     template <class Kernel> friend class NodeBinaryFlex;
     friend class NodeDot;
     friend class NodeMatmul;
-    friend class NodeBatchMatmul;
+    friend class NodeMatmul;
     friend class NodeOuter;
 
     template <class Kernel> friend class NodeUnary;
