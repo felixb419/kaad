@@ -89,7 +89,7 @@ template <MUTABILITY M> struct TensorView {
      * @return View with transposed shape and strides.
      */
     TensorView<M> transpose(Shape &shape_buff, Strides &strides_buff,
-                            std::span<const int> perm) const {
+                            std::span<const std::size_t> perm) const {
 
         std::size_t rank = this->rank();
 
