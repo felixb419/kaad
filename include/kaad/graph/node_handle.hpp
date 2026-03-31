@@ -1,9 +1,10 @@
 #pragma once
 
-#include <cstdint>         // for uint32_t
-#include <iostream>        // for ostream
-#include <kaad/scalar.hpp> // for Scalar
-#include <span>            // for span
+#include <cstdint>                // for uint32_t
+#include <iostream>               // for ostream
+#include <kaad/scalar.hpp>        // for Scalar
+#include <kaad/tensor/tensor.hpp> // for operator<<, Tensor
+#include <span>                   // for span
 
 namespace kaad {
 
@@ -48,6 +49,11 @@ class Node {
      * @return Const pointer to the node.
      */
     [[nodiscard]] const INode *node() const;
+
+    /**
+     * @return View of the shape of @c this->value().
+     */
+    [[nodiscard]] ShapeView shape() const;
 
     /**
      * @brief Get the element array of the value tensor.

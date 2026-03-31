@@ -19,6 +19,8 @@ namespace kaad {
     return this->origin_->nodes[this->idx()].get();
 }
 
+[[nodiscard]] ShapeView Node::shape() const { return this->value().shape(); }
+
 std::span<Scalar> Node::value_elements() {
     assert(this->node()->is_input());
 
