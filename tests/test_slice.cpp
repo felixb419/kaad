@@ -57,7 +57,7 @@ int main() { // NOLINT(bugprone-exception-escape)
     std::iota(a_vals.begin(), a_vals.end(), 20);
 
     kaad::Node a_t = transpose(rec, input_a);
-    kaad::Node res = slice(rec, a_t, {1, 2, 0, 1}, {4, 2, 2, 1});
+    kaad::Node res = slice(rec, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
 
     // NOLINTEND(readability-magic-numbers)
 

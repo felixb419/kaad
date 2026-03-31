@@ -112,8 +112,8 @@ class Graph {
     friend Node mean(Graph &rec, Node input);
     friend Node mean(Graph &rec, Node input, int dim, bool keep_rank);
     friend Node outer(Graph &rec, Node lhs, Node rhs);
-    friend Node slice(Graph &rec, Node input, StaticVector<int> start,
-                      StaticVector<int> size);
+    friend Node slice(Graph &rec, Node input, Shape size,
+                      StaticVector<int> start);
     friend Node sum(Graph &rec, Node input);
     friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
     friend Node transpose(Graph &rec, Node input, StaticVector<int> perm);

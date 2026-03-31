@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstdint>                // for uint32_t
-#include <iostream>               // for ostream
-#include <kaad/scalar.hpp>        // for Scalar
-#include <kaad/tensor/tensor.hpp> // for operator<<, Tensor
-#include <span>                   // for span
+#include "kaad/tensor/tensor_types.hpp" // for ShapeView
+#include <cstdint>                      // for uint32_t
+#include <iostream>                     // for ostream
+#include <kaad/scalar.hpp>              // for Scalar
+#include <span>                         // for span
 
 namespace kaad {
 

@@ -7,14 +7,14 @@
 (operators) rework slice size_span offset_span code duplication
 (operators)(?) Move shape logic into node constructor
 (operators)(?) change broadcast function to err code return
-(operators) go through and simplify
+(operators) go through and simplify, also fix comments!
                 binary_operators.cpp
                 dot.cpp
                 matmul.cpp
                 mean.cpp
                 outer.cpp
-                slice.cpp
                 sum.cpp
+                transpose.cpp
                 unary_operators.cpp
 
 (functions) go through and unify into struct
@@ -31,6 +31,7 @@
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
+(tensor)    Tensor::size(size_t i);
 
 [PERF]
 (graph)     arena allocation

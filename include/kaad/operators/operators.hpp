@@ -3,6 +3,7 @@
 #include <initializer_list>           // for initializer_list
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/static_vector.hpp>     // for StaticVector
+#include <kaad/tensor/tensor_types.hpp>
 
 namespace kaad {
 
@@ -85,20 +86,21 @@ Node abs(Graph &rec, Node input);
 
 /**
  * @brief Adds a slice node to the computation graph.
- * @ingroup unary_operators
  *
  * Extracts a slice from the input tensor node @p input, starting at the
- * specified @p offset and extending for the given @p size along each dimension.
+ * specified @p start and extending for the given @p size along each dimension.
+ *
+ * @ingroup unary_operators
+ * @pre @p shape and @p size need to have the same size.
+ * @pre @p shape[i] + @p start[i] <= input_shape[i]
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
- * @param start The offset of the slice from the beginning of @p input.
- * @param size An initializer list specifying the size of the slice
- * along each dimension, unspecified dimensions stay the same.
+ * @param size The shape of the slice.
+ * @param start The offset of the slice, will be padded with zeros.
  * @return A handle of the new node representing the sliced tensor.
  */
-Node slice(Graph &rec, Node input, StaticVector<int> start,
-           StaticVector<int> size);
+Node slice(Graph &rec, Node input, Shape size, StaticVector<int> start = {});
 
 /**
  * @brief Adds a unary sum node to the computation graph.
