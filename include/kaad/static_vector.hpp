@@ -131,9 +131,6 @@ template <typename T> class StaticVector {
         std::copy(begin, end, this->elements_.data());
     }
 
-    StaticVector(std::initializer_list<value_type> init)
-        : StaticVector(init.begin(), init.end()) {}
-
     template <typename... Vs>
         requires(sizeof...(Vs) <= KAAD_MAX_RANK &&
                  (... && std::is_convertible_v<Vs, value_type>))
