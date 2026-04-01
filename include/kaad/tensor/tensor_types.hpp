@@ -18,7 +18,7 @@ using ShapeView = Shape::view_type;
 using stride = std::size_t;
 
 /// Alias for owning tensor strides.
-using Strides = StaticVector<extent>;
+using Strides = StaticVector<stride>;
 
 /// Alias for non-owning immutable tensor strides.
 using StridesView = Strides::view_type;
