@@ -87,7 +87,7 @@ int main() {
     std::span<float> b_vals = input_b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 90);
 
-    kaad::Node input_c = rec.add_input_node(kaad::Shape{});
+    kaad::Node input_c = rec.add_input_node(kaad::SCALAR_SHAPE);
     std::span<float> c_vals = input_c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 30);
 

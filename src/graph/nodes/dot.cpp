@@ -10,7 +10,7 @@
 namespace kaad {
 
 NodeDot::NodeDot(INode *lhs_ptr, INode *rhs_ptr)
-    : INode(Shape{}, false), lhs(lhs_ptr), rhs(rhs_ptr) {
+    : INode(SCALAR_SHAPE, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     const Tensor &lhs_val = this->lhs->value();
     const Tensor &rhs_val = this->rhs->value();

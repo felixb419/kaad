@@ -11,6 +11,9 @@ using extent = std::size_t;
 /// Alias for an owning tensor shape.
 using Shape = StaticVector<extent>;
 
+/// Empty Shape object (scalar).
+static constexpr Shape SCALAR_SHAPE{};
+
 /// Alias for non-owning immutable tensor shape.
 using ShapeView = Shape::view_type;
 

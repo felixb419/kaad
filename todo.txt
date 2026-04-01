@@ -1,7 +1,6 @@
 [FIX]
 
 [REFACTOR]
-            replace Shape{} with Shape::Scalar
 (tensor)    rework iterator ++ and --
 (tensor)    std::ranges::range for staticvector constructor
 (operators) move broadcast errors into broadcast function
