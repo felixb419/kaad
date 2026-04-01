@@ -57,7 +57,9 @@ struct BroadcastError : public ShapeError {
 };
 
 /// @return A string containing the elements of @p array in square brackets.
-template <std::ranges::range R> std::string to_string(const R &range) {
+template <std::ranges::input_range IR>
+    requires requires { std::to_string(std::ranges::range_value_t<IR>{}); }
+std::string to_string(const IR &range) {
     std::string str = "[";
     bool first = true;
 
