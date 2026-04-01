@@ -38,9 +38,9 @@ namespace kaad {
  * @param newLen Total number of dimensions in the result.
  * @return true if broadcasting is possible, false otherwise.
  */
-static inline bool combine_flexible(const int *shape1, std::size_t rank1,
-                                    const int *shape2, std::size_t rank2,
-                                    int *newShape,
+static inline bool combine_flexible(const extent *shape1, std::size_t rank1,
+                                    const extent *shape2, std::size_t rank2,
+                                    extent *newShape,
                                     std::size_t newLen) noexcept {
     int ind = static_cast<int>(newLen) - 1;
     for (std::size_t i = 1; i <= newLen; i++, ind--) {

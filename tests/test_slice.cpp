@@ -18,7 +18,7 @@
 
 // NOLINTBEGIN(readability-magic-numbers)
 
-std::array a_shape = {2, 3, 4, 5};
+kaad::Shape a_shape = {2, 3, 4, 5};
 std::array<kaad::Scalar, 120> a_val = {
     20.0,  21.0,  22.0,  23.0,  24.0,  25.0,  26.0,  27.0,  28.0,  29.0,  30.0,
     31.0,  32.0,  33.0,  34.0,  35.0,  36.0,  37.0,  38.0,  39.0,  40.0,  41.0,
@@ -41,7 +41,7 @@ std::array<kaad::Scalar, 120> a_grad = {
     0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
-std::array res_shape = {4, 2, 2, 1};
+kaad::Shape res_shape = {4, 2, 2, 1};
 std::array<kaad::Scalar, 16> res_val = {91.0, 111.0, 96.0, 116.0, 92.0, 112.0,
                                         97.0, 117.0, 93.0, 113.0, 98.0, 118.0,
                                         94.0, 114.0, 99.0, 119.0};
@@ -52,7 +52,7 @@ std::array<kaad::Scalar, 16> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() { // NOLINT(bugprone-exception-escape)
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(std::array{2, 3, 4, 5});
+    kaad::Node input_a = rec.add_input_node(kaad::Shape{2, 3, 4, 5});
     std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 20);
 

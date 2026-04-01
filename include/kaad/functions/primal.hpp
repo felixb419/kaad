@@ -2,6 +2,7 @@
 
 #include <cstddef>                    // for size_t
 #include <kaad/functions/kernels.hpp> // for binary_kernel_class, unary_kernel_class
+#include <kaad/tensor/tensor_types.hpp> // for stride
 
 /**
  * @defgroup primal_functions Primal (e.g. used for forward computation) tensor
@@ -47,9 +48,10 @@ using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
 template <binary_kernel_class Kernel>
 using flexible_fn = void (*)(const typename Kernel::value_type *lhs,
                              const typename Kernel::value_type *rhs,
-                             typename Kernel::value_type *res, int *strides_lhs,
-                             int *strides_rhs, int *strides_res,
-                             std::size_t *res_dim_offset, std::size_t res_rank);
+                             typename Kernel::value_type *res,
+                             stride *strides_lhs, stride *strides_rhs,
+                             stride *strides_res, std::size_t *res_dim_offset,
+                             std::size_t res_rank);
 
 /**
  * @brief Applies Op to @p lhssand @p rhs .
@@ -131,8 +133,9 @@ void pointwise(const typename Kernel::value_type *lhs,
 template <binary_kernel_class Kernel>
 void flexible(const typename Kernel::value_type *lhs,
               const typename Kernel::value_type *rhs,
-              typename Kernel::value_type *res, int *strides_lhs,
-              int *strides_rhs, int *strides_res, std::size_t *res_dim_offset,
+              typename Kernel::value_type *res, stride *strides_lhs,
+              stride *strides_rhs, stride *strides_res,
+              std::size_t *res_dim_offset,
               std::size_t rank) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
     if (rank <= 1) {
@@ -157,7 +160,7 @@ template <binary_kernel_class Kernel, std::size_t rank>
 void flexible(
     const typename Kernel::value_type *lhs,
     const typename Kernel::value_type *rhs, typename Kernel::value_type *res,
-    int *strides_lhs, int *strides_rhs, int *strides_res,
+    stride *strides_lhs, stride *strides_rhs, stride *strides_res,
     std::size_t *res_dim_offset,
     [[maybe_unused]] std::size_t unused) noexcept(kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
@@ -196,21 +199,21 @@ using pointwise_fn = void (*)(const typename Kernel::value_type *inp,
                               const typename Kernel::value_type *res_end);
 
 template <typename T>
-using sum_dim_fn = void (*)(const T *inp, T *res, int *strides_inp,
-                            int *strides_res, std::size_t *inp_offset,
+using sum_dim_fn = void (*)(const T *inp, T *res, stride *strides_inp,
+                            stride *strides_res, std::size_t *inp_offset,
                             std::size_t res_rank);
 
 template <typename T>
 using mean_fn = void (*)(const T *inp, T *res, const T *inp_end, T divisor);
 
 template <typename T>
-using mean_dim_fn = void (*)(const T *inp, T *res, int *strides_inp,
-                             int *strides_res, std::size_t *inp_offset,
+using mean_dim_fn = void (*)(const T *inp, T *res, stride *strides_inp,
+                             stride *strides_res, std::size_t *inp_offset,
                              std::size_t res_rank, T divisor, const T *res_end);
 
 template <typename T>
-using slice_fn = void (*)(const T *inp, T *res, int *strides_inp,
-                          int *strides_res, std::size_t *start_offset_a,
+using slice_fn = void (*)(const T *inp, T *res, stride *strides_inp,
+                          stride *strides_res, std::size_t *start_offset_a,
                           std::size_t *res_dim_offset, std::size_t res_rank);
 
 /**
@@ -265,7 +268,7 @@ void pointwise(const typename Kernel::value_type *inp,
  * @param inp_rank Number of dimensions of @p inp.
  */
 template <typename T>
-void sum_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
+void sum_dim(const T *inp, T *res, stride *strides_inp, stride *strides_res,
              std::size_t *inp_offset, std::size_t inp_rank) noexcept {
     const T *end = inp + *inp_offset;
     if (inp_rank <= 1) {
@@ -285,7 +288,7 @@ void sum_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
  * @ingroup unary_primal_functions
  */
 template <typename T, std::size_t inp_rank>
-void sum_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
+void sum_dim(const T *inp, T *res, stride *strides_inp, stride *strides_res,
              std::size_t *inp_offset,
              [[maybe_unused]] std::size_t unused) noexcept {
     const T *end = inp + *inp_offset;
@@ -333,7 +336,7 @@ void mean(const T *inp, T *res, const T *inp_end, T divisor) noexcept {
  * @param res_end Pointer to the end of output tensor @p res.
  */
 template <typename T>
-void mean_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
+void mean_dim(const T *inp, T *res, stride *strides_inp, stride *strides_res,
               std::size_t *inp_offset, std::size_t inp_rank, T divisor,
               const T *res_end) noexcept {
     sum_dim(inp, res, strides_inp, strides_res, inp_offset, inp_rank);
@@ -347,7 +350,7 @@ void mean_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
  * @ingroup unary_primal_functions
  */
 template <typename T, std::size_t inp_rank>
-void mean_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
+void mean_dim(const T *inp, T *res, stride *strides_inp, stride *strides_res,
               std::size_t *inp_offset, [[maybe_unused]] std::size_t unused,
               T divisor, const T *res_end) noexcept {
     sum_dim<T, inp_rank>(inp, res, strides_inp, strides_res, inp_offset, 0);
@@ -370,7 +373,7 @@ void mean_dim(const T *inp, T *res, int *strides_inp, int *strides_res,
  * @param rank Number of dimensions in @p inp and @p res.
  */
 template <typename T>
-void slice(const T *inp, T *res, int *strides_inp, int *strides_res,
+void slice(const T *inp, T *res, stride *strides_inp, stride *strides_res,
            std::size_t *start_offset_a, std::size_t *res_dim_offset,
            std::size_t rank) noexcept {
     inp += *start_offset_a;
@@ -392,7 +395,7 @@ void slice(const T *inp, T *res, int *strides_inp, int *strides_res,
  * @ingroup unary_primal_functions
  */
 template <typename T, std::size_t rank>
-void slice(const T *inp, T *res, int *strides_inp, int *strides_res,
+void slice(const T *inp, T *res, stride *strides_inp, stride *strides_res,
            std::size_t *start_offset_a, std::size_t *res_dim_offset,
            [[maybe_unused]] std::size_t unused) noexcept {
     inp += *start_offset_a;

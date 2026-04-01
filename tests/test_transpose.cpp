@@ -41,7 +41,7 @@ print_all("res", res, grad_res)
 
 // NOLINTBEGIN(readability-magic-numbers)
 
-std::array a_shape{3, 5, 2};
+kaad::Shape a_shape{3, 5, 2};
 std::array<kaad::Scalar, 30> a_val{
     32.0, 33.0, 34.0, 35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0,
     42.0, 43.0, 44.0, 45.0, 46.0, 47.0, 48.0, 49.0, 50.0, 51.0,
@@ -50,7 +50,7 @@ std::array<kaad::Scalar, 30> a_grad{
     1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
     1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-std::array res_shape{2, 5, 3};
+kaad::Shape res_shape{2, 5, 3};
 std::array<kaad::Scalar, 30> res_val{
     32.0, 42.0, 52.0, 34.0, 44.0, 54.0, 36.0, 46.0, 56.0, 38.0,
     48.0, 58.0, 40.0, 50.0, 60.0, 33.0, 43.0, 53.0, 35.0, 45.0,
@@ -62,7 +62,7 @@ std::array<kaad::Scalar, 30> res_grad{
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(std::array{3, 5, 2});
+    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
     std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 32);
 

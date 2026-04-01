@@ -1,14 +1,13 @@
 #include "mean.hpp"
 
-#include <array>                      // for array
-#include <kaad/graph/nodes/inode.hpp> // for INode
-#include <kaad/scalar.hpp>            // for Scalar
-#include <kaad/tensor/tensor.hpp>     // for Tensor
+#include <kaad/graph/nodes/inode.hpp>   // for INode
+#include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/tensor/tensor_types.hpp> // for Shape
 
 namespace kaad {
 
-NodeMean::NodeMean(INode *input_ptr)
-    : INode(std::array<int, 0>{}, false), input(input_ptr) {
+NodeMean::NodeMean(INode *input_ptr) : INode(Shape{}, false), input(input_ptr) {
     this->input_end = input_ptr->value().data() + input_ptr->value().size();
     this->input_grad_end =
         input_ptr->gradient().data() + input_ptr->gradient().size();

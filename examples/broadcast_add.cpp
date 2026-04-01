@@ -11,20 +11,20 @@ int main() {
     // NOLINTBEGIN(readability-magic-numbers)
 
     // Add input nodes to the graph.
-    kaad::Node input_a = rec.add_input_node(std::array{3, 2});
+    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 2});
     std::span<float> a_vals =
         input_a.value_elements(); // span to represent the element array of a
     std::ranges::fill(a_vals, 10);
 
-    kaad::Node input_b = rec.add_input_node(std::array{3, 2});
+    kaad::Node input_b = rec.add_input_node(kaad::Shape{3, 2});
     std::span<float> b_vals = input_b.value_elements();
     std::ranges::fill(b_vals, 30);
 
-    kaad::Node input_c = rec.add_input_node(std::array{1});
+    kaad::Node input_c = rec.add_input_node(kaad::Shape{1});
     std::span<float> c_vals = input_c.value_elements();
     std::ranges::fill(c_vals, 50);
 
-    kaad::Node input_d = rec.add_input_node(std::array{2, 3, 1});
+    kaad::Node input_d = rec.add_input_node(kaad::Shape{2, 3, 1});
     std::span<float> d_vals = input_d.value_elements();
     std::ranges::fill(d_vals, 20);
 

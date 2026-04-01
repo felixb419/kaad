@@ -26,7 +26,8 @@ template <MUTABILITY M> class IteratorImpl {
   private:
     const Tensor *origin_;
 
-    StaticVector<int> cords_; ///< Per-dim coordinates of the current element.
+    /// Per-dim coordinates of the current element.
+    StaticVector<std::size_t> cords_;
 
     ShapeView shape_;
     StridesView strides_;
@@ -34,8 +35,9 @@ template <MUTABILITY M> class IteratorImpl {
     std::span<value_type> elements_;
 
   public:
-    IteratorImpl(const Tensor *origin, StaticVector<int> cords, ShapeView shape,
-                 StridesView strides, std::span<value_type> elements)
+    IteratorImpl(const Tensor *origin, StaticVector<std::size_t> cords,
+                 ShapeView shape, StridesView strides,
+                 std::span<value_type> elements)
         : origin_(origin), cords_(cords), shape_(shape), strides_(strides),
           elements_(elements) {}
 
@@ -92,7 +94,7 @@ template <MUTABILITY M> class IteratorImpl {
 
         this->cords_[rank]--;
 
-        while (this->cords_[rank] < 0) {
+        while (this->cords_[rank] + 1 == 0) {
 
             this->cords_[rank] = this->shape_[rank] - 1;
             if (rank >= 0) {

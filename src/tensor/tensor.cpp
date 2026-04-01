@@ -47,7 +47,7 @@ Tensor::size_type Tensor::compute_size(ShapeView shape) {
     }
 
     size_type len = 1;
-    for (int dim : shape) {
+    for (extent dim : shape) {
         len *= dim;
     }
     return len;
@@ -187,28 +187,30 @@ bool Tensor::scalar() const noexcept { return this->rank() == 0; }
 
 Tensor::iterator Tensor::begin() noexcept {
     static_assert(KAAD_MAX_RANK >= 1);
-    StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),
-                            StaticVector<int>::UNCHECKED);
+    StaticVector<std::size_t> cords(
+        std::max(this->rank(), static_cast<size_type>(1)),
+        StaticVector<std::size_t>::UNCHECKED);
 
     return {this, cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::begin() const noexcept {
     static_assert(KAAD_MAX_RANK >= 1);
-    StaticVector<int> cords(std::max(this->rank(), static_cast<size_type>(1)),
-                            StaticVector<int>::UNCHECKED);
+    StaticVector<std::size_t> cords(
+        std::max(this->rank(), static_cast<size_type>(1)),
+        StaticVector<std::size_t>::UNCHECKED);
 
     return {this, cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::iterator Tensor::end() noexcept {
 
-    StaticVector<int> cords(this->shape_);
+    StaticVector<std::size_t> cords(this->shape_);
 
     if (this->rank() == 0) {
 
         static_assert(KAAD_MAX_RANK >= 1);
-        cords.resize(1, StaticVector<int>::UNCHECKED);
+        cords.resize(1, StaticVector<std::size_t>::UNCHECKED);
         cords[0] = 0;
     } else {
 
@@ -222,12 +224,12 @@ Tensor::iterator Tensor::end() noexcept {
 }
 
 Tensor::const_iterator Tensor::end() const noexcept {
-    StaticVector<int> cords(this->shape_);
+    StaticVector<std::size_t> cords(this->shape_);
 
     if (this->rank() == 0) {
 
         static_assert(KAAD_MAX_RANK >= 1);
-        cords.resize(1, StaticVector<int>::UNCHECKED);
+        cords.resize(1, StaticVector<std::size_t>::UNCHECKED);
         cords[0] = 0;
     } else {
 

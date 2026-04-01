@@ -24,9 +24,9 @@ struct Matmul {
 
     struct Metadata {
 
-        int lhs_col_step; ///< Step size between columns of lhs.
-        int rhs_row_step; ///< Step size between rows of rhs.
-        int shared_dim;   ///< Length of the shared dimension of lhs and rhs.
+        stride lhs_col_step; ///< Step size between columns of lhs.
+        stride rhs_row_step; ///< Step size between rows of rhs.
+        extent shared_dim;   ///< Length of the shared dimension of lhs and rhs.
 
         Strides eff_lhs; ///< Broadcasted strides for lhs.
         Strides eff_rhs; ///< Broadcasted strides for rhs.
@@ -124,27 +124,27 @@ struct Matmul {
 template <std::size_t res_rank, std::size_t dim>
     requires(res_rank > 0 && dim < res_rank)
 void Matmul::primal(const Scalar *lhs, const Scalar *rhs, Scalar *res,
-                         const Metadata &mdata) noexcept {
+                    const Metadata &mdata) noexcept {
 
     if constexpr (dim >= res_rank - 1) {
-        for (int i = 0; i < mdata.res_broadcast[dim]; i++,
-                 lhs += mdata.eff_lhs[dim], rhs += mdata.eff_rhs[dim],
-                 res += mdata.eff_res[dim]) {
+        for (std::size_t i = 0; i < mdata.res_broadcast[dim]; i++,
+                         lhs += mdata.eff_lhs[dim], rhs += mdata.eff_rhs[dim],
+                         res += mdata.eff_res[dim]) {
 
             const Scalar *row_lhs = lhs;
             const Scalar *col_rhs = rhs;
 
-            for (int j = 0; j < mdata.shared_dim; j++,
-                     row_lhs += mdata.lhs_col_step,
-                     col_rhs += mdata.rhs_row_step) {
+            for (std::size_t j = 0; j < mdata.shared_dim; j++,
+                             row_lhs += mdata.lhs_col_step,
+                             col_rhs += mdata.rhs_row_step) {
                 *res += (*row_lhs) * (*col_rhs);
             }
         }
     } else {
 
-        for (int i = 0; i < mdata.res_broadcast[dim]; i++,
-                 lhs += mdata.eff_lhs[dim], rhs += mdata.eff_rhs[dim],
-                 res += mdata.eff_res[dim]) {
+        for (std::size_t i = 0; i < mdata.res_broadcast[dim]; i++,
+                         lhs += mdata.eff_lhs[dim], rhs += mdata.eff_rhs[dim],
+                         res += mdata.eff_res[dim]) {
             primal<res_rank, dim + 1>(lhs, rhs, res, mdata);
         }
     }
@@ -153,9 +153,9 @@ void Matmul::primal(const Scalar *lhs, const Scalar *rhs, Scalar *res,
 template <std::size_t res_rank>
     requires(res_rank > 0)
 void Matmul::adjoint(const Scalar *lhs, Scalar *d_lhs, const Scalar *rhs,
-                          Scalar *d_rhs, const Scalar *d_res,
-                          const Metadata &wrt_lhs,
-                          const Metadata &wrt_rhs) noexcept {
+                     Scalar *d_rhs, const Scalar *d_res,
+                     const Metadata &wrt_lhs,
+                     const Metadata &wrt_rhs) noexcept {
     // d_res * rhs^T = d_lhs
     primal<res_rank>(d_res, rhs, d_lhs, wrt_lhs);
     // primal<wrt_lhs.res_broadcast.size()>(d_res, rhs, d_lhs, wrt_lhs);

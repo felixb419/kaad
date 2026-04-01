@@ -55,19 +55,13 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
                     to_string(input_shape)));
         }
 
-        // Temporary fix
-        StaticVector<int> cast_perm(perm.size());
-        for (std::size_t i = 0; i < perm.size(); i++) {
-            cast_perm[i] = static_cast<int>(perm[i]);
-        }
-
         if (contains_duplicates(perm)) {
 
             throw ArgumentError(
                 make_graph_errmsg(rec_len, "transpose",
                                   "perm has to contain index of every "
                                   "dimension exactly once, perm=" +
-                                      to_string(cast_perm)));
+                                      to_string(perm)));
         }
 
         // throw if any element of perm is not a valid index
@@ -79,7 +73,7 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
                 make_graph_errmsg(rec_len, "transpose",
                                   "every element of perm has to be a valid "
                                   "index of input.shape(), perm=" +
-                                      to_string(cast_perm)));
+                                      to_string(perm)));
         }
 
         value_t = input_view.transpose(shape_buff, strides_buff, perm);

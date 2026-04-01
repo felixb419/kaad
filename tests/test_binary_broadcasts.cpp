@@ -53,23 +53,23 @@ print_all("res", res, grad_res)
 
 // NOLINTBEGIN(readability-magic-numbers)
 
-std::array a_shape = {2, 3};
+kaad::Shape a_shape = {2, 3};
 std::array<kaad::Scalar, 6> a_val = {200.0, 201.0, 202.0, 203.0, 204.0, 205.0};
 std::array<kaad::Scalar, 6> a_grad = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array b_shape = {3, 2};
+kaad::Shape b_shape = {3, 2};
 std::array<kaad::Scalar, 6> b_val = {90.0, 91.0, 92.0, 93.0, 94.0, 95.0};
 std::array<kaad::Scalar, 6> b_grad = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array<int, 0> c_shape = {};
+kaad::Shape c_shape = {};
 std::array<kaad::Scalar, 1> c_val = {30.0};
 std::array<kaad::Scalar, 1> c_grad = {12.0};
 
-std::array d_shape = {2, 3, 1};
+kaad::Shape d_shape = {2, 3, 1};
 std::array<kaad::Scalar, 6> d_val = {0.0, 1.0, 2.0, 3.0, 4.0, 5.0};
 std::array<kaad::Scalar, 6> d_grad = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
-std::array res_shape = {2, 3, 2};
+kaad::Shape res_shape = {2, 3, 2};
 std::array<kaad::Scalar, 12> res_val = {320.0, 324.0, 324.0, 328.0,
                                         328.0, 332.0, 323.0, 327.0,
                                         327.0, 331.0, 331.0, 335.0};
@@ -79,19 +79,19 @@ std::array<kaad::Scalar, 12> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(std::array{2, 3});
+    kaad::Node input_a = rec.add_input_node(kaad::Shape{2, 3});
     std::span<float> a_vals = input_a.value_elements();
     std::iota(a_vals.begin(), a_vals.end(), 200);
 
-    kaad::Node input_b = rec.add_input_node(std::array{3, 2});
+    kaad::Node input_b = rec.add_input_node(kaad::Shape{3, 2});
     std::span<float> b_vals = input_b.value_elements();
     std::iota(b_vals.begin(), b_vals.end(), 90);
 
-    kaad::Node input_c = rec.add_input_node(std::array<int, 0>{});
+    kaad::Node input_c = rec.add_input_node(kaad::Shape{});
     std::span<float> c_vals = input_c.value_elements();
     std::iota(c_vals.begin(), c_vals.end(), 30);
 
-    kaad::Node input_d = rec.add_input_node(std::array{2, 3, 1});
+    kaad::Node input_d = rec.add_input_node(kaad::Shape{2, 3, 1});
     std::span<float> d_vals = input_d.value_elements();
     std::iota(d_vals.begin(), d_vals.end(), 0);
 

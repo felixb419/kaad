@@ -11,7 +11,7 @@ int main() {
     // NOLINTBEGIN(readability-magic-numbers)
 
     // Add input nodes to the graph.
-    kaad::Node input_a = rec.add_input_node(std::array{3, 5, 2});
+    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
     std::span<float> a_vals =
         input_a.value_elements(); // span to represent the element array of a
     std::iota(a_vals.begin(), a_vals.end(), 0);

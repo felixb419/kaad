@@ -6,7 +6,7 @@
 namespace kaad {
 
 /// Alias for the size of a shape along a singular tensor dimension.
-using extent = int;
+using extent = std::size_t;
 
 /// Alias for an owning tensor shape.
 using Shape = StaticVector<extent>;
@@ -15,7 +15,7 @@ using Shape = StaticVector<extent>;
 using ShapeView = Shape::view_type;
 
 /// Alias for a singular stride along a singular tensor dimension.
-using stride = int;
+using stride = std::size_t;
 
 /// Alias for owning tensor strides.
 using Strides = StaticVector<extent>;

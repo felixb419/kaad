@@ -3,7 +3,6 @@
 #include "../graph/nodes/sum_dim.hpp"   // for NodeSumDim
 #include "../graph/nodes/unary.hpp"     // for NodeUnary
 #include <algorithm>                    // for copy
-#include <array>                        // for array
 #include <cstddef>                      // for size_t
 #include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_er...
 #include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalar_out
@@ -33,8 +32,8 @@ Node sum(Graph &rec, Node input) {
     functions::adjoint::unary::pointwise_fn<Kernel> grad =
         functions::adjoint::unary::scalar_out<Kernel>;
 
-    rec.nodes.push_back(std::make_unique<NodeUnary<Kernel>>(
-        func, grad, input_ptr, std::array<int, 0>{}));
+    rec.nodes.push_back(
+        std::make_unique<NodeUnary<Kernel>>(func, grad, input_ptr, Shape{}));
     static_cast<NodeUnary<Kernel> *>(rec.nodes.back().get())->end =
         input_val.data() + input_val.size(); // override end from constructor
 

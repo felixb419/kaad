@@ -1,16 +1,16 @@
 #include "dot.hpp"
 
-#include <array>                          // for array
 #include <kaad/enums.hpp>                 // for ScalarOrder
 #include <kaad/functions/dot_product.hpp> // for DotProduct
 #include <kaad/graph/nodes/inode.hpp>     // for INode
 #include <kaad/scalar.hpp>                // for Scalar
 #include <kaad/tensor/tensor.hpp>         // for Tensor
+#include <kaad/tensor/tensor_types.hpp>   // for Shape
 
 namespace kaad {
 
 NodeDot::NodeDot(INode *lhs_ptr, INode *rhs_ptr)
-    : INode(std::array<int, 0>{}, false), lhs(lhs_ptr), rhs(rhs_ptr) {
+    : INode(Shape{}, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
     const Tensor &lhs_val = this->lhs->value();
     const Tensor &rhs_val = this->rhs->value();

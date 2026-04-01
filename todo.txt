@@ -1,8 +1,9 @@
 [FIX]
 
 [REFACTOR]
-(tensor)    make shape and stride use size_t
-            std::ranges::range for staticvector constructor
+            replace Shape{} with Shape::Scalar
+(tensor)    rework iterator ++ and --
+(tensor)    std::ranges::range for staticvector constructor
 (operators) move broadcast errors into broadcast function
 (graph)     mark getters as nodiscard in nodes
 (operators) rework slice size_span offset_span code duplication

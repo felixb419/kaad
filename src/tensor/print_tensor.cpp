@@ -14,17 +14,17 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
                          std::size_t &indent) {
     std::size_t rank = shape.size();
     if (idx == rank) {
-        int idx = 0;
+        std::size_t idx = 0;
         for (std::size_t i = 0; i < rank; i++) {
             idx += (cords[i] % shape[i]) * strides[i];
         }
         stream << elements[idx];
     } else {
-        int lim = shape[idx];
+        extent lim = shape[idx];
         stream << "[";
         indent++;
         // iterate for size of current dimension
-        for (int i = 0; i < lim - 1; i++) {
+        for (std::size_t i = 0; i < lim - 1; i++) {
             // print next dimension
             print_tensor_values(stream, cords, shape, strides, elements,
                                 idx + 1, indent);
