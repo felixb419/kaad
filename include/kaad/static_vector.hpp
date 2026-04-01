@@ -134,6 +134,13 @@ template <typename T> class StaticVector {
     StaticVector(std::initializer_list<value_type> init)
         : StaticVector(init.begin(), init.end()) {}
 
+    template <typename... Vs>
+        requires(sizeof...(Vs) <= KAAD_MAX_RANK &&
+                 (... && std::is_convertible_v<Vs, value_type>))
+    StaticVector(Vs &&...elements) noexcept
+        : elements_{static_cast<T>(std::forward<Vs>(elements))...},
+          size_(sizeof...(Vs)) {}
+
     [[nodiscard]] size_type size() const noexcept { return this->size_; }
 
     /// @return KAAD_MAX_RANK.
