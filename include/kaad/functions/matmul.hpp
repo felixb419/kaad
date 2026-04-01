@@ -14,13 +14,12 @@ namespace kaad::functions {
 struct Matmul {
   public:
     /**
-     * @brief Broadcasts @p lhs_shape and @p rhs_shape according to matrix
+     * @brief Broadcasts @p lhs and @p rhs according to matrix
      * multiplication, additional dimensions will be treated as batch
-     * dimensions.
-     * @return true if the broadcast was sucessful, false if the shapes are
-     * incompatible
+     * dimensions, will throw BroadcastError if @p lhs and @p rhs are not
+     * compatible.
      */
-    static bool broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape);
+    static Shape broadcast(ShapeView lhs, ShapeView rhs);
 
     struct Metadata {
 

@@ -1,21 +1,7 @@
 [FIX]
 
 [REFACTOR]
-(tensor)    rework iterator ++ and --
-(operators) move broadcast errors into broadcast function
-(graph)     mark getters as nodiscard in nodes
-(operators) rework slice size_span offset_span code duplication
-(operators)(?) Move shape logic into node constructor
 (operators)(?) change broadcast function to err code return
-(operators) go through and simplify, also fix comments!
-                binary_operators.cpp
-                dot.cpp
-                matmul.cpp
-                mean.cpp
-                outer.cpp
-                sum.cpp
-                unary_operators.cpp
-
 (functions) go through and unify into struct
                 flexible
                 mean
@@ -27,6 +13,24 @@
                 scalar_rhs
                 slice
                 sum_dim
+
+(tensor)    rework iterator ++ and --
+(operators) move broadcast errors into broadcast function
+(graph)     mark getters as nodiscard in nodes
+(operators) rework slice size_span offset_span code duplication
+(operators)(?) Move shape logic into node constructor
+(operators) go through and simplify, also fix comments!
+                binary_operators.cpp
+                dot.cpp
+                matmul.cpp
+                mean.cpp
+                outer.cpp
+                sum.cpp
+                unary_operators.cpp
+
+        (?) switch NodeDot back to Node_binary<dot>
+        (?) switch to std::format
+(functions)(?) use functions::flexible::broadcast in Matmul::broadcast
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)

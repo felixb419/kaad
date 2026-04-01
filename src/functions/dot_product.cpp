@@ -1,26 +1,25 @@
 #include <kaad/functions/dot_product.hpp> // for DotProduct
 
+#include "kaad/exceptions.hpp"          // for BroadcastError, to_string
 #include <algorithm>                    // for __equal_fn, equal
 #include <kaad/enums.hpp>               // for ScalarOrder
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Shape
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView
+#include <string>                       // for allocator, char_traits, oper...
 
 namespace kaad::functions {
 
-bool DotProduct::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
-    // if any above rank-1 -> fails
-    if (lhs.size() > 1 || rhs.size() > 1) {
-        return false;
-    }
+void DotProduct::broadcast(ShapeView lhs, ShapeView rhs) {
 
-    // if both non-scalar and shapes dont match -> fails
-    if (!lhs.empty() && !rhs.empty() && !std::ranges::equal(lhs, rhs)) {
-        return false;
-    }
+    bool rank_greater_1 = lhs.size() > 1 || rhs.size() > 1;
+    bool different_shapes = !std::ranges::equal(lhs, rhs);
+    bool none_scalar = !lhs.empty() && !rhs.empty();
 
-    new_shape = {1};
-    return true;
+    if (rank_greater_1 || (none_scalar && different_shapes)) {
+        throw BroadcastError(
+            "incompatible tensor shapes for dot product, A.shape=" +
+            to_string(lhs) + ", B.shape=" + to_string(rhs));
+    }
 }
 
 template <>

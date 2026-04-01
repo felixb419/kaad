@@ -8,12 +8,9 @@ namespace kaad::functions {
 
 struct DotProduct {
 
-    /*
-     * @brief Broadcasts @p lhs_shape and @p rhs_shape for a dot product.
-     * @return true if the broadcast was sucessful, false if the shapes are
-     * incompatible
-     */
-    static bool broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape);
+    /// @brief Checks if @p lhs and @p rhs are compatible for a dot product,
+    /// throws kaad::BroadcastError otherwise.
+    static void broadcast(ShapeView lhs, ShapeView rhs);
 
     using primal_fn = void (*)(const Scalar *lhs, const Scalar *rhs,
                                Scalar *res, const Scalar *lhs_end);

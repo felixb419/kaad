@@ -1,51 +1,76 @@
 #include <kaad/functions/matmul.hpp>
 
 #include <algorithm>                    // for __copy_fn, copy, max
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Shape
+#include <kaad/exceptions.hpp>          // for BroadcastError, to_string
+#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, extent
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
-#include <utility>                      // for cmp_less_equal
+#include <string>                       // for allocator, char_traits, oper...
 
 namespace kaad::functions {
 
-bool Matmul::broadcast(ShapeView lhs, ShapeView rhs, Shape &new_shape) {
+Shape Matmul::broadcast(ShapeView lhs, ShapeView rhs) {
     size_t lhs_rank = lhs.size();
     size_t rhs_rank = rhs.size();
     size_t new_rank = std::max(lhs_rank, rhs_rank);
 
     if (lhs[lhs_rank - 1] != rhs[rhs_rank - 2]) {
-        return false;
+
+        throw BroadcastError("incompatible tensor shapes for matrix "
+                             "multiplication, lhs.shape()" +
+                             to_string(lhs) + ", rhs.shape()" + to_string(rhs));
     }
 
-    new_shape.resize(new_rank);
+    Shape res(new_rank);
 
-    new_shape[new_rank - 1] = rhs[rhs_rank - 1];
-    new_shape[new_rank - 2] = lhs[lhs_rank - 2];
+    res[new_rank - 1] = rhs[rhs_rank - 1];
+    res[new_rank - 2] = lhs[lhs_rank - 2];
 
-    std::size_t idx_new = new_rank - 3;
-    for (int i = 3; std::cmp_less_equal(i, new_rank); i++, idx_new--) {
-        int idx_lhs = static_cast<int>(lhs_rank) - i;
-        int idx_rhs = static_cast<int>(rhs_rank) - i;
-        if (idx_lhs >= 0 && idx_rhs >= 0) {
-            if (lhs[idx_lhs] != rhs[idx_rhs] && lhs[idx_lhs] != 1 &&
-                rhs[idx_rhs] != 1) {
-                return false;
+    // check batch dimensions
+    if (new_rank > 2) {
+
+        auto broadcast_compatible = [](auto dim1, auto dim2) {
+            return dim1 == dim2 || dim1 == 1 || dim2 == 1;
+        };
+
+        // +2 in offset because last two dimensions are already checked
+        for (std::size_t offset = 1 + 2; offset <= new_rank; offset++) {
+
+            std::size_t lhs_idx = lhs.size() - offset;
+            std::size_t rhs_idx = rhs.size() - offset;
+            std::size_t res_idx = rhs.size() - offset;
+
+            if (offset > lhs.size()) {
+                res[res_idx] = rhs[rhs_idx];
+                continue;
             }
-            new_shape[idx_new] = std::max(lhs[idx_lhs], rhs[idx_rhs]);
-        } else {
-            new_shape[idx_new] = idx_lhs >= 0 ? lhs[idx_lhs] : rhs[idx_rhs];
+
+            if (offset > rhs.size()) {
+                res[res_idx] = lhs[lhs_idx];
+                continue;
+            }
+
+            if (!broadcast_compatible(lhs[lhs_idx], rhs[rhs_idx])) {
+
+                throw BroadcastError(
+                    "incompatible tensor shapes for broadcasting, lhs.shape()" +
+                    to_string(lhs) + ", rhs.shape()" + to_string(rhs));
+            }
+
+            res[res_idx] = std::max(lhs[lhs_idx], rhs[rhs_idx]);
         }
     }
-    return true;
+
+    return res;
 }
 
 Matmul::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
-                                TensorViewConst res) {
+                           TensorViewConst res) {
 
     this->lhs_col_step = lhs.strides[lhs.rank() - 1];
     this->rhs_row_step = rhs.strides[rhs.rank() - 2];
     this->shared_dim = lhs.shape[lhs.rank() - 1];
 
-    broadcast(lhs.shape, rhs.shape, this->res_broadcast);
+    this->res_broadcast = broadcast(lhs.shape, rhs.shape);
 
     std::size_t res_rank = res_broadcast.size();
 
