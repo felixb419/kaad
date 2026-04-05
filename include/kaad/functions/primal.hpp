@@ -32,13 +32,6 @@ namespace kaad::functions::primal {
  */
 namespace binary {
 
-template <binary_kernel_class Kernel> constexpr bool kernel_noexcept() {
-    return noexcept(
-        Kernel::op(std::declval<const typename Kernel::value_type &>(),
-                   std::declval<const typename Kernel::value_type &>(),
-                   std::declval<typename Kernel::value_type &>()));
-}
-
 template <binary_kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
                               const typename Kernel::value_type *rhs,
@@ -68,7 +61,7 @@ void scalar_rhs(const typename Kernel::value_type *lhs,
                 const typename Kernel::value_type *rhs,
                 typename Kernel::value_type *res,
                 const typename Kernel::value_type
-                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
+                    *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
     for (; res != res_end; lhs++, res++) {
         Kernel::op(*lhs, *rhs, *res);
     }
@@ -89,7 +82,7 @@ void scalar_lhs(const typename Kernel::value_type *lhs,
                 const typename Kernel::value_type *rhs,
                 typename Kernel::value_type *res,
                 const typename Kernel::value_type
-                    *res_end) noexcept(kernel_noexcept<Kernel>()) {
+                    *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
     for (; res != res_end; rhs++, res++) {
         Kernel::op(*lhs, *rhs, *res);
     }
@@ -110,7 +103,7 @@ void pointwise(const typename Kernel::value_type *lhs,
                const typename Kernel::value_type *rhs,
                typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+                   *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
     for (; res != res_end; lhs++, rhs++, res++) {
         Kernel::op(*lhs, *rhs, *res);
     }
@@ -136,7 +129,7 @@ void flexible(const typename Kernel::value_type *lhs,
               typename Kernel::value_type *res, stride *strides_lhs,
               stride *strides_rhs, stride *strides_res,
               std::size_t *res_dim_offset,
-              std::size_t rank) noexcept(kernel_noexcept<Kernel>()) {
+              std::size_t rank) noexcept(bin_kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
     if (rank <= 1) {
         for (; res != end;
@@ -157,12 +150,13 @@ void flexible(const typename Kernel::value_type *lhs,
  * @ingroup binary_primal_functions
  */
 template <binary_kernel_class Kernel, std::size_t rank>
-void flexible(
-    const typename Kernel::value_type *lhs,
-    const typename Kernel::value_type *rhs, typename Kernel::value_type *res,
-    stride *strides_lhs, stride *strides_rhs, stride *strides_res,
-    std::size_t *res_dim_offset,
-    [[maybe_unused]] std::size_t unused) noexcept(kernel_noexcept<Kernel>()) {
+void flexible(const typename Kernel::value_type *lhs,
+              const typename Kernel::value_type *rhs,
+              typename Kernel::value_type *res, stride *strides_lhs,
+              stride *strides_rhs, stride *strides_res,
+              std::size_t *res_dim_offset,
+              [[maybe_unused]] std::size_t
+                  unused) noexcept(bin_kernel_noexcept<Kernel>()) {
     const typename Kernel::value_type *end = res + *res_dim_offset;
     if constexpr (rank <= 1) {
         for (; res != end;
@@ -186,12 +180,6 @@ void flexible(
  * @ingroup unary_primal_functions
  */
 namespace unary {
-
-template <unary_kernel_class Kernel> constexpr bool kernel_noexcept() {
-    return noexcept(
-        Kernel::op(std::declval<const typename Kernel::value_type &>(),
-                   std::declval<typename Kernel::value_type &>()));
-}
 
 template <unary_kernel_class Kernel>
 using pointwise_fn = void (*)(const typename Kernel::value_type *inp,
@@ -228,7 +216,7 @@ template <unary_kernel_class Kernel>
 void scalar_out(const typename Kernel::value_type *inp,
                 typename Kernel::value_type *res,
                 const typename Kernel::value_type
-                    *inp_end) noexcept(kernel_noexcept<Kernel>()) {
+                    *inp_end) noexcept(un_kernel_noexcept<Kernel>()) {
     for (; inp != inp_end; inp++) {
         Kernel::op(*inp, *res);
     }
@@ -247,7 +235,7 @@ template <unary_kernel_class Kernel>
 void pointwise(const typename Kernel::value_type *inp,
                typename Kernel::value_type *res,
                const typename Kernel::value_type
-                   *res_end) noexcept(kernel_noexcept<Kernel>()) {
+                   *res_end) noexcept(un_kernel_noexcept<Kernel>()) {
     for (; res != res_end; inp++, res++) {
         Kernel::op(*inp, *res);
     }

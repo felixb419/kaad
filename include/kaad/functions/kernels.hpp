@@ -38,6 +38,20 @@ concept binary_kernel_class =
         } -> std::same_as<void>;
     };
 
+template <binary_kernel_class Kernel> constexpr bool bin_kernel_noexcept() {
+    return noexcept(
+               Kernel::op(std::declval<const typename Kernel::value_type &>(),
+                          std::declval<const typename Kernel::value_type &>(),
+                          std::declval<typename Kernel::value_type &>())) &&
+           noexcept(Kernel::grad(
+               std::declval<const typename Kernel::value_type &>(),
+               std::declval<typename Kernel::value_type &>(),
+               std::declval<const typename Kernel::value_type &>(),
+               std::declval<typename Kernel::value_type &>(),
+               std::declval<const typename Kernel::value_type &>(),
+               std::declval<const typename Kernel::value_type &>()));
+}
+
 /**
  * @brief Concept requiring a kernel to have:
  * 1. 'value_type' alias
@@ -59,6 +73,17 @@ concept unary_kernel_class =
                          std::declval<const typename Kernel::value_type &>())
         } -> std::same_as<void>;
     };
+
+template <unary_kernel_class Kernel> constexpr bool un_kernel_noexcept() {
+    return noexcept(Kernel::grad(
+               std::declval<const typename Kernel::value_type &>(),
+               std::declval<typename Kernel::value_type &>(),
+               std::declval<const typename Kernel::value_type &>(),
+               std::declval<const typename Kernel::value_type &>())) &&
+           noexcept(
+               Kernel::op(std::declval<const typename Kernel::value_type &>(),
+                          std::declval<typename Kernel::value_type &>()));
+}
 
 /**
  * @namespace kaad::Kernels
