@@ -28,36 +28,6 @@ namespace kaad::Dispatchers {
 // NOLINTBEGIN(readability-named-parameter)
 // NOLINTBEGIN(readability-identifier-naming) // will be removed soon anyway
 
-/// @brief Returns full table of flexible binary operation implementations.
-template <class Kernel, std::size_t... Is>
-constexpr std::array<functions::primal::binary::flexible_fn<Kernel>,
-                     sizeof...(Is)>
-get_flexOp_impl(std::index_sequence<Is...>) {
-    return {&functions::primal::binary::flexible<Kernel, Is>...};
-}
-
-template <class Kernel>
-constexpr std::array<functions::primal::binary::flexible_fn<Kernel>,
-                     KAAD_MAX_RANK>
-get_flexOp() {
-    return get_flexOp_impl<Kernel>(std::make_index_sequence<KAAD_MAX_RANK>());
-}
-
-/// @brief Returns full table of flexible binary gradient implementations.
-template <class Kernel, std::size_t... Is>
-constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>,
-                     sizeof...(Is)>
-get_flexGrad_impl(std::index_sequence<Is...>) {
-    return {&functions::adjoint::binary::flexible<Kernel, Is>...};
-}
-
-template <class Kernel>
-constexpr std::array<functions::adjoint::binary::flexible_fn<Kernel>,
-                     KAAD_MAX_RANK>
-get_flexGrad() {
-    return get_flexGrad_impl<Kernel>(std::make_index_sequence<KAAD_MAX_RANK>());
-}
-
 /// @brief Returns full table of sum_dim operation implementations.
 template <typename T, std::size_t... Is>
 constexpr std::array<functions::primal::unary::sum_dim_fn<T>, sizeof...(Is)>

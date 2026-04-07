@@ -1,10 +1,10 @@
 #include "outer.hpp"
 
 #include <algorithm>                    // for copy
-#include <array>                        // for array
-#include <kaad/graph/dispatchers.hpp>   // for get_flexGrad, get_flexOp
+#include <cstddef>                      // for size_t
+#include <kaad/functions/flexible.hpp>  // for Flexible
+#include <kaad/functions/kernels.hpp>   // for Mul
 #include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView
@@ -17,32 +17,27 @@ void NodeOuter::metadata() {
     Tensor &rhs = this->rhs->value();
     Tensor &res = this->value();
 
-    this->res_rank = res.rank();
-
-    this->lhs_strides.resize(this->res_rank);
-    this->rhs_strides.resize(this->res_rank);
-    this->res_strides.resize(this->res_rank);
+    this->mdata.eff_lhs.resize(res.rank());
+    this->mdata.eff_rhs.resize(res.rank());
+    this->mdata.eff_res.resize(res.rank());
 
     std::copy(res.strides().begin(), res.strides().end(),
-              this->res_strides.data());
+              this->mdata.eff_res.data());
     std::copy(lhs.strides().begin(), lhs.strides().end(),
-              this->lhs_strides.data());
+              this->mdata.eff_lhs.data());
     std::copy(rhs.strides().begin(), rhs.strides().end(),
-              this->rhs_strides.data() + lhs.rank());
+              this->mdata.eff_rhs.data() + lhs.rank());
 
-    this->res_offset.resize(this->res_rank);
-    for (std::size_t i = 0; i < this->res_rank; i++) {
-        this->res_offset[i] =
-            static_cast<std::size_t>(res.shape()[i]) * this->res_strides[i];
+    this->mdata.res_ends.resize(res.rank());
+    for (std::size_t i = 0; i < res.rank(); i++) {
+        this->mdata.res_ends[i] =
+            static_cast<std::size_t>(res.shape()[i]) * this->mdata.eff_res[i];
     }
 
     // assign compile-time recursive function
-    if (this->res_rank <= KAAD_MAX_RANK) {
-        this->forward_op =
-            Dispatchers::get_flexOp<NodeOuter::Kernel>()[this->res_rank];
-        this->backward_op =
-            Dispatchers::get_flexGrad<NodeOuter::Kernel>()[this->res_rank];
-    }
+    auto fn_pair = functions::Flexible::dispatch<Kernel>(res.rank());
+    this->forward_op = fn_pair.primal;
+    this->backward_op = fn_pair.adjoint;
 }
 
 NodeOuter::NodeOuter(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
@@ -59,8 +54,7 @@ void NodeOuter::eval() {
         this->rhs->eval();
 
         forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                   this->value().data(), lhs_strides.data(), rhs_strides.data(),
-                   res_strides.data(), res_offset.data(), res_rank);
+                   this->value().data(), this->mdata);
         this->evaluated_ = true;
     }
 }
@@ -68,9 +62,7 @@ void NodeOuter::eval() {
 void NodeOuter::get_grad() {
     backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                 this->rhs->value().data(), this->rhs->gradient().data(),
-                this->value().data(), this->gradient().data(),
-                lhs_strides.data(), rhs_strides.data(), res_strides.data(),
-                res_offset.data(), res_rank);
+                this->value().data(), this->gradient().data(), this->mdata);
 
     if (!this->lhs->is_input()) {
         this->lhs->get_grad();

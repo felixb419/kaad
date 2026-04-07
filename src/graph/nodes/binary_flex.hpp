@@ -1,9 +1,8 @@
 #pragma once
 
-#include <cstddef>                    // for size_t
-#include <kaad/functions/adjoint.hpp> // for flexible, flexible_fn
-#include <kaad/functions/primal.hpp>  // for flexible, flexible_fn
-#include <kaad/graph/dispatchers.hpp> // for MAX_NDIMS, get_flex...
+#include <cstddef> // for size_t
+#include <cstdint>
+#include <kaad/functions/flexible.hpp>
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/max_rank.hpp>          // for KAAD_MAX_RANK
 #include <kaad/tensor/tensor.hpp>     // for Tensor
@@ -23,68 +22,14 @@ template <class Kernel> class NodeBinaryFlex;
  */
 template <class Kernel> class NodeBinaryFlex : public INode {
   private:
-    functions::primal::binary::flexible_fn<Kernel> forward_op =
-        functions::primal::binary::flexible<Kernel>; ///< Function pointer to
-                                                     ///< the value operation.
+    functions::Flexible::primal_fn<Kernel> forward_op;
 
-    functions::adjoint::binary::flexible_fn<Kernel> backward_op =
-        functions::adjoint::binary::flexible<
-            Kernel>; ///< Function pointer to the gradient operation.
+    functions::Flexible::adjoint_fn<Kernel> backward_op;
 
-    INode *lhs = nullptr; ///< Pointer to the first input Node.
-    INode *rhs = nullptr; ///< Pointer to the second input Node.
+    INode *lhs = nullptr;
+    INode *rhs = nullptr;
 
-    Strides lhs_strides;   ///< Stride array for A.
-    Strides rhs_strides;   ///< Stride array for B.
-    Strides value_strides; ///< Stride array for C.
-    StaticVector<std::size_t>
-        C_offset;               ///< Per-dim offset to the end of C buffer.
-    std::size_t value_rank = 0; ///< Number of the dimensions of the C tensor.
-
-    void metadata() {
-        // compute metadata
-        Tensor &lhs = this->lhs->value();
-        Tensor &rhs = this->rhs->value();
-        Tensor &value = this->value();
-
-        this->value_rank = value.rank();
-        this->lhs_strides.resize(this->value_rank);
-        this->rhs_strides.resize(this->value_rank);
-        this->value_strides.resize(this->value_rank);
-
-        int idx;
-        int idx_a;
-        int idx_b;
-        int idx_c;
-        for (std::size_t i = 1; i <= this->value_rank; i++) {
-            idx = this->value_rank - i;
-            idx_a = lhs.rank() - i;
-            this->lhs_strides[idx] = idx_a >= 0 ? lhs.strides()[idx_a] : 0;
-            idx_b = rhs.rank() - i;
-            this->rhs_strides[idx] = idx_b >= 0 ? rhs.strides()[idx_b] : 0;
-            idx_c = value.rank() - i;
-            this->value_strides[idx] = idx_c >= 0 ? value.strides()[idx_c] : 0;
-            // make sure value_strides[idx] is 1 instead of 0 if
-            // value.shape[idx] is 1 for traversing in flexible function
-            if (this->value_strides[idx] == 0 && value.shape()[idx_c] == 1) {
-                this->value_strides[idx] = 1;
-            }
-        }
-
-        this->C_offset.resize(this->value_rank);
-        for (std::size_t i = 0; i < this->value_rank; i++) {
-            this->C_offset[i] = static_cast<std::size_t>(value.shape()[i]) *
-                                this->value_strides[i];
-        }
-
-        // assign compile-time recursive function
-        if (this->value_rank <= KAAD_MAX_RANK) {
-            this->forward_op =
-                Dispatchers::get_flexOp<Kernel>()[this->value_rank];
-            this->backward_op =
-                Dispatchers::get_flexGrad<Kernel>()[this->value_rank];
-        }
-    }
+    functions::Flexible::Metadata mdata;
 
   public:
     /**
@@ -96,7 +41,16 @@ template <class Kernel> class NodeBinaryFlex : public INode {
     NodeBinaryFlex(INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
         : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
 
-        this->metadata();
+        // compute metadata
+        this->mdata = functions::Flexible::Metadata(lhs_ptr->value().view(),
+                                                    rhs_ptr->value().view(),
+                                                    this->value().view());
+
+        // assign compile-time recursive functions
+        auto fn_pair =
+            functions::Flexible::dispatch<Kernel>(this->value().rank());
+        this->forward_op = fn_pair.primal;
+        this->backward_op = fn_pair.adjoint;
     }
 
     /// @return Type of the node as a string.
@@ -112,9 +66,7 @@ template <class Kernel> class NodeBinaryFlex : public INode {
             this->rhs->eval();
 
             forward_op(this->lhs->value().data(), this->rhs->value().data(),
-                       this->value().data(), lhs_strides.data(),
-                       rhs_strides.data(), value_strides.data(),
-                       C_offset.data(), value_rank);
+                       this->value().data(), this->mdata);
             this->evaluated_ = true;
         }
     }
@@ -124,9 +76,7 @@ template <class Kernel> class NodeBinaryFlex : public INode {
     void get_grad() override {
         backward_op(this->lhs->value().data(), this->lhs->gradient().data(),
                     this->rhs->value().data(), this->rhs->gradient().data(),
-                    this->value().data(), this->gradient().data(),
-                    lhs_strides.data(), rhs_strides.data(),
-                    value_strides.data(), C_offset.data(), value_rank);
+                    this->value().data(), this->gradient().data(), this->mdata);
 
         if (!this->lhs->is_input()) {
             this->lhs->get_grad();

@@ -1,9 +1,7 @@
 [FIX]
 
 [REFACTOR]
-(operators)(?) change broadcast function to err code return
 (functions) go through and unify into struct
-                flexible
                 mean
                 mean_dim
                 pointwise
@@ -19,6 +17,7 @@
 (graph)     mark getters as nodiscard in nodes
 (operators) rework slice size_span offset_span code duplication
 (operators)(?) Move shape logic into node constructor
+(operators)(?) remove BinaryKernels struct
 (operators) go through and simplify, also fix comments!
                 binary_operators.cpp
                 dot.cpp
@@ -29,12 +28,15 @@
                 unary_operators.cpp
 
         (?) switch NodeDot back to Node_binary<dot>
+        (?) switch NodeOuter back to Node_binary_flex<dot>
         (?) switch to std::format
 (functions)(?) use functions::flexible::broadcast in Matmul::broadcast
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    Tensor::size(size_t i);
+            StaticVector::MAX_SIZE
+(tensor)    Tensor::MAX_RANK
 
 [PERF]
 (graph)     arena allocation

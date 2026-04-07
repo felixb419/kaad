@@ -6,15 +6,16 @@
 #include <algorithm>                      // for move, equal, max
 #include <cstddef>                        // for size_t
 #include <kaad/exceptions.hpp>            // for BroadcastError, to_string
-#include <kaad/functions/adjoint.hpp>     // for pointwise_fn, flexible
+#include <kaad/functions/adjoint.hpp>     // for pointwise_fn, pointwise
+#include <kaad/functions/flexible.hpp>    // for Flexible
 #include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
-#include <kaad/functions/primal.hpp>      // for pointwise_fn, flexible
+#include <kaad/functions/primal.hpp>      // for pointwise_fn, pointwise
 #include <kaad/graph/graph.hpp>           // for Graph, binary_operator
 #include <kaad/graph/node_handle.hpp>     // for Node
 #include <kaad/graph/nodes/inode.hpp>     // for INode
 #include <kaad/scalar.hpp>                // for Scalar
 #include <kaad/tensor/tensor.hpp>         // for Tensor
-#include <kaad/tensor/tensor_types.hpp>   // for Shape
+#include <kaad/tensor/tensor_types.hpp>   // for extent, Shape
 #include <memory>                         // for allocator, make_unique
 #include <string>                         // for char_traits, basic_string
 #include <utility>                        // for move
@@ -74,8 +75,8 @@ template <class Kernel> struct BinaryKernels {
         functions::primal::binary::scalar_lhs<Kernel>;
     functions::primal::binary::pointwise_fn<Kernel> pointOp =
         functions::primal::binary::pointwise<Kernel>;
-    functions::primal::binary::flexible_fn<Kernel> flexOp =
-        functions::primal::binary::flexible<Kernel>;
+    functions::Flexible::primal_fn<Kernel> flexOp =
+        functions::Flexible::primal<Kernel, 1>;
 
     functions::adjoint::binary::pointwise_fn<Kernel> scalarGradRhs =
         functions::adjoint::binary::scalar_rhs<Kernel>;
@@ -83,8 +84,8 @@ template <class Kernel> struct BinaryKernels {
         functions::adjoint::binary::scalar_lhs<Kernel>;
     functions::adjoint::binary::pointwise_fn<Kernel> pointGrad =
         functions::adjoint::binary::pointwise<Kernel>;
-    functions::adjoint::binary::flexible_fn<Kernel> flexGrad =
-        functions::adjoint::binary::flexible<Kernel>;
+    functions::Flexible::adjoint_fn<Kernel> flexGrad =
+        functions::Flexible::adjoint<Kernel, 1>;
 };
 
 /**

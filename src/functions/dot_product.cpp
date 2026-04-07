@@ -1,8 +1,8 @@
 #include <kaad/functions/dot_product.hpp> // for DotProduct
 
-#include "kaad/exceptions.hpp"          // for BroadcastError, to_string
 #include <algorithm>                    // for __equal_fn, equal
 #include <kaad/enums.hpp>               // for ScalarOrder
+#include <kaad/exceptions.hpp>          // for BroadcastError, to_string
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView
 #include <string>                       // for allocator, char_traits, oper...
