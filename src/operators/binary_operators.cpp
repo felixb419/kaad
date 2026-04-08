@@ -6,10 +6,9 @@
 #include <algorithm>                      // for move, equal, max
 #include <cstddef>                        // for size_t
 #include <kaad/exceptions.hpp>            // for BroadcastError, to_string
-#include <kaad/functions/adjoint.hpp>     // for pointwise_fn, pointwise
-#include <kaad/functions/flexible.hpp>    // for Flexible
+#include <kaad/functions/adjoint.hpp>     // for pointwise, scalar_lhs, sca...
 #include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
-#include <kaad/functions/primal.hpp>      // for pointwise_fn, pointwise
+#include <kaad/functions/primal.hpp>      // for pointwise, scalar_lhs, sca...
 #include <kaad/graph/graph.hpp>           // for Graph, binary_operator
 #include <kaad/graph/node_handle.hpp>     // for Node
 #include <kaad/graph/nodes/inode.hpp>     // for INode
@@ -61,34 +60,6 @@ static inline bool combine_flexible(const extent *shape1, std::size_t rank1,
 }
 
 /**
- * @brief Contains a collection of binary functions for multiple versions
- * (sclalarRhs, scalar_lhs, pointwise, flexible) of the operation and gradient
- * of a given binary Kernel.
- *
- * @tparam T Datatype the operations are performed on (e.g. float, double, ...).
- * @tparam Kernel Kernel the functions should be using.
- */
-template <class Kernel> struct BinaryKernels {
-    functions::primal::binary::pointwise_fn<Kernel> scalarOpRhs =
-        functions::primal::binary::scalar_rhs<Kernel>;
-    functions::primal::binary::pointwise_fn<Kernel> scalarOpLhs =
-        functions::primal::binary::scalar_lhs<Kernel>;
-    functions::primal::binary::pointwise_fn<Kernel> pointOp =
-        functions::primal::binary::pointwise<Kernel>;
-    functions::Flexible::primal_fn<Kernel> flexOp =
-        functions::Flexible::primal<Kernel, 1>;
-
-    functions::adjoint::binary::pointwise_fn<Kernel> scalarGradRhs =
-        functions::adjoint::binary::scalar_rhs<Kernel>;
-    functions::adjoint::binary::pointwise_fn<Kernel> scalarGradLhs =
-        functions::adjoint::binary::scalar_lhs<Kernel>;
-    functions::adjoint::binary::pointwise_fn<Kernel> pointGrad =
-        functions::adjoint::binary::pointwise<Kernel>;
-    functions::Flexible::adjoint_fn<Kernel> flexGrad =
-        functions::Flexible::adjoint<Kernel, 1>;
-};
-
-/**
  * @internal
  * @brief Internal helper function not intended for direct user calls.
  *
@@ -109,7 +80,6 @@ template <class Kernel> struct BinaryKernels {
 template <class Kernel>
 Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
-    static const BinaryKernels<Kernel> KERNELS;
     std::size_t rec_len = rec.nodes.size();
 
     INode *lhs_ptr = rec.get_node(lhs);
@@ -126,13 +96,15 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
     if (rhs_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            KERNELS.scalarOpRhs, KERNELS.scalarGradRhs, lhs_ptr, rhs_ptr,
+            functions::primal::binary::scalar_rhs<Kernel>,
+            functions::adjoint::binary::scalar_rhs<Kernel>, lhs_ptr, rhs_ptr,
             lhs_val.shape())));
 
     } else if (lhs_scalar) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            KERNELS.scalarOpLhs, KERNELS.scalarGradLhs, lhs_ptr, rhs_ptr,
+            functions::primal::binary::scalar_lhs<Kernel>,
+            functions::adjoint::binary::scalar_lhs<Kernel>, lhs_ptr, rhs_ptr,
             rhs_val.shape())));
 
     } else if (lhs_val.rank() == rhs_val.rank() &&
@@ -142,7 +114,8 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
                           rhs_val.strides().begin())) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            KERNELS.pointOp, KERNELS.pointGrad, lhs_ptr, rhs_ptr,
+            functions::primal::binary::pointwise<Kernel>,
+            functions::adjoint::binary::pointwise<Kernel>, lhs_ptr, rhs_ptr,
             lhs_val.shape())));
 
     } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),
