@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstdint>
+#include <kaad/enums.hpp>
 #include <kaad/functions/adjoint.hpp> // for pointwise_fn
+#include <kaad/functions/pointwise.hpp>
 #include <kaad/functions/primal.hpp>  // for pointwise, pointwis...
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/scalar.hpp>            // for Scalar
@@ -16,15 +19,14 @@ namespace kaad {
  * @tparam Kernel A kernel struct providing `Op` and `Grad` types for the
  * operation.
  */
-template <class Kernel> class NodeBinary : public INode {
+template <class Kernel, ScalarOrder S = NONE_SCALAR>
+class NodeBinary : public INode {
   private:
-    functions::primal::binary::pointwise_fn<Kernel> forward_op =
-        functions::primal::binary::pointwise<Kernel>; ///< Function pointer to
-                                                      ///< the value operation.
+    functions::Pointwise::Binary::primal_fn<Kernel> forward_op =
+        functions::Pointwise::Binary::primal<Kernel, S>;
 
-    functions::adjoint::binary::pointwise_fn<Kernel> backward_op =
-        functions::primal::binary::pointwise<
-            Kernel>; ///< Function pointer to the gradient operation.
+    functions::Pointwise::Binary::adjoint_fn<Kernel> backward_op =
+        functions::Pointwise::Binary::adjoint<Kernel, S>;
 
     INode *lhs = nullptr; ///< Pointer to the first input Node.
     INode *rhs = nullptr; ///< Pointer to the second input Node.
@@ -43,11 +45,10 @@ template <class Kernel> class NodeBinary : public INode {
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    NodeBinary(functions::primal::binary::pointwise_fn<Kernel> operation,
-               functions::adjoint::binary::pointwise_fn<Kernel> derivative,
-               INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
-        : INode(value_shape, false), forward_op(operation),
-          backward_op(derivative), lhs(lhs_ptr), rhs(rhs_ptr) {
+    NodeBinary(
+
+        INode *lhs_ptr, INode *rhs_ptr, ShapeView value_shape)
+        : INode(value_shape, false), lhs(lhs_ptr), rhs(rhs_ptr) {
         auto *base_ptr = static_cast<INode *>(this);
         this->end = base_ptr->value().data() + base_ptr->value().size();
     }

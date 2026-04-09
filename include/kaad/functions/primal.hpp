@@ -30,78 +30,7 @@ namespace kaad::functions::primal {
  * @namespace kaad::functions::adjoint::binary
  * @ingroup binary_primal_functions
  */
-namespace binary {
-
-template <binary_kernel_class Kernel>
-using pointwise_fn = void (*)(const typename Kernel::value_type *lhs,
-                              const typename Kernel::value_type *rhs,
-                              typename Kernel::value_type *res,
-                              const typename Kernel::value_type *res_end);
-
-/**
- * @brief Applies Op to @p lhssand @p rhs .
- * @ingroup binary_primal_functions
- * @pre @p lhs and @p res have the same shape and @p rhs is rank-0.
- * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to the start of tensor.
- * @param[in] rhs Pointer to rank-0 tensor.
- * @param[out] res Pointer to the start of tensor.
- * @param res_end Pointer to the end of @p res.
- */
-template <binary_kernel_class Kernel>
-void scalar_rhs(const typename Kernel::value_type *lhs,
-                const typename Kernel::value_type *rhs,
-                typename Kernel::value_type *res,
-                const typename Kernel::value_type
-                    *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
-    for (; res != res_end; lhs++, res++) {
-        Kernel::op(*lhs, *rhs, *res);
-    }
-}
-
-/**
- * @brief Applies Op to @p lhssand @p rhs .
- * @ingroup binary_primal_functions
- * @pre @p rhs and @p res have the same shape and @p lhs is rank-0.
- * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to rank-0 tensor.
- * @param[in] rhs Pointer to the start of tensor.
- * @param[out] res Pointer to the start of tensor.
- * @param res_end Pointer to the end of @p res.
- */
-template <binary_kernel_class Kernel>
-void scalar_lhs(const typename Kernel::value_type *lhs,
-                const typename Kernel::value_type *rhs,
-                typename Kernel::value_type *res,
-                const typename Kernel::value_type
-                    *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
-    for (; res != res_end; rhs++, res++) {
-        Kernel::op(*lhs, *rhs, *res);
-    }
-}
-
-/**
- * @brief Applies Op to @p lhssand @p rhs .
- * @ingroup binary_primal_functions
- * @pre @p lhs, @p rhs and @p res have the same shape.
- * @tparam Kernel A struct containing a static binary function ('Op').
- * @param[in] lhs Pointer to the start of tensor.
- * @param[in] rhs Pointer to the start of tensor.
- * @param[out] res Pointer to the start of tensor.
- * @param res_end Pointer to the end of @p res.
- */
-template <binary_kernel_class Kernel>
-void pointwise(const typename Kernel::value_type *lhs,
-               const typename Kernel::value_type *rhs,
-               typename Kernel::value_type *res,
-               const typename Kernel::value_type
-                   *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
-    for (; res != res_end; lhs++, rhs++, res++) {
-        Kernel::op(*lhs, *rhs, *res);
-    }
-}
-
-} // namespace binary
+namespace binary {} // namespace binary
 
 /**
  * @namespace kaad::Operations::unary

@@ -5,10 +5,9 @@
 #include "../graph/nodes/binary_flex.hpp" // for NodeBinaryFlex
 #include <algorithm>                      // for move, equal, max
 #include <cstddef>                        // for size_t
+#include <kaad/enums.hpp>                 // for ScalarOrder
 #include <kaad/exceptions.hpp>            // for BroadcastError, to_string
-#include <kaad/functions/adjoint.hpp>     // for pointwise, scalar_lhs, sca...
 #include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
-#include <kaad/functions/primal.hpp>      // for pointwise, scalar_lhs, sca...
 #include <kaad/graph/graph.hpp>           // for Graph, binary_operator
 #include <kaad/graph/node_handle.hpp>     // for Node
 #include <kaad/graph/nodes/inode.hpp>     // for INode
@@ -95,17 +94,15 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     if (rhs_scalar) {
 
-        rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            functions::primal::binary::scalar_rhs<Kernel>,
-            functions::adjoint::binary::scalar_rhs<Kernel>, lhs_ptr, rhs_ptr,
-            lhs_val.shape())));
+        rec.nodes.push_back(
+            std::move(std::make_unique<NodeBinary<Kernel, RHS_IS_SCALAR>>(
+                lhs_ptr, rhs_ptr, lhs_val.shape())));
 
     } else if (lhs_scalar) {
 
-        rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            functions::primal::binary::scalar_lhs<Kernel>,
-            functions::adjoint::binary::scalar_lhs<Kernel>, lhs_ptr, rhs_ptr,
-            rhs_val.shape())));
+        rec.nodes.push_back(
+            std::move(std::make_unique<NodeBinary<Kernel, LHS_IS_SCALAR>>(
+                lhs_ptr, rhs_ptr, rhs_val.shape())));
 
     } else if (lhs_val.rank() == rhs_val.rank() &&
                std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),
@@ -114,9 +111,7 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
                           rhs_val.strides().begin())) {
 
         rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            functions::primal::binary::pointwise<Kernel>,
-            functions::adjoint::binary::pointwise<Kernel>, lhs_ptr, rhs_ptr,
-            lhs_val.shape())));
+            lhs_ptr, rhs_ptr, lhs_val.shape())));
 
     } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),
                                 rhs_val.shape().data(), rhs_val.rank(),

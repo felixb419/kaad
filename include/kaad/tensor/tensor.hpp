@@ -266,7 +266,7 @@ class Tensor {
     friend class Graph;
     friend class INode;
 
-    template <class Kernel> friend class NodeBinary;
+    template <class Kernel, ScalarOrder S> friend class NodeBinary;
     template <class Kernel> friend class NodeBinaryFlex;
     friend class NodeDot;
     friend class NodeMatmul;
