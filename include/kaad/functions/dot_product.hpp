@@ -28,6 +28,7 @@ struct DotProduct {
      * none are scalar).
      */
     template <ScalarOrder S = NONE_SCALAR>
+        requires(S == NONE_SCALAR || S == LHS_IS_SCALAR || S == RHS_IS_SCALAR)
     static void primal(const Scalar *lhs, const Scalar *rhs, Scalar *res,
                        const Scalar *end) noexcept;
 
@@ -52,6 +53,7 @@ struct DotProduct {
      * none are scalar).
      */
     template <ScalarOrder S = NONE_SCALAR>
+        requires(S == NONE_SCALAR || S == LHS_IS_SCALAR || S == RHS_IS_SCALAR)
     static void adjoint(const Scalar *lhs, Scalar *d_lhs, const Scalar *rhs,
                         Scalar *d_rhs, const Scalar *d_res,
                         const Scalar *end) noexcept;

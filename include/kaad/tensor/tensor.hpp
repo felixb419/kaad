@@ -266,7 +266,10 @@ class Tensor {
     friend class Graph;
     friend class INode;
 
-    template <class Kernel, ScalarOrder S> friend class NodeBinary;
+    template <class Kernel, ScalarOrder S>
+        requires(S == NONE_SCALAR || S == LHS_IS_SCALAR || S == RHS_IS_SCALAR)
+    friend class NodeBinary;
+
     template <class Kernel> friend class NodeBinaryFlex;
     friend class NodeDot;
     friend class NodeMatmul;

@@ -29,6 +29,8 @@ struct Pointwise {
          * @param res_end Pointer to the end of @p res.
          */
         template <binary_kernel_class Kernel, ScalarOrder S = NONE_SCALAR>
+            requires(S == NONE_SCALAR || S == LHS_IS_SCALAR ||
+                     S == RHS_IS_SCALAR)
         static void
         primal(const Kernel::value_type *lhs, const Kernel::value_type *rhs,
                Kernel::value_type *res,
@@ -83,6 +85,8 @@ struct Pointwise {
          * @param res_end Pointer to the end of @p res.
          */
         template <binary_kernel_class Kernel, ScalarOrder S = NONE_SCALAR>
+            requires(S == NONE_SCALAR || S == LHS_IS_SCALAR ||
+                     S == RHS_IS_SCALAR)
         static void
         adjoint(const Kernel::value_type *lhs, Kernel::value_type *d_lhs,
                 const Kernel::value_type *rhs, Kernel::value_type *d_rhs,

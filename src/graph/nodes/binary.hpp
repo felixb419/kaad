@@ -20,6 +20,7 @@ namespace kaad {
  * operation.
  */
 template <class Kernel, ScalarOrder S = NONE_SCALAR>
+    requires(S == NONE_SCALAR || S == LHS_IS_SCALAR || S == RHS_IS_SCALAR)
 class NodeBinary : public INode {
   private:
     functions::Pointwise::Binary::primal_fn<Kernel> forward_op =
