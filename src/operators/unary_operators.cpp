@@ -18,20 +18,6 @@
 namespace kaad {
 
 /**
- * @brief Contains a collection of unary functions for pointwise version of the
- * operation and gradient of a given unary Kernel.
- *
- * @tparam T Datatype the operations are performed on (e.g. float, double, ...).
- * @tparam Kernel Kernel the functions should be using.
- */
-template <class Kernel> struct UnaryKernels {
-    functions::primal::unary::pointwise_fn<Kernel> op =
-        functions::primal::unary::pointwise<Kernel>;
-    functions::adjoint::unary::pointwise_fn<Kernel> grad =
-        functions::adjoint::unary::pointwise<Kernel>;
-};
-
-/**
  * @internal
  * @brief Internal helper function not intended for direct user calls.
  *
@@ -47,13 +33,13 @@ template <class Kernel> struct UnaryKernels {
  */
 template <class Kernel> Node unary_operator(Graph &rec, Node input) {
 
-    static const UnaryKernels<Kernel> KERNELS;
-
     INode *input_ptr = rec.get_node(input);
     Tensor &input_val = input_ptr->value();
 
     rec.nodes.push_back(std::move(std::make_unique<NodeUnary<Kernel>>(
-        KERNELS.op, KERNELS.grad, input_ptr, input_val.shape())));
+        functions::primal::unary::pointwise<Kernel>,
+        functions::adjoint::unary::pointwise<Kernel>, input_ptr,
+        input_val.shape())));
 
     return rec.back_handle();
 }
