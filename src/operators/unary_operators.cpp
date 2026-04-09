@@ -1,11 +1,9 @@
-#include <kaad/operators/operators.hpp>
+#include <kaad/operators/operators.hpp> // for abs, exp, log, negative, sqrt
 
-#include "../functions/safe_kernels.hpp" // for SafeExp
+#include "../functions/safe_kernels.hpp" // for SafeExp, SafeLog, SafeSqrt
 #include "../graph/nodes/unary.hpp"      // for NodeUnary
-#include <kaad/functions/adjoint.hpp>    // for pointwise
-#include <kaad/functions/kernels.hpp>    // for Abs, Neg
-#include <kaad/functions/primal.hpp>     // for pointwise
-#include <kaad/graph/graph.hpp>          // for Graph, unOp...
+#include <kaad/functions/kernels.hpp>    // for Abs, Neg, Square
+#include <kaad/graph/graph.hpp>          // for Graph, unary_operator
 #include <kaad/graph/node_handle.hpp>    // for Node
 #include <kaad/graph/nodes/inode.hpp>    // for INode
 #include <kaad/scalar.hpp>               // for Scalar
@@ -36,10 +34,8 @@ template <class Kernel> Node unary_operator(Graph &rec, Node input) {
     INode *input_ptr = rec.get_node(input);
     Tensor &input_val = input_ptr->value();
 
-    rec.nodes.push_back(std::move(std::make_unique<NodeUnary<Kernel>>(
-        functions::primal::unary::pointwise<Kernel>,
-        functions::adjoint::unary::pointwise<Kernel>, input_ptr,
-        input_val.shape())));
+    rec.nodes.push_back(std::move(
+        std::make_unique<NodeUnary<Kernel>>(input_ptr, input_val.shape())));
 
     return rec.back_handle();
 }

@@ -5,15 +5,13 @@
 #include <algorithm>                    // for copy
 #include <cstddef>                      // for size_t
 #include <kaad/exceptions.hpp>          // for ArgumentError, make_graph_er...
-#include <kaad/functions/adjoint.hpp>   // for pointwise_fn, scalar_out
 #include <kaad/functions/kernels.hpp>   // for Sum
-#include <kaad/functions/primal.hpp>    // for pointwise_fn, scalar_out
 #include <kaad/graph/graph.hpp>         // for Graph, sum
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for Shape
+#include <kaad/tensor/tensor_types.hpp> // for SCALAR_SHAPE, Shape
 #include <memory>                       // for unique_ptr, allocator, make_...
 #include <string>                       // for char_traits, basic_string
 #include <utility>                      // for cmp_greater_equal
@@ -27,13 +25,10 @@ Node sum(Graph &rec, Node input) {
     Tensor &input_val = input_ptr->value();
 
     using Kernel = struct Kernels::Sum<Scalar>;
-    functions::primal::unary::pointwise_fn<Kernel> func =
-        functions::primal::unary::scalar_out<Kernel>;
-    functions::adjoint::unary::pointwise_fn<Kernel> grad =
-        functions::adjoint::unary::scalar_out<Kernel>;
 
-    rec.nodes.push_back(std::make_unique<NodeUnary<Kernel>>(
-        func, grad, input_ptr, SCALAR_SHAPE));
+    rec.nodes.push_back(
+        std::make_unique<NodeUnary<Kernel>>(input_ptr, SCALAR_SHAPE));
+
     static_cast<NodeUnary<Kernel> *>(rec.nodes.back().get())->end =
         input_val.data() + input_val.size(); // override end from constructor
 

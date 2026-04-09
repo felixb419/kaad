@@ -1,8 +1,7 @@
 #pragma once
 
-#include <kaad/functions/adjoint.hpp>   // for pointwise, pointwise_fn
 #include <kaad/functions/kernels.hpp>   // for NoOp
-#include <kaad/functions/primal.hpp>    // for pointwise, pointwise_fn
+#include <kaad/functions/pointwise.hpp> // for Pointwise
 #include <kaad/graph/nodes/inode.hpp>   // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, StridesView
@@ -20,14 +19,11 @@ class NodeTransp : public INode {
 
     using Kernel = Kernels::NoOp<Scalar>;
 
-    functions::primal::unary::pointwise_fn<Kernel> forward_op =
-        functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
-                                                     ///< the value operation.
+    functions::Pointwise::Unary::primal_fn<Kernel> forward_op =
+        functions::Pointwise::Unary::primal<Kernel>;
 
-    functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
-        functions::adjoint::unary::pointwise<Kernel>; ///< Function pointer to
-                                                      ///< the gradient
-                                                      ///< operation.
+    functions::Pointwise::Unary::adjoint_fn<Kernel> backward_op =
+        functions::Pointwise::Unary::adjoint<Kernel>;
 
     const Scalar *input_end =
         nullptr; ///< Pointer to the end of the input buffer.

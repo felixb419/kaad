@@ -1,6 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <kaad/functions/adjoint.hpp> // for pointwise_fn, pointwise
+#include <kaad/functions/pointwise.hpp>
 #include <kaad/functions/primal.hpp>  // for pointwise_fn, pointwise
 #include <kaad/graph/nodes/inode.hpp> // for INode
 #include <kaad/scalar.hpp>            // for Scalar
@@ -21,13 +23,11 @@ class Node;
  */
 template <class Kernel> class NodeUnary : public INode {
   private:
-    functions::primal::unary::pointwise_fn<Kernel> forward_op =
-        functions::primal::unary::pointwise<Kernel>; ///< Function pointer to
-                                                     ///< the value operation.
+    functions::Pointwise::Unary::primal_fn<Kernel> forward_op =
+        functions::Pointwise::Unary::primal<Kernel>;
 
-    functions::adjoint::unary::pointwise_fn<Kernel> backward_op =
-        functions::adjoint::unary::pointwise<
-            Kernel>; ///< Function pointer to the gradient operation.
+    functions::Pointwise::Unary::adjoint_fn<Kernel> backward_op =
+        functions::Pointwise::Unary::adjoint<Kernel>;
 
     INode *input = nullptr; ///< Pointer to the input Node.
 
@@ -37,28 +37,26 @@ template <class Kernel> class NodeUnary : public INode {
 
   public:
     /**
-     * @brief Constructs a unary node with the given operation and gradient.
-     * @ingroup nodes
-     * @param input_ptr    Pointer to the input node.
-     * @param value_shape Shape of the value and gradient tensors.
-     */
-    /**
-     * @brief Construct XXXX node.
+     * @brief Construct Unary node.
      * @param operation  Function pointer to the value operation.
      * @param derivative Function pointer to the gradient operation.
      * @param lhs_ptr Pointer to the first input node.
      * @param rhs_ptr Pointer to the second input node.
      * @param value_shape Output/gradient shape
      */
-    NodeUnary(functions::primal::unary::pointwise_fn<Kernel> operation,
-              functions::adjoint::unary::pointwise_fn<Kernel> derivative,
-              INode *input_ptr, ShapeView value_shape)
-        : INode(value_shape, false), forward_op(operation),
-          backward_op(derivative), input(input_ptr) {
+    NodeUnary(INode *input_ptr, ShapeView value_shape)
+        : INode(value_shape, false), input(input_ptr) {
         this->end =
             this->value().data() +
             this->value()
                 .size(); // Points to end of value if not overriden in operator.
+
+        if (std::ranges::equal(value_shape, SCALAR_SHAPE)) {
+            this->forward_op =
+                functions::Pointwise::Unary::primal_scalar_res<Kernel>;
+            this->backward_op =
+                functions::Pointwise::Unary::adjoint_scalar_res<Kernel>;
+        }
     }
 
     /// @return Type of the node as a string.

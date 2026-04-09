@@ -38,11 +38,6 @@ namespace binary {} // namespace binary
  */
 namespace unary {
 
-template <unary_kernel_class Kernel>
-using pointwise_fn = void (*)(const typename Kernel::value_type *inp,
-                              typename Kernel::value_type *res,
-                              const typename Kernel::value_type *res_end);
-
 template <typename T>
 using sum_dim_fn = void (*)(const T *inp, T *res, stride *strides_inp,
                             stride *strides_res, std::size_t *inp_offset,
@@ -60,43 +55,6 @@ template <typename T>
 using slice_fn = void (*)(const T *inp, T *res, stride *strides_inp,
                           stride *strides_res, std::size_t *start_offset_a,
                           std::size_t *res_dim_offset, std::size_t res_rank);
-
-/**
- * @brief Applies a unary operation to @p inp .
- * @ingroup unary_primal_functions
- * @tparam Kernel A struct containing a static unary function ('Op').
- * @param[in] inp Pointer to the start of tensor.
- * @param[out] res Pointer to rank-0 tensor.
- * @param inp_end Pointer to the end of @p inp.
- */
-template <unary_kernel_class Kernel>
-void scalar_out(const typename Kernel::value_type *inp,
-                typename Kernel::value_type *res,
-                const typename Kernel::value_type
-                    *inp_end) noexcept(un_kernel_noexcept<Kernel>()) {
-    for (; inp != inp_end; inp++) {
-        Kernel::op(*inp, *res);
-    }
-}
-
-/**
- * @brief Applies a unary operation to @p inp .
- * @ingroup unary_primal_functions
- * @tparam Kernel A struct containing a static unary function ('Op').
- * @param[in] inp Pointer to the start of tensor.
- * @param[out] res Pointer to the start of tensor
- * @param res_end Pointer to the end of @p res.
- * @param op Instance of the callable class.
- */
-template <unary_kernel_class Kernel>
-void pointwise(const typename Kernel::value_type *inp,
-               typename Kernel::value_type *res,
-               const typename Kernel::value_type
-                   *res_end) noexcept(un_kernel_noexcept<Kernel>()) {
-    for (; res != res_end; inp++, res++) {
-        Kernel::op(*inp, *res);
-    }
-}
 
 /**
  * @brief Sums @p inpsalong a dimension into @p res .

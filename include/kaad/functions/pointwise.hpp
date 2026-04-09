@@ -115,6 +115,104 @@ struct Pointwise {
             }
         }
     };
+
+    struct Unary {
+
+        template <unary_kernel_class Kernel>
+        using primal_fn = void (*)(const typename Kernel::value_type *inp,
+                                   typename Kernel::value_type *res,
+                                   const typename Kernel::value_type *res_end);
+
+        /**
+         * @brief Applies a unary operation to @p inp .
+         * @ingroup unary_primal_functions
+         * @tparam Kernel A struct containing a static unary function ('Op').
+         * @param[in] inp Pointer to the start of tensor.
+         * @param[out] res Pointer to the start of tensor
+         * @param res_end Pointer to the end of @p res.
+         * @param op Instance of the callable class.
+         */
+        template <unary_kernel_class Kernel>
+        void static primal(const Kernel::value_type *inp,
+                           Kernel::value_type *res,
+                           const Kernel::value_type *
+                               res_end) noexcept(un_kernel_noexcept<Kernel>()) {
+            for (; res != res_end; inp++, res++) {
+                Kernel::op(*inp, *res);
+            }
+        }
+
+        /**
+         * @brief Applies a unary operation to @p inp .
+         * @ingroup unary_primal_functions
+         * @tparam Kernel A struct containing a static unary function ('Op').
+         * @param[in] inp Pointer to the start of tensor.
+         * @param[out] res Pointer to rank-0 tensor.
+         * @param inp_end Pointer to the end of @p inp.
+         */
+        template <unary_kernel_class Kernel>
+        void static primal_scalar_res(
+            const Kernel::value_type *inp, Kernel::value_type *res,
+            const Kernel::value_type
+                *inp_end) noexcept(un_kernel_noexcept<Kernel>()) {
+            for (; inp != inp_end; inp++) {
+                Kernel::op(*inp, *res);
+            }
+        }
+
+        template <unary_kernel_class Kernel>
+        using adjoint_fn = void (*)(const typename Kernel::value_type *inp,
+                                    typename Kernel::value_type *d_inp,
+                                    const typename Kernel::value_type *res,
+                                    const typename Kernel::value_type *d_res,
+                                    const typename Kernel::value_type *end);
+
+        /**
+         * @brief Accumulates the gradient of Op in @p inp .
+         * @ingroup unary_adjoint_functions
+         * @pre @p inp and @p res have the same shape.
+         * @pre Every operand must have the same shape as their gradient.
+         * @tparam Kernel A struct containing a static binary funcion ('Grad').
+         * @param[in] inp Pointer to the start of tensor.
+         * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
+         * @param[in] res Pointer to the start of tensor.
+         * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
+         * @param res_end Pointer to the end of @p res.
+         */
+        template <unary_kernel_class Kernel>
+        static void
+        adjoint(const Kernel::value_type *inp, Kernel::value_type *d_inp,
+                const Kernel::value_type *res, const Kernel::value_type *d_res,
+                const Kernel::value_type
+                    *res_end) noexcept(un_kernel_noexcept<Kernel>()) {
+            for (; res != res_end; inp++, d_inp++, res++, d_res++) {
+                Kernel::grad(*inp, *d_inp, *res, *d_res);
+            }
+        }
+
+        /**
+         * @brief Accumulates the gradient of Op in @p inp .
+         * @ingroup unary_adjoint_functions
+         * @pre @p res is 0-rank.
+         * @pre Every operand must have the same shape as their gradient.
+         * @tparam Kernel A struct containing a static binary funcion ('Grad').
+         * @param[in] inp Pointer to the start of tensor.
+         * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
+         * @param[in] res Pointer to the start of 0-rank tensor.
+         * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
+         * @param inp_end Pointer to the end of @p inp.
+         */
+        template <unary_kernel_class Kernel>
+        static void adjoint_scalar_res(
+            const Kernel::value_type *inp, Kernel::value_type *d_inp,
+            const Kernel::value_type *res, const Kernel::value_type *d_res,
+            const Kernel::value_type
+                *inp_end) noexcept(un_kernel_noexcept<Kernel>()) {
+            for (; inp != inp_end; inp++, d_inp++) {
+                Kernel::grad(*inp, *d_inp, *res, *d_res);
+            }
+        }
+    };
 };
 
 } // namespace kaad::functions
