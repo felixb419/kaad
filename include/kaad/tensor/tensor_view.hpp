@@ -5,6 +5,7 @@
 #include <iostream>                     // for ostream, ptrdiff_t
 #include <kaad/enums.hpp>               // for MUTABILITY
 #include <kaad/scalar.hpp>              // for Scalar
+#include <kaad/tensor/print_tensor.hpp> // for print_tensor_impl
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Strides, StridesView
 #include <span>                         // for span
 
