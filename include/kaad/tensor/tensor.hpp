@@ -225,18 +225,6 @@ class Tensor {
     /// @return True if elements is empty, false otherwise.
     [[nodiscard]] bool empty() const noexcept;
 
-    /// @return Reference to the first element.
-    [[nodiscard]] reference front() noexcept;
-
-    /// @return Immutable reference to the first element.
-    [[nodiscard]] const_reference front() const noexcept;
-
-    /// @return Reference to the first element.
-    [[nodiscard]] reference back() noexcept;
-
-    /// @return Reference to the last element.
-    [[nodiscard]] const_reference back() const noexcept;
-
     /**
      * @brief Returns a pointer to the underlying contiguous storage.
      * @note If the tensor is logically transposed, the logical indexing
