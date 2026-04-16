@@ -117,14 +117,24 @@ template <MUTABILITY M> class IteratorImpl {
         return old;
     }
 
-    bool operator==(const IteratorImpl &other) const {
-        return (&this->origin_ == &other.origin_) &&
-               std::equal(this->cords_.begin(), this->cords_.end(),
-                          other.cords_.begin());
+    friend bool operator==(const IteratorImpl &lhs, const IteratorImpl &rhs) {
+
+        return
+            // check if shapes are the same
+            (lhs.shape_.data() == rhs.shape_.data() &&
+             lhs.shape_.size() == rhs.shape_.size()) &&
+            // check if strides are the same
+            (lhs.strides_.data() == rhs.strides_.data() &&
+             lhs.strides_.size() == rhs.strides_.size()) &&
+            // check if elements are the same
+            (lhs.elements_.data() == rhs.elements_.data() &&
+             lhs.elements_.size() == rhs.elements_.size()) &&
+            // check if cords are equal
+            std::ranges::equal(lhs.cords_, rhs.cords_);
     }
 
-    bool operator!=(const IteratorImpl &other) const {
-        return !(*this == other);
+    friend bool operator!=(const IteratorImpl &lhs, const IteratorImpl &rhs) {
+        return !(lhs == rhs);
     }
 };
 
