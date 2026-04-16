@@ -1,11 +1,12 @@
 #pragma once
 
-#include <algorithm>                    // for reverse_copy
-#include <cstddef>                      // for size_t
-#include <iostream>                     // for ostream, ptrdiff_t
-#include <kaad/enums.hpp>               // for MUTABILITY
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/print_tensor.hpp> // for print_tensor_impl
+#include <algorithm>                     // for reverse_copy
+#include <cstddef>                       // for size_t
+#include <iostream>                      // for ostream, ptrdiff_t
+#include <kaad/enums.hpp>                // for MUTABILITY
+#include <kaad/scalar.hpp>               // for Scalar
+#include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
+#include <kaad/tensor/print_tensor.hpp>  // for print_tensor_impl
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Strides, StridesView
 #include <span>                         // for span
 
@@ -22,11 +23,11 @@ template <MUTABILITY M> struct TensorView {
     using const_reference = const value_type &;
     using pointer = value_type *;
     using const_pointer = const value_type *;
-
-    using iterator = value_type *;
-    using const_iterator = const value_type *;
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
+
+    using iterator = std::conditional_t<IS_MUT, IteratorImpl<MUTABLE>,
+                                        IteratorImpl<IMMUTABLE>>;
 
     ShapeView shape;     ///< Dimensions of the tensor.
     StridesView strides; ///< Strides of the tensor (steps needed to move
@@ -50,9 +51,63 @@ template <MUTABILITY M> struct TensorView {
                std::span<value_type> elements)
         : shape(shape), strides(strides), elements(elements) {}
 
-    /// @brief Get rank of the tensor.
-    /// @return Length of the shape array.
+    /// @copydoc Tensor::rank
     [[nodiscard]] size_type rank() const { return this->shape.size(); }
+
+    /// @copydoc Tensor::scalar
+    [[nodiscard]] bool scalar() const noexcept { return this->rank() == 0; }
+
+    /// @copydoc Tensor::begin
+    [[nodiscard]] iterator begin() const noexcept {
+
+        static_assert(KAAD_MAX_RANK >= 1);
+        StaticVector<std::size_t> cords(
+            std::max(this->rank(), static_cast<size_type>(1)),
+            StaticVector<std::size_t>::UNCHECKED);
+
+        return iterator(cords, this->shape, this->strides, this->elements);
+    }
+
+    /// @copydoc Tensor::end
+    [[nodiscard]] iterator end() noexcept {
+
+        StaticVector<std::size_t> cords;
+
+        if (this->rank() == 0) {
+
+            static_assert(KAAD_MAX_RANK >= 1);
+            cords.resize(1, StaticVector<std::size_t>::UNCHECKED);
+            cords[0] = 0;
+        } else {
+
+            cords.resize(this->rank(), StaticVector<std::size_t>::UNCHECKED);
+            std::ranges::copy(this->shape, cords.begin());
+
+            // increment every cord but the last, so iterator points one past
+            // end.
+            for (size_type i = 0; i < this->rank() - 1; i++) {
+                cords[i]--;
+            }
+        }
+
+        return iterator(cords, this->shape, this->strides, this->elements);
+    }
+
+    /// @copydoc Tensor::size
+    [[nodiscard]] size_type size() const noexcept {
+        return this->elements.size();
+    }
+
+    /// @copydoc Tensor::empty
+    [[nodiscard]] bool empty() const noexcept { return this->elements.empty(); }
+
+    /// @copydoc Tensor::data
+    [[nodiscard]] pointer data() noexcept { return this->elements.data(); }
+
+    /// @copydoc Tensor::data
+    [[nodiscard]] const_pointer data() const noexcept {
+        return this->elements.data();
+    }
 
     /**
      * @brief Get a transposed copy of the view.

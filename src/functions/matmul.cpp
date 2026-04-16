@@ -1,8 +1,9 @@
 #include <kaad/functions/matmul.hpp>
 
-#include <algorithm>                    // for __copy_fn, copy, max
+#include <algorithm> // for __copy_fn, copy, max
+#include <cstdint>
 #include <kaad/exceptions.hpp>          // for BroadcastError, to_string
-#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, extent
+#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <string>                       // for allocator, char_traits, oper...
 

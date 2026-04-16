@@ -2,6 +2,8 @@
 
 #include <array>   // for array
 #include <cassert> // for assert
+#include <cstdint>
+#include <kaad/enums.hpp>
 #include <kaad/exceptions.hpp>
 #include <kaad/max_rank.hpp> // for KAAD_MAX_RANK
 #include <span>              // for span
@@ -204,6 +206,7 @@ template <typename T> class StaticVector {
     }
 
     friend class Tensor;
+    template <MUTABILITY M> friend struct TensorView;
 };
 
 } // namespace kaad
