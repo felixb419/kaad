@@ -24,8 +24,6 @@ template <MUTABILITY M> class IteratorImpl {
     using iterator_category = std::bidirectional_iterator_tag;
 
   private:
-    const Tensor *origin_;
-
     /// Per-dim coordinates of the current element.
     StaticVector<std::size_t> cords_;
 
@@ -35,13 +33,10 @@ template <MUTABILITY M> class IteratorImpl {
     std::span<value_type> elements_;
 
   public:
-    IteratorImpl(const Tensor *origin, StaticVector<std::size_t> cords,
-                 ShapeView shape, StridesView strides,
-                 std::span<value_type> elements)
-        : origin_(origin), cords_(cords), shape_(shape), strides_(strides),
-          elements_(elements) {}
-
-    const Tensor *origin() { return this->origin_; }
+    IteratorImpl(StaticVector<std::size_t> cords, ShapeView shape,
+                 StridesView strides, std::span<value_type> elements)
+        : cords_(cords), shape_(shape), strides_(strides), elements_(elements) {
+    }
 
     reference operator*() const {
         int idx = 0;

@@ -190,7 +190,7 @@ Tensor::iterator Tensor::begin() noexcept {
         std::max(this->rank(), static_cast<size_type>(1)),
         StaticVector<std::size_t>::UNCHECKED);
 
-    return {this, cords, this->shape_, this->strides_, this->elements()};
+    return {cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::begin() const noexcept {
@@ -199,7 +199,7 @@ Tensor::const_iterator Tensor::begin() const noexcept {
         std::max(this->rank(), static_cast<size_type>(1)),
         StaticVector<std::size_t>::UNCHECKED);
 
-    return {this, cords, this->shape_, this->strides_, this->elements()};
+    return {cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::iterator Tensor::end() noexcept {
@@ -219,7 +219,7 @@ Tensor::iterator Tensor::end() noexcept {
         }
     }
 
-    return {this, cords, this->shape_, this->strides_, this->elements()};
+    return {cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::const_iterator Tensor::end() const noexcept {
@@ -238,7 +238,7 @@ Tensor::const_iterator Tensor::end() const noexcept {
         }
     }
 
-    return {this, cords, this->shape_, this->strides_, this->elements()};
+    return {cords, this->shape_, this->strides_, this->elements()};
 }
 
 Tensor::size_type Tensor::size() const noexcept {
