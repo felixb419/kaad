@@ -1,4 +1,4 @@
-#include <kaad/functions/matmul.hpp>
+#include <kaad/operations/matmul.hpp>
 
 #include <algorithm>                    // for __copy_fn, copy, max
 #include <kaad/exceptions.hpp>          // for BroadcastError, to_string
@@ -8,7 +8,7 @@
 #include <span>                         // for span
 #include <string>                       // for allocator, char_traits, oper...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 Shape broadcast(ShapeView lhs, ShapeView rhs) {
 
@@ -135,4 +135,4 @@ Matmul::BackwardParams::BackwardParams(std::array<INode *, 2> inputs,
     this->wrt_rhs = ForwardParams(lhs_transposed, d_res_view, d_rhs_view);
 }
 
-} // namespace kaad::functions
+} // namespace kaad::operations

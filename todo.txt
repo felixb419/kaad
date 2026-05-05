@@ -5,19 +5,18 @@
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
 
 [REFACTOR]
-(functions) go through and look over all parameter names
+(operations) go through and look over all parameter names
 (tensor)(?) change TensorViewConst to const TensorView
 (tensor)(?) change StaticVector::view_type to be mutable unless const -> replace all Shape, Stride and StaticVector reference arguments
             rename dim to axis
         (?) make concepts CamelCase
-(functions) rename flexible to broadcast
-(functions) rename functions namespace to operations
+(operations) rename flexible to broadcast
 (tensor)    rework iterator ++ and --
 (operators)(?) remove BinaryKernels struct
-            fold functions::DotProduct into functions::Reduce
+            fold operations::DotProduct into operations::Reduce
             remove sum Kernel and use Reduce<Sum> function where it was used
             Check if usages of size_t (maybe another type is better, specifically for indeces)
-(functions)(?) use functions::flexible::broadcast in Matmul::broadcast
+(operations)(?) use operations::flexible::broadcast in Matmul::broadcast
             
             reorder headers
                 1. designate public headers
@@ -27,7 +26,7 @@
                 5. go through public headers and make sure comments are good
 
 [FEAT]
-(functions) operation names in kernels
+(operations) operation names in kernels
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    Tensor::size(size_t i);
             StaticVector::MAX_SIZE
@@ -35,8 +34,8 @@
 
 [PERF]
 (graph)     arena allocation
-(functions) batch_matmul.hpp matmul.hpp [in]/[out] tags (metadata not marked)
-(functions) move end calculation to Params constructor where possible
+(operations) batch_matmul.hpp matmul.hpp [in]/[out] tags (metadata not marked)
+(operations) move end calculation to Params constructor where possible
 
 [DOC]
             Add Pages for:
@@ -54,7 +53,7 @@
         (?) kaadConfig.cmake.in
 
 [LATER]
-(functions) make new functions use std::mdspan as soon as available
+(operations) make operations use std::mdspan as soon as available
 (graph) (?) Add system for inference
 (tensor)    make Tensor variant with compile time shape
 (tensor)(?) combine shape and stride into shape struct

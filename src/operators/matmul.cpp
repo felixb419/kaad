@@ -2,11 +2,11 @@
 
 #include <array>                        // for array
 #include <kaad/exceptions.hpp>          // for BroadcastError, make_graph_e...
-#include <kaad/functions/matmul.hpp>    // for Matmul
 #include <kaad/graph/graph.hpp>         // for Graph, matmul
 #include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/graph/node_handle.hpp>   // for Node
 #include <kaad/graph/operator_node.hpp> // for OperatorNode
+#include <kaad/operations/matmul.hpp>   // for Matmul
 #include <memory>                       // for unique_ptr, make_unique
 #include <string>                       // for basic_string
 #include <vector>                       // for vector
@@ -17,7 +17,7 @@ Node matmul(Graph &rec, Node lhs, Node rhs) {
 
     try {
 
-        rec.nodes.push_back(std::make_unique<OperatorNode<functions::Matmul>>(
+        rec.nodes.push_back(std::make_unique<OperatorNode<operations::Matmul>>(
             std::array{rec.get_node(lhs), rec.get_node(rhs)}));
 
     } catch (BroadcastError &err) {

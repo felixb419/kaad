@@ -1,4 +1,4 @@
-#include <kaad/functions/flexible.hpp>
+#include <kaad/operations/flexible.hpp>
 
 #include <algorithm>                    // for max
 #include <kaad/exceptions.hpp>          // for BroadcastError, to_string
@@ -7,7 +7,7 @@
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
 #include <string>                       // for allocator, char_traits, oper...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 Shape BroadcastPolicy::make_res_shape(std::array<INode *, 2> inputs) {
 
@@ -81,4 +81,4 @@ void BroadcastPolicy::init_strides(std::array<INode *, 2> inputs, INode *result,
     }
 }
 
-} // namespace kaad::functions
+} // namespace kaad::operations

@@ -1,4 +1,4 @@
-#include <kaad/functions/transpose.hpp>
+#include <kaad/operations/transpose.hpp>
 
 #include <algorithm>                    // for __all_of_fn, __sort_fn, adja...
 #include <kaad/exceptions.hpp>          // for ArgumentError, ShapeError
@@ -10,7 +10,7 @@
 #include <ranges>                       // for __adjacent_find_fn
 #include <string>                       // for allocator, char_traits, oper...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 bool contains_duplicates(StaticVector<std::size_t> vals) {
     std::ranges::sort(vals);
@@ -85,4 +85,4 @@ Transpose::dispatch([[maybe_unused]] std::array<INode *, 1> input,
     return {.forward = forward, .backward = backward};
 }
 
-} // namespace kaad::functions
+} // namespace kaad::operations

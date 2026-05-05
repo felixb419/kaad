@@ -1,6 +1,6 @@
-#include "../src/functions/safe_kernels.hpp"
-#include <kaad/functions/kernels.hpp> // for Kernls
-#include <kaad/scalar.hpp>            // for kaad::Scalar
+#include "../src/operations/safe_kernels.hpp"
+#include <kaad/operations/kernels.hpp> // for Kernls
+#include <kaad/scalar.hpp>             // for kaad::Scalar
 
 int main() {
 

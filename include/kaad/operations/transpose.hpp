@@ -9,7 +9,7 @@
 #include <span>                             // for span
 #include <utility>                          // for pair
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 struct Transpose {
 
@@ -67,4 +67,4 @@ struct Transpose {
 
 static_assert(Operation<Transpose>);
 
-} // namespace kaad::functions
+} // namespace kaad::operations

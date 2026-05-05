@@ -1,4 +1,4 @@
-#include <kaad/functions/reduce.hpp>
+#include <kaad/operations/reduce.hpp>
 
 #include <algorithm>                    // for copy, __copy_fn
 #include <kaad/exceptions.hpp>          // for ArgumentError, to_string
@@ -10,7 +10,7 @@
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <string>                       // for allocator, char_traits, oper...
 
-namespace kaad::functions::internal {
+namespace kaad::operations::internal {
 
 Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t dim,
                           bool keep_rank) {
@@ -87,4 +87,4 @@ void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
     relevant_dim_extent = static_cast<Scalar>(input[0]->shape()[relevant_dim]);
 }
 
-} // namespace kaad::functions::internal
+} // namespace kaad::operations::internal

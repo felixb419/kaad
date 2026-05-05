@@ -3,15 +3,15 @@
 #include <array>                            // for array
 #include <concepts>                         // for same_as
 #include <cstddef>                          // for size_t
-#include <kaad/functions/kernels.hpp>       // for bin_kernel_noexcept, bin...
 #include <kaad/graph/inode.hpp>             // for INode
 #include <kaad/graph/operation_concept.hpp> // for Operation
 #include <kaad/max_rank.hpp>                // for KAAD_MAX_RANK
+#include <kaad/operations/kernels.hpp>      // for bin_kernel_noexcept, bin...
 #include <kaad/scalar.hpp>                  // for Scalar
 #include <kaad/tensor/tensor_types.hpp>     // for Strides, Shape
 #include <utility>                          // for index_sequence, make_ind...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 struct BroadcastPolicy {
 
@@ -55,7 +55,8 @@ struct Flexible {
 
         Shape res_shape;
 
-        ForwardParams() = default; ///< Needed because functions::Outer uses it.
+        ForwardParams() =
+            default; ///< Needed because operations::Outer uses it.
 
         ForwardParams(std::array<INode *, 2> inputs, INode *result)
             : lhs_begin(inputs[0]->value().data()),
@@ -192,4 +193,4 @@ struct Flexible {
 
 static_assert(Operation<Flexible<Kernels::Add<Scalar>>>);
 
-} // namespace kaad::functions
+} // namespace kaad::operations

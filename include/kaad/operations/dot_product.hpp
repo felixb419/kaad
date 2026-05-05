@@ -8,7 +8,7 @@
 #include <kaad/scalar.hpp>                  // for Scalar
 #include <kaad/tensor/tensor_types.hpp>     // for Shape
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 struct DotProduct {
 
@@ -74,4 +74,4 @@ struct DotProduct {
 
 static_assert(Operation<DotProduct>);
 
-} // namespace kaad::functions
+} // namespace kaad::operations

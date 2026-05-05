@@ -2,7 +2,7 @@
 
 #include <kaad/graph/operation_concept.hpp>
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 template <class Policy>
 concept reduction_policy = HasOpName<Policy>;
@@ -17,4 +17,4 @@ struct MeanPolicy {
     static constexpr const char *OPERATION_NAME = "mean";
 };
 
-} // namespace kaad::functions
+} // namespace kaad::operations

@@ -1,14 +1,14 @@
 #include <kaad/operators/operators.hpp> // for add, div, max, min, mul
 
-#include "../functions/safe_kernels.hpp"    // for SafeDiv, SafePow
+#include "../operations/safe_kernels.hpp"   // for SafeDiv, SafePow
 #include <array>                            // for array
 #include <kaad/exceptions.hpp>              // for BroadcastError, make_gra...
-#include <kaad/functions/flexible.hpp>      // for Flexible
-#include <kaad/functions/kernels.hpp>       // for Add, Max, Min, Mul, Sub
-#include <kaad/functions/pointwise.hpp>     // for Pointwise
 #include <kaad/graph/graph.hpp>             // for Graph, binary_operator
 #include <kaad/graph/node_handle.hpp>       // for Node
 #include <kaad/graph/operation_concept.hpp> // for Operation
+#include <kaad/operations/flexible.hpp>     // for Flexible
+#include <kaad/operations/kernels.hpp>      // for Add, Max, Min, Mul, Sub
+#include <kaad/operations/pointwise.hpp>    // for Pointwise
 #include <kaad/scalar.hpp>                  // for Scalar
 #include <memory>                           // for make_unique, unique_ptr
 #include <string>                           // for basic_string
@@ -28,9 +28,10 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
     try {
 
         // try pointwise operation
-        rec.nodes.push_back(std::make_unique<
-                            OperatorNode<functions::Pointwise::Binary<Kernel>>>(
-            std::array{lhs_ptr, rhs_ptr}));
+        rec.nodes.push_back(
+            std::make_unique<
+                OperatorNode<operations::Pointwise::Binary<Kernel>>>(
+                std::array{lhs_ptr, rhs_ptr}));
 
     } catch (BroadcastError &) {
 
@@ -38,7 +39,7 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
             // fall back on flexible operation
             rec.nodes.push_back(
-                std::make_unique<OperatorNode<functions::Flexible<Kernel>>>(
+                std::make_unique<OperatorNode<operations::Flexible<Kernel>>>(
                     std::array{lhs_ptr, rhs_ptr}));
 
         } catch (BroadcastError &err) {

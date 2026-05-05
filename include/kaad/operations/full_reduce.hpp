@@ -1,11 +1,11 @@
 #pragma once
 
 #include <cstdint>
-#include <kaad/functions/reduction_policies.hpp>
 #include <kaad/graph/inode.hpp>
 #include <kaad/graph/operation_concept.hpp>
+#include <kaad/operations/reduction_policies.hpp>
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 template <reduction_policy Policy> struct FullReduce {
 
@@ -99,4 +99,4 @@ static_assert(Operation<FullReduceMean>);
 using FullReduceSum = FullReduce<SumPolicy>;
 static_assert(Operation<FullReduceSum>);
 
-} // namespace kaad::functions
+} // namespace kaad::operations

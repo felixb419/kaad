@@ -11,7 +11,7 @@
 #include <span>                             // for span
 #include <utility>                          // for make_index_sequence, ind...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 struct Slice {
 
@@ -153,4 +153,4 @@ struct Slice {
 
 static_assert(Operation<Slice>);
 
-} // namespace kaad::functions
+} // namespace kaad::operations

@@ -1,11 +1,11 @@
-#include <kaad/functions/outer.hpp>
+#include <kaad/operations/outer.hpp>
 
 #include <algorithm>                    // for __copy_fn, copy
 #include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/tensor/tensor_types.hpp> // for Strides, Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 Shape OuterProductPolicy::make_res_shape(std::array<INode *, 2> inputs) {
 
@@ -39,4 +39,4 @@ void OuterProductPolicy::init_strides(std::array<INode *, 2> inputs,
     std::ranges::copy(res.strides, eff_res.begin());
 }
 
-} // namespace kaad::functions
+} // namespace kaad::operations

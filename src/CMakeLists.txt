@@ -1,14 +1,14 @@
 add_library(kaad
     ./exceptions.cpp
-    ./functions/dot_product.cpp
-    ./functions/flexible.cpp
-    ./functions/matmul.cpp
-    ./functions/outer.cpp
-    ./functions/reduce.cpp
-    ./functions/slice.cpp
-    ./functions/transpose.cpp
     ./graph/graph.cpp
     ./graph/node_handle.cpp
+    ./operations/dot_product.cpp
+    ./operations/flexible.cpp
+    ./operations/matmul.cpp
+    ./operations/outer.cpp
+    ./operations/reduce.cpp
+    ./operations/slice.cpp
+    ./operations/transpose.cpp
     ./operators/binary_operators.cpp
     ./operators/dot.cpp
     ./operators/matmul.cpp

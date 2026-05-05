@@ -1,8 +1,8 @@
 #pragma once
 
 #include <array>                        // for array
-#include <kaad/functions/flexible.hpp>  // for Flexible
-#include <kaad/functions/kernels.hpp>   // for Mul
+#include <kaad/operations/flexible.hpp> // for Flexible
+#include <kaad/operations/kernels.hpp>  // for Mul
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for Strides, Shape
 
@@ -10,7 +10,7 @@ namespace kaad {
 class INode;
 }
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 struct OuterProductPolicy {
 
@@ -23,4 +23,4 @@ struct OuterProductPolicy {
 
 using OuterProduct = Flexible<Kernels::Mul<Scalar>, OuterProductPolicy>;
 
-} // namespace kaad::functions
+} // namespace kaad::operations

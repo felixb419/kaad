@@ -1,4 +1,4 @@
-#include <kaad/functions/dot_product.hpp> // for DotProduct
+#include <kaad/operations/dot_product.hpp> // for DotProduct
 
 #include <algorithm>                    // for __equal_fn, equal
 #include <kaad/enums.hpp>               // for ScalarOrder
@@ -8,7 +8,7 @@
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, SCALAR_SHAPE, Shape
 #include <string>                       // for allocator, char_traits, oper...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 Shape DotProduct::make_res_shape(std::array<INode *, 2> inputs) {
 
@@ -122,4 +122,4 @@ DotProduct::Dispatch DotProduct::dispatch(std::array<INode *, 2> inputs,
     return {.forward = forward<NONE_SCALAR>, .backward = backward<NONE_SCALAR>};
 }
 
-} // namespace kaad::functions
+} // namespace kaad::operations

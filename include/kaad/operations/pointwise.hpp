@@ -1,11 +1,11 @@
 #pragma once
 
-#include "kaad/functions/kernels.hpp" // for binary_kernel_class, bin_kerne...
+#include "kaad/operations/kernels.hpp" // for binary_kernel_class, bin_kerne...
 #include <cstdint>
 #include <kaad/enums.hpp>               // for ScalarOrder
 #include <kaad/graph/operator_node.hpp> // for Operation
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 struct Pointwise {
     template <binary_kernel_class Kernel> struct Binary {
@@ -268,4 +268,4 @@ struct Pointwise {
     static_assert(Operation<Unary<Kernels::Log<Scalar>>>);
 };
 
-} // namespace kaad::functions
+} // namespace kaad::operations

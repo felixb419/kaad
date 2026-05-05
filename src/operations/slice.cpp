@@ -1,4 +1,4 @@
-#include <kaad/functions/slice.hpp>
+#include <kaad/operations/slice.hpp>
 
 #include <kaad/exceptions.hpp>          // for ArgumentError, to_string
 #include <kaad/graph/inode.hpp>         // for INode
@@ -7,7 +7,7 @@
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <string>                       // for allocator, char_traits, oper...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView size,
                             StaticVector<std::size_t> start) {
@@ -61,4 +61,4 @@ Slice::ForwardParams::ForwardParams(std::array<INode *, 1> input, INode *result,
     }
 }
 
-} // namespace kaad::functions
+} // namespace kaad::operations

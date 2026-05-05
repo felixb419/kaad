@@ -11,7 +11,7 @@
 #include <kaad/tensor/tensor_view.hpp>      // for TensorViewConst, TensorV...
 #include <utility>                          // for make_index_sequence, ind...
 
-namespace kaad::functions {
+namespace kaad::operations {
 
 /// @internal
 struct Matmul {
@@ -161,4 +161,4 @@ struct Matmul {
 
 static_assert(Operation<Matmul>);
 
-} // namespace kaad::functions
+} // namespace kaad::operations
