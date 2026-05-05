@@ -100,7 +100,8 @@ Node abs(Graph &rec, Node input);
  * @param start The offset of the slice, will be padded with zeros.
  * @return A handle of the new node representing the sliced tensor.
  */
-Node slice(Graph &rec, Node input, Shape size, StaticVector<int> start = {});
+Node slice(Graph &rec, Node input, Shape size,
+           StaticVector<std::size_t> start = {});
 
 /**
  * @brief Adds a unary sum node to the computation graph.
@@ -136,7 +137,7 @@ Node sum(Graph &rec, Node input);
  * @return A handle of the new node representing the tensor after summation
  * along the specified dimension.
  */
-Node sum(Graph &rec, Node input, int dim, bool keep_rank = false);
+Node sum(Graph &rec, Node input, std::size_t dim, bool keep_rank = false);
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -172,7 +173,7 @@ Node mean(Graph &rec, Node input);
  * @return A handle of the new node representing the tensor after mean
  * reduction along the specified dimension.
  */
-Node mean(Graph &rec, Node input, int dim, bool keep_rank = false);
+Node mean(Graph &rec, Node input, std::size_t dim, bool keep_rank = false);
 
 /**
  * @brief Adds a unary transpose node to the computation graph.

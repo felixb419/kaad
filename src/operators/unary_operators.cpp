@@ -1,41 +1,24 @@
 #include <kaad/operators/operators.hpp> // for abs, exp, log, negative, sqrt
 
-#include "../functions/safe_kernels.hpp" // for SafeExp, SafeLog, SafeSqrt
-#include "../graph/nodes/unary.hpp"      // for NodeUnary
-#include <kaad/functions/kernels.hpp>    // for Abs, Neg, Square
-#include <kaad/graph/graph.hpp>          // for Graph, unary_operator
-#include <kaad/graph/node_handle.hpp>    // for Node
-#include <kaad/graph/nodes/inode.hpp>    // for INode
-#include <kaad/scalar.hpp>               // for Scalar
-#include <kaad/tensor/tensor.hpp>        // for Tensor
-#include <memory>                        // for make_unique
-#include <utility>                       // for move
-
-// IWYU pragma: no_forward_declare kaad::NodeUnary
+#include "../functions/safe_kernels.hpp"    // for SafeExp, SafeLog, SafeSqrt
+#include "kaad/graph/operation_concept.hpp" // for Operation
+#include <array>                            // for array
+#include <kaad/functions/kernels.hpp>       // for Abs, Neg, Square
+#include <kaad/functions/pointwise.hpp>     // for Pointwise
+#include <kaad/graph/graph.hpp>             // for Graph, unary_operator
+#include <kaad/graph/node_handle.hpp>       // for Node
+#include <kaad/scalar.hpp>                  // for Scalar
+#include <memory>                           // for make_unique
 
 namespace kaad {
 
-/**
- * @internal
- * @brief Internal helper function not intended for direct user calls.
- *
- * Adds a generalized unary operation node to the computation graph `rec`.
- * Applies the unary operation specified by `kernels` to the input tensor node
- * `input`.
- *
- * @tparam Kernel The kernel providing forward operation and gradient.
- * @param rec Reference to the computation graph.
- * @param input Handle of the input node.
- * @param kernels Unary operation and gradient kernels.
- * @return Handle of the newly created unary operation node.
- */
+template <Operation operation> class OperatorNode;
+
 template <class Kernel> Node unary_operator(Graph &rec, Node input) {
 
-    INode *input_ptr = rec.get_node(input);
-    Tensor &input_val = input_ptr->value();
-
-    rec.nodes.push_back(std::move(
-        std::make_unique<NodeUnary<Kernel>>(input_ptr, input_val.shape())));
+    rec.nodes.push_back(
+        std::make_unique<OperatorNode<functions::Pointwise::Unary<Kernel>>>(
+            std::array{rec.get_node(input)}));
 
     return rec.back_handle();
 }

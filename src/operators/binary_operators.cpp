@@ -1,131 +1,53 @@
-#include <kaad/operators/operators.hpp> // for add, div, max, min, mul, pow
+#include <kaad/operators/operators.hpp> // for add, div, max, min, mul
 
-#include "../functions/safe_kernels.hpp"  // for SafeDiv, SafePow
-#include "../graph/nodes/binary.hpp"      // for NodeBinary
-#include "../graph/nodes/binary_flex.hpp" // for NodeBinaryFlex
-#include <algorithm>                      // for move, equal, max
-#include <cstddef>                        // for size_t
-#include <kaad/enums.hpp>                 // for ScalarOrder
-#include <kaad/exceptions.hpp>            // for BroadcastError, to_string
-#include <kaad/functions/kernels.hpp>     // for Add, Max, Min, Mul, Sub
-#include <kaad/graph/graph.hpp>           // for Graph, binary_operator
-#include <kaad/graph/node_handle.hpp>     // for Node
-#include <kaad/graph/nodes/inode.hpp>     // for INode
-#include <kaad/scalar.hpp>                // for Scalar
-#include <kaad/tensor/tensor.hpp>         // for Tensor
-#include <kaad/tensor/tensor_types.hpp>   // for extent, Shape
-#include <memory>                         // for allocator, make_unique
-#include <string>                         // for char_traits, basic_string
-#include <utility>                        // for move
-#include <vector>                         // for vector
-
-// IWYU pragma: no_forward_declare kaad::NodeBinary
-// IWYU pragma: no_forward_declare kaad::NodeBinaryFlex
+#include "../functions/safe_kernels.hpp"    // for SafeDiv, SafePow
+#include <array>                            // for array
+#include <kaad/exceptions.hpp>              // for BroadcastError, make_gra...
+#include <kaad/functions/flexible.hpp>      // for Flexible
+#include <kaad/functions/kernels.hpp>       // for Add, Max, Min, Mul, Sub
+#include <kaad/functions/pointwise.hpp>     // for Pointwise
+#include <kaad/graph/graph.hpp>             // for Graph, binary_operator
+#include <kaad/graph/node_handle.hpp>       // for Node
+#include <kaad/graph/operation_concept.hpp> // for Operation
+#include <kaad/scalar.hpp>                  // for Scalar
+#include <memory>                           // for make_unique, unique_ptr
+#include <string>                           // for basic_string
+#include <vector>                           // for vector
 
 namespace kaad {
 
-/**
- * @brief Computes the resulting shape from broadcasting two tensors.
- * The broadcasting rules are:
- *   - dimensions must match
- *   - or one of them must be 1
- * @param shape1 Shape of first tensor.
- * @param rank1 Number of dimensions of first tensor.
- * @param shape2 Shape of second tensor.
- * @param rank2 Number of dimensions of second tensor.
- * @param newShape Output array to hold the result shape.
- * @param newLen Total number of dimensions in the result.
- * @return true if broadcasting is possible, false otherwise.
- */
-static inline bool combine_flexible(const extent *shape1, std::size_t rank1,
-                                    const extent *shape2, std::size_t rank2,
-                                    extent *newShape,
-                                    std::size_t newLen) noexcept {
-    int ind = static_cast<int>(newLen) - 1;
-    for (std::size_t i = 1; i <= newLen; i++, ind--) {
-        int ind1 = static_cast<int>(rank1 - i);
-        int ind2 = static_cast<int>(rank2 - i);
-        if (ind1 >= 0 && ind2 >= 0) {
-            if (shape1[ind1] != shape2[ind2] && shape1[ind1] != 1 &&
-                shape2[ind2] != 1) {
-                return false;
-            }
-            newShape[ind] = std::max(shape1[ind1], shape2[ind2]);
-        } else {
-            newShape[ind] = ind1 >= 0 ? shape1[ind1] : shape2[ind2];
-        }
-    }
-    return true;
-}
+class INode;
+template <Operation operation> class OperatorNode;
 
-/**
- * @internal
- * @brief Internal helper function not intended for direct user calls.
- *
- * Adds a generalized binary operation node to the computation graph `rec`.
- * Applies the binary operation specified by `kernels` to the input tensor nodes
- * `lhs` and `rhs`.
- *
- * @tparam Kernel The kernel providing forward operation and gradient.
- *
- * @param rec Reference to the computation graph.
- * @param lhs Handle of the first input node.
- * @param rhs Handle of the second input node.
- * @param kernels Binary operation and gradient kernels.
- * @param opName A string identifier for the operation (used for debugging or
- * logging).
- * @return Handle of the newly created binary operation node.
- */
 template <class Kernel>
 Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
-    std::size_t rec_len = rec.nodes.size();
-
     INode *lhs_ptr = rec.get_node(lhs);
     INode *rhs_ptr = rec.get_node(rhs);
-    Tensor &lhs_val = lhs_ptr->value();
-    Tensor &rhs_val = rhs_ptr->value();
 
-    bool lhs_scalar = lhs_val.size() == 1;
-    bool rhs_scalar = rhs_val.size() == 1;
+    try {
 
-    std::size_t new_len = std::max(lhs_val.rank(), rhs_val.rank());
-    Shape new_shape(new_len);
+        // try pointwise operation
+        rec.nodes.push_back(std::make_unique<
+                            OperatorNode<functions::Pointwise::Binary<Kernel>>>(
+            std::array{lhs_ptr, rhs_ptr}));
 
-    if (rhs_scalar) {
+    } catch (BroadcastError &) {
 
-        rec.nodes.push_back(
-            std::move(std::make_unique<NodeBinary<Kernel, RHS_IS_SCALAR>>(
-                lhs_ptr, rhs_ptr, lhs_val.shape())));
+        try {
 
-    } else if (lhs_scalar) {
+            // fall back on flexible operation
+            rec.nodes.push_back(
+                std::make_unique<OperatorNode<functions::Flexible<Kernel>>>(
+                    std::array{lhs_ptr, rhs_ptr}));
 
-        rec.nodes.push_back(
-            std::move(std::make_unique<NodeBinary<Kernel, LHS_IS_SCALAR>>(
-                lhs_ptr, rhs_ptr, rhs_val.shape())));
+        } catch (BroadcastError &err) {
 
-    } else if (lhs_val.rank() == rhs_val.rank() &&
-               std::equal(lhs_val.shape().begin(), lhs_val.shape().end(),
-                          rhs_val.shape().begin()) &&
-               std::equal(lhs_val.strides().begin(), lhs_val.strides().end(),
-                          rhs_val.strides().begin())) {
+            throw BroadcastError(
+                make_graph_errmsg(rec.nodes.size(), opName, err.what()));
+        }
+    };
 
-        rec.nodes.push_back(std::move(std::make_unique<NodeBinary<Kernel>>(
-            lhs_ptr, rhs_ptr, lhs_val.shape())));
-
-    } else if (combine_flexible(lhs_val.shape().data(), lhs_val.rank(),
-                                rhs_val.shape().data(), rhs_val.rank(),
-                                new_shape.data(), new_len)) {
-        rec.nodes.push_back(std::move(std::make_unique<NodeBinaryFlex<Kernel>>(
-            lhs_ptr, rhs_ptr, new_shape)));
-    } else {
-
-        throw BroadcastError(make_graph_errmsg(
-            rec_len, opName,
-            "incompatible tensor shapes for binary operation, A.shape=" +
-                to_string(lhs_val.shape()) +
-                ", B.shape=" + to_string(rhs_val.shape())));
-    }
     return rec.back_handle();
 }
 
