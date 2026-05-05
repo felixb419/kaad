@@ -13,15 +13,15 @@ int main() {
     // Add input nodes to the graph.
     kaad::Node input_a = rec.add_input_node(kaad::Shape{5});
     std::span<float> a_vals =
-        input_a.value_elements(); // Add input nodes to the graph
+        input_a.value_mut().elements; // Add input nodes to the graph
     std::ranges::fill(a_vals, 10);
 
     kaad::Node input_b = rec.add_input_node(kaad::Shape{5});
-    std::span<float> b_vals = input_b.value_elements();
+    std::span<float> b_vals = input_b.value_mut().elements;
     std::ranges::fill(b_vals, 50);
 
     kaad::Node input_c = rec.add_input_node(kaad::Shape{5});
-    std::span<float> c_vals = input_c.value_elements();
+    std::span<float> c_vals = input_c.value_mut().elements;
     std::ranges::fill(c_vals, 20);
 
     // NOLINTEND(readability-magic-numbers)
