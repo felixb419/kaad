@@ -9,15 +9,6 @@ add_library(kaad
     ./functions/transpose.cpp
     ./graph/graph.cpp
     ./graph/node_handle.cpp
-    ./graph/nodes/dot.cpp
-    ./graph/nodes/inode.cpp
-    ./graph/nodes/matmul.cpp
-    ./graph/nodes/mean.cpp
-    ./graph/nodes/mean_dim.cpp
-    ./graph/nodes/outer.cpp
-    ./graph/nodes/slice.cpp
-    ./graph/nodes/sum_dim.cpp
-    ./graph/nodes/transp.cpp
     ./operators/binary_operators.cpp
     ./operators/dot.cpp
     ./operators/matmul.cpp
