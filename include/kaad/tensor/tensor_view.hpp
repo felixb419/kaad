@@ -59,38 +59,12 @@ template <MUTABILITY M> struct TensorView {
 
     /// @copydoc Tensor::begin
     [[nodiscard]] iterator begin() const noexcept {
-
-        static_assert(KAAD_MAX_RANK >= 1);
-        StaticVector<std::size_t> cords(
-            std::max(this->rank(), static_cast<size_type>(1)),
-            StaticVector<std::size_t>::UNCHECKED);
-
-        return iterator(cords, this->shape, this->strides, this->elements);
+        return {this->shape, this->strides, this->elements, false};
     }
 
     /// @copydoc Tensor::end
     [[nodiscard]] iterator end() noexcept {
-
-        StaticVector<std::size_t> cords;
-
-        if (this->rank() == 0) {
-
-            static_assert(KAAD_MAX_RANK >= 1);
-            cords.resize(1, StaticVector<std::size_t>::UNCHECKED);
-            cords[0] = 0;
-        } else {
-
-            cords.resize(this->rank(), StaticVector<std::size_t>::UNCHECKED);
-            std::ranges::copy(this->shape, cords.begin());
-
-            // increment every cord but the last, so iterator points one past
-            // end.
-            for (size_type i = 0; i < this->rank() - 1; i++) {
-                cords[i]--;
-            }
-        }
-
-        return iterator(cords, this->shape, this->strides, this->elements);
+        return {this->shape, this->strides, this->elements, true};
     }
 
     /// @copydoc Tensor::size

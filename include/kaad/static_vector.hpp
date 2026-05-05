@@ -205,8 +205,8 @@ template <typename T> class StaticVector {
         return {this->elements_.data(), this->elements_.size()};
     }
 
-    friend class Tensor;
     template <MUTABILITY M> friend struct TensorView;
+    template <MUTABILITY M> friend class IteratorImpl;
 };
 
 } // namespace kaad

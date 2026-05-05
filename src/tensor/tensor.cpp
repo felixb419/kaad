@@ -183,60 +183,19 @@ std::span<const Scalar> Tensor::elements() const noexcept {
 bool Tensor::scalar() const noexcept { return this->rank() == 0; }
 
 Tensor::iterator Tensor::begin() noexcept {
-    static_assert(KAAD_MAX_RANK >= 1);
-    StaticVector<std::size_t> cords(
-        std::max(this->rank(), static_cast<size_type>(1)),
-        StaticVector<std::size_t>::UNCHECKED);
-
-    return {cords, this->shape_, this->strides_, this->elements()};
+    return {this->shape_, this->strides_, this->elements_, false};
 }
 
 Tensor::const_iterator Tensor::begin() const noexcept {
-    static_assert(KAAD_MAX_RANK >= 1);
-    StaticVector<std::size_t> cords(
-        std::max(this->rank(), static_cast<size_type>(1)),
-        StaticVector<std::size_t>::UNCHECKED);
-
-    return {cords, this->shape_, this->strides_, this->elements()};
+    return {this->shape_, this->strides_, this->elements_, false};
 }
 
 Tensor::iterator Tensor::end() noexcept {
-
-    StaticVector<std::size_t> cords(this->shape_);
-
-    if (this->rank() == 0) {
-
-        static_assert(KAAD_MAX_RANK >= 1);
-        cords.resize(1, StaticVector<std::size_t>::UNCHECKED);
-        cords[0] = 0;
-    } else {
-
-        // increment every cord but the last, so iterator points one past end.
-        for (size_type i = 0; i < this->rank() - 1; i++) {
-            cords[i]--;
-        }
-    }
-
-    return {cords, this->shape_, this->strides_, this->elements()};
+    return {this->shape_, this->strides_, this->elements_, true};
 }
 
 Tensor::const_iterator Tensor::end() const noexcept {
-    StaticVector<std::size_t> cords(this->shape_);
-
-    if (this->rank() == 0) {
-
-        static_assert(KAAD_MAX_RANK >= 1);
-        cords.resize(1, StaticVector<std::size_t>::UNCHECKED);
-        cords[0] = 0;
-    } else {
-
-        // increment every cord but the last, so iterator points one past end.
-        for (size_type i = 0; i < this->rank() - 1; i++) {
-            cords[i]--;
-        }
-    }
-
-    return {cords, this->shape_, this->strides_, this->elements()};
+    return {this->shape_, this->strides_, this->elements_, true};
 }
 
 Tensor::size_type Tensor::size() const noexcept {

@@ -2,6 +2,7 @@
             add mean dim test
             allow <0> in dispatchers for scalars
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
+            add error when making a node with 0 elements
 
 [REFACTOR]
 (operations) go through and look over all parameter names
@@ -10,7 +11,6 @@
             rename dim to axis
         (?) make concepts CamelCase
 (operations) rename flexible to broadcast
-(tensor)    rework iterator ++ and --
 (operators)(?) remove BinaryKernels struct
             fold operations::DotProduct into operations::Reduce
             remove sum Kernel and use Reduce<Sum> function where it was used

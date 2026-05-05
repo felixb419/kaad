@@ -25,60 +25,87 @@ template <MUTABILITY M> class IteratorImpl {
 
   private:
     /// Per-dim coordinates of the current element.
-    StaticVector<std::size_t> cords_;
+    StaticVector<std::size_t> coords_;
+
+    pointer current_ = nullptr;
+
+    bool is_end_ = false;
 
     ShapeView shape_;
     StridesView strides_;
 
     std::span<value_type> elements_;
 
+    void set_to_begin() {
+
+        std::ranges::fill(this->coords_, 0);
+
+        this->current_ = &this->elements_.front();
+
+        this->is_end_ = false;
+    }
+
+    void set_to_end() {
+
+        std::size_t idx = 0;
+        for (; idx < this->coords_.size(); idx++) {
+            this->coords_[idx] = this->shape_[idx] - 1;
+        }
+
+        this->current_ = &this->elements_.back();
+
+        this->is_end_ = true;
+    }
+
   public:
-    IteratorImpl(StaticVector<std::size_t> cords, ShapeView shape,
-                 StridesView strides, std::span<value_type> elements)
-        : cords_(cords), shape_(shape), strides_(strides), elements_(elements) {
+    /// Constructs an iterator refering to the beginning or the end depending
+    /// on @p is_end.
+    IteratorImpl(ShapeView shape, StridesView strides,
+                 std::span<value_type> elements, bool is_end)
+        : coords_(shape.size(), StaticVector<std::size_t>::UNCHECKED),
+          shape_(shape), strides_(strides), elements_(elements) {
+
+        if (is_end) {
+            this->set_to_end();
+        } else {
+            this->set_to_begin();
+        }
     }
 
     operator IteratorImpl<IMMUTABLE>() {
-        return {this->cords_, this->shape_, this->strides_, this->elements_};
+        return {this->coords_, this->current_, this->is_end_,
+                this->shape_,  this->strides_, this->elements_};
     }
 
-    reference operator*() const {
-        int idx = 0;
-        for (std::size_t i = 0; i < this->shape_.size(); i++) {
-            idx += this->cords_[i] * this->strides_[i];
-        }
-        return this->elements_.data()[idx];
-    }
+    reference operator*() const { return *this->current_; }
 
     IteratorImpl &operator++() {
-        // if tensor is scalar
-        if (this->shape_.empty()) {
-            this->cords_[0] = 1;
+
+        if (this->is_end_) {
             return *this;
         }
 
-        int rank = static_cast<int>(this->shape_.size() - 1);
-
-        this->cords_[rank]++;
-
-        while (this->cords_[rank] >= this->shape_[rank]) {
-
-            this->cords_[rank] = 0;
-            rank--;
-            if (rank >= 0) {
-                this->cords_[rank]++;
-
-            } else {
-                // increment every cord but the last, so iterator points one
-                // past end and return.
-                std::ranges::copy(this->shape_, this->cords_.begin());
-                for (std::size_t i = 0; i < this->shape_.size() - 1; i++) {
-                    this->cords_[i]--;
-                }
-                break;
-            }
+        if (this->shape_.empty()) {
+            this->is_end_ = true;
+            return *this;
         }
 
+        for (int dim = this->shape_.size() - 1; dim >= 0; dim--) {
+
+            this->coords_[dim]++;
+            this->current_ += this->strides_[dim];
+
+            if (this->coords_[dim] < this->shape_[dim]) {
+
+                return *(this);
+            }
+
+            // at end of dimension
+            this->coords_[dim] = 0;
+            this->current_ -= this->shape_[dim] * this->strides_[dim];
+        }
+
+        this->set_to_end();
         return *this;
     }
 
@@ -89,24 +116,32 @@ template <MUTABILITY M> class IteratorImpl {
     }
 
     IteratorImpl &operator--() {
-        int rank = static_cast<int>(this->shape_.size() - 1);
 
-        this->cords_[rank]--;
-
-        while (this->cords_[rank] + 1 == 0) {
-
-            this->cords_[rank] = this->shape_[rank] - 1;
-            if (rank >= 0) {
-                rank--;
-                this->cords_[rank]--;
-
-            } else {
-                // set cords to all 0 and return
-                std::ranges::fill(this->cords_, 0);
-                break;
-            }
+        if (this->is_end_) {
+            this->is_end_ = false;
+            return *this;
         }
 
+        if (this->shape_.empty()) {
+            return *this;
+        }
+
+        for (int dim = this->shape_.size() - 1; dim >= 0; dim--) {
+
+            this->coords_[dim]--;
+            this->current_ -= this->strides_[dim];
+
+            if (this->coords_[dim] >= 0) {
+
+                return *(this);
+            }
+
+            // at end of dimension
+            this->coords_[dim] = this->shape_[dim] - 1;
+            this->current_ += this->shape_[dim] * this->strides_[dim];
+        }
+
+        this->set_to_begin();
         return *this;
     }
 
@@ -128,8 +163,10 @@ template <MUTABILITY M> class IteratorImpl {
             // check if elements are the same
             (lhs.elements_.data() == rhs.elements_.data() &&
              lhs.elements_.size() == rhs.elements_.size()) &&
-            // check if cords are equal
-            std::ranges::equal(lhs.cords_, rhs.cords_);
+            // check if coords are equal
+            std::ranges::equal(lhs.coords_, rhs.coords_) &&
+            // check end flags
+            lhs.is_end_ == rhs.is_end_;
     }
 
     friend bool operator!=(const IteratorImpl &lhs, const IteratorImpl &rhs) {
