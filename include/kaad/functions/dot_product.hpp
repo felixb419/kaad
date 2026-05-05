@@ -1,62 +1,77 @@
 #pragma once
 
-#include <kaad/enums.hpp>               // for ScalarOrder
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Shape
+#include <array>                            // for array
+#include <cstddef>                          // for size_t
+#include <kaad/enums.hpp>                   // for ScalarOrder
+#include <kaad/graph/inode.hpp>             // for INode
+#include <kaad/graph/operation_concept.hpp> // for Operation
+#include <kaad/scalar.hpp>                  // for Scalar
+#include <kaad/tensor/tensor_types.hpp>     // for Shape
 
 namespace kaad::functions {
 
 struct DotProduct {
 
-    /// @brief Checks if @p lhs and @p rhs are compatible for a dot product,
-    /// throws kaad::BroadcastError otherwise.
-    static void broadcast(ShapeView lhs, ShapeView rhs);
+    static constexpr std::size_t ARITY = 2;
 
-    using primal_fn = void (*)(const Scalar *lhs, const Scalar *rhs,
-                               Scalar *res, const Scalar *lhs_end);
+    static constexpr const char *OPERATION_NAME = "dot product";
 
-    /**
-     * @brief Computes the dot product of @p lhs and @p rhs into @p res.
-     * @ingroup binary_primal_functions
-     * @pre @p lhs and @p rhs are rank 0 or 1 (specified by @tp S) and @p res is
-     * rank-0.
-     * @tparam S Indicator of which input is scalar.
-     * @param[in] lhs Pointer to the start of rank-0/1 tensor.
-     * @param[in] rhs Pointer to the start of rank-0/1 tensor
-     * @param[out] res Pointer to rank-0 tensor.
-     * @param end Pointer to the end of the non-scalar input (end of @p lhs if
-     * none are scalar).
-     */
-    template <ScalarOrder S = NONE_SCALAR>
+    /// @note Throws BroadcastError if shapes differ or are not rank-1; scalar
+    /// inputs are broadcast automatically.
+    static Shape make_res_shape(std::array<INode *, 2> inputs);
+
+    struct ForwardParams {
+
+        const Scalar *lhs_begin;
+        const Scalar *rhs_begin;
+        Scalar *res_begin;
+
+        // either lhs_end or rhs_end is used depending on ScalarOrder
+        const Scalar *lhs_end;
+        const Scalar *rhs_end;
+
+        ForwardParams(std::array<INode *, 2> inputs, INode *result)
+            : lhs_begin(inputs[0]->value().data()),
+              rhs_begin(inputs[1]->value().data()),
+              res_begin(result->value_mut().data()),
+              lhs_end(inputs[0]->value().data() + inputs[0]->value().size()),
+              rhs_end(inputs[1]->value().data() + inputs[1]->value().size()) {}
+    };
+
+    using forward_fn = void (*)(const ForwardParams &params);
+
+    template <ScalarOrder S>
         requires(S == NONE_SCALAR || S == LHS_IS_SCALAR || S == RHS_IS_SCALAR)
-    static void primal(const Scalar *lhs, const Scalar *rhs, Scalar *res,
-                       const Scalar *end) noexcept;
+    static void forward(const ForwardParams &params) noexcept;
 
-    using adjoint_fn = void (*)(const Scalar *lhs, Scalar *d_lhs,
-                                const Scalar *rhs, Scalar *d_rhs,
-                                const Scalar *d_res, const Scalar *end);
+    struct BackwardParams : ForwardParams {
 
-    /**
-     * @brief Accumulates the gradient of the dot-product of @p lhs and @p rhs.
-     * @ingroup binary_adjoint_functions
-     * @pre @p lhs and @p rhs are rank 0 or 1 (specified by @tp S) and @p res is
-     * rank-0.
-     * @pre Every operand must have the same shape as their gradient.
-     * @tparam S Indicator of which input is scalar.
-     * @param[in] lhs Pointer to the start of rank-0/1 tensor.
-     * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
-     * @param[in] rhs Pointer to the start of rank-0/1 tensor.
-     * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
-     * @param[in] res Pointer to the start of rank-0 tensor.
-     * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
-     * @param end Pointer to the end of the non-scalar input (end of @p lhs if
-     * none are scalar).
-     */
-    template <ScalarOrder S = NONE_SCALAR>
+        Scalar *d_lhs_begin;
+        Scalar *d_rhs_begin;
+        const Scalar *d_res_begin;
+
+        BackwardParams(std::array<INode *, 2> inputs, INode *result)
+            : ForwardParams(inputs, result),
+              d_lhs_begin(inputs[0]->gradient_mut().data()),
+              d_rhs_begin(inputs[1]->gradient_mut().data()),
+              d_res_begin(result->gradient().data()) {}
+    };
+
+    using backward_fn = void (*)(const BackwardParams &params);
+
+    template <ScalarOrder S>
         requires(S == NONE_SCALAR || S == LHS_IS_SCALAR || S == RHS_IS_SCALAR)
-    static void adjoint(const Scalar *lhs, Scalar *d_lhs, const Scalar *rhs,
-                        Scalar *d_rhs, const Scalar *d_res,
-                        const Scalar *end) noexcept;
+    static void backward(const BackwardParams &params) noexcept;
+
+    struct Dispatch {
+        forward_fn forward;
+        backward_fn backward;
+    };
+
+    static Dispatch dispatch(std::array<INode *, 2> inputs,
+                             [[maybe_unused]] INode *result);
 };
+
+static_assert(Operation<DotProduct>);
 
 } // namespace kaad::functions

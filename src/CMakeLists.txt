@@ -3,6 +3,10 @@ add_library(kaad
     ./functions/dot_product.cpp
     ./functions/flexible.cpp
     ./functions/matmul.cpp
+    ./functions/outer.cpp
+    ./functions/reduce.cpp
+    ./functions/slice.cpp
+    ./functions/transpose.cpp
     ./graph/graph.cpp
     ./graph/node_handle.cpp
     ./graph/nodes/dot.cpp

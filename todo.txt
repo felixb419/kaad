@@ -1,38 +1,33 @@
 [FIX]
+            check if BroadcastError is only used when actual broadcasts are taking place
+            add mean dim test
+            allow <0> in dispatchers for scalars
+            check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
 
 [REFACTOR]
-(functions) go through and unify into struct
-                mean
-                mean_dim
-                pointwise
-                scalar_dot
-                scalar_lhs
-                scalar_out
-                scalar_rhs
-                slice
-                sum_dim
-
+(functions) go through and look over all parameter names
+(tensor)(?) change TensorViewConst to const TensorView
+(tensor)(?) change StaticVector::view_type to be mutable unless const -> replace all Shape, Stride and StaticVector reference arguments
+            rename dim to axis
+        (?) make concepts CamelCase
+(functions) rename flexible to broadcast
+(functions) rename functions namespace to operations
 (tensor)    rework iterator ++ and --
-(operators) move broadcast errors into broadcast function
-(graph)     mark getters as nodiscard in nodes
-(operators) rework slice size_span offset_span code duplication
-(operators)(?) Move shape logic into node constructor
 (operators)(?) remove BinaryKernels struct
-(operators) go through and simplify, also fix comments!
-                binary_operators.cpp
-                dot.cpp
-                matmul.cpp
-                mean.cpp
-                outer.cpp
-                sum.cpp
-                unary_operators.cpp
-
-        (?) switch NodeDot back to Node_binary<dot>
-        (?) switch NodeOuter back to Node_binary_flex<dot>
-        (?) switch to std::format
+            fold functions::DotProduct into functions::Reduce
+            remove sum Kernel and use Reduce<Sum> function where it was used
+            Check if usages of size_t (maybe another type is better, specifically for indeces)
 (functions)(?) use functions::flexible::broadcast in Matmul::broadcast
+            
+            reorder headers
+                1. designate public headers
+                2. move everything to src not needed by them
+                3. put the rest of non public headers in include into internal/
+                4. remove unnecessary from .cpp and internal headers
+                5. go through public headers and make sure comments are good
 
 [FEAT]
+(functions) operation names in kernels
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    Tensor::size(size_t i);
             StaticVector::MAX_SIZE
@@ -41,32 +36,9 @@
 [PERF]
 (graph)     arena allocation
 (functions) batch_matmul.hpp matmul.hpp [in]/[out] tags (metadata not marked)
+(functions) move end calculation to Params constructor where possible
 
 [DOC]
-            Rework comments in:
-                ./include/kaad/tensor/tensor_view.hpp
-                ./include/kaad/graph/graph.hpp
-                ./include/kaad/graph/common.hpp
-                ./include/kaad/graph/node_handle.hpp
-                ./include/kaad/graph/dispatchers.hpp
-                ./include/kaad/graph/nodes/slice.hpp
-                ./include/kaad/graph/nodes/binary_flex.hpp
-                ./include/kaad/graph/nodes/mean.hpp
-                ./include/kaad/graph/nodes/inode.hpp
-                ./include/kaad/graph/nodes/sum_dim.hpp
-                ./include/kaad/graph/nodes/mean_dim.hpp
-                ./include/kaad/graph/nodes/transp.hpp
-                ./include/kaad/graph/nodes/input.hpp
-                ./include/kaad/graph/nodes/unary.hpp
-                ./include/kaad/graph/nodes/dot.hpp
-                ./include/kaad/graph/nodes/outer.hpp
-                ./include/kaad/graph/nodes/binary.hpp
-                ./include/kaad/scalar.hpp
-                ./include/kaad/functions/primal.hpp
-                ./include/kaad/functions/adjoint.hpp
-                ./include/kaad/operators/operators.hpp
-                            add @pre with shape requirements
-                ./include/kaad/kaad.hpp
             Add Pages for:
                 what is backward autodiff
                 what is a computation graph

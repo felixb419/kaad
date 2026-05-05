@@ -1,16 +1,18 @@
 #include <kaad/functions/flexible.hpp>
 
-#include "kaad/exceptions.hpp"          // for BroadcastError, to_string
-#include "kaad/static_vector.hpp"       // for StaticVector
-#include "kaad/tensor/tensor_types.hpp" // for Shape, ShapeView
-#include "kaad/tensor/tensor_view.hpp"  // for TensorView
 #include <algorithm>                    // for max
-#include <kaad/tensor/tensor.hpp>       // for TensorViewConst
+#include <kaad/exceptions.hpp>          // for BroadcastError, to_string
+#include <kaad/graph/inode.hpp>         // for INode
+#include <kaad/tensor/tensor_types.hpp> // for Strides, Shape, ShapeView
+#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
 #include <string>                       // for allocator, char_traits, oper...
 
 namespace kaad::functions {
 
-Shape Flexible::broadcast(ShapeView lhs, ShapeView rhs) {
+Shape BroadcastPolicy::make_res_shape(std::array<INode *, 2> inputs) {
+
+    ShapeView lhs = inputs[0]->shape();
+    ShapeView rhs = inputs[1]->shape();
 
     std::size_t new_rank = std::max(lhs.size(), rhs.size());
 
@@ -49,12 +51,13 @@ Shape Flexible::broadcast(ShapeView lhs, ShapeView rhs) {
     return res;
 }
 
-Flexible::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
-                             TensorViewConst res) {
+void BroadcastPolicy::init_strides(std::array<INode *, 2> inputs, INode *result,
+                                   Strides &eff_lhs, Strides &eff_rhs,
+                                   Strides &eff_res) {
 
-    this->eff_lhs.resize(res.rank());
-    this->eff_rhs.resize(res.rank());
-    this->eff_res.resize(res.rank());
+    TensorViewConst lhs = inputs[0]->value();
+    TensorViewConst rhs = inputs[1]->value();
+    TensorViewMut res = result->value_mut();
 
     std::size_t idx_lhs;
     std::size_t idx_rhs;
@@ -62,25 +65,19 @@ Flexible::Metadata::Metadata(TensorViewConst lhs, TensorViewConst rhs,
     for (std::size_t i = 1; i <= res.rank(); i++) {
 
         idx_res = res.rank() - i;
-        this->eff_res[idx_res] = i <= res.rank() ? res.strides[idx_res] : 0;
+        eff_res[idx_res] = i <= res.rank() ? res.strides[idx_res] : 0;
 
         idx_lhs = lhs.rank() - i;
-        this->eff_lhs[idx_res] = i <= lhs.rank() ? lhs.strides[idx_lhs] : 0;
+        eff_lhs[idx_res] = i <= lhs.rank() ? lhs.strides[idx_lhs] : 0;
 
         idx_rhs = rhs.rank() - i;
-        this->eff_rhs[idx_res] = i <= rhs.rank() ? rhs.strides[idx_rhs] : 0;
+        eff_rhs[idx_res] = i <= rhs.rank() ? rhs.strides[idx_rhs] : 0;
 
         // make sure eff_res[idx] is 1 instead of 0 if
         // res.shape[idx] is 1 for traversing in flexible function
-        if (this->eff_res[idx_res] == 0 && res.shape[idx_res] == 1) {
-            this->eff_res[idx_res] = 1;
+        if (eff_res[idx_res] == 0 && res.shape[idx_res] == 1) {
+            eff_res[idx_res] = 1;
         }
-    }
-
-    this->res_ends.resize(res.rank());
-    for (std::size_t i = 0; i < res.rank(); i++) {
-        this->res_ends[i] =
-            static_cast<std::size_t>(res.shape[i]) * this->eff_res[i];
     }
 }
 

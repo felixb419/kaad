@@ -1,169 +1,195 @@
 #pragma once
 
-#include <array>                        // for array
-#include <cstddef>                      // for size_t
-#include <kaad/functions/kernels.hpp>   // for binary_kernel_class, bin_ker...
-#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
-#include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for Strides, ShapeView, Shape
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
-#include <utility>                      // for index_sequence, make_index_s...
+#include <array>                            // for array
+#include <concepts>                         // for same_as
+#include <cstddef>                          // for size_t
+#include <kaad/functions/kernels.hpp>       // for bin_kernel_noexcept, bin...
+#include <kaad/graph/inode.hpp>             // for INode
+#include <kaad/graph/operation_concept.hpp> // for Operation
+#include <kaad/max_rank.hpp>                // for KAAD_MAX_RANK
+#include <kaad/scalar.hpp>                  // for Scalar
+#include <kaad/tensor/tensor_types.hpp>     // for Strides, Shape
+#include <utility>                          // for index_sequence, make_ind...
 
 namespace kaad::functions {
 
+struct BroadcastPolicy {
+
+    static Shape make_res_shape(std::array<INode *, 2> inputs);
+
+    static void init_strides(std::array<INode *, 2> inputs, INode *result,
+                             Strides &eff_lhs, Strides &eff_rhs,
+                             Strides &eff_res);
+};
+
+template <class Policy>
+concept flexible_policy =
+    requires(std::array<INode *, 2> inputs, INode *result, Strides &eff_lhs,
+             Strides &eff_rhs, Strides &eff_res) {
+        { Policy::make_res_shape(inputs) } -> std::same_as<Shape>;
+
+        Policy::init_strides(inputs, result, eff_lhs, eff_rhs, eff_res);
+    };
+
+template <binary_kernel_class Kernel, flexible_policy Policy = BroadcastPolicy>
 struct Flexible {
 
-    /// @brief Broadcasts @p lhs and @p rhs, will throw BroadcastError if @p lhs
-    /// and @p rhs are not compatible.
-    static Shape broadcast(ShapeView lhs, ShapeView rhs);
+    static constexpr std::size_t ARITY = 2;
 
-    struct Metadata {
+    static constexpr const char *OPERATION_NAME = "binary flexible";
+
+    /// @note Will throw BroadcastError if shapes are incompatible according to
+    /// numpy broadcasting rules.
+    static Shape make_res_shape(std::array<INode *, 2> inputs) {
+        return Policy::make_res_shape(inputs);
+    }
+
+    struct ForwardParams {
+        const Scalar *lhs_begin;
+        const Scalar *rhs_begin;
+        Scalar *res_begin;
 
         Strides eff_lhs; ///< Broadcasted strides for lhs.
         Strides eff_rhs; ///< Broadcasted strides for rhs.
         Strides eff_res; ///< Broadcasted strides for res.
 
-        StaticVector<std::size_t> res_ends;
+        Shape res_shape;
 
-        Metadata() = default;
+        ForwardParams() = default; ///< Needed because functions::Outer uses it.
 
-        Metadata(TensorViewConst lhs, TensorViewConst rhs, TensorViewConst res);
+        ForwardParams(std::array<INode *, 2> inputs, INode *result)
+            : lhs_begin(inputs[0]->value().data()),
+              rhs_begin(inputs[1]->value().data()),
+              res_begin(result->value_mut().data()), eff_lhs(result->rank()),
+              eff_rhs(result->rank()), eff_res(result->rank()),
+              res_shape(result->shape()) {
+
+            Policy::init_strides(inputs, result, this->eff_lhs, this->eff_rhs,
+                                 this->eff_res);
+        }
     };
 
-    template <binary_kernel_class Kernel>
-    using primal_fn = void (*)(const typename Kernel::value_type *lhs,
-                               const typename Kernel::value_type *rhs,
-                               typename Kernel::value_type *res,
-                               Metadata mdata);
-
-    /**
-     * @brief Applies Op to @p lhssand @p rhs.
-     * @ingroup binary_primal_functions
-     * @pre @p res shape is the result of broadcasting @p lhs and @p rhs.
-     * @tparam Kernel A struct containing a static binary function ('Op').
-     * @tparam rank Rank of the out
-     * @param[in] lhs Pointer to the start of tensor.
-     * @param[in] rhs Pointer to the start of tensor.
-     * @param[out] res Pointer to the start of tensor.
-     * @param mdata Metadata needed for traversal.
-     */
-    template <binary_kernel_class Kernel, std::size_t res_rank,
-              std::size_t dim = 0>
+    template <std::size_t res_rank, std::size_t dim = 0>
         requires(res_rank > 0 && dim < res_rank)
-    static void primal(const Kernel::value_type *lhs,
-                       const Kernel::value_type *rhs, Kernel::value_type *res,
-                       Metadata mdata) noexcept(bin_kernel_noexcept<Kernel>()) {
+    static void forward_walk(
+        const ForwardParams &params, std::size_t lhs_offset,
+        std::size_t rhs_offset,
+        std::size_t res_offset) noexcept(bin_kernel_noexcept<Kernel>()) {
 
-        const typename Kernel::value_type *end = res + mdata.res_ends[dim];
-        if constexpr (dim >= res_rank - 1) {
+        for (std::size_t i = 0; i < params.res_shape[dim]; i++) {
 
-            for (; res != end; lhs += mdata.eff_lhs[dim],
-                               rhs += mdata.eff_rhs[dim],
-                               res += mdata.eff_res[dim]) {
+            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[dim]);
+            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[dim]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
 
-                Kernel::op(*lhs, *rhs, *res);
-            }
-        } else {
+            if constexpr (dim >= res_rank - 1) {
 
-            for (; res < end; lhs += mdata.eff_lhs[dim],
-                              rhs += mdata.eff_rhs[dim],
-                              res += mdata.eff_res[dim]) {
+                Kernel::op(params.lhs_begin[LHS_IDX], params.rhs_begin[RHS_IDX],
+                           params.res_begin[RES_IDX]);
 
-                primal<Kernel, res_rank, dim + 1>(lhs, rhs, res, mdata);
+            } else {
+
+                forward_walk<res_rank, dim + 1>(params, LHS_IDX, RHS_IDX,
+                                                RES_IDX);
             }
         }
     }
 
-    template <binary_kernel_class Kernel>
-    using adjoint_fn = void (*)(const typename Kernel::value_type *lhs,
-                                typename Kernel::value_type *d_lhs,
-                                const typename Kernel::value_type *rhs,
-                                typename Kernel::value_type *d_rhs,
-                                const typename Kernel::value_type *res,
-                                const typename Kernel::value_type *d_res,
-                                Metadata mdata);
+    using forward_fn = void (*)(const ForwardParams &params);
 
-    /**
-     * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
-     * @ingroup binary_adjoint_functions
-     * @pre @p res shape is the result of broadcasting @p lhs and @p rhs.
-     * @pre Every operand must have the same shape as their gradient.
-     * @tparam Kernel A struct containing a static binary funcion ('Grad').
-     * @param[in] lhs Pointer to the start of tensor.
-     * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
-     * @param[in] rhs Pointer to the start of tensor.
-     * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
-     * @param[in] res Pointer to the start of tensor.
-     * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
-     * @param strides_lhs Stride array of @p lhs.
-     * @param strides_rhs Stride array of @p rhs.
-     * @param strides_res Stride array of @p res.
-     * @param res_dim_offset Offset to the end of @p res per dimension.
-     */
-    template <binary_kernel_class Kernel, std::size_t res_rank,
-              std::size_t dim = 0>
+    template <std::size_t res_rank>
+        requires(res_rank > 0)
+    static void forward(const ForwardParams &params) noexcept(
+        bin_kernel_noexcept<Kernel>()) {
+
+        forward_walk<res_rank, 0>(params, 0, 0, 0);
+    }
+
+    struct BackwardParams : ForwardParams {
+
+        Scalar *d_lhs_begin;
+        Scalar *d_rhs_begin;
+        const Scalar *d_res_begin;
+
+        BackwardParams(std::array<INode *, 2> inputs, INode *result)
+            : ForwardParams(inputs, result),
+              d_lhs_begin(inputs[0]->gradient_mut().data()),
+              d_rhs_begin(inputs[1]->gradient_mut().data()),
+              d_res_begin(result->gradient().data()) {}
+    };
+
+    template <std::size_t res_rank, std::size_t dim = 0>
         requires(res_rank > 0 && dim < res_rank)
-    static void
-    adjoint(const Kernel::value_type *lhs, Kernel::value_type *d_lhs,
-            const Kernel::value_type *rhs, Kernel::value_type *d_rhs,
-            const Kernel::value_type *res, const Kernel::value_type *d_res,
-            Metadata mdata) noexcept(bin_kernel_noexcept<Kernel>()) {
+    static void backward_walk(
+        const BackwardParams &params, std::size_t lhs_offset,
+        std::size_t rhs_offset,
+        std::size_t res_offset) noexcept(bin_kernel_noexcept<Kernel>()) {
 
-        const typename Kernel::value_type *end = res + mdata.res_ends[dim];
+        for (std::size_t i = 0; i < params.res_shape[dim]; i++) {
 
-        if constexpr (dim >= res_rank - 1) {
+            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[dim]);
+            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[dim]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
 
-            for (; res != end;
-                 lhs += mdata.eff_lhs[dim], rhs += mdata.eff_rhs[dim],
-                 res += mdata.eff_res[dim], d_lhs += mdata.eff_lhs[dim],
-                 d_rhs += mdata.eff_rhs[dim], d_res += mdata.eff_res[dim]) {
+            if constexpr (dim >= res_rank - 1) {
 
-                Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
-            }
-        } else {
+                Kernel::grad(
+                    params.lhs_begin[LHS_IDX], params.d_lhs_begin[LHS_IDX],
+                    params.rhs_begin[RHS_IDX], params.d_rhs_begin[RHS_IDX],
+                    params.res_begin[RES_IDX], params.d_res_begin[RES_IDX]);
 
-            for (; res != end;
-                 lhs += mdata.eff_lhs[dim], rhs += mdata.eff_rhs[dim],
-                 res += mdata.eff_res[dim], d_lhs += mdata.eff_lhs[dim],
-                 d_rhs += mdata.eff_rhs[dim], d_res += mdata.eff_res[dim]) {
+            } else {
 
-                adjoint<Kernel, res_rank, dim + 1>(lhs, d_lhs, rhs, d_rhs, res,
-                                                   d_res, mdata);
+                backward_walk<res_rank, dim + 1>(params, LHS_IDX, RHS_IDX,
+                                                 RES_IDX);
             }
         }
+    }
+
+    using backward_fn = void (*)(const BackwardParams &params);
+
+    template <std::size_t res_rank>
+        requires(res_rank > 0)
+    static void backward(const BackwardParams &params) noexcept(
+        bin_kernel_noexcept<Kernel>()) {
+
+        backward_walk<res_rank, 0>(params, 0, 0, 0);
     }
 
   private:
     // NOLINTBEGIN(readability-named-parameter)
-    template <binary_kernel_class Kernel, std::size_t... Is>
-    static constexpr std::array<primal_fn<Kernel>, sizeof...(Is)>
-    make_primal_dispatch_table(std::index_sequence<Is...>) {
-        // +1 to avoid primal<0>
-        return {&primal<Kernel, Is + 1>...};
+    template <std::size_t... Is>
+    static constexpr std::array<forward_fn, sizeof...(Is)>
+    make_forward_dispatch_table(std::index_sequence<Is...>) {
+        // +1 to avoid forward<0>
+        return {&forward<Is + 1>...};
     }
 
-    template <binary_kernel_class Kernel, std::size_t... Is>
-    static constexpr std::array<adjoint_fn<Kernel>, sizeof...(Is)>
-    make_adjoint_dispatch_table(std::index_sequence<Is...>) {
-        // +1 to avoid primal<0>
-        return {&adjoint<Kernel, Is + 1>...};
+    template <std::size_t... Is>
+    static constexpr std::array<backward_fn, sizeof...(Is)>
+    make_backward_dispatch_table(std::index_sequence<Is...>) {
+        // +1 to avoid forward<0>
+        return {&backward<Is + 1>...};
     }
     // NOLINTEND(readability-named-parameter)
 
   public:
-    template <binary_kernel_class Kernel> struct Dispatch {
-        primal_fn<Kernel> primal;
-        adjoint_fn<Kernel> adjoint;
+    struct Dispatch {
+        forward_fn forward;
+        backward_fn backward;
     };
 
-    template <binary_kernel_class Kernel>
-    static Dispatch<Kernel> dispatch(std::size_t res_rank) {
+    static Dispatch dispatch([[maybe_unused]] std::array<INode *, 2> inputs,
+                             INode *result) {
         // -1 because of +1 in make table function
-        return {.primal = make_primal_dispatch_table<Kernel>(
-                    std::make_index_sequence<KAAD_MAX_RANK>())[res_rank - 1],
-                .adjoint = make_adjoint_dispatch_table<Kernel>(
-                    std::make_index_sequence<KAAD_MAX_RANK>())[res_rank - 1]};
+        return {
+            .forward = make_forward_dispatch_table(
+                std::make_index_sequence<KAAD_MAX_RANK>())[result->rank() - 1],
+            .backward = make_backward_dispatch_table(
+                std::make_index_sequence<KAAD_MAX_RANK>())[result->rank() - 1]};
     }
 };
+
+static_assert(Operation<Flexible<Kernels::Add<Scalar>>>);
 
 } // namespace kaad::functions

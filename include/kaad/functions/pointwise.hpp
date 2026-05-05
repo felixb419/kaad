@@ -1,218 +1,271 @@
 #pragma once
 
 #include "kaad/functions/kernels.hpp" // for binary_kernel_class, bin_kerne...
-#include <kaad/enums.hpp>             // for ScalarOrder
+#include <cstdint>
+#include <kaad/enums.hpp>               // for ScalarOrder
+#include <kaad/graph/operator_node.hpp> // for Operation
 
 namespace kaad::functions {
 
 struct Pointwise {
+    template <binary_kernel_class Kernel> struct Binary {
 
-    struct Binary {
+        static constexpr std::size_t ARITY = 2;
 
-        template <binary_kernel_class Kernel>
-        using primal_fn = void (*)(const typename Kernel::value_type *lhs,
-                                   const typename Kernel::value_type *rhs,
-                                   typename Kernel::value_type *res,
-                                   const typename Kernel::value_type *res_end);
+        static constexpr const char *OPERATION_NAME = "binary pointwise";
 
-        /**
-         * @brief Applies Op to @p lhssand @p rhs.
-         * @ingroup binary_primal_functions
-         * @pre @p lhs and @p rhs have the same shape (or are a scalar if
-         * specified by @tp S).
-         * @tparam Kernel Binary kernel type with a static `op` function.
-         * @tparam S Selects scalar handling: no scalar, left scalar, or right
-         * scalar.
-         * @param[in] lhs Pointer to the start of tensor.
-         * @param[in] rhs Pointer to the start of tensor.
-         * @param[out] res Pointer to the start of tensor.
-         * @param res_end Pointer to the end of @p res.
-         */
-        template <binary_kernel_class Kernel, ScalarOrder S = NONE_SCALAR>
+        /// @note Throws BroadcastError if shapes differ; scalar inputs are
+        /// broadcast automatically.
+        static Shape make_res_shape(std::array<INode *, 2> inputs) {
+
+            ShapeView lhs_shape = inputs[0]->value().shape;
+            ShapeView rhs_shape = inputs[1]->value().shape;
+
+            StridesView lhs_strides = inputs[0]->value().strides;
+            StridesView rhs_strides = inputs[1]->value().strides;
+
+            bool shapes_match = std::ranges::equal(lhs_shape, rhs_shape) &&
+                                std::ranges::equal(lhs_strides, rhs_strides);
+
+            bool lhs_scalar = lhs_shape.empty() ||
+                              (lhs_shape.size() == 1 && lhs_shape[0] == 1);
+            bool rhs_scalar = rhs_shape.empty() ||
+                              (lhs_shape.size() == 1 && lhs_shape[0] == 1);
+
+            if (lhs_scalar) {
+                return rhs_shape;
+            }
+
+            if (rhs_scalar) {
+                return lhs_shape;
+            }
+
+            if (!shapes_match) {
+
+                throw ShapeError("incompatible tensor shapes for " +
+                                 std::string(OPERATION_NAME) + ", lhs.shape()" +
+                                 to_string(lhs_shape) + ", rhs.shape()" +
+                                 to_string(rhs_shape));
+            }
+
+            return lhs_shape;
+        }
+
+        struct ForwardParams {
+
+            const Scalar *lhs_begin;
+            const Scalar *rhs_begin;
+            Scalar *res_begin;
+
+            const Scalar *res_end;
+
+            ForwardParams(std::array<INode *, 2> inputs, INode *result)
+                : lhs_begin(inputs[0]->value().data()),
+                  rhs_begin(inputs[1]->value().data()),
+                  res_begin(result->value_mut().data()),
+                  res_end(result->value().data() + result->value().size()) {}
+        };
+
+        using forward_fn = void (*)(const ForwardParams &params);
+
+        template <ScalarOrder S>
             requires(S == NONE_SCALAR || S == LHS_IS_SCALAR ||
                      S == RHS_IS_SCALAR)
-        static void
-        primal(const Kernel::value_type *lhs, const Kernel::value_type *rhs,
-               Kernel::value_type *res,
-               const Kernel::value_type
-                   *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
+        static void forward(const ForwardParams &params) noexcept(
+            bin_kernel_noexcept<Kernel>()) {
+
+            const Scalar *lhs = params.lhs_begin;
+            const Scalar *rhs = params.rhs_begin;
+            Scalar *res = params.res_begin;
+
             if constexpr (S == NONE_SCALAR) {
 
-                for (; res != res_end; lhs++, rhs++, res++) {
+                for (; res != params.res_end; lhs++, rhs++, res++) {
+
                     Kernel::op(*lhs, *rhs, *res);
                 }
 
             } else if constexpr (S == LHS_IS_SCALAR) {
 
-                for (; res != res_end; rhs++, res++) {
+                for (; res != params.res_end; rhs++, res++) {
+
                     Kernel::op(*lhs, *rhs, *res);
                 }
 
             } else if constexpr (S == RHS_IS_SCALAR) {
 
-                for (; res != res_end; lhs++, res++) {
+                for (; res != params.res_end; lhs++, res++) {
+
                     Kernel::op(*lhs, *rhs, *res);
                 }
             }
         }
 
-        static int test_fn(int par);
+        struct BackwardParams : ForwardParams {
 
-        template <binary_kernel_class Kernel>
-        using adjoint_fn = void (*)(const typename Kernel::value_type *lhs,
-                                    typename Kernel::value_type *d_lhs,
-                                    const typename Kernel::value_type *rhs,
-                                    typename Kernel::value_type *d_rhs,
-                                    const typename Kernel::value_type *res,
-                                    const typename Kernel::value_type *d_res,
-                                    const typename Kernel::value_type *end);
+            Scalar *d_lhs_begin;
+            Scalar *d_rhs_begin;
+            const Scalar *d_res_begin;
 
-        /**
-         * @brief Accumulates the gradient of Op, @p lhs , @p rhs .
-         * @ingroup binary_adjoint_functions
-         * @pre @p lhs, @p rhs and @p res have the same shape (or are a scalar
-         * if specified by @tp S).
-         * @pre Every operand must have the same shape as their gradient.
-         * @tparam Kernel A struct containing a static binary funcion ('Grad').
-         * @tparam S Selects scalar handling: no scalar, left scalar, or right
-         * scalar.
-         * @param[in] lhs Pointer to the start of tensor.
-         * @param[out] d_lhs Pointer to the start of the gradient w.r.t. @p lhs.
-         * @param[in] rhs Pointer to the start of tensor.
-         * @param[out] d_rhs Pointer to the start of the gradient w.r.t. @p rhs.
-         * @param[in] res Pointer to the start of tensor.
-         * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
-         * @param res_end Pointer to the end of @p res.
-         */
-        template <binary_kernel_class Kernel, ScalarOrder S = NONE_SCALAR>
+            BackwardParams() = default;
+
+            BackwardParams(std::array<INode *, 2> inputs, INode *result)
+                : ForwardParams(inputs, result),
+                  d_lhs_begin(inputs[0]->gradient_mut().data()),
+                  d_rhs_begin(inputs[1]->gradient_mut().data()),
+                  d_res_begin(result->gradient().data()) {};
+        };
+
+        using backward_fn = void (*)(const BackwardParams &params);
+
+        template <ScalarOrder S>
             requires(S == NONE_SCALAR || S == LHS_IS_SCALAR ||
                      S == RHS_IS_SCALAR)
-        static void
-        adjoint(const Kernel::value_type *lhs, Kernel::value_type *d_lhs,
-                const Kernel::value_type *rhs, Kernel::value_type *d_rhs,
-                const Kernel::value_type *res, const Kernel::value_type *d_res,
-                const Kernel::value_type
-                    *res_end) noexcept(bin_kernel_noexcept<Kernel>()) {
+        static void backward(const BackwardParams &params) noexcept(
+            bin_kernel_noexcept<Kernel>()) {
+
+            const Scalar *lhs = params.lhs_begin;
+            Scalar *d_lhs = params.d_lhs_begin;
+            const Scalar *rhs = params.rhs_begin;
+            Scalar *d_rhs = params.d_rhs_begin;
+            const Scalar *res = params.res_begin;
+            const Scalar *d_res = params.d_res_begin;
 
             if constexpr (S == NONE_SCALAR) {
 
-                for (; res != res_end;
+                for (; res != params.res_end;
                      lhs++, d_lhs++, rhs++, d_rhs++, res++, d_res++) {
+
                     Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
                 }
 
             } else if constexpr (S == LHS_IS_SCALAR) {
 
-                for (; res != res_end; rhs++, d_rhs++, res++, d_res++) {
+                for (; res != params.res_end; rhs++, d_rhs++, res++, d_res++) {
+
                     Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
                 }
 
             } else if constexpr (S == RHS_IS_SCALAR) {
 
-                for (; res != res_end; lhs++, d_lhs++, res++, d_res++) {
+                for (; res != params.res_end; lhs++, d_lhs++, res++, d_res++) {
+
                     Kernel::grad(*lhs, *d_lhs, *rhs, *d_rhs, *res, *d_res);
                 }
             }
         }
+
+        struct Dispatch {
+            forward_fn forward;
+            backward_fn backward;
+        };
+
+        static Dispatch dispatch(std::array<INode *, 2> inputs,
+                                 [[maybe_unused]] INode *result) {
+
+            bool lhs_scalar = inputs[0]->value().scalar();
+            bool rhs_scalar = inputs[1]->value().scalar();
+
+            if (lhs_scalar) {
+                return {.forward = forward<LHS_IS_SCALAR>,
+                        .backward = backward<LHS_IS_SCALAR>};
+            }
+
+            if (rhs_scalar) {
+                return {.forward = forward<RHS_IS_SCALAR>,
+                        .backward = backward<RHS_IS_SCALAR>};
+            }
+
+            return {.forward = forward<NONE_SCALAR>,
+                    .backward = backward<NONE_SCALAR>};
+        }
     };
 
-    struct Unary {
+    static_assert(Operation<Binary<Kernels::Add<Scalar>>>);
 
-        template <unary_kernel_class Kernel>
-        using primal_fn = void (*)(const typename Kernel::value_type *inp,
-                                   typename Kernel::value_type *res,
-                                   const typename Kernel::value_type *res_end);
+    template <unary_kernel_class Kernel> struct Unary {
 
-        /**
-         * @brief Applies a unary operation to @p inp .
-         * @ingroup unary_primal_functions
-         * @tparam Kernel A struct containing a static unary function ('Op').
-         * @param[in] inp Pointer to the start of tensor.
-         * @param[out] res Pointer to the start of tensor
-         * @param res_end Pointer to the end of @p res.
-         * @param op Instance of the callable class.
-         */
-        template <unary_kernel_class Kernel>
-        void static primal(const Kernel::value_type *inp,
-                           Kernel::value_type *res,
-                           const Kernel::value_type *
-                               res_end) noexcept(un_kernel_noexcept<Kernel>()) {
-            for (; res != res_end; inp++, res++) {
+        static constexpr std::size_t ARITY = 1;
+
+        static constexpr const char *OPERATION_NAME = "uinary pointwise";
+
+        static Shape make_res_shape(std::array<INode *, 1> inputs) {
+            return inputs[0]->value().shape;
+        }
+
+        struct ForwardParams {
+
+            const Scalar *inp_begin;
+            Scalar *res_begin;
+
+            const Scalar *res_end;
+
+            ForwardParams(std::array<INode *, 1> inputs, INode *result)
+                : inp_begin(inputs[0]->value().data()),
+                  res_begin(result->value_mut().data()),
+                  res_end(result->value().data() + result->value().size()) {}
+        };
+
+        using forward_fn = void (*)(const ForwardParams &params);
+
+        void static forward(const ForwardParams &params) noexcept(
+            un_kernel_noexcept<Kernel>()) {
+
+            const Scalar *inp = params.inp_begin;
+            Scalar *res = params.res_begin;
+
+            for (; res != params.res_end; inp++, res++) {
+
                 Kernel::op(*inp, *res);
             }
         }
 
-        /**
-         * @brief Applies a unary operation to @p inp .
-         * @ingroup unary_primal_functions
-         * @tparam Kernel A struct containing a static unary function ('Op').
-         * @param[in] inp Pointer to the start of tensor.
-         * @param[out] res Pointer to rank-0 tensor.
-         * @param inp_end Pointer to the end of @p inp.
-         */
-        template <unary_kernel_class Kernel>
-        void static primal_scalar_res(
-            const Kernel::value_type *inp, Kernel::value_type *res,
-            const Kernel::value_type
-                *inp_end) noexcept(un_kernel_noexcept<Kernel>()) {
-            for (; inp != inp_end; inp++) {
-                Kernel::op(*inp, *res);
-            }
-        }
+        struct BackwardParams {
 
-        template <unary_kernel_class Kernel>
-        using adjoint_fn = void (*)(const typename Kernel::value_type *inp,
-                                    typename Kernel::value_type *d_inp,
-                                    const typename Kernel::value_type *res,
-                                    const typename Kernel::value_type *d_res,
-                                    const typename Kernel::value_type *end);
+            const Scalar *inp_begin;
+            Scalar *d_inp_begin;
 
-        /**
-         * @brief Accumulates the gradient of Op in @p inp .
-         * @ingroup unary_adjoint_functions
-         * @pre @p inp and @p res have the same shape.
-         * @pre Every operand must have the same shape as their gradient.
-         * @tparam Kernel A struct containing a static binary funcion ('Grad').
-         * @param[in] inp Pointer to the start of tensor.
-         * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
-         * @param[in] res Pointer to the start of tensor.
-         * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
-         * @param res_end Pointer to the end of @p res.
-         */
-        template <unary_kernel_class Kernel>
-        static void
-        adjoint(const Kernel::value_type *inp, Kernel::value_type *d_inp,
-                const Kernel::value_type *res, const Kernel::value_type *d_res,
-                const Kernel::value_type
-                    *res_end) noexcept(un_kernel_noexcept<Kernel>()) {
-            for (; res != res_end; inp++, d_inp++, res++, d_res++) {
+            const Scalar *res_begin;
+            const Scalar *d_res_begin;
+
+            const Scalar *res_end;
+
+            BackwardParams(std::array<INode *, 1> inputs, INode *result)
+                : inp_begin(inputs[0]->value().data()),
+                  d_inp_begin(inputs[0]->gradient_mut().data()),
+                  res_begin(result->value().data()),
+                  d_res_begin(result->gradient().data()),
+                  res_end(result->value().data() + result->value().size()) {}
+        };
+
+        using backward_fn = void (*)(const BackwardParams &params);
+
+        static void backward(const BackwardParams &params) noexcept(
+            un_kernel_noexcept<Kernel>()) {
+
+            const Scalar *inp = params.inp_begin;
+            Scalar *d_inp = params.d_inp_begin;
+            const Scalar *res = params.res_begin;
+            const Scalar *d_res = params.d_res_begin;
+
+            for (; res != params.res_end; inp++, d_inp++, res++, d_res++) {
+
                 Kernel::grad(*inp, *d_inp, *res, *d_res);
             }
         }
 
-        /**
-         * @brief Accumulates the gradient of Op in @p inp .
-         * @ingroup unary_adjoint_functions
-         * @pre @p res is 0-rank.
-         * @pre Every operand must have the same shape as their gradient.
-         * @tparam Kernel A struct containing a static binary funcion ('Grad').
-         * @param[in] inp Pointer to the start of tensor.
-         * @param[out] d_inp Pointer to the start of the gradient w.r.t. @p inp.
-         * @param[in] res Pointer to the start of 0-rank tensor.
-         * @param[in] d_res Pointer to the start of the gradient w.r.t. @p res.
-         * @param inp_end Pointer to the end of @p inp.
-         */
-        template <unary_kernel_class Kernel>
-        static void adjoint_scalar_res(
-            const Kernel::value_type *inp, Kernel::value_type *d_inp,
-            const Kernel::value_type *res, const Kernel::value_type *d_res,
-            const Kernel::value_type
-                *inp_end) noexcept(un_kernel_noexcept<Kernel>()) {
-            for (; inp != inp_end; inp++, d_inp++) {
-                Kernel::grad(*inp, *d_inp, *res, *d_res);
-            }
+        struct Dispatch {
+            forward_fn forward;
+            backward_fn backward;
+        };
+
+        static Dispatch dispatch([[maybe_unused]] std::array<INode *, 1> inputs,
+                                 [[maybe_unused]] INode *result) {
+            return {.forward = forward, .backward = backward};
         }
     };
+
+    static_assert(Operation<Unary<Kernels::Log<Scalar>>>);
 };
 
 } // namespace kaad::functions

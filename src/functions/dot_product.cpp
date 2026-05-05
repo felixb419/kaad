@@ -3,13 +3,17 @@
 #include <algorithm>                    // for __equal_fn, equal
 #include <kaad/enums.hpp>               // for ScalarOrder
 #include <kaad/exceptions.hpp>          // for BroadcastError, to_string
+#include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView
+#include <kaad/tensor/tensor_types.hpp> // for ShapeView, SCALAR_SHAPE, Shape
 #include <string>                       // for allocator, char_traits, oper...
 
 namespace kaad::functions {
 
-void DotProduct::broadcast(ShapeView lhs, ShapeView rhs) {
+Shape DotProduct::make_res_shape(std::array<INode *, 2> inputs) {
+
+    ShapeView lhs = inputs[0]->shape();
+    ShapeView rhs = inputs[1]->shape();
 
     bool rank_greater_1 = lhs.size() > 1 || rhs.size() > 1;
     bool different_shapes = !std::ranges::equal(lhs, rhs);
@@ -20,71 +24,102 @@ void DotProduct::broadcast(ShapeView lhs, ShapeView rhs) {
             "incompatible tensor shapes for dot product, A.shape=" +
             to_string(lhs) + ", B.shape=" + to_string(rhs));
     }
+
+    return SCALAR_SHAPE;
 }
 
 template <>
-void DotProduct::primal<NONE_SCALAR>(const Scalar *lhs, const Scalar *rhs,
-                                     Scalar *res, const Scalar *end) noexcept {
+void DotProduct::forward<NONE_SCALAR>(const ForwardParams &params) noexcept {
 
-    for (; lhs != end; lhs++, rhs++) {
-        *res += *lhs * (*rhs);
+    const Scalar *lhs = params.lhs_begin;
+    const Scalar *rhs = params.rhs_begin;
+
+    for (; lhs != params.lhs_end; lhs++, rhs++) {
+
+        *params.res_begin += *lhs * (*rhs);
     }
 }
 
 template <>
-void DotProduct::primal<LHS_IS_SCALAR>(const Scalar *lhs, const Scalar *rhs,
-                                       Scalar *res,
-                                       const Scalar *end) noexcept {
+void DotProduct::forward<LHS_IS_SCALAR>(const ForwardParams &params) noexcept {
 
-    for (; rhs != end; rhs++) {
-        *res += (*rhs) * (*lhs);
+    const Scalar *rhs = params.rhs_begin;
+
+    for (; rhs != params.rhs_end; rhs++) {
+        *params.res_begin += (*rhs) * (*params.lhs_begin);
     }
 }
 
 template <>
-void DotProduct::primal<RHS_IS_SCALAR>(const Scalar *lhs, const Scalar *rhs,
-                                       Scalar *res,
-                                       const Scalar *end) noexcept {
+void DotProduct::forward<RHS_IS_SCALAR>(const ForwardParams &params) noexcept {
 
-    for (; lhs != end; lhs++) {
-        *res += (*lhs) * (*rhs);
+    const Scalar *lhs = params.lhs_begin;
+
+    for (; lhs != params.lhs_end; lhs++) {
+        *params.res_begin += (*lhs) * (*params.rhs_begin);
     }
 }
 
 template <>
-void DotProduct::adjoint<NONE_SCALAR>(const Scalar *lhs, Scalar *d_lhs,
-                                      const Scalar *rhs, Scalar *d_rhs,
-                                      const Scalar *d_res,
-                                      const Scalar *lhs_end) noexcept {
+void DotProduct::backward<NONE_SCALAR>(const BackwardParams &params) noexcept {
 
-    for (; lhs != lhs_end; lhs++, d_lhs++, rhs++, d_rhs++) {
-        *d_lhs += *d_res * (*rhs);
-        *d_rhs += *d_res * (*lhs);
+    const Scalar *lhs = params.lhs_begin;
+    Scalar *d_lhs = params.d_lhs_begin;
+    const Scalar *rhs = params.rhs_begin;
+    Scalar *d_rhs = params.d_rhs_begin;
+
+    for (; lhs != params.lhs_end; lhs++, d_lhs++, rhs++, d_rhs++) {
+
+        *d_lhs += *params.d_res_begin * (*rhs);
+        *d_rhs += *params.d_res_begin * (*lhs);
     }
 }
 
 template <>
-void DotProduct::adjoint<LHS_IS_SCALAR>(const Scalar *lhs, Scalar *d_lhs,
-                                        const Scalar *rhs, Scalar *d_rhs,
-                                        const Scalar *d_res,
-                                        const Scalar *end) noexcept {
+void DotProduct::backward<LHS_IS_SCALAR>(
+    const BackwardParams &params) noexcept {
 
-    for (; rhs != end; rhs++, d_rhs++) {
-        *d_rhs += (*d_res) * (*lhs);
-        *d_lhs += (*d_res) * (*rhs);
+    const Scalar *rhs = params.rhs_begin;
+    Scalar *d_rhs = params.d_rhs_begin;
+
+    for (; rhs != params.rhs_end; rhs++, d_rhs++) {
+
+        *d_rhs += (*params.d_res_begin) * (*params.lhs_begin);
+        *params.d_lhs_begin += (*params.d_res_begin) * (*rhs);
     }
 }
 
 template <>
-void DotProduct::adjoint<RHS_IS_SCALAR>(const Scalar *lhs, Scalar *d_lhs,
-                                        const Scalar *rhs, Scalar *d_rhs,
-                                        const Scalar *d_res,
-                                        const Scalar *end) noexcept {
+void DotProduct::backward<RHS_IS_SCALAR>(
+    const BackwardParams &params) noexcept {
 
-    for (; lhs != end; lhs++, d_lhs++) {
-        *d_rhs += (*d_res) * (*lhs);
-        *d_lhs += (*d_res) * (*rhs);
+    const Scalar *lhs = params.lhs_begin;
+    Scalar *d_lhs = params.d_lhs_begin;
+
+    for (; lhs != params.lhs_end; lhs++, d_lhs++) {
+
+        *params.d_rhs_begin += (*params.d_res_begin) * (*lhs);
+        *d_lhs += (*params.d_res_begin) * (*params.rhs_begin);
     }
+}
+
+DotProduct::Dispatch DotProduct::dispatch(std::array<INode *, 2> inputs,
+                                          [[maybe_unused]] INode *result) {
+
+    bool lhs_scalar = inputs[0]->value().scalar();
+    bool rhs_scalar = inputs[1]->value().scalar();
+
+    if (lhs_scalar) {
+        return {.forward = forward<LHS_IS_SCALAR>,
+                .backward = backward<LHS_IS_SCALAR>};
+    }
+
+    if (rhs_scalar) {
+        return {.forward = forward<RHS_IS_SCALAR>,
+                .backward = backward<RHS_IS_SCALAR>};
+    }
+
+    return {.forward = forward<NONE_SCALAR>, .backward = backward<NONE_SCALAR>};
 }
 
 } // namespace kaad::functions

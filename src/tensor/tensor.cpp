@@ -1,11 +1,9 @@
 #include <kaad/tensor/tensor.hpp>
 
-#include <algorithm>                    // for fill, max
+#include <algorithm>                    // for fill
 #include <iostream>                     // for char_traits, ostream
 #include <kaad/exceptions.hpp>          // for ShapeError
-#include <kaad/max_rank.hpp>            // for KAAD_MAX_RANK
 #include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/print_tensor.hpp> // for print_tensor_impl
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, Strides, StridesView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
