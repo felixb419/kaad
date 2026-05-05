@@ -129,8 +129,8 @@ int main() { // NOLINT(bugprone-exception-escape)
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{5, 2, 5, 10});
-    std::span<float> a_vals = input_a.value_elements();
-    std::iota(a_vals.begin(), a_vals.end(), 250);
+    kaad::TensorViewMut a_view = input_a.value_mut();
+    std::iota(a_view.begin(), a_view.end(), 250);
 
     kaad::Node a_slice = kaad::slice(rec, input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
     // NOLINTEND(readability-magic-numbers)

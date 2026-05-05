@@ -2,10 +2,12 @@
 
 #include <algorithm> // for equal
 #include <concepts>
+#include <cstdint>
 #include <iostream>
 #include <kaad/scalar.hpp>        // for Scalar
 #include <kaad/tensor/tensor.hpp> // for Tensor
 #include <kaad/tensor/tensor_types.hpp>
+#include <kaad/tensor/tensor_view.hpp>
 #include <span> // for span
 
 inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
@@ -20,7 +22,7 @@ inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
     return diff <= abs_tol + (rel_tol * scale);
 }
 
-inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
+inline bool check_tensor(const char *label, kaad::TensorViewConst tensor,
                          kaad::ShapeView shape_correct,
                          std::span<const kaad::Scalar> elements_correct) {
     constexpr bool SCALAR_IS_DOUBLE = std::same_as<kaad::Scalar, double>;
@@ -32,14 +34,19 @@ inline bool check_tensor(const char *label, const kaad::Tensor &tensor,
         return false;
     }
 
+    if (!std::ranges::equal(shape_correct, tensor.shape)) {
+        return false;
+    }
+
     if (!std::equal(shape_correct.begin(), shape_correct.end(),
-                    tensor.shape().data())) {
+                    tensor.shape.data())) {
         return false;
     }
 
     int idx = 0;
     auto tensor_it = tensor.begin();
     auto elements_it = elements_correct.begin();
+
     for (; elements_it != elements_correct.end();
          tensor_it++, elements_it++, idx++) {
         if (!equal_tol(*tensor_it, *elements_it, ABS_TOL, REL_TOL)) {

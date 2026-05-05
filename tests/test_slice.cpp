@@ -13,6 +13,32 @@
 // Tensorflow python code to verify results:
 // clang-format off
 /*
+import tensorflow as tf
+import numpy as np
+from math import prod
+
+
+def get_data(shape, val_start):
+    return np.arange(prod(shape)).reshape(shape).astype(np.float32) + val_start
+
+
+def print_all(label, val, grad):
+    print(label + " shape:", list(val.numpy().shape))
+    print(label + " val:", val.numpy().ravel().tolist())
+    print(label + " grad:", grad.numpy().ravel().tolist())
+
+
+a = tf.Variable(get_data([2, 3, 4, 5], 20))
+
+with tf.GradientTape() as tape:
+    a_t = tf.transpose(a)
+
+    res = tf.slice(a_t, [1, 2, 0, 1], [4, 2, 2, 1])
+
+grad_a, grad_a_t, grad_res = tape.gradient(res, [a, a_t, res])
+
+print_all("a", a, grad_a)
+print_all("res", res, grad_res)
 */
 // clang-format on
 
@@ -53,11 +79,11 @@ int main() { // NOLINT(bugprone-exception-escape)
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{2, 3, 4, 5});
-    std::span<float> a_vals = input_a.value_elements();
-    std::iota(a_vals.begin(), a_vals.end(), 20);
+    kaad::TensorViewMut a_view = input_a.value_mut();
+    std::iota(a_view.begin(), a_view.end(), 20);
 
-    kaad::Node a_t = transpose(rec, input_a);
-    kaad::Node res = slice(rec, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
+    kaad::Node a_t = kaad::transpose(rec, input_a);
+    kaad::Node res = kaad::slice(rec, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
 
     // NOLINTEND(readability-magic-numbers)
 

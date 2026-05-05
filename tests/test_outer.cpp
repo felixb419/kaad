@@ -137,16 +137,16 @@ int main() {
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{4, 2});
-    std::span<float> a_vals = input_a.value_elements();
-    std::iota(a_vals.begin(), a_vals.end(), 20);
+    kaad::TensorViewMut a_view = input_a.value_mut();
+    std::iota(a_view.begin(), a_view.end(), 20);
 
     kaad::Node input_b = rec.add_input_node(kaad::Shape{3, 6});
-    std::span<float> b_vals = input_b.value_elements();
-    std::iota(b_vals.begin(), b_vals.end(), 45);
+    kaad::TensorViewMut b_view = input_b.value_mut();
+    std::iota(b_view.begin(), b_view.end(), 45);
 
     kaad::Node input_c = rec.add_input_node(kaad::Shape{2});
-    std::span<float> c_vals = input_c.value_elements();
-    std::iota(c_vals.begin(), c_vals.end(), 380);
+    kaad::TensorViewMut c_view = input_c.value_mut();
+    std::iota(c_view.begin(), c_view.end(), 380);
 
     kaad::Node prod_ab = outer(rec, input_a, transpose(rec, input_b));
     kaad::Node res = outer(rec, prod_ab, input_c);

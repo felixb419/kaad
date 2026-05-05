@@ -63,8 +63,8 @@ int main() {
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
-    std::span<float> a_vals = input_a.value_elements();
-    std::iota(a_vals.begin(), a_vals.end(), 32);
+    kaad::TensorViewMut a_view = input_a.value_mut();
+    std::iota(a_view.begin(), a_view.end(), 32);
 
     kaad::Node res = transpose(rec, input_a);
 
