@@ -1,13 +1,13 @@
 #include <kaad/graph/graph.hpp>
 
-#include "nodes/input.hpp"              // for NodeInput
-#include <algorithm>                    // for fill
+#include "input_node.hpp"               // for InputNode
+#include <algorithm>                    // for __fill_fn, fill
 #include <cstddef>                      // for size_t
 #include <kaad/exceptions.hpp>          // for ArgumentError
+#include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/graph/node_handle.hpp>   // for Node
-#include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/tensor/tensor.hpp>       // for Tensor
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView
+#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorView
 #include <memory>                       // for unique_ptr, make_unique
 #include <string>                       // for basic_string, operator+, to_...
 #include <vector>                       // for vector
@@ -30,20 +30,20 @@ INode *Graph::get_node(Node node) {
     return this->nodes[node.idx_].get();
 }
 
-Node Graph::add_input_node(ShapeView value_shape, const char *label) {
-    this->nodes.push_back(std::make_unique<NodeInput>(value_shape, label));
+Node Graph::add_input_node(ShapeView value_shape) {
+    this->nodes.push_back(std::make_unique<InputNode>(value_shape));
 
     return Node(this->nodes.size() - 1, this);
 }
 
-std::vector<const Tensor *> Graph::evaluate(std::span<const Node> nodes) {
+std::vector<TensorViewConst> Graph::evaluate(std::span<const Node> nodes) {
 
-    std::vector<const Tensor *> values(nodes.size());
+    std::vector<TensorViewConst> values(nodes.size());
 
     for (std::size_t i = 0; i < nodes.size(); i++) {
         INode *node_ptr = this->get_node(nodes[i]);
-        node_ptr->eval();
-        values[i] = &node_ptr->value();
+        node_ptr->evaluate();
+        values[i] = node_ptr->value();
     }
 
     return values;
@@ -55,19 +55,18 @@ void Graph::reset() {
     }
 }
 
-std::vector<const Tensor *> Graph::get_gradient(Node output,
-                                                std::span<const Node> inputs) {
+std::vector<TensorViewConst> Graph::get_gradient(Node output,
+                                                 std::span<const Node> inputs) {
 
     INode *output_node = this->get_node(output);
-    std::fill(output_node->gradient().elements_.begin(),
-              output_node->gradient().elements_.end(), 1.0);
+    std::ranges::fill(output_node->gradient_mut().elements, 1.0);
 
-    output_node->get_grad();
+    output_node->acc_input_gradients();
 
-    std::vector<const Tensor *> partials(inputs.size());
+    std::vector<TensorViewConst> partials(inputs.size());
 
     for (std::size_t i = 0; i < inputs.size(); i++) {
-        partials[i] = &this->get_node(inputs[i])->gradient();
+        partials[i] = this->get_node(inputs[i])->gradient();
     }
 
     return partials;

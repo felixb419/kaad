@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstddef>                      // for size_t
-#include <kaad/graph/nodes/inode.hpp>   // for INode
-#include <kaad/tensor/tensor.hpp>       // for Tensor
+#include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView
+#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <memory>                       // for unique_ptr
 #include <span>                         // for span
 #include <vector>                       // for vector
@@ -48,11 +48,9 @@ class Graph {
      * stores the node as a std::unique_ptr in the `nodes` container.
      *
      * @param value_shape Shape of the tensor of the input node.
-     * @param label Label string for the node.
      * @return A handle of the newly created InputNode.
      */
-    [[nodiscard]] Node add_input_node(ShapeView value_shape,
-                                      const char *label = "");
+    [[nodiscard]] Node add_input_node(ShapeView value_shape);
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.
@@ -66,10 +64,10 @@ class Graph {
      * types.
      *
      * @param nodes A list of handles of nodes to be evaluated.
-     * @return An array of Tensor* pointers, each corresponding to the value
+     * @return An array of tensor views, each corresponding to the value
      * of the evaluated node.
      */
-    std::vector<const Tensor *> evaluate(std::span<const Node> nodes);
+    std::vector<TensorViewConst> evaluate(std::span<const Node> nodes);
 
     /**
      * @brief Computes gradients of the computation graph with respect to the
@@ -88,11 +86,11 @@ class Graph {
      * to which gradients are computed.
      * @param wrt A list of input node handles for which the gradients are
      * requested.
-     * @return An array of Tensor* pointers representing the gradients df/dx
-     * for each input node.
+     * @return An array of tensor views pointers representing the gradients
+     * df/dx for each input node.
      */
-    std::vector<const Tensor *> get_gradient(Node output,
-                                             std::span<const Node> inputs);
+    std::vector<TensorViewConst> get_gradient(Node output,
+                                              std::span<const Node> inputs);
 
     /**
      * @brief Resets all node values and gradients in the computation graph.
@@ -111,12 +109,12 @@ class Graph {
     friend Node dot(Graph &rec, Node lhs, Node rhs);
     friend Node matmul(Graph &rec, Node lhs, Node rhs);
     friend Node mean(Graph &rec, Node input);
-    friend Node mean(Graph &rec, Node input, int dim, bool keep_rank);
+    friend Node mean(Graph &rec, Node input, std::size_t dim, bool keep_rank);
     friend Node outer(Graph &rec, Node lhs, Node rhs);
     friend Node slice(Graph &rec, Node input, Shape size,
-                      StaticVector<int> start);
+                      StaticVector<std::size_t> start);
     friend Node sum(Graph &rec, Node input);
-    friend Node sum(Graph &rec, Node input, int dim, bool keep_rank);
+    friend Node sum(Graph &rec, Node input, std::size_t dim, bool keep_rank);
     friend Node transpose(Graph &rec, Node input,
                           StaticVector<std::size_t> perm);
     template <class Kernel> friend Node unary_operator(Graph &rec, Node input);
