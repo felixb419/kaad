@@ -1,12 +1,9 @@
 [FIX]
-            add mean dim test
             allow <0> in dispatchers for scalars
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
             add error when making a node with 0 elements
 
 [REFACTOR]
-(operations) go through and look over all parameter names
-(tensor)(?) change TensorViewConst to const TensorView
 (tensor)(?) change StaticVector::view_type to be mutable unless const -> replace all Shape, Stride and StaticVector reference arguments
             rename dim to axis
         (?) make concepts CamelCase
@@ -33,8 +30,6 @@
 
 [PERF]
 (graph)     arena allocation
-(operations) batch_matmul.hpp matmul.hpp [in]/[out] tags (metadata not marked)
-(operations) move end calculation to Params constructor where possible
 
 [DOC]
             Add Pages for:

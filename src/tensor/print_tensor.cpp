@@ -52,7 +52,7 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
 void print_tensor_impl(std::ostream &stream, ShapeView shape,
                        StridesView strides, std::span<const Scalar> elements) {
 
-    stream << "shape: (";
+    stream << "shape=(";
     if (!shape.empty()) {
 
         stream << shape[0];
@@ -60,9 +60,7 @@ void print_tensor_impl(std::ostream &stream, ShapeView shape,
             stream << ", " << shape[i];
         }
     }
-    stream << ")\n";
-
-    stream << "elements: ";
+    stream << "),\nelements=";
 
     if (elements.empty()) {
         stream << "[]";
