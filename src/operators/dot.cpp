@@ -1,7 +1,7 @@
 #include <kaad/operators/operators.hpp> // for dot
 
 #include <array>                           // for array
-#include <kaad/exceptions.hpp>             // for BroadcastError, make_graph...
+#include <kaad/exceptions.hpp>             // for ShapeError, make_graph...
 #include <kaad/graph/graph.hpp>            // for Graph, dot
 #include <kaad/graph/inode.hpp>            // for INode
 #include <kaad/graph/node_handle.hpp>      // for Node
@@ -21,9 +21,9 @@ Node dot(Graph &rec, Node lhs, Node rhs) {
             std::make_unique<OperatorNode<operations::DotProduct>>(
                 std::array{rec.get_node(lhs), rec.get_node(rhs)}));
 
-    } catch (BroadcastError &err) {
+    } catch (ShapeError &err) {
 
-        throw BroadcastError(
+        throw ShapeError(
             make_graph_errmsg(rec.nodes.size(), "dot", err.what()));
     }
 

@@ -14,7 +14,7 @@ struct Pointwise {
 
         static constexpr const char *OPERATION_NAME = "binary pointwise";
 
-        /// @note Throws BroadcastError if shapes differ; scalar inputs are
+        /// @note Throws ShapeError if shapes differ; scalar inputs are
         /// broadcast automatically.
         static Shape make_res_shape(std::array<INode *, 2> inputs) {
 

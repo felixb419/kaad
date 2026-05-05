@@ -2,7 +2,7 @@
 
 #include <algorithm>                    // for __equal_fn, equal
 #include <kaad/enums.hpp>               // for ScalarOrder
-#include <kaad/exceptions.hpp>          // for BroadcastError, to_string
+#include <kaad/exceptions.hpp>          // for ShapeError, to_string
 #include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for ShapeView, SCALAR_SHAPE, Shape
@@ -20,7 +20,7 @@ Shape DotProduct::make_res_shape(std::array<INode *, 2> inputs) {
     bool none_scalar = !lhs.empty() && !rhs.empty();
 
     if (rank_greater_1 || (none_scalar && different_shapes)) {
-        throw BroadcastError(
+        throw ShapeError(
             "incompatible tensor shapes for dot product, A.shape=" +
             to_string(lhs) + ", B.shape=" + to_string(rhs));
     }

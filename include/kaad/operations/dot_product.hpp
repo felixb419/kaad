@@ -16,7 +16,7 @@ struct DotProduct {
 
     static constexpr const char *OPERATION_NAME = "dot product";
 
-    /// @note Throws BroadcastError if shapes differ or are not rank-1; scalar
+    /// @note Throws ShapeError if shapes differ or are not rank-1; scalar
     /// inputs are broadcast automatically.
     static Shape make_res_shape(std::array<INode *, 2> inputs);
 

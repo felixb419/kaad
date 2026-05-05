@@ -33,7 +33,7 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
                 OperatorNode<operations::Pointwise::Binary<Kernel>>>(
                 std::array{lhs_ptr, rhs_ptr}));
 
-    } catch (BroadcastError &) {
+    } catch (ShapeError &) {
 
         try {
 

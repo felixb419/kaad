@@ -1,5 +1,4 @@
 [FIX]
-            check if BroadcastError is only used when actual broadcasts are taking place
             add mean dim test
             allow <0> in dispatchers for scalars
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
