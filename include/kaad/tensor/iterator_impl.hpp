@@ -38,6 +38,10 @@ template <MUTABILITY M> class IteratorImpl {
         : cords_(cords), shape_(shape), strides_(strides), elements_(elements) {
     }
 
+    operator IteratorImpl<IMMUTABLE>() {
+        return {this->cords_, this->shape_, this->strides_, this->elements_};
+    }
+
     reference operator*() const {
         int idx = 0;
         for (std::size_t i = 0; i < this->shape_.size(); i++) {
