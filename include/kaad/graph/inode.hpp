@@ -12,12 +12,12 @@ class INode {
     Tensor value_;
     Tensor gradient_;
 
-    INode(ShapeView shape)
-        : value_(Tensor::zeros(shape)), gradient_(Tensor::zeros(shape)) {}
-
     INode(std::pair<ShapeView, StridesView> shape_pair)
         : value_(shape_pair.first, shape_pair.second),
           gradient_(shape_pair.first, shape_pair.second) {}
+
+    INode(ShapeView shape)
+        : INode(std::pair{shape, Tensor::compute_strides(shape)}) {}
 
   public:
     virtual ~INode() = default;
