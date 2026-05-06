@@ -14,7 +14,16 @@ class INode {
 
     INode(std::pair<ShapeView, StridesView> shape_pair)
         : value_(shape_pair.first, shape_pair.second),
-          gradient_(shape_pair.first, shape_pair.second) {}
+          gradient_(shape_pair.first, shape_pair.second) {
+
+        if (this->value_.empty()) {
+            throw CapacityError(
+                "a tensor with no elements is not valid for a node, "
+                "value_.size()=" +
+                std::to_string(this->value_.size()) +
+                ", value_.shape()=" + to_string(this->value_.shape()));
+        }
+    }
 
     INode(ShapeView shape)
         : INode(std::pair{shape, Tensor::compute_strides(shape)}) {}

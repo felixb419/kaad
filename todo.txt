@@ -1,6 +1,5 @@
 [FIX]
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
-            add error when making a node with 0 elements
 
 [REFACTOR]
             rename dim to axis
