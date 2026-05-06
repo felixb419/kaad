@@ -27,7 +27,7 @@ void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
 
 } // namespace internal
 
-template <reduction_policy Policy> struct Reduce {
+template <ReductionPolicy Policy> struct Reduce {
 
     static constexpr std::size_t ARITY = 1;
 

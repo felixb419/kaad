@@ -1,6 +1,6 @@
 #pragma once
 
-#include "kaad/operations/kernels.hpp" // for binary_kernel_class, bin_kerne...
+#include "kaad/operations/kernels.hpp" // for BinaryKernel, bin_kerne...
 #include <cstdint>
 #include <kaad/enums.hpp>               // for ScalarOrder
 #include <kaad/graph/operator_node.hpp> // for Operation
@@ -8,7 +8,7 @@
 namespace kaad::operations {
 
 struct Pointwise {
-    template <binary_kernel_class Kernel> struct Binary {
+    template <BinaryKernel Kernel> struct Binary {
 
         static constexpr std::size_t ARITY = 2;
 
@@ -183,7 +183,7 @@ struct Pointwise {
 
     static_assert(Operation<Binary<Kernels::Add<Scalar>>>);
 
-    template <unary_kernel_class Kernel> struct Unary {
+    template <UnaryKernel Kernel> struct Unary {
 
         static constexpr std::size_t ARITY = 1;
 

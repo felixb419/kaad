@@ -5,7 +5,7 @@
 namespace kaad::operations {
 
 template <class Policy>
-concept reduction_policy = HasOpName<Policy>;
+concept ReductionPolicy = HasOpName<Policy>;
 
 struct SumPolicy {
 

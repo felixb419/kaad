@@ -21,24 +21,23 @@
  * @ingroup binary_kernels
  */
 template <class Kernel>
-concept binary_kernel_class =
-    requires { typename Kernel::value_type; } && requires {
-        {
-            Kernel::op(std::declval<const typename Kernel::value_type &>(),
-                       std::declval<const typename Kernel::value_type &>(),
-                       std::declval<typename Kernel::value_type &>())
-        } -> std::same_as<void>;
-        {
-            Kernel::grad(std::declval<const typename Kernel::value_type &>(),
-                         std::declval<typename Kernel::value_type &>(),
-                         std::declval<const typename Kernel::value_type &>(),
-                         std::declval<typename Kernel::value_type &>(),
-                         std::declval<const typename Kernel::value_type &>(),
-                         std::declval<const typename Kernel::value_type &>())
-        } -> std::same_as<void>;
-    };
+concept BinaryKernel = requires { typename Kernel::value_type; } && requires {
+    {
+        Kernel::op(std::declval<const typename Kernel::value_type &>(),
+                   std::declval<const typename Kernel::value_type &>(),
+                   std::declval<typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+    {
+        Kernel::grad(std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+};
 
-template <binary_kernel_class Kernel> constexpr bool bin_kernel_noexcept() {
+template <BinaryKernel Kernel> constexpr bool bin_kernel_noexcept() {
     return noexcept(
                Kernel::op(std::declval<const typename Kernel::value_type &>(),
                           std::declval<const typename Kernel::value_type &>(),
@@ -60,21 +59,20 @@ template <binary_kernel_class Kernel> constexpr bool bin_kernel_noexcept() {
  * value_type&);
  */
 template <class Kernel>
-concept unary_kernel_class =
-    requires { typename Kernel::value_type; } && requires {
-        {
-            Kernel::op(std::declval<const typename Kernel::value_type &>(),
-                       std::declval<typename Kernel::value_type &>())
-        } -> std::same_as<void>;
-        {
-            Kernel::grad(std::declval<const typename Kernel::value_type &>(),
-                         std::declval<typename Kernel::value_type &>(),
-                         std::declval<const typename Kernel::value_type &>(),
-                         std::declval<const typename Kernel::value_type &>())
-        } -> std::same_as<void>;
-    };
+concept UnaryKernel = requires { typename Kernel::value_type; } && requires {
+    {
+        Kernel::op(std::declval<const typename Kernel::value_type &>(),
+                   std::declval<typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+    {
+        Kernel::grad(std::declval<const typename Kernel::value_type &>(),
+                     std::declval<typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>(),
+                     std::declval<const typename Kernel::value_type &>())
+    } -> std::same_as<void>;
+};
 
-template <unary_kernel_class Kernel> constexpr bool un_kernel_noexcept() {
+template <UnaryKernel Kernel> constexpr bool un_kernel_noexcept() {
     return noexcept(Kernel::grad(
                std::declval<const typename Kernel::value_type &>(),
                std::declval<typename Kernel::value_type &>(),

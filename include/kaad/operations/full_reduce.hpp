@@ -7,7 +7,7 @@
 
 namespace kaad::operations {
 
-template <reduction_policy Policy> struct FullReduce {
+template <ReductionPolicy Policy> struct FullReduce {
 
     static constexpr std::size_t ARITY = 1;
 

@@ -3,7 +3,6 @@
 
 [REFACTOR]
             rename dim to axis
-        (?) make concepts CamelCase
 (operations) rename flexible to broadcast
 (operators)(?) remove BinaryKernels struct
             fold operations::DotProduct into operations::Reduce

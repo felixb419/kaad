@@ -23,7 +23,7 @@ struct BroadcastPolicy {
 };
 
 template <class Policy>
-concept flexible_policy =
+concept FlexiblePolicy =
     requires(std::array<INode *, 2> inputs, INode *result, Strides &eff_lhs,
              Strides &eff_rhs, Strides &eff_res) {
         { Policy::make_res_shape(inputs) } -> std::same_as<Shape>;
@@ -31,7 +31,7 @@ concept flexible_policy =
         Policy::init_strides(inputs, result, eff_lhs, eff_rhs, eff_res);
     };
 
-template <binary_kernel_class Kernel, flexible_policy Policy = BroadcastPolicy>
+template <BinaryKernel Kernel, FlexiblePolicy Policy = BroadcastPolicy>
 struct Flexible {
 
     static constexpr std::size_t ARITY = 2;
