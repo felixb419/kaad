@@ -21,6 +21,6 @@ struct OuterProductPolicy {
                              Strides &eff_res);
 };
 
-using OuterProduct = Strided<Kernels::Mul<Scalar>, OuterProductPolicy>;
+using OuterProduct = Strided<kernels::Mul<Scalar>, OuterProductPolicy>;
 
 } // namespace kaad::operations

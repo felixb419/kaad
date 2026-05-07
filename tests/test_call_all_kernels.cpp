@@ -4,34 +4,34 @@
 
 int main() {
 
-    kaad::Kernels::Add<kaad::Scalar> add_kernel;
-    kaad::Kernels::Sub<kaad::Scalar> sub_kernel;
-    kaad::Kernels::Mul<kaad::Scalar> mul_kernel;
-    kaad::Kernels::Div<kaad::Scalar> div_kernel;
-    kaad::Kernels::Pow<kaad::Scalar> pow_kernel;
-    kaad::Kernels::Dot<kaad::Scalar> dot_kernel;
-    kaad::Kernels::Min<kaad::Scalar> min_kernel;
-    kaad::Kernels::Max<kaad::Scalar> max_kernel;
-    kaad::Kernels::NoOp<kaad::Scalar> noop_kernel;
-    kaad::Kernels::Neg<kaad::Scalar> neg_kernel;
-    kaad::Kernels::Square<kaad::Scalar> square_kernel;
-    kaad::Kernels::Sqrt<kaad::Scalar> sqrt_kernel;
-    kaad::Kernels::Log<kaad::Scalar> log_kernel;
-    kaad::Kernels::Exp<kaad::Scalar> exp_kernel;
-    kaad::Kernels::Abs<kaad::Scalar> abs_kernel;
+    kaad::operations::kernels::Add<kaad::Scalar> add_kernel;
+    kaad::operations::kernels::Sub<kaad::Scalar> sub_kernel;
+    kaad::operations::kernels::Mul<kaad::Scalar> mul_kernel;
+    kaad::operations::kernels::Div<kaad::Scalar> div_kernel;
+    kaad::operations::kernels::Pow<kaad::Scalar> pow_kernel;
+    kaad::operations::kernels::Dot<kaad::Scalar> dot_kernel;
+    kaad::operations::kernels::Min<kaad::Scalar> min_kernel;
+    kaad::operations::kernels::Max<kaad::Scalar> max_kernel;
+    kaad::operations::kernels::NoOp<kaad::Scalar> noop_kernel;
+    kaad::operations::kernels::Neg<kaad::Scalar> neg_kernel;
+    kaad::operations::kernels::Square<kaad::Scalar> square_kernel;
+    kaad::operations::kernels::Sqrt<kaad::Scalar> sqrt_kernel;
+    kaad::operations::kernels::Log<kaad::Scalar> log_kernel;
+    kaad::operations::kernels::Exp<kaad::Scalar> exp_kernel;
+    kaad::operations::kernels::Abs<kaad::Scalar> abs_kernel;
 
-    kaad::Kernels::SafeDiv<kaad::Scalar> safe_div_kernel;
-    kaad::Kernels::SafePow<kaad::Scalar> safe_pow_kernel;
-    kaad::Kernels::SafeSqrt<kaad::Scalar> safe_sqrt_kernel;
-    kaad::Kernels::SafeLog<kaad::Scalar> safe_log_kernel;
-    kaad::Kernels::SafeExp<kaad::Scalar> safe_exp_kernel;
+    kaad::operations::kernels::SafeDiv<kaad::Scalar> safe_div_kernel;
+    kaad::operations::kernels::SafePow<kaad::Scalar> safe_pow_kernel;
+    kaad::operations::kernels::SafeSqrt<kaad::Scalar> safe_sqrt_kernel;
+    kaad::operations::kernels::SafeLog<kaad::Scalar> safe_log_kernel;
+    kaad::operations::kernels::SafeExp<kaad::Scalar> safe_exp_kernel;
 
     kaad::Scalar value;
-    value = kaad::Kernels::EPSILON<kaad::Scalar>;
-    value = kaad::Kernels::MAX_FINITE<kaad::Scalar>;
-    value = kaad::Kernels::MIN_FINITE<kaad::Scalar>;
-    value = kaad::Kernels::MAX_EXP<kaad::Scalar>;
-    value = kaad::Kernels::MIN_EXP<kaad::Scalar>;
+    value = kaad::operations::kernels::EPSILON<kaad::Scalar>;
+    value = kaad::operations::kernels::MAX_FINITE<kaad::Scalar>;
+    value = kaad::operations::kernels::MIN_FINITE<kaad::Scalar>;
+    value = kaad::operations::kernels::MAX_EXP<kaad::Scalar>;
+    value = kaad::operations::kernels::MIN_EXP<kaad::Scalar>;
 
     return 0;
 }

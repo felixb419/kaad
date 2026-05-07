@@ -5,11 +5,11 @@
 #include <limits>  // for numeric_limits
 
 /**
- * @namespace kaad::Kernels
+ * @namespace kaad::operations::kernels
  * @brief Contains elementary operation kernels and their corresponding
  * gradients.
  */
-namespace kaad::Kernels {
+namespace kaad::operations::kernels {
 
 /// Relative tolerance threshold: 1000× machine EPSILON.
 template <typename T>
@@ -161,4 +161,4 @@ template <typename T> struct SafeExp {
     }
 };
 
-} // namespace kaad::Kernels
+} // namespace kaad::operations::kernels

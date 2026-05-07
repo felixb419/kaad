@@ -53,31 +53,38 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 }
 
 Node add(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::Add<Scalar>>(rec, lhs, rhs, "add");
+    return binary_operator<operations::kernels::Add<Scalar>>(rec, lhs, rhs,
+                                                             "add");
 }
 
 Node sub(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::Sub<Scalar>>(rec, lhs, rhs, "sub");
+    return binary_operator<operations::kernels::Sub<Scalar>>(rec, lhs, rhs,
+                                                             "sub");
 }
 
 Node mul(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::Mul<Scalar>>(rec, lhs, rhs, "mul");
+    return binary_operator<operations::kernels::Mul<Scalar>>(rec, lhs, rhs,
+                                                             "mul");
 }
 
 Node div(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::SafeDiv<Scalar>>(rec, lhs, rhs, "div");
+    return binary_operator<operations::kernels::SafeDiv<Scalar>>(rec, lhs, rhs,
+                                                                 "div");
 }
 
 Node pow(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::SafePow<Scalar>>(rec, lhs, rhs, "pow");
+    return binary_operator<operations::kernels::SafePow<Scalar>>(rec, lhs, rhs,
+                                                                 "pow");
 }
 
 Node min(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::Min<Scalar>>(rec, lhs, rhs, "minimum");
+    return binary_operator<operations::kernels::Min<Scalar>>(rec, lhs, rhs,
+                                                             "minimum");
 }
 
 Node max(Graph &rec, Node lhs, Node rhs) {
-    return binary_operator<Kernels::Max<Scalar>>(rec, lhs, rhs, "minimum");
+    return binary_operator<operations::kernels::Max<Scalar>>(rec, lhs, rhs,
+                                                             "minimum");
 }
 
 } // namespace kaad

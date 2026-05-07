@@ -84,11 +84,11 @@ template <UnaryKernel Kernel> constexpr bool un_kernel_noexcept() {
 }
 
 /**
- * @namespace kaad::Kernels
+ * @namespace kaad::operations::kernels
  * @brief Contains elementary operation kernels and their corresponding
  * gradients.
  */
-namespace kaad::Kernels {
+namespace kaad::operations::kernels {
 
 /// Elementwise addition kernel with forward and backward ops.
 /// @ingroup binary_kernels
@@ -335,4 +335,4 @@ template <typename T> struct Abs {
     }
 };
 
-} // namespace kaad::Kernels
+} // namespace kaad::operations::kernels

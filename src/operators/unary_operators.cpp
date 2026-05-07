@@ -24,27 +24,27 @@ template <class Kernel> Node unary_operator(Graph &rec, Node input) {
 }
 
 Node negative(Graph &rec, Node input) {
-    return unary_operator<Kernels::Neg<Scalar>>(rec, input);
+    return unary_operator<operations::kernels::Neg<Scalar>>(rec, input);
 }
 
 Node square(Graph &rec, Node input) {
-    return unary_operator<Kernels::Square<Scalar>>(rec, input);
+    return unary_operator<operations::kernels::Square<Scalar>>(rec, input);
 }
 
 Node sqrt(Graph &rec, Node input) {
-    return unary_operator<Kernels::SafeSqrt<Scalar>>(rec, input);
+    return unary_operator<operations::kernels::SafeSqrt<Scalar>>(rec, input);
 }
 
 Node log(Graph &rec, Node input) {
-    return unary_operator<Kernels::SafeLog<Scalar>>(rec, input);
+    return unary_operator<operations::kernels::SafeLog<Scalar>>(rec, input);
 }
 
 Node exp(Graph &rec, Node input) {
-    return unary_operator<Kernels::SafeExp<Scalar>>(rec, input);
+    return unary_operator<operations::kernels::SafeExp<Scalar>>(rec, input);
 }
 
 Node abs(Graph &rec, Node input) {
-    return unary_operator<Kernels::Abs<Scalar>>(rec, input);
+    return unary_operator<operations::kernels::Abs<Scalar>>(rec, input);
 }
 
 } // namespace kaad

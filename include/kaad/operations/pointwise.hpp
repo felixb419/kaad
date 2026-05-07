@@ -181,7 +181,7 @@ struct Pointwise {
         }
     };
 
-    static_assert(Operation<Binary<Kernels::Add<Scalar>>>);
+    static_assert(Operation<Binary<kernels::Add<Scalar>>>);
 
     template <UnaryKernel Kernel> struct Unary {
 
@@ -265,7 +265,7 @@ struct Pointwise {
         }
     };
 
-    static_assert(Operation<Unary<Kernels::Log<Scalar>>>);
+    static_assert(Operation<Unary<kernels::Log<Scalar>>>);
 };
 
 } // namespace kaad::operations

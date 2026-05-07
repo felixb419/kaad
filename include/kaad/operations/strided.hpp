@@ -191,6 +191,6 @@ struct Strided {
     }
 };
 
-static_assert(Operation<Strided<Kernels::Add<Scalar>>>);
+static_assert(Operation<Strided<kernels::Add<Scalar>>>);
 
 } // namespace kaad::operations
