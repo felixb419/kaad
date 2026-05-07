@@ -6,7 +6,7 @@
 #include <kaad/graph/inode.hpp>             // for INode
 #include <kaad/graph/operation_concept.hpp> // for Operation
 #include <kaad/max_rank.hpp>                // for KAAD_MAX_RANK
-#include <kaad/operations/kernels.hpp>      // for bin_kernel_noexcept, bin...
+#include <kaad/operations/kernels.hpp>      // for binary_noexcept, bin...
 #include <kaad/scalar.hpp>                  // for Scalar
 #include <kaad/tensor/tensor_types.hpp>     // for Strides, Shape
 #include <utility>                          // for index_sequence, make_ind...
@@ -31,7 +31,7 @@ concept FlexiblePolicy =
         Policy::init_strides(inputs, result, eff_lhs, eff_rhs, eff_res);
     };
 
-template <BinaryKernel Kernel, FlexiblePolicy Policy = BroadcastPolicy>
+template <kernels::Binary Kernel, FlexiblePolicy Policy = BroadcastPolicy>
 struct Strided {
 
     static constexpr std::size_t ARITY = 2;
@@ -75,7 +75,7 @@ struct Strided {
     static void forward_walk(
         const ForwardParams &params, std::size_t lhs_offset,
         std::size_t rhs_offset,
-        std::size_t res_offset) noexcept(bin_kernel_noexcept<Kernel>()) {
+        std::size_t res_offset) noexcept(kernels::binary_noexcept<Kernel>()) {
 
         for (std::size_t i = 0; i < params.res_shape[axis]; i++) {
 
@@ -101,7 +101,7 @@ struct Strided {
     template <std::size_t res_rank>
         requires(res_rank > 0)
     static void forward(const ForwardParams &params) noexcept(
-        bin_kernel_noexcept<Kernel>()) {
+        kernels::binary_noexcept<Kernel>()) {
 
         forward_walk<res_rank, 0>(params, 0, 0, 0);
     }
@@ -124,7 +124,7 @@ struct Strided {
     static void backward_walk(
         const BackwardParams &params, std::size_t lhs_offset,
         std::size_t rhs_offset,
-        std::size_t res_offset) noexcept(bin_kernel_noexcept<Kernel>()) {
+        std::size_t res_offset) noexcept(kernels::binary_noexcept<Kernel>()) {
 
         for (std::size_t i = 0; i < params.res_shape[axis]; i++) {
 
@@ -152,7 +152,7 @@ struct Strided {
     template <std::size_t res_rank>
         requires(res_rank > 0)
     static void backward(const BackwardParams &params) noexcept(
-        bin_kernel_noexcept<Kernel>()) {
+        kernels::binary_noexcept<Kernel>()) {
 
         backward_walk<res_rank, 0>(params, 0, 0, 0);
     }

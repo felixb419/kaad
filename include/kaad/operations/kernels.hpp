@@ -3,6 +3,13 @@
 #include <cmath>   // for log, pow, exp, sqrt
 #include <cstdlib> // for abs
 
+/**
+ * @namespace kaad::operations::kernels
+ * @brief Contains elementary operation kernels and their corresponding
+ * gradients.
+ */
+namespace kaad::operations::kernels {
+
 /// @defgroup kernels Kernels for elementary operations and their corresponding
 /// gradients.
 
@@ -21,7 +28,7 @@
  * @ingroup binary_kernels
  */
 template <class Kernel>
-concept BinaryKernel = requires { typename Kernel::value_type; } && requires {
+concept Binary = requires { typename Kernel::value_type; } && requires {
     {
         Kernel::op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<const typename Kernel::value_type &>(),
@@ -37,7 +44,7 @@ concept BinaryKernel = requires { typename Kernel::value_type; } && requires {
     } -> std::same_as<void>;
 };
 
-template <BinaryKernel Kernel> constexpr bool bin_kernel_noexcept() {
+template <Binary Kernel> constexpr bool binary_noexcept() {
     return noexcept(
                Kernel::op(std::declval<const typename Kernel::value_type &>(),
                           std::declval<const typename Kernel::value_type &>(),
@@ -59,7 +66,7 @@ template <BinaryKernel Kernel> constexpr bool bin_kernel_noexcept() {
  * value_type&);
  */
 template <class Kernel>
-concept UnaryKernel = requires { typename Kernel::value_type; } && requires {
+concept Unary = requires { typename Kernel::value_type; } && requires {
     {
         Kernel::op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<typename Kernel::value_type &>())
@@ -72,7 +79,7 @@ concept UnaryKernel = requires { typename Kernel::value_type; } && requires {
     } -> std::same_as<void>;
 };
 
-template <UnaryKernel Kernel> constexpr bool un_kernel_noexcept() {
+template <Unary Kernel> constexpr bool unary_noexcept() {
     return noexcept(Kernel::grad(
                std::declval<const typename Kernel::value_type &>(),
                std::declval<typename Kernel::value_type &>(),
@@ -82,13 +89,6 @@ template <UnaryKernel Kernel> constexpr bool un_kernel_noexcept() {
                Kernel::op(std::declval<const typename Kernel::value_type &>(),
                           std::declval<typename Kernel::value_type &>()));
 }
-
-/**
- * @namespace kaad::operations::kernels
- * @brief Contains elementary operation kernels and their corresponding
- * gradients.
- */
-namespace kaad::operations::kernels {
 
 /// Elementwise addition kernel with forward and backward ops.
 /// @ingroup binary_kernels

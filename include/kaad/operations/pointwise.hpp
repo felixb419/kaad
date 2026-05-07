@@ -8,7 +8,7 @@
 namespace kaad::operations {
 
 struct Pointwise {
-    template <BinaryKernel Kernel> struct Binary {
+    template <kernels::Binary Kernel> struct Binary {
 
         static constexpr std::size_t ARITY = 2;
 
@@ -72,7 +72,7 @@ struct Pointwise {
             requires(S == NONE_SCALAR || S == LHS_IS_SCALAR ||
                      S == RHS_IS_SCALAR)
         static void forward(const ForwardParams &params) noexcept(
-            bin_kernel_noexcept<Kernel>()) {
+            kernels::binary_noexcept<Kernel>()) {
 
             const Scalar *lhs = params.lhs_begin;
             const Scalar *rhs = params.rhs_begin;
@@ -122,7 +122,7 @@ struct Pointwise {
             requires(S == NONE_SCALAR || S == LHS_IS_SCALAR ||
                      S == RHS_IS_SCALAR)
         static void backward(const BackwardParams &params) noexcept(
-            bin_kernel_noexcept<Kernel>()) {
+            kernels::binary_noexcept<Kernel>()) {
 
             const Scalar *lhs = params.lhs_begin;
             Scalar *d_lhs = params.d_lhs_begin;
@@ -183,7 +183,7 @@ struct Pointwise {
 
     static_assert(Operation<Binary<kernels::Add<Scalar>>>);
 
-    template <UnaryKernel Kernel> struct Unary {
+    template <kernels::Unary Kernel> struct Unary {
 
         static constexpr std::size_t ARITY = 1;
 
@@ -209,7 +209,7 @@ struct Pointwise {
         using forward_fn = void (*)(const ForwardParams &params);
 
         void static forward(const ForwardParams &params) noexcept(
-            un_kernel_noexcept<Kernel>()) {
+            kernels::unary_noexcept<Kernel>()) {
 
             const Scalar *inp = params.inp_begin;
             Scalar *res = params.res_begin;
@@ -241,7 +241,7 @@ struct Pointwise {
         using backward_fn = void (*)(const BackwardParams &params);
 
         static void backward(const BackwardParams &params) noexcept(
-            un_kernel_noexcept<Kernel>()) {
+            kernels::unary_noexcept<Kernel>()) {
 
             const Scalar *inp = params.inp_begin;
             Scalar *d_inp = params.d_inp_begin;

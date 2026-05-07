@@ -19,7 +19,7 @@ namespace kaad {
 class INode;
 template <Operation operation> class OperatorNode;
 
-template <class Kernel>
+template <operations::kernels::Binary Kernel>
 Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
     INode *lhs_ptr = rec.get_node(lhs);

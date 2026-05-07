@@ -14,7 +14,8 @@ namespace kaad {
 
 template <Operation operation> class OperatorNode;
 
-template <class Kernel> Node unary_operator(Graph &rec, Node input) {
+template <operations::kernels::Unary Kernel>
+Node unary_operator(Graph &rec, Node input) {
 
     rec.nodes.push_back(
         std::make_unique<OperatorNode<operations::Pointwise::Unary<Kernel>>>(

@@ -2,6 +2,7 @@
 
 #include <cstddef>                      // for size_t
 #include <kaad/graph/inode.hpp>         // for INode
+#include <kaad/operations/kernels.hpp>  // for Binary, Unary
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
 #include <memory>                       // for unique_ptr
@@ -103,9 +104,11 @@ class Graph {
 
     friend class Node;
 
-    template <class Kernel>
+    template <operations::kernels::Binary Kernel>
     friend Node binary_operator(Graph &rec, Node lhs, Node rhs,
                                 const char *opName);
+    template <operations::kernels::Unary Kernel>
+    friend Node unary_operator(Graph &rec, Node input);
     friend Node dot(Graph &rec, Node lhs, Node rhs);
     friend Node matmul(Graph &rec, Node lhs, Node rhs);
     friend Node mean(Graph &rec, Node input);
@@ -117,7 +120,6 @@ class Graph {
     friend Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank);
     friend Node transpose(Graph &rec, Node input,
                           StaticVector<std::size_t> perm);
-    template <class Kernel> friend Node unary_operator(Graph &rec, Node input);
 };
 
 } // namespace kaad
