@@ -2,9 +2,6 @@
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
 
 [REFACTOR]
-(operators)(?) remove BinaryKernels struct
-            fold operations::DotProduct into operations::Reduce
-            remove sum Kernel and use Reduce<Sum> function where it was used
             Check if usages of size_t (maybe another type is better, specifically for indeces)
 (operations)(?) use operations::flexible::broadcast in Matmul::broadcast
             

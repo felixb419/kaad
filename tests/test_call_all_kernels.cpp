@@ -13,7 +13,6 @@ int main() {
     kaad::Kernels::Min<kaad::Scalar> min_kernel;
     kaad::Kernels::Max<kaad::Scalar> max_kernel;
     kaad::Kernels::NoOp<kaad::Scalar> noop_kernel;
-    kaad::Kernels::Sum<kaad::Scalar> sum_kernel;
     kaad::Kernels::Neg<kaad::Scalar> neg_kernel;
     kaad::Kernels::Square<kaad::Scalar> square_kernel;
     kaad::Kernels::Sqrt<kaad::Scalar> sqrt_kernel;

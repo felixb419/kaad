@@ -245,21 +245,6 @@ template <typename T> struct NoOp {
     }
 };
 
-/// Elementwise summation kernel with forward and backward ops.
-/// @ingroup unary_kernels
-template <typename T> struct Sum {
-    using value_type = T;
-
-    /// Forward op: res += inp
-    constexpr static void op(T inp, T &res) noexcept { res += inp; }
-
-    /// Backward op: accumulates d_res into d_inp.
-    constexpr static void grad([[maybe_unused]] T inp, T &d_inp,
-                               [[maybe_unused]] T res, T d_res) noexcept {
-        d_inp += d_res;
-    }
-};
-
 /// Elementwise negation kernel with forward and backward ops.
 /// @ingroup unary_kernels
 template <typename T> struct Neg {
