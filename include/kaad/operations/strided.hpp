@@ -32,7 +32,7 @@ concept FlexiblePolicy =
     };
 
 template <BinaryKernel Kernel, FlexiblePolicy Policy = BroadcastPolicy>
-struct Flexible {
+struct Strided {
 
     static constexpr std::size_t ARITY = 2;
 
@@ -191,6 +191,6 @@ struct Flexible {
     }
 };
 
-static_assert(Operation<Flexible<Kernels::Add<Scalar>>>);
+static_assert(Operation<Strided<Kernels::Add<Scalar>>>);
 
 } // namespace kaad::operations

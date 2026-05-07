@@ -3,11 +3,11 @@ add_library(kaad
     ./graph/graph.cpp
     ./graph/node_handle.cpp
     ./operations/dot_product.cpp
-    ./operations/flexible.cpp
     ./operations/matmul.cpp
     ./operations/outer.cpp
     ./operations/reduce.cpp
     ./operations/slice.cpp
+    ./operations/strided.cpp
     ./operations/transpose.cpp
     ./operators/binary_operators.cpp
     ./operators/dot.cpp

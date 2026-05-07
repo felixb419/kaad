@@ -1,4 +1,4 @@
-#include <kaad/operations/flexible.hpp>
+#include <kaad/operations/strided.hpp>
 
 #include <algorithm>                    // for max
 #include <kaad/exceptions.hpp>          // for BroadcastError, to_string
