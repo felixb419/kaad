@@ -39,12 +39,12 @@ class Tensor {
     using const_iterator = IteratorImpl<IMMUTABLE>;
 
   private:
-    Shape shape_;     ///< Vector containing the size of the tensor
-                      ///< in each dimension.
-    Strides strides_; ///< Vector containing the strides of the tensor (steps
-                      ///< needed to move one element in each dimension).
+    Shape shape_;     ///< Array containing the size of the tensor
+                      ///< along each axis.
+    Strides strides_; ///< Array containing the strides of the tensor (steps
+                      ///< needed to move one element along each axis).
     std::vector<value_type>
-        elements_; ///< Vector containing the elements of the Tensor.
+        elements_; ///< Array containing the elements of the Tensor.
 
     /// @internal
     static std::mt19937_64 &get_rng() {
@@ -77,7 +77,7 @@ class Tensor {
      * @brief Constructs a tensor with given @p shape and @p strides.
      * @note The elements array is initialized to 0.
      * @param shape Dimensions of the tensor.
-     * @param strides Per-dim strides of the tensor.
+     * @param strides Per-axis strides of the tensor.
      */
     Tensor(ShapeView shape, StridesView strides);
 
@@ -92,7 +92,7 @@ class Tensor {
      * @brief Constructs a tensor with given @p shape, @p strides and @p
      * elements.
      * @param shape Dimensions of the tensor.
-     * @param strides Per-dim strides of the tensor.
+     * @param strides Per-axis strides of the tensor.
      * @param elements Elements of the tensor.
      */
     Tensor(ShapeView shape, StridesView strides,
@@ -158,7 +158,8 @@ class Tensor {
     [[nodiscard]] size_type rank() const noexcept;
 
     /// @brief Get shape of the tensor.
-    /// @return Read-only span representing the dimensions of the tensor.
+    /// @return Read-only span representing the extent of the tensor along every
+    /// axis.
     [[nodiscard]] ShapeView shape() const noexcept;
 
     /// @brief Get strides of the tensor.

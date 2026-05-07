@@ -22,8 +22,8 @@ struct Matmul {
 
     /**
      * @brief Broadcasts @p lhs and @p rhs according to matrix
-     * multiplication, additional dimensions will be treated as batch
-     * dimensions, will throw BroadcastError if @p lhs and @p rhs are not
+     * multiplication, additional axes will be treated as batch
+     * axes, will throw BroadcastError if @p lhs and @p rhs are not
      * compatible.
      */
     static Shape make_res_shape(ShapeView lhs, ShapeView rhs);
@@ -39,7 +39,7 @@ struct Matmul {
 
         stride lhs_col_step; ///< Step size between columns of lhs.
         stride rhs_row_step; ///< Step size between rows of rhs.
-        extent shared_dim;   ///< Length of the shared dimension of lhs and rhs.
+        extent shared_axis;  ///< Length of the shared axis of lhs and rhs.
 
         Strides eff_lhs; ///< Broadcasted strides for lhs.
         Strides eff_rhs; ///< Broadcasted strides for rhs.
@@ -60,7 +60,7 @@ struct Matmul {
                               std::size_t lhs_offset, std::size_t rhs_offset,
                               std::size_t res_idx) {
 
-        for (std::size_t i = 0; i < params.shared_dim; i++) {
+        for (std::size_t i = 0; i < params.shared_axis; i++) {
 
             const std::size_t LHS_IDX = lhs_offset + (i * params.lhs_col_step);
             const std::size_t RHS_IDX = rhs_offset + (i * params.rhs_row_step);
@@ -70,26 +70,26 @@ struct Matmul {
         }
     }
 
-    template <std::size_t res_rank, std::size_t dim = 0>
-        requires(res_rank > 0 && dim < res_rank)
+    template <std::size_t res_rank, std::size_t axis = 0>
+        requires(res_rank > 0 && axis < res_rank)
     static void forward_walk(const ForwardParams &params,
                              std::size_t lhs_offset, std::size_t rhs_offset,
                              std::size_t res_offset) {
 
-        for (std::size_t i = 0; i < params.res_broadcast[dim]; i++) {
+        for (std::size_t i = 0; i < params.res_broadcast[axis]; i++) {
 
-            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[dim]);
-            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[dim]);
-            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
+            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[axis]);
+            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[axis]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[axis]);
 
-            if constexpr (dim >= res_rank - 1) {
+            if constexpr (axis >= res_rank - 1) {
 
                 contract_leaf(params, LHS_IDX, RHS_IDX, RES_IDX);
 
             } else {
 
-                forward_walk<res_rank, dim + 1>(params, LHS_IDX, RHS_IDX,
-                                                RES_IDX);
+                forward_walk<res_rank, axis + 1>(params, LHS_IDX, RHS_IDX,
+                                                 RES_IDX);
             }
         }
     }

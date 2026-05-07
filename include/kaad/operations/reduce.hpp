@@ -15,15 +15,15 @@ namespace kaad::operations {
 
 namespace internal {
 
-Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t dim,
+Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t axis,
                           bool keep_rank);
 
 void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
                         const Scalar *&res_end, Strides &eff_inp,
                         Strides &eff_res, Shape &inp_shape,
-                        Scalar &relevant_dim_extent,
+                        Scalar &relevant_axis_extent,
                         std::array<INode *, 1> input, INode *result,
-                        std::size_t relevant_dim, bool keep_rank);
+                        std::size_t relevant_axis, bool keep_rank);
 
 } // namespace internal
 
@@ -33,11 +33,11 @@ template <ReductionPolicy Policy> struct Reduce {
 
     static constexpr const char *OPERATION_NAME = Policy::OPERATION_NAME;
 
-    /// @note Will throw ArgumentError if @p relevant_dim is not a valid index
+    /// @note Will throw ArgumentError if @p axis is not a valid index
     /// of input.shape(), and ShapeError if input.rank() is less than 2.
-    static Shape make_res_shape(std::array<INode *, 1> input, std::size_t dim,
+    static Shape make_res_shape(std::array<INode *, 1> input, std::size_t axis,
                                 bool keep_rank) {
-        return internal::make_res_shape_impl(input, dim, keep_rank);
+        return internal::make_res_shape_impl(input, axis, keep_rank);
     }
 
     struct ForwardParams {
@@ -52,34 +52,34 @@ template <ReductionPolicy Policy> struct Reduce {
 
         Shape inp_shape;
 
-        Scalar relevant_dim_extent; ///< Extent of the dimension reduced over.
+        Scalar relevant_axis_extent; ///< Extent of the axis reduced over.
 
         ForwardParams(std::array<INode *, 1> input, INode *result,
-                      std::size_t relevant_dim, bool keep_rank) {
+                      std::size_t relevant_axis, bool keep_rank) {
             internal::fwdparams_ctr_impl(
                 this->inp_begin, this->res_begin, this->res_end, this->eff_inp,
-                this->eff_res, this->inp_shape, this->relevant_dim_extent,
-                input, result, relevant_dim, keep_rank);
+                this->eff_res, this->inp_shape, this->relevant_axis_extent,
+                input, result, relevant_axis, keep_rank);
         }
     };
 
-    template <std::size_t inp_rank, std::size_t dim>
+    template <std::size_t inp_rank, std::size_t axis>
     static void forward_walk(const ForwardParams &params,
                              std::size_t inp_offset,
                              std::size_t res_offset) noexcept {
 
-        for (std::size_t i = 0; i < params.inp_shape[dim]; i++) {
+        for (std::size_t i = 0; i < params.inp_shape[axis]; i++) {
 
-            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
-            const std::size_t INP_IDX = inp_offset + (i * params.eff_inp[dim]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[axis]);
+            const std::size_t INP_IDX = inp_offset + (i * params.eff_inp[axis]);
 
-            if constexpr (dim >= inp_rank - 1) {
+            if constexpr (axis >= inp_rank - 1) {
 
                 params.res_begin[RES_IDX] += params.inp_begin[INP_IDX];
 
             } else {
 
-                forward_walk<inp_rank, dim + 1>(params, INP_IDX, RES_IDX);
+                forward_walk<inp_rank, axis + 1>(params, INP_IDX, RES_IDX);
             }
         }
     }
@@ -91,11 +91,11 @@ template <ReductionPolicy Policy> struct Reduce {
 
         forward_walk<inp_rank, 0>(params, 0, 0);
 
-        // if policy is mean, divide res by extent of relevant dim
+        // if policy is mean, divide res by extent of relevant axis
         if constexpr (std::is_same_v<Policy, MeanPolicy>) {
 
             for (Scalar *res = params.res_begin; res < params.res_end; res++) {
-                *res /= params.relevant_dim_extent;
+                *res /= params.relevant_axis_extent;
             }
         }
     }
@@ -108,33 +108,33 @@ template <ReductionPolicy Policy> struct Reduce {
         const Scalar *d_res_begin;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
-                       std::size_t relevant_dim, bool keep_rank)
-            : ForwardParams(input, result, relevant_dim, keep_rank),
+                       std::size_t relevant_axis, bool keep_rank)
+            : ForwardParams(input, result, relevant_axis, keep_rank),
               d_inp_begin(input[0]->gradient_mut().data()),
               d_inp_end(input[0]->gradient().data() +
                         input[0]->gradient().size()),
               d_res_begin(result->gradient().data()) {}
     };
 
-    template <std::size_t inp_rank, std::size_t dim>
+    template <std::size_t inp_rank, std::size_t axis>
     static void backward_walk(const BackwardParams &params,
                               std::size_t d_inp_offset,
                               std::size_t d_res_offset) noexcept {
 
-        for (std::size_t i = 0; i < params.inp_shape[dim]; i++) {
+        for (std::size_t i = 0; i < params.inp_shape[axis]; i++) {
 
             const std::size_t D_RES_IDX =
-                d_res_offset + (i * params.eff_res[dim]);
+                d_res_offset + (i * params.eff_res[axis]);
             const std::size_t D_INP_IDX =
-                d_inp_offset + (i * params.eff_inp[dim]);
+                d_inp_offset + (i * params.eff_inp[axis]);
 
-            if constexpr (dim >= inp_rank - 1) {
+            if constexpr (axis >= inp_rank - 1) {
 
                 params.d_inp_begin[D_INP_IDX] += params.d_res_begin[D_RES_IDX];
 
             } else {
 
-                backward_walk<inp_rank, dim + 1>(params, D_INP_IDX, D_RES_IDX);
+                backward_walk<inp_rank, axis + 1>(params, D_INP_IDX, D_RES_IDX);
             }
         }
     }
@@ -146,13 +146,13 @@ template <ReductionPolicy Policy> struct Reduce {
 
         backward_walk<inp_rank, 0>(params, 0, 0);
 
-        // if policy is mean, divide res by extent of relevant dim
+        // if policy is mean, divide res by extent of relevant axis
         if constexpr (std::is_same_v<Policy, MeanPolicy>) {
 
             for (Scalar *d_inp = params.d_inp_begin; d_inp < params.d_inp_end;
                  d_inp++) {
 
-                *d_inp /= params.relevant_dim_extent;
+                *d_inp /= params.relevant_axis_extent;
             }
         }
     }
@@ -182,7 +182,7 @@ template <ReductionPolicy Policy> struct Reduce {
 
     static Dispatch dispatch(std::array<INode *, 1> input,
                              [[maybe_unused]] INode *result,
-                             [[maybe_unused]] std::size_t relevant_dim,
+                             [[maybe_unused]] std::size_t relevant_axis,
                              [[maybe_unused]] bool keep_rank) {
         // -1 because of +1 in make table function
         return {

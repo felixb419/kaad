@@ -88,7 +88,7 @@ Node abs(Graph &rec, Node input);
  * @brief Adds a slice node to the computation graph.
  *
  * Extracts a slice from the input tensor node @p input, starting at the
- * specified @p start and extending for the given @p size along each dimension.
+ * specified @p start and extending for the given @p size along each axis.
  *
  * @ingroup unary_operators
  * @pre @p shape and @p size need to have the same size.
@@ -119,25 +119,25 @@ Node sum(Graph &rec, Node input);
 
 /**
  * @brief Adds a sum node to the computation graph that sums elements along a
- * specified dimension.
+ * specified axis.
  * @ingroup unary_operators
  *
  * Computes the sum of elements in the input tensor node @p input along the
- * given dimension @p dim. The resulting tensor shape depends on the @p
+ * given @p axis. The resulting tensor shape depends on the @p
  * keep_rank flag:
- * - If @p keep_rank is false (default), the dimension @p dim is removed from
+ * - If @p keep_rank is false (default), the @p axis is removed from
  * the output shape.
- * - If @p keep_rank is true, the dimension @p dim is retained with size 1.
+ * - If @p keep_rank is true, the @p axis is retained with an extent of 1.
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
- * @param dim The dimension along which to sum.
- * @param keep_rank If true, retains the summed dimension with size 1; if false,
- * removes it.
+ * @param axis The axis along which to sum.
+ * @param keep_rank If true, retains the summed axis with an extent of 1; if
+ * false, removes it.
  * @return A handle of the new node representing the tensor after summation
- * along the specified dimension.
+ * along the specified axis.
  */
-Node sum(Graph &rec, Node input, std::size_t dim, bool keep_rank = false);
+Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -155,25 +155,25 @@ Node mean(Graph &rec, Node input);
 
 /**
  * @brief Adds a mean node to the computation graph that computes the mean along
- * a specified dimension.
+ * a specified axis.
  * @ingroup unary_operators
  *
  * Computes the mean of elements in the input tensor node @p input along the
- * given dimension @p dim. The resulting tensor shape depends on the @p
+ * given @p axis. The resulting tensor shape depends on the @p
  * keep_rank flag:
- * - If @p keep_rank is false (default), the dimension @p dim is removed from
+ * - If @p keep_rank is false (default), @p axis is removed from
  * the output shape.
- * - If @p keep_rank is true, the dimension @p dim is retained with size 1.
+ * - If @p keep_rank is true, the axis @p axis is retained with an extent of 1.
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
- * @param dim The dimension along which to compute the mean.
- * @param keep_rank If true, retains the mean-reduced dimension with size 1; if
- * false, removes it.
+ * @param axis The axis along which to compute the mean.
+ * @param keep_rank If true, retains the mean-reduced axis with an extent of 1;
+ * if false, removes it.
  * @return A handle of the new node representing the tensor after mean
- * reduction along the specified dimension.
+ * reduction along the specified axis.
  */
-Node mean(Graph &rec, Node input, std::size_t dim, bool keep_rank = false);
+Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
@@ -181,7 +181,7 @@ Node mean(Graph &rec, Node input, std::size_t dim, bool keep_rank = false);
  *
  * Transposes the input tensor node @p input according to the permutation @p
  * perm. If @p perm is empty, the tensor is fully transposed by reversing its
- * dimensions.
+ * axes.
  *
  * @pre perm must have the same number of elements as @c input.shape() and
  * contain only valid indeces of @c input.shape().
@@ -328,9 +328,9 @@ Node dot(Graph &rec, Node lhs, Node rhs);
  *
  * This operator supports standard matrix multiplication as well as batch
  * matrix multiplication. For 2-D inputs, it performs a classic matrix product.
- * For higher-rank tensors, the two leading dimensions are treated as batch
- * dimensions and are broadcast according to standard broadcasting rules before
- * performing the matrix multiplication on the last two dimensions.
+ * For higher-rank tensors, the two leading axes are treated as batch
+ * axes and are broadcast according to standard broadcasting rules before
+ * performing the matrix multiplication on the last two axes.
  *
  * @pre @p lhs and @p rhs need to have shapes compatible for matrix
  * multiplication.

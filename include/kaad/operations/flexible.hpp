@@ -70,28 +70,28 @@ struct Flexible {
         }
     };
 
-    template <std::size_t res_rank, std::size_t dim = 0>
-        requires(res_rank > 0 && dim < res_rank)
+    template <std::size_t res_rank, std::size_t axis = 0>
+        requires(res_rank > 0 && axis < res_rank)
     static void forward_walk(
         const ForwardParams &params, std::size_t lhs_offset,
         std::size_t rhs_offset,
         std::size_t res_offset) noexcept(bin_kernel_noexcept<Kernel>()) {
 
-        for (std::size_t i = 0; i < params.res_shape[dim]; i++) {
+        for (std::size_t i = 0; i < params.res_shape[axis]; i++) {
 
-            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[dim]);
-            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[dim]);
-            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
+            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[axis]);
+            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[axis]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[axis]);
 
-            if constexpr (dim >= res_rank - 1) {
+            if constexpr (axis >= res_rank - 1) {
 
                 Kernel::op(params.lhs_begin[LHS_IDX], params.rhs_begin[RHS_IDX],
                            params.res_begin[RES_IDX]);
 
             } else {
 
-                forward_walk<res_rank, dim + 1>(params, LHS_IDX, RHS_IDX,
-                                                RES_IDX);
+                forward_walk<res_rank, axis + 1>(params, LHS_IDX, RHS_IDX,
+                                                 RES_IDX);
             }
         }
     }
@@ -119,20 +119,20 @@ struct Flexible {
               d_res_begin(result->gradient().data()) {}
     };
 
-    template <std::size_t res_rank, std::size_t dim = 0>
-        requires(res_rank > 0 && dim < res_rank)
+    template <std::size_t res_rank, std::size_t axis = 0>
+        requires(res_rank > 0 && axis < res_rank)
     static void backward_walk(
         const BackwardParams &params, std::size_t lhs_offset,
         std::size_t rhs_offset,
         std::size_t res_offset) noexcept(bin_kernel_noexcept<Kernel>()) {
 
-        for (std::size_t i = 0; i < params.res_shape[dim]; i++) {
+        for (std::size_t i = 0; i < params.res_shape[axis]; i++) {
 
-            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[dim]);
-            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[dim]);
-            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
+            const std::size_t LHS_IDX = lhs_offset + (i * params.eff_lhs[axis]);
+            const std::size_t RHS_IDX = rhs_offset + (i * params.eff_rhs[axis]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[axis]);
 
-            if constexpr (dim >= res_rank - 1) {
+            if constexpr (axis >= res_rank - 1) {
 
                 Kernel::grad(
                     params.lhs_begin[LHS_IDX], params.d_lhs_begin[LHS_IDX],
@@ -141,8 +141,8 @@ struct Flexible {
 
             } else {
 
-                backward_walk<res_rank, dim + 1>(params, LHS_IDX, RHS_IDX,
-                                                 RES_IDX);
+                backward_walk<res_rank, axis + 1>(params, LHS_IDX, RHS_IDX,
+                                                  RES_IDX);
             }
         }
     }

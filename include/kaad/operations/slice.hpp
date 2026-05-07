@@ -31,7 +31,7 @@ struct Slice {
         Strides eff_res;
 
         StaticVector<std::size_t>
-            inp_start_offset; ///< Per dim offset applied to input tensor.
+            inp_start_offset; ///< Per axis offset applied to input tensor.
 
         Shape res_shape;
 
@@ -40,24 +40,24 @@ struct Slice {
                       std::span<const std::size_t> start);
     };
 
-    template <std::size_t res_rank, std::size_t dim>
+    template <std::size_t res_rank, std::size_t axis>
     static void forward_walk(const ForwardParams &params,
                              std::size_t inp_offset,
                              std::size_t res_offset) noexcept {
 
-        for (std::size_t i = 0; i < params.res_shape[dim]; i++) {
+        for (std::size_t i = 0; i < params.res_shape[axis]; i++) {
 
-            const std::size_t INP_IDX = params.inp_start_offset[dim] +
-                                        inp_offset + (i * params.eff_inp[dim]);
-            const std::size_t RES_IDX = res_offset + (i * params.eff_res[dim]);
+            const std::size_t INP_IDX = params.inp_start_offset[axis] +
+                                        inp_offset + (i * params.eff_inp[axis]);
+            const std::size_t RES_IDX = res_offset + (i * params.eff_res[axis]);
 
-            if constexpr (dim >= res_rank - 1) {
+            if constexpr (axis >= res_rank - 1) {
 
                 params.res_begin[RES_IDX] = params.inp_begin[INP_IDX];
 
             } else {
 
-                forward_walk<res_rank, dim + 1>(params, INP_IDX, RES_IDX);
+                forward_walk<res_rank, axis + 1>(params, INP_IDX, RES_IDX);
             }
         }
     }
@@ -82,27 +82,27 @@ struct Slice {
               d_res_begin(result->gradient().data()) {}
     };
 
-    template <std::size_t res_rank, std::size_t dim>
+    template <std::size_t res_rank, std::size_t axis>
     static void backward_walk(const BackwardParams &params,
                               std::size_t d_inp_offset,
                               std::size_t d_res_offset) noexcept {
 
-        for (std::size_t i = 0; i < params.res_shape[dim]; i++) {
+        for (std::size_t i = 0; i < params.res_shape[axis]; i++) {
 
             const std::size_t D_INP_IDX = d_inp_offset +
-                                          params.inp_start_offset[dim] +
-                                          (i * params.eff_inp[dim]);
+                                          params.inp_start_offset[axis] +
+                                          (i * params.eff_inp[axis]);
 
             const std::size_t D_RES_IDX =
-                d_res_offset + (i * params.eff_res[dim]);
+                d_res_offset + (i * params.eff_res[axis]);
 
-            if constexpr (dim >= res_rank - 1) {
+            if constexpr (axis >= res_rank - 1) {
 
                 params.d_inp_begin[D_INP_IDX] += params.d_res_begin[D_RES_IDX];
 
             } else {
 
-                backward_walk<res_rank, dim + 1>(params, D_INP_IDX, D_RES_IDX);
+                backward_walk<res_rank, axis + 1>(params, D_INP_IDX, D_RES_IDX);
             }
         }
     }

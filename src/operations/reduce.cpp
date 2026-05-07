@@ -12,16 +12,16 @@
 
 namespace kaad::operations::internal {
 
-Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t dim,
+Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t axis,
                           bool keep_rank) {
 
     TensorViewConst inp = input[0]->value();
 
-    if (std::cmp_greater_equal(dim, inp.rank())) {
+    if (std::cmp_greater_equal(axis, inp.rank())) {
 
-        throw ArgumentError("dim has to be a valid index of A.shape, A.shape=" +
-                            to_string(inp.shape) +
-                            ", dim=" + std::to_string(dim));
+        throw ArgumentError(
+            "axis has to be a valid index of A.shape, A.shape=" +
+            to_string(inp.shape) + ", axis=" + std::to_string(axis));
     }
 
     if (inp.rank() == 1) {
@@ -36,17 +36,18 @@ Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t dim,
     if (keep_rank) {
 
         std::ranges::copy(inp.shape, res.begin());
-        res[dim] = 1;
+        res[axis] = 1;
 
     } else {
 
         res.resize(res.size() - 1);
 
-        auto cast_dim = static_cast<ptrdiff_t>(dim);
+        auto cast_axis = static_cast<ptrdiff_t>(axis);
 
-        std::copy(inp.shape.begin(), inp.shape.begin() + cast_dim, res.begin());
-        std::copy(inp.shape.begin() + cast_dim + 1, inp.shape.end(),
-                  res.begin() + dim);
+        std::copy(inp.shape.begin(), inp.shape.begin() + cast_axis,
+                  res.begin());
+        std::copy(inp.shape.begin() + cast_axis + 1, inp.shape.end(),
+                  res.begin() + axis);
     }
 
     return res;
@@ -55,9 +56,9 @@ Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t dim,
 void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
                         const Scalar *&res_end, Strides &eff_inp,
                         Strides &eff_res, Shape &inp_shape,
-                        Scalar &relevant_dim_extent,
+                        Scalar &relevant_axis_extent,
                         std::array<INode *, 1> input, INode *result,
-                        std::size_t relevant_dim, bool keep_rank) {
+                        std::size_t relevant_axis, bool keep_rank) {
 
     TensorViewConst inp = input[0]->value();
     TensorViewConst res = result->value();
@@ -72,19 +73,20 @@ void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
     if (keep_rank) {
 
         eff_res = res.strides;
-        eff_res[relevant_dim] = 0;
+        eff_res[relevant_axis] = 0;
 
     } else {
 
         Shape res_padded = inp.shape;
-        res_padded[relevant_dim] = 1;
+        res_padded[relevant_axis] = 1;
 
         eff_res = Tensor::compute_strides(res_padded);
     }
 
     inp_shape = inp.shape;
 
-    relevant_dim_extent = static_cast<Scalar>(input[0]->shape()[relevant_dim]);
+    relevant_axis_extent =
+        static_cast<Scalar>(input[0]->shape()[relevant_axis]);
 }
 
 } // namespace kaad::operations::internal

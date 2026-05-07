@@ -109,12 +109,12 @@ class Graph {
     friend Node dot(Graph &rec, Node lhs, Node rhs);
     friend Node matmul(Graph &rec, Node lhs, Node rhs);
     friend Node mean(Graph &rec, Node input);
-    friend Node mean(Graph &rec, Node input, std::size_t dim, bool keep_rank);
+    friend Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank);
     friend Node outer(Graph &rec, Node lhs, Node rhs);
     friend Node slice(Graph &rec, Node input, Shape size,
                       StaticVector<std::size_t> start);
     friend Node sum(Graph &rec, Node input);
-    friend Node sum(Graph &rec, Node input, std::size_t dim, bool keep_rank);
+    friend Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank);
     friend Node transpose(Graph &rec, Node input,
                           StaticVector<std::size_t> perm);
     template <class Kernel> friend Node unary_operator(Graph &rec, Node input);

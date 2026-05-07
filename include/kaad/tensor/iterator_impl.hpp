@@ -24,7 +24,7 @@ template <MUTABILITY M> class IteratorImpl {
     using iterator_category = std::bidirectional_iterator_tag;
 
   private:
-    /// Per-dim coordinates of the current element.
+    /// Per-axis coordinates of the current element.
     StaticVector<std::size_t> coords_;
 
     pointer current_ = nullptr;
@@ -90,19 +90,19 @@ template <MUTABILITY M> class IteratorImpl {
             return *this;
         }
 
-        for (int dim = this->shape_.size() - 1; dim >= 0; dim--) {
+        for (int axis = this->shape_.size() - 1; axis >= 0; axis--) {
 
-            this->coords_[dim]++;
-            this->current_ += this->strides_[dim];
+            this->coords_[axis]++;
+            this->current_ += this->strides_[axis];
 
-            if (this->coords_[dim] < this->shape_[dim]) {
+            if (this->coords_[axis] < this->shape_[axis]) {
 
                 return *(this);
             }
 
-            // at end of dimension
-            this->coords_[dim] = 0;
-            this->current_ -= this->shape_[dim] * this->strides_[dim];
+            // at end of axis
+            this->coords_[axis] = 0;
+            this->current_ -= this->shape_[axis] * this->strides_[axis];
         }
 
         this->set_to_end();
@@ -126,19 +126,19 @@ template <MUTABILITY M> class IteratorImpl {
             return *this;
         }
 
-        for (int dim = this->shape_.size() - 1; dim >= 0; dim--) {
+        for (int axis = this->shape_.size() - 1; axis >= 0; axis--) {
 
-            this->coords_[dim]--;
-            this->current_ -= this->strides_[dim];
+            this->coords_[axis]--;
+            this->current_ -= this->strides_[axis];
 
-            if (this->coords_[dim] >= 0) {
+            if (this->coords_[axis] >= 0) {
 
                 return *(this);
             }
 
-            // at end of dimension
-            this->coords_[dim] = this->shape_[dim] - 1;
-            this->current_ += this->shape_[dim] * this->strides_[dim];
+            // at end of axis
+            this->coords_[axis] = this->shape_[axis] - 1;
+            this->current_ += this->shape_[axis] * this->strides_[axis];
         }
 
         this->set_to_begin();

@@ -28,14 +28,14 @@ Shape broadcast(ShapeView lhs, ShapeView rhs) {
     res[res_rank - 1] = rhs[rhs.size() - 1];
     res[res_rank - 2] = lhs[lhs.size() - 2];
 
-    // check batch dimensions
+    // check batch axes
     if (res_rank > 2) {
 
-        auto broadcast_compatible = [](auto dim1, auto dim2) {
-            return dim1 == dim2 || dim1 == 1 || dim2 == 1;
+        auto broadcast_compatible = [](auto extent1, auto extent2) {
+            return extent1 == extent2 || extent1 == 1 || extent2 == 1;
         };
 
-        // +2 in offset because last two dimensions are already checked
+        // +2 in offset because last two axes are already checked
         for (std::size_t offset = 1 + 2; offset <= res_rank; offset++) {
 
             std::size_t lhs_idx = lhs.size() - offset;
@@ -75,7 +75,7 @@ Matmul::ForwardParams::ForwardParams(TensorViewConst lhs, TensorViewConst rhs,
 
     this->lhs_col_step = lhs.strides[lhs.rank() - 1];
     this->rhs_row_step = rhs.strides[rhs.rank() - 2];
-    this->shared_dim = lhs.shape[lhs.rank() - 1];
+    this->shared_axis = lhs.shape[lhs.rank() - 1];
 
     this->res_broadcast = broadcast(lhs.shape, rhs.shape);
 

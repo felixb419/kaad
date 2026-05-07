@@ -38,7 +38,7 @@ Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView size,
 
         if (size[i] + start[i] > inp.shape[i]) {
 
-            throw ArgumentError("dimension " + std::to_string(i) +
+            throw ArgumentError("axis " + std::to_string(i) +
                                 " of slice is too large with a size of " +
                                 std::to_string(size[i]) + " starting at " +
                                 std::to_string(start[i]));

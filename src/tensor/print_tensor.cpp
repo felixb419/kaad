@@ -20,12 +20,12 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
         }
         stream << elements[idx];
     } else {
-        extent lim = shape[idx];
+        extent ext = shape[idx];
         stream << "[";
         indent++;
-        // iterate for size of current dimension
-        for (std::size_t i = 0; i < lim - 1; i++) {
-            // print next dimension
+        // iterate for extent of current axis
+        for (std::size_t i = 0; i < ext - 1; i++) {
+            // print next axis
             print_tensor_values(stream, cords, shape, strides, elements,
                                 idx + 1, indent);
             stream << ", ";

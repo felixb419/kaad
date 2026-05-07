@@ -18,8 +18,8 @@ Shape BroadcastPolicy::make_res_shape(std::array<INode *, 2> inputs) {
 
     Shape res(new_rank);
 
-    auto broadcast_compatible = [](auto dim1, auto dim2) {
-        return dim1 == dim2 || dim1 == 1 || dim2 == 1;
+    auto broadcast_compatible = [](auto extent1, auto extent2) {
+        return extent1 == extent2 || extent1 == 1 || extent2 == 1;
     };
 
     for (std::size_t offset = 1; offset <= new_rank; offset++) {

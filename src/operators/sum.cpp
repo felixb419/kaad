@@ -24,13 +24,13 @@ Node sum(Graph &rec, Node input) {
     return rec.back_handle();
 }
 
-Node sum(Graph &rec, Node input, std::size_t dim, bool keep_rank) {
+Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank) {
 
     try {
 
         rec.nodes.push_back(
             std::make_unique<OperatorNode<operations::ReduceSum>>(
-                std::array{rec.get_node(input)}, dim, keep_rank));
+                std::array{rec.get_node(input)}, axis, keep_rank));
     }
 
     catch (ShapeError &err) {
@@ -39,7 +39,7 @@ Node sum(Graph &rec, Node input, std::size_t dim, bool keep_rank) {
     }
 
     catch (ArgumentError &err) {
-        // dim is not a valid index
+        // axis is not a valid index
         throw ArgumentError(
             make_graph_errmsg(rec.nodes.size(), "sum", err.what()));
     }

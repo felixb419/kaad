@@ -2,7 +2,9 @@
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
 
 [REFACTOR]
-            rename dim to axis
+            rename Matmul::ForwardParams::shared_axis to extent_shared
+            rename Reduce::ForwardParams::relevant to extent_relevant
+            rename slice param size to shape
 (operations) rename flexible to broadcast
 (operators)(?) remove BinaryKernels struct
             fold operations::DotProduct into operations::Reduce
@@ -28,6 +30,9 @@
 (graph)     arena allocation
 
 [DOC]
+            Revise comments in public headers
+                put term definitions in the header class comment (axis, extent, ...)
+
             Add Pages for:
                 what is backward autodiff
                 what is a computation graph
@@ -47,6 +52,6 @@
 (graph) (?) Add system for inference
 (tensor)    make Tensor variant with compile time shape
 (tensor)(?) combine shape and stride into shape struct
-(graph)     make stride function transpose dimensions so biggest is highest
+(graph)     make stride function transpose axes so biggest is highest
 (graph) (?) label member for computation nodes
 (graph) (?) put reset, evaluate and getGradient into single function

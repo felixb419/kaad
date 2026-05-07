@@ -31,7 +31,7 @@ template <MUTABILITY M> struct TensorView {
 
     ShapeView shape;     ///< Dimensions of the tensor.
     StridesView strides; ///< Strides of the tensor (steps needed to move
-                         ///< one element in each dimension).
+                         ///< one element along each axis).
     std::span<value_type> elements; ///< Elements of the tensor.
 
     /**
@@ -140,7 +140,7 @@ template <MUTABILITY M> struct TensorView {
     }
 
     /**
-     * @brief Get a copy of the view with the lowest 2 dimensions transposed.
+     * @brief Get a copy of the view with the last 2 axes transposed.
      * @param shape_buff The new shape will be stored in this.
      * @param strides_buff The new strides will be stored in this.
      * @note The memory of @p shape_buff has to be manually freed.
