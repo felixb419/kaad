@@ -56,9 +56,9 @@ Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t axis,
 void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
                         const Scalar *&res_end, Strides &eff_inp,
                         Strides &eff_res, Shape &inp_shape,
-                        Scalar &relevant_axis_extent,
-                        std::array<INode *, 1> input, INode *result,
-                        std::size_t relevant_axis, bool keep_rank) {
+                        Scalar &reduction_extent, std::array<INode *, 1> input,
+                        INode *result, std::size_t reduction_axis,
+                        bool keep_rank) {
 
     TensorViewConst inp = input[0]->value();
     TensorViewConst res = result->value();
@@ -73,20 +73,19 @@ void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
     if (keep_rank) {
 
         eff_res = res.strides;
-        eff_res[relevant_axis] = 0;
+        eff_res[reduction_axis] = 0;
 
     } else {
 
         Shape res_padded = inp.shape;
-        res_padded[relevant_axis] = 1;
+        res_padded[reduction_axis] = 1;
 
         eff_res = Tensor::compute_strides(res_padded);
     }
 
     inp_shape = inp.shape;
 
-    relevant_axis_extent =
-        static_cast<Scalar>(input[0]->shape()[relevant_axis]);
+    reduction_extent = static_cast<Scalar>(input[0]->shape()[reduction_axis]);
 }
 
 } // namespace kaad::operations::internal
