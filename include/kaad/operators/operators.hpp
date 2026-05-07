@@ -88,19 +88,19 @@ Node abs(Graph &rec, Node input);
  * @brief Adds a slice node to the computation graph.
  *
  * Extracts a slice from the input tensor node @p input, starting at the
- * specified @p start and extending for the given @p size along each axis.
+ * specified @p start and with with a shape specified by @p shape.
  *
  * @ingroup unary_operators
- * @pre @p shape and @p size need to have the same size.
+ * @pre @p shape and @p shape need to have the same size.
  * @pre @p shape[i] + @p start[i] <= input_shape[i]
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
- * @param size The shape of the slice.
+ * @param shape The shape of the slice.
  * @param start The offset of the slice, will be padded with zeros.
  * @return A handle of the new node representing the sliced tensor.
  */
-Node slice(Graph &rec, Node input, Shape size,
+Node slice(Graph &rec, Node input, Shape shape,
            StaticVector<std::size_t> start = {});
 
 /**

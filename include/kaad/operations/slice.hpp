@@ -19,7 +19,7 @@ struct Slice {
 
     static constexpr const char *OPERATION_NAME = "slice";
 
-    static Shape make_res_shape(std::array<INode *, 1> input, ShapeView size,
+    static Shape make_res_shape(std::array<INode *, 1> input, ShapeView shape,
                                 StaticVector<std::size_t> start);
 
     struct ForwardParams {
@@ -36,7 +36,7 @@ struct Slice {
         Shape res_shape;
 
         ForwardParams(std::array<INode *, 1> input, INode *result,
-                      [[maybe_unused]] ShapeView size,
+                      [[maybe_unused]] ShapeView shape,
                       std::span<const std::size_t> start);
     };
 
@@ -76,8 +76,8 @@ struct Slice {
         const Scalar *d_res_begin;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
-                       ShapeView size, std::span<const std::size_t> start)
-            : ForwardParams(input, result, size, start),
+                       ShapeView shape, std::span<const std::size_t> start)
+            : ForwardParams(input, result, shape, start),
               d_inp_begin(input[0]->gradient_mut().data()),
               d_res_begin(result->gradient().data()) {}
     };
@@ -140,7 +140,7 @@ struct Slice {
 
     static Dispatch
     dispatch([[maybe_unused]] std::array<INode *, 1> input, INode *result,
-             [[maybe_unused]] ShapeView size,
+             [[maybe_unused]] ShapeView shape,
              [[maybe_unused]] std::span<const std::size_t> start) {
         // -1 because of +1 in make table function
         return {

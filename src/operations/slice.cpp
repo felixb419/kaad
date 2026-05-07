@@ -9,16 +9,16 @@
 
 namespace kaad::operations {
 
-Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView size,
+Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
                             StaticVector<std::size_t> start) {
 
     TensorViewConst inp = input[0]->value();
 
-    if (size.size() != inp.rank()) {
+    if (shape.size() != inp.rank()) {
 
         throw ArgumentError(
-            "length of size must be equal to input.rank(), size=" +
-            to_string(size) + ", input.shape()=" + to_string(inp.shape));
+            "length of shape must be equal to input.rank(), shape=" +
+            to_string(shape) + ", input.shape()=" + to_string(inp.shape));
     }
 
     if (start.size() > inp.rank()) {
@@ -36,20 +36,20 @@ Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView size,
     // make sure slice is not too large
     for (std::size_t i = 0; i < inp.rank(); i++) {
 
-        if (size[i] + start[i] > inp.shape[i]) {
+        if (shape[i] + start[i] > inp.shape[i]) {
 
             throw ArgumentError("axis " + std::to_string(i) +
-                                " of slice is too large with a size of " +
-                                std::to_string(size[i]) + " starting at " +
+                                " of slice is too large with an extent of " +
+                                std::to_string(shape[i]) + " starting at " +
                                 std::to_string(start[i]));
         }
     }
 
-    return {size};
+    return {shape};
 }
 
 Slice::ForwardParams::ForwardParams(std::array<INode *, 1> input, INode *result,
-                                    [[maybe_unused]] ShapeView size,
+                                    [[maybe_unused]] ShapeView shape,
                                     std::span<const std::size_t> start)
     : inp_begin(input[0]->value().data()),
       res_begin(result->value_mut().data()), eff_inp(input[0]->value().strides),

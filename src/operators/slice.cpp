@@ -14,11 +14,11 @@
 
 namespace kaad {
 
-Node slice(Graph &rec, Node input, Shape size,
+Node slice(Graph &rec, Node input, Shape shape,
            StaticVector<std::size_t> start) {
 
     rec.nodes.push_back(std::make_unique<OperatorNode<operations::Slice>>(
-        std::array{rec.get_node(input)}, size, start));
+        std::array{rec.get_node(input)}, shape, start));
 
     return rec.back_handle();
 }
