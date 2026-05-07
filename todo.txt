@@ -3,7 +3,6 @@
 
 [REFACTOR]
             Check if usages of size_t (maybe another type is better, specifically for indeces)
-(operations)(?) use operations::flexible::broadcast in Matmul::broadcast
             
             reorder headers
                 1. designate public headers

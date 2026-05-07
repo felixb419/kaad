@@ -9,10 +9,7 @@
 
 namespace kaad::operations {
 
-Shape BroadcastPolicy::make_res_shape(std::array<INode *, 2> inputs) {
-
-    ShapeView lhs = inputs[0]->shape();
-    ShapeView rhs = inputs[1]->shape();
+Shape BroadcastPolicy::make_res_shape(ShapeView lhs, ShapeView rhs) {
 
     std::size_t new_rank = std::max(lhs.size(), rhs.size());
 
@@ -49,6 +46,10 @@ Shape BroadcastPolicy::make_res_shape(std::array<INode *, 2> inputs) {
     }
 
     return res;
+}
+
+Shape BroadcastPolicy::make_res_shape(std::array<INode *, 2> inputs) {
+    return make_res_shape(inputs[0]->shape(), inputs[1]->shape());
 }
 
 void BroadcastPolicy::init_strides(std::array<INode *, 2> inputs, INode *result,

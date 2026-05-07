@@ -1,8 +1,11 @@
 #include <kaad/operations/matmul.hpp>
 
 #include <algorithm>                    // for __copy_fn, copy, max
+#include <array>                        // for array
+#include <cstddef>                      // for size_t
 #include <kaad/exceptions.hpp>          // for BroadcastError, to_string
 #include <kaad/graph/inode.hpp>         // for INode
+#include <kaad/operations/strided.hpp>  // for BroadcastPolicy
 #include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Strides
 #include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
 #include <span>                         // for span
@@ -23,47 +26,21 @@ Shape broadcast(ShapeView lhs, ShapeView rhs) {
                              to_string(lhs) + ", rhs.shape()" + to_string(rhs));
     }
 
-    Shape res(res_rank);
-
-    res[res_rank - 1] = rhs[rhs.size() - 1];
-    res[res_rank - 2] = lhs[lhs.size() - 2];
-
-    // check batch axes
     if (res_rank > 2) {
 
-        auto broadcast_compatible = [](auto extent1, auto extent2) {
-            return extent1 == extent2 || extent1 == 1 || extent2 == 1;
-        };
+        ShapeView batch_axes_lhs(lhs.data(), lhs.size() - 2);
+        ShapeView batch_axes_rhs(rhs.data(), rhs.size() - 2);
 
-        // +2 in offset because last two axes are already checked
-        for (std::size_t offset = 1 + 2; offset <= res_rank; offset++) {
+        Shape batch_axes_broadcast =
+            BroadcastPolicy::make_res_shape(batch_axes_lhs, batch_axes_rhs);
 
-            std::size_t lhs_idx = lhs.size() - offset;
-            std::size_t rhs_idx = rhs.size() - offset;
-            std::size_t res_idx = rhs.size() - offset;
+        batch_axes_broadcast.push_back(lhs[lhs.size() - 2]);
+        batch_axes_broadcast.push_back(rhs[rhs.size() - 1]);
 
-            if (offset > lhs.size()) {
-                res[res_idx] = rhs[rhs_idx];
-                continue;
-            }
-
-            if (offset > rhs.size()) {
-                res[res_idx] = lhs[lhs_idx];
-                continue;
-            }
-
-            if (!broadcast_compatible(lhs[lhs_idx], rhs[rhs_idx])) {
-
-                throw BroadcastError(
-                    "incompatible tensor shapes for broadcasting, lhs.shape()" +
-                    to_string(lhs) + ", rhs.shape()" + to_string(rhs));
-            }
-
-            res[res_idx] = std::max(lhs[lhs_idx], rhs[rhs_idx]);
-        }
+        return batch_axes_broadcast;
     }
 
-    return res;
+    return {lhs[lhs.size() - 2], rhs[rhs.size() - 1]};
 }
 
 Shape Matmul::make_res_shape(std::array<INode *, 2> inputs) {

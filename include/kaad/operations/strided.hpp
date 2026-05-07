@@ -15,6 +15,8 @@ namespace kaad::operations {
 
 struct BroadcastPolicy {
 
+    static Shape make_res_shape(ShapeView lhs, ShapeView rhs);
+
     static Shape make_res_shape(std::array<INode *, 2> inputs);
 
     static void init_strides(std::array<INode *, 2> inputs, INode *result,
