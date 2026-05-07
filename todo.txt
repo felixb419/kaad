@@ -2,7 +2,6 @@
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
 
 [REFACTOR]
-            rename Matmul::ForwardParams::shared_axis to extent_shared
             rename Reduce::ForwardParams::relevant to extent_relevant
             rename slice param size to shape
 (operations) rename flexible to broadcast

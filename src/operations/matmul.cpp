@@ -75,7 +75,7 @@ Matmul::ForwardParams::ForwardParams(TensorViewConst lhs, TensorViewConst rhs,
 
     this->lhs_col_step = lhs.strides[lhs.rank() - 1];
     this->rhs_row_step = rhs.strides[rhs.rank() - 2];
-    this->shared_axis = lhs.shape[lhs.rank() - 1];
+    this->extent_shared = lhs.shape[lhs.rank() - 1];
 
     this->res_broadcast = broadcast(lhs.shape, rhs.shape);
 

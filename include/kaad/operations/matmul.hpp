@@ -37,9 +37,9 @@ struct Matmul {
         const Scalar *rhs_begin;
         Scalar *res_begin;
 
-        stride lhs_col_step; ///< Step size between columns of lhs.
-        stride rhs_row_step; ///< Step size between rows of rhs.
-        extent shared_axis;  ///< Length of the shared axis of lhs and rhs.
+        stride lhs_col_step;  ///< Step size between columns of lhs.
+        stride rhs_row_step;  ///< Step size between rows of rhs.
+        extent extent_shared; ///< Length of the shared axis of lhs and rhs.
 
         Strides eff_lhs; ///< Broadcasted strides for lhs.
         Strides eff_rhs; ///< Broadcasted strides for rhs.
@@ -60,7 +60,7 @@ struct Matmul {
                               std::size_t lhs_offset, std::size_t rhs_offset,
                               std::size_t res_idx) {
 
-        for (std::size_t i = 0; i < params.shared_axis; i++) {
+        for (std::size_t i = 0; i < params.extent_shared; i++) {
 
             const std::size_t LHS_IDX = lhs_offset + (i * params.lhs_col_step);
             const std::size_t RHS_IDX = rhs_offset + (i * params.rhs_row_step);
