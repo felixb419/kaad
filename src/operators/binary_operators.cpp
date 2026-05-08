@@ -2,17 +2,17 @@
 
 #include "../graph/operation_concept.hpp" // for Operation
 #include "../operations/pointwise.hpp"    // for Pointwise
-#include "../operations/safe_kernels.hpp" // for SafeDiv, SafePow
 #include "../operations/strided.hpp"      // for Strided
 #include <array>                          // for array
 #include <kaad/exceptions.hpp>            // for BroadcastError, make_gra...
 #include <kaad/graph/graph.hpp>           // for Graph, binary_operator
 #include <kaad/graph/node_handle.hpp>     // for Node
-#include <kaad/operations/internal/kernels.hpp> // for Add, Max, Min, Mul, Sub
-#include <kaad/scalar.hpp>                      // for Scalar
-#include <memory>                               // for make_unique, unique_ptr
-#include <string>                               // for basic_string
-#include <vector>                               // for vector
+#include <kaad/operators/internal/kernels.hpp> // for Add, Max, Min, Mul, Sub
+#include <kaad/operators/internal/safe_kernels.hpp> // for SafeDiv, SafePow
+#include <kaad/scalar.hpp>                          // for Scalar
+#include <memory> // for make_unique, unique_ptr
+#include <string> // for basic_string
+#include <vector> // for vector
 
 namespace kaad {
 

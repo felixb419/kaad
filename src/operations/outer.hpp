@@ -2,7 +2,7 @@
 
 #include "strided.hpp"
 #include <array>                                 // for array
-#include <kaad/operations/internal/kernels.hpp>  // for Mul
+#include <kaad/operators/internal/kernels.hpp>   // for Mul
 #include <kaad/scalar.hpp>                       // for Scalar
 #include <kaad/tensor/internal/tensor_types.hpp> // for Strides, Shape
 
