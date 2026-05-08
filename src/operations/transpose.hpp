@@ -1,13 +1,13 @@
 #pragma once
 
-#include <array>                            // for array
-#include <cstddef>                          // for size_t
-#include <kaad/graph/inode.hpp>             // for INode
-#include <kaad/graph/operation_concept.hpp> // for Operation
-#include <kaad/scalar.hpp>                  // for Scalar
-#include <kaad/tensor/tensor_types.hpp>     // for Shape, Strides
-#include <span>                             // for span
-#include <utility>                          // for pair
+#include "../graph/operation_concept.hpp" // for Operation
+#include <array>                          // for array
+#include <cstddef>                        // for size_t
+#include <kaad/graph/inode.hpp>           // for INode
+#include <kaad/scalar.hpp>                // for Scalar
+#include <kaad/tensor/tensor_types.hpp>   // for Shape, Strides
+#include <span>                           // for span
+#include <utility>                        // for pair
 
 namespace kaad::operations {
 

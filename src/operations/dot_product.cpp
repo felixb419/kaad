@@ -1,4 +1,4 @@
-#include <kaad/operations/dot_product.hpp> // for DotProduct
+#include "dot_product.hpp"
 
 #include <algorithm>                    // for __equal_fn, equal
 #include <kaad/enums.hpp>               // for ScalarOrder

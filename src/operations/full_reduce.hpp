@@ -1,9 +1,9 @@
 #pragma once
 
+#include "../graph/operation_concept.hpp"
+#include "../operations/reduction_policies.hpp"
 #include <cstdint>
 #include <kaad/graph/inode.hpp>
-#include <kaad/graph/operation_concept.hpp>
-#include <kaad/operations/reduction_policies.hpp>
 
 namespace kaad::operations {
 

@@ -1,12 +1,12 @@
 #include <kaad/operators/operators.hpp> // for slice
 
+#include "../graph/operator_node.hpp"   // for OperatorNode
+#include "../operations/slice.hpp"      // for Slice
 #include <array>                        // for array
 #include <cstddef>                      // for size_t
 #include <kaad/graph/graph.hpp>         // for Graph, slice
 #include <kaad/graph/inode.hpp>         // for INode
 #include <kaad/graph/node_handle.hpp>   // for Node
-#include <kaad/graph/operator_node.hpp> // for OperatorNode
-#include <kaad/operations/slice.hpp>    // for Slice
 #include <kaad/static_vector.hpp>       // for StaticVector
 #include <kaad/tensor/tensor_types.hpp> // for Shape
 #include <memory>                       // for unique_ptr, make_unique

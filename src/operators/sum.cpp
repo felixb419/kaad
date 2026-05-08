@@ -1,17 +1,17 @@
 #include <kaad/operators/operators.hpp> // for sum
 
-#include <array>                           // for array
-#include <cstddef>                         // for size_t
-#include <kaad/exceptions.hpp>             // for ArgumentError, ShapeError
-#include <kaad/graph/graph.hpp>            // for Graph, sum
-#include <kaad/graph/inode.hpp>            // for INode
-#include <kaad/graph/node_handle.hpp>      // for Node
-#include <kaad/graph/operator_node.hpp>    // for OperatorNode
-#include <kaad/operations/full_reduce.hpp> // for FullReduceSum
-#include <kaad/operations/reduce.hpp>      // for ReduceSum
-#include <memory>                          // for unique_ptr, make_unique
-#include <string>                          // for basic_string
-#include <vector>                          // for vector
+#include "../graph/operator_node.hpp"    // for OperatorNode
+#include "../operations/full_reduce.hpp" // for FullReduceSum
+#include "../operations/reduce.hpp"      // for ReduceSum
+#include <array>                         // for array
+#include <cstddef>                       // for size_t
+#include <kaad/exceptions.hpp>           // for ArgumentError, ShapeError
+#include <kaad/graph/graph.hpp>          // for Graph, sum
+#include <kaad/graph/inode.hpp>          // for INode
+#include <kaad/graph/node_handle.hpp>    // for Node
+#include <memory>                        // for unique_ptr, make_unique
+#include <string>                        // for basic_string
+#include <vector>                        // for vector
 
 namespace kaad {
 

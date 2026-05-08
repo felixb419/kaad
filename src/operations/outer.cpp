@@ -1,4 +1,4 @@
-#include <kaad/operations/outer.hpp>
+#include "outer.hpp"
 
 #include <algorithm>                    // for __copy_fn, copy
 #include <kaad/graph/inode.hpp>         // for INode

@@ -1,8 +1,8 @@
 #pragma once
 
+#include "strided.hpp"
 #include <array>                        // for array
 #include <kaad/operations/kernels.hpp>  // for Mul
-#include <kaad/operations/strided.hpp>  // for Flexible
 #include <kaad/scalar.hpp>              // for Scalar
 #include <kaad/tensor/tensor_types.hpp> // for Strides, Shape
 

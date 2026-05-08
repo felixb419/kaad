@@ -1,4 +1,4 @@
-#include <kaad/operations/slice.hpp>
+#include "slice.hpp"
 
 #include <kaad/exceptions.hpp>          // for ArgumentError, to_string
 #include <kaad/graph/inode.hpp>         // for INode

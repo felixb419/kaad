@@ -2,14 +2,15 @@
             check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
 
 [REFACTOR]
-            Check if usages of size_t (maybe another type is better, specifically for indeces)
-            
             reorder headers
                 1. designate public headers
                 2. move everything to src not needed by them
                 3. put the rest of non public headers in include into internal/
                 4. remove unnecessary from .cpp and internal headers
                 5. go through public headers and make sure comments are good
+
+        (?) move operation_concep to operations
+        rename strided<BrodCastPolicy> to Broadcast
 
 [FEAT]
 (operations) operation names in kernels

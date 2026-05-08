@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kaad/graph/operation_concept.hpp>
+#include "../graph/operation_concept.hpp"
 
 namespace kaad::operations {
 

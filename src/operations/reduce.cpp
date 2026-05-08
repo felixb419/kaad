@@ -1,4 +1,4 @@
-#include <kaad/operations/reduce.hpp>
+#include "reduce.hpp"
 
 #include <algorithm>                    // for copy, __copy_fn
 #include <kaad/exceptions.hpp>          // for ArgumentError, to_string

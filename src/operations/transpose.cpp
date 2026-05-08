@@ -1,4 +1,4 @@
-#include <kaad/operations/transpose.hpp>
+#include "transpose.hpp"
 
 #include <algorithm>                    // for __all_of_fn, __sort_fn, adja...
 #include <kaad/exceptions.hpp>          // for ArgumentError, ShapeError

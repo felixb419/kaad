@@ -1,15 +1,15 @@
 #pragma once
 
-#include <array>                                  // for array
-#include <cstddef>                                // for size_t
-#include <kaad/graph/inode.hpp>                   // for INode
-#include <kaad/graph/operation_concept.hpp>       // for Operation
-#include <kaad/max_rank.hpp>                      // for KAAD_MAX_RANK
-#include <kaad/operations/reduction_policies.hpp> // for MeanPolicy, SumPolicy
-#include <kaad/scalar.hpp>                        // for Scalar
-#include <kaad/tensor/tensor_types.hpp>           // for Shape, Strides
-#include <type_traits>                            // for is_same_v
-#include <utility>                                // for index_sequence, mak...
+#include "../graph/operation_concept.hpp"       // for Operation
+#include "../operations/reduction_policies.hpp" // for MeanPolicy, SumPolicy
+#include <array>                                // for array
+#include <cstddef>                              // for size_t
+#include <kaad/graph/inode.hpp>                 // for INode
+#include <kaad/max_rank.hpp>                    // for KAAD_MAX_RANK
+#include <kaad/scalar.hpp>                      // for Scalar
+#include <kaad/tensor/tensor_types.hpp>         // for Shape, Strides
+#include <type_traits>                          // for is_same_v
+#include <utility>                              // for index_sequence, mak...
 
 namespace kaad::operations {
 
