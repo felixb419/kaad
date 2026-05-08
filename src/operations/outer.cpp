@@ -1,9 +1,9 @@
 #include "outer.hpp"
 
-#include <algorithm>                    // for __copy_fn, copy
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/tensor/tensor_types.hpp> // for Strides, Shape, ShapeView
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
+#include <algorithm>                             // for __copy_fn, copy
+#include <kaad/graph/internal/inode.hpp>         // for INode
+#include <kaad/tensor/internal/tensor_types.hpp> // for Strides, Shape, ShapeView
+#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
 
 namespace kaad::operations {
 

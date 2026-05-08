@@ -1,11 +1,11 @@
 #include "slice.hpp"
 
-#include <kaad/exceptions.hpp>          // for ArgumentError, to_string
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, Shape
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
-#include <string>                       // for allocator, char_traits, oper...
+#include <kaad/exceptions.hpp>                   // for ArgumentError, to_string
+#include <kaad/graph/internal/inode.hpp>         // for INode
+#include <kaad/static_vector.hpp>                // for StaticVector
+#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, Shape
+#include <kaad/tensor/tensor_view.hpp>           // for TensorViewConst
+#include <string> // for allocator, char_traits, oper...
 
 namespace kaad::operations {
 

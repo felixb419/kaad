@@ -1,13 +1,13 @@
 #include <kaad/graph/node_handle.hpp>
 
-#include <kaad/exceptions.hpp>          // for ArgumentError
-#include <kaad/graph/graph.hpp>         // for Graph
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/tensor/tensor.hpp>       // for TensorViewConst, TensorViewMut
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView
-#include <kaad/tensor/tensor_view.hpp>  // for TensorView, operator<<
-#include <memory>                       // for unique_ptr
-#include <vector>                       // for vector
+#include <kaad/exceptions.hpp>                   // for ArgumentError
+#include <kaad/graph/graph.hpp>                  // for Graph
+#include <kaad/graph/internal/inode.hpp>         // for INode
+#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView
+#include <kaad/tensor/tensor.hpp>      // for TensorViewConst, TensorViewMut
+#include <kaad/tensor/tensor_view.hpp> // for TensorView, operator<<
+#include <memory>                      // for unique_ptr
+#include <vector>                      // for vector
 
 namespace kaad {
 

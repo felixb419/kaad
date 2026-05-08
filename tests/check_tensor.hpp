@@ -4,9 +4,9 @@
 #include <concepts>
 #include <cstdint>
 #include <iostream>
-#include <kaad/scalar.hpp>        // for Scalar
+#include <kaad/scalar.hpp> // for Scalar
+#include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp> // for Tensor
-#include <kaad/tensor/tensor_types.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <span> // for span
 

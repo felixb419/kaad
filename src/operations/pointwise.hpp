@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../graph/operator_node.hpp"  // for Operation
-#include "kaad/operations/kernels.hpp" // for BinaryKernel, bin_kerne...
+#include "../graph/operator_node.hpp"           // for Operation
+#include "kaad/operations/internal/kernels.hpp" // for BinaryKernel, bin_kerne...
 #include <cstdint>
 #include <kaad/enums.hpp> // for ScalarOrder
 

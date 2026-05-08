@@ -1,10 +1,10 @@
 #pragma once
 
 #include "strided.hpp"
-#include <array>                        // for array
-#include <kaad/operations/kernels.hpp>  // for Mul
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for Strides, Shape
+#include <array>                                 // for array
+#include <kaad/operations/internal/kernels.hpp>  // for Mul
+#include <kaad/scalar.hpp>                       // for Scalar
+#include <kaad/tensor/internal/tensor_types.hpp> // for Strides, Shape
 
 namespace kaad {
 class INode;

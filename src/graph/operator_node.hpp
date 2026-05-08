@@ -3,7 +3,7 @@
 #include "operation_concept.hpp"
 #include <cstdint>
 #include <kaad/enums.hpp>
-#include <kaad/graph/inode.hpp>
+#include <kaad/graph/internal/inode.hpp>
 #include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 

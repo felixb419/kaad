@@ -1,16 +1,16 @@
 #include <kaad/graph/graph.hpp>
 
-#include "input_node.hpp"               // for InputNode
-#include <algorithm>                    // for __fill_fn, fill
-#include <cstddef>                      // for size_t
-#include <kaad/exceptions.hpp>          // for ArgumentError
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/graph/node_handle.hpp>   // for Node
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorView
-#include <memory>                       // for unique_ptr, make_unique
-#include <string>                       // for basic_string, operator+, to_...
-#include <vector>                       // for vector
+#include "input_node.hpp"                        // for InputNode
+#include <algorithm>                             // for __fill_fn, fill
+#include <cstddef>                               // for size_t
+#include <kaad/exceptions.hpp>                   // for ArgumentError
+#include <kaad/graph/internal/inode.hpp>         // for INode
+#include <kaad/graph/node_handle.hpp>            // for Node
+#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView
+#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorView
+#include <memory>                      // for unique_ptr, make_unique
+#include <string>                      // for basic_string, operator+, to_...
+#include <vector>                      // for vector
 
 namespace kaad {
 

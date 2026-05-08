@@ -1,15 +1,15 @@
 #pragma once
 
-#include <cstddef>                       // for ptrdiff_t, size_t
-#include <cstdint>                       // for uint64_t
-#include <iostream>                      // for ostream
-#include <kaad/enums.hpp>                // for MUTABILITY, ScalarOrder
-#include <kaad/scalar.hpp>               // for Scalar
-#include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/tensor_types.hpp>  // for ShapeView, StridesView, Str...
-#include <random>                        // for random_device, mt19937_64
-#include <span>                          // for span
-#include <vector>                        // for vector
+#include <cstddef>                                // for ptrdiff_t, size_t
+#include <cstdint>                                // for uint64_t
+#include <iostream>                               // for ostream
+#include <kaad/enums.hpp>                         // for MUTABILITY, ScalarOrder
+#include <kaad/scalar.hpp>                        // for Scalar
+#include <kaad/tensor/internal/iterator_impl.hpp> // for IteratorImpl
+#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, StridesView, Str...
+#include <random> // for random_device, mt19937_64
+#include <span>   // for span
+#include <vector> // for vector
 
 namespace kaad {
 

@@ -1,15 +1,15 @@
 #include "matmul.hpp"
 
-#include "strided.hpp"                  // for BroadcastPolicy
-#include <algorithm>                    // for __copy_fn, copy, max
-#include <array>                        // for array
-#include <cstddef>                      // for size_t
-#include <kaad/exceptions.hpp>          // for BroadcastError, to_string
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Strides
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst, TensorViewMut
-#include <span>                         // for span
-#include <string>                       // for allocator, char_traits, oper...
+#include "strided.hpp"                   // for BroadcastPolicy
+#include <algorithm>                     // for __copy_fn, copy, max
+#include <array>                         // for array
+#include <cstddef>                       // for size_t
+#include <kaad/exceptions.hpp>           // for BroadcastError, to_string
+#include <kaad/graph/internal/inode.hpp> // for INode
+#include <kaad/tensor/internal/tensor_types.hpp> // for Shape, ShapeView, Strides
+#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
+#include <span>                        // for span
+#include <string>                      // for allocator, char_traits, oper...
 
 namespace kaad::operations {
 

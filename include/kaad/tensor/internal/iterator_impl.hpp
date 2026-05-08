@@ -1,13 +1,13 @@
 #pragma once
 
-#include <algorithm>                    // for copy
-#include <iterator>                     // for bidirectional_iterator_tag
-#include <kaad/enums.hpp>               // for MUTABILITY
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StrideView
-#include <span>                         // for span
-#include <type_traits>                  // for conditional_t
-#include <vector>                       // for vector
+#include <algorithm>       // for copy
+#include <iterator>        // for bidirectional_iterator_tag
+#include <kaad/enums.hpp>  // for MUTABILITY
+#include <kaad/scalar.hpp> // for Scalar
+#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, StrideView
+#include <span>                                  // for span
+#include <type_traits>                           // for conditional_t
+#include <vector>                                // for vector
 
 namespace kaad {
 

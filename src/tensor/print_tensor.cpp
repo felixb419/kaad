@@ -1,10 +1,10 @@
-#include <kaad/tensor/print_tensor.hpp>
+#include <kaad/tensor/internal/print_tensor.hpp>
 
-#include <cstddef>                      // for size_t
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor.hpp>       // for Tensor
-#include <kaad/tensor/tensor_types.hpp> // for ShapeView, StridesView
+#include <cstddef>                               // for size_t
+#include <kaad/scalar.hpp>                       // for Scalar
+#include <kaad/static_vector.hpp>                // for StaticVector
+#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, StridesView
+#include <kaad/tensor/tensor.hpp>                // for Tensor
 
 namespace kaad {
 

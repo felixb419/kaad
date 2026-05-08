@@ -6,9 +6,9 @@
 #include <array>                          // for array
 #include <kaad/graph/graph.hpp>           // for Graph, unary_operator
 #include <kaad/graph/node_handle.hpp>     // for Node
-#include <kaad/operations/kernels.hpp>    // for Abs, Neg, Square
-#include <kaad/scalar.hpp>                // for Scalar
-#include <memory>                         // for make_unique
+#include <kaad/operations/internal/kernels.hpp> // for Abs, Neg, Square
+#include <kaad/scalar.hpp>                      // for Scalar
+#include <memory>                               // for make_unique
 
 namespace kaad {
 

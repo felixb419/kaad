@@ -3,7 +3,7 @@
 #include <initializer_list>           // for initializer_list
 #include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/static_vector.hpp>     // for StaticVector
-#include <kaad/tensor/tensor_types.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad {
 

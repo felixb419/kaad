@@ -7,7 +7,7 @@
 #include <cstddef>                       // for size_t
 #include <kaad/exceptions.hpp>           // for ArgumentError, ShapeError
 #include <kaad/graph/graph.hpp>          // for Graph, mean
-#include <kaad/graph/inode.hpp>          // for INode
+#include <kaad/graph/internal/inode.hpp> // for INode
 #include <kaad/graph/node_handle.hpp>    // for Node
 #include <memory>                        // for unique_ptr, make_unique
 #include <string>                        // for basic_string

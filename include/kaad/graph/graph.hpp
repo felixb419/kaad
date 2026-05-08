@@ -1,13 +1,13 @@
 #pragma once
 
-#include <cstddef>                      // for size_t
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/operations/kernels.hpp>  // for Binary, Unary
-#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
-#include <memory>                       // for unique_ptr
-#include <span>                         // for span
-#include <vector>                       // for vector
+#include <cstddef>                               // for size_t
+#include <kaad/graph/internal/inode.hpp>         // for INode
+#include <kaad/operations/internal/kernels.hpp>  // for Binary, Unary
+#include <kaad/tensor/internal/tensor_types.hpp> // for Shape, ShapeView
+#include <kaad/tensor/tensor_view.hpp>           // for TensorViewConst
+#include <memory>                                // for unique_ptr
+#include <span>                                  // for span
+#include <vector>                                // for vector
 
 namespace kaad {
 

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <algorithm>                     // for reverse_copy
-#include <cstddef>                       // for size_t
-#include <iostream>                      // for ostream, ptrdiff_t
-#include <kaad/enums.hpp>                // for MUTABILITY
-#include <kaad/scalar.hpp>               // for Scalar
-#include <kaad/tensor/iterator_impl.hpp> // for IteratorImpl
-#include <kaad/tensor/print_tensor.hpp>  // for print_tensor_impl
-#include <kaad/tensor/tensor_types.hpp> // for Shape, ShapeView, Strides, StridesView
-#include <span>                         // for span
+#include <algorithm>                              // for reverse_copy
+#include <cstddef>                                // for size_t
+#include <iostream>                               // for ostream, ptrdiff_t
+#include <kaad/enums.hpp>                         // for MUTABILITY
+#include <kaad/scalar.hpp>                        // for Scalar
+#include <kaad/tensor/internal/iterator_impl.hpp> // for IteratorImpl
+#include <kaad/tensor/internal/print_tensor.hpp>  // for print_tensor_impl
+#include <kaad/tensor/internal/tensor_types.hpp> // for Shape, ShapeView, Strides, StridesView
+#include <span>                                  // for span
 
 namespace kaad {
 

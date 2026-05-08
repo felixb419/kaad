@@ -1,14 +1,14 @@
 #include "transpose.hpp"
 
-#include <algorithm>                    // for __all_of_fn, __sort_fn, adja...
-#include <kaad/exceptions.hpp>          // for ArgumentError, ShapeError
-#include <kaad/graph/inode.hpp>         // for INode
-#include <kaad/scalar.hpp>              // for Scalar
-#include <kaad/static_vector.hpp>       // for StaticVector
-#include <kaad/tensor/tensor_types.hpp> // for Shape, Strides
-#include <kaad/tensor/tensor_view.hpp>  // for TensorViewConst
-#include <ranges>                       // for __adjacent_find_fn
-#include <string>                       // for allocator, char_traits, oper...
+#include <algorithm>                     // for __all_of_fn, __sort_fn, adja...
+#include <kaad/exceptions.hpp>           // for ArgumentError, ShapeError
+#include <kaad/graph/internal/inode.hpp> // for INode
+#include <kaad/scalar.hpp>               // for Scalar
+#include <kaad/static_vector.hpp>        // for StaticVector
+#include <kaad/tensor/internal/tensor_types.hpp> // for Shape, Strides
+#include <kaad/tensor/tensor_view.hpp>           // for TensorViewConst
+#include <ranges>                                // for __adjacent_find_fn
+#include <string> // for allocator, char_traits, oper...
 
 namespace kaad::operations {
 
