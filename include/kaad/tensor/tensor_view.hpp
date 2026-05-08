@@ -148,14 +148,12 @@ template <MUTABILITY M> struct TensorView {
      */
     TensorView<M> transpose_2d(Shape &shape_buff, Strides &strides_buff) {
 
-        std::size_t rank = this->rank();
-
         shape_buff = Shape(this->shape);
-        std::swap(shape_buff[rank - 1], shape_buff[rank - 2]);
+        std::swap(shape_buff.from_back(0), shape_buff.from_back(1));
 
         strides_buff = Strides(this->strides);
 
-        std::swap(strides_buff[rank - 1], strides_buff[rank - 2]);
+        std::swap(strides_buff.from_back(0), strides_buff.from_back(1));
 
         TensorView<M> out = *this;
 

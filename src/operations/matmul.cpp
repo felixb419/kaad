@@ -71,8 +71,8 @@ Matmul::ForwardParams::ForwardParams(TensorViewConst lhs, TensorViewConst rhs,
     int res_rank_diff = static_cast<int>(res_rank - res.rank());
     std::ranges::copy(res.strides, eff_res.begin() + res_rank_diff);
 
-    eff_lhs[res_rank - 1] = 0;
-    eff_rhs[res_rank - 2] = 0;
+    eff_lhs.from_back(0) = 0;
+    eff_rhs.from_back(1) = 0;
 
     this->lhs_begin = lhs.elements.data();
     this->rhs_begin = rhs.elements.data();

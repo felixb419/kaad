@@ -161,6 +161,11 @@ template <typename T> class StaticVector {
         return this->elements_[idx];
     }
 
+    /// @return The element at index this->size() - 1 - @p idx.
+    reference from_back(size_type idx) {
+        return this->elements_[this->size_ - 1 - idx];
+    }
+
     /// @note If new elements are created they are value initialized.
     void resize(size_type count) {
 
