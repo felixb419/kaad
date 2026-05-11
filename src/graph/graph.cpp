@@ -9,6 +9,7 @@
 #include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView
 #include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorView
 #include <memory>                      // for unique_ptr, make_unique
+#include <span>
 #include <string>                      // for basic_string, operator+, to_...
 #include <vector>                      // for vector
 

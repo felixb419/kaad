@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <kaad/graph/node_handle.hpp>
 
 #include <kaad/exceptions.hpp>                   // for ArgumentError
@@ -6,7 +7,7 @@
 #include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView
 #include <kaad/tensor/tensor.hpp>      // for TensorViewConst, TensorViewMut
 #include <kaad/tensor/tensor_view.hpp> // for TensorView, operator<<
-#include <memory>                      // for unique_ptr
+#include <ostream>
 #include <vector>                      // for vector
 
 namespace kaad {

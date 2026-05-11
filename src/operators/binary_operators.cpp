@@ -11,7 +11,6 @@
 #include <kaad/operators/internal/safe_kernels.hpp> // for SafeDiv, SafePow
 #include <kaad/scalar.hpp>                          // for Scalar
 #include <memory> // for make_unique, unique_ptr
-#include <string> // for basic_string
 #include <vector> // for vector
 
 namespace kaad {

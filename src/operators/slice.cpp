@@ -5,7 +5,6 @@
 #include <array>                                 // for array
 #include <cstddef>                               // for size_t
 #include <kaad/graph/graph.hpp>                  // for Graph, slice
-#include <kaad/graph/internal/inode.hpp>         // for INode
 #include <kaad/graph/node_handle.hpp>            // for Node
 #include <kaad/static_vector.hpp>                // for StaticVector
 #include <kaad/tensor/internal/tensor_types.hpp> // for Shape

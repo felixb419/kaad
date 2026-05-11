@@ -9,7 +9,6 @@
 #include <kaad/tensor/internal/tensor_types.hpp> // for Shape, ShapeView, Strides
 #include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
 #include <span>                        // for span
-#include <string>                      // for allocator, char_traits, oper...
 
 namespace kaad::operations {
 

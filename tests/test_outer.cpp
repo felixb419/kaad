@@ -1,7 +1,12 @@
 #include "check_tensor.hpp" // for check_tensor
 #include <array>            // for array
 #include <cassert>          // for assert
-#include <kaad/kaad.hpp>
+#include <kaad/graph/graph.hpp>
+#include <kaad/graph/node_handle.hpp>
+#include <kaad/operators/operators.hpp>
+#include <kaad/scalar.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
+#include <kaad/tensor/tensor_view.hpp>
 #include <numeric> // for iota
 #include <span>    // for span
 

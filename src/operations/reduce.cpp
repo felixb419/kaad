@@ -1,6 +1,8 @@
 #include "reduce.hpp"
 
 #include <algorithm>                             // for copy, __copy_fn
+#include <array>
+#include <cstddef>
 #include <kaad/exceptions.hpp>                   // for ArgumentError, to_string
 #include <kaad/graph/internal/inode.hpp>         // for INode
 #include <kaad/scalar.hpp>                       // for Scalar
@@ -9,6 +11,7 @@
 #include <kaad/tensor/tensor.hpp>                // for Tensor
 #include <kaad/tensor/tensor_view.hpp>           // for TensorViewConst
 #include <string> // for allocator, char_traits, oper...
+#include <utility>
 
 namespace kaad::operations::internal {
 

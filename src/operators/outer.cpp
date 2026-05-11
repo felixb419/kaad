@@ -4,7 +4,6 @@
 #include "../operations/outer.hpp"       // for OuterProduct
 #include <array>                         // for array
 #include <kaad/graph/graph.hpp>          // for Graph, outer
-#include <kaad/graph/internal/inode.hpp> // for INode
 #include <kaad/graph/node_handle.hpp>    // for Node
 #include <memory>                        // for unique_ptr, make_unique
 #include <vector>                        // for vector

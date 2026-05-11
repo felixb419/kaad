@@ -5,10 +5,8 @@
 #include <array>                         // for array
 #include <kaad/exceptions.hpp>           // for BroadcastError, make_graph_e...
 #include <kaad/graph/graph.hpp>          // for Graph, matmul
-#include <kaad/graph/internal/inode.hpp> // for INode
 #include <kaad/graph/node_handle.hpp>    // for Node
 #include <memory>                        // for unique_ptr, make_unique
-#include <string>                        // for basic_string
 #include <vector>                        // for vector
 
 namespace kaad {

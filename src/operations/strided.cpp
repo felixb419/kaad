@@ -1,11 +1,12 @@
 #include "strided.hpp"
 
 #include <algorithm>                     // for max
+#include <cstddef>
+#include <array>
 #include <kaad/exceptions.hpp>           // for BroadcastError, to_string
 #include <kaad/graph/internal/inode.hpp> // for INode
 #include <kaad/tensor/internal/tensor_types.hpp> // for Strides, Shape, ShapeView
 #include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
-#include <string>                      // for allocator, char_traits, oper...
 
 namespace kaad::operations {
 

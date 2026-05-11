@@ -1,4 +1,7 @@
+#include <cstddef>
 #include <kaad/exceptions.hpp>
+#include <string>
+#include <string_view>
 
 namespace kaad {
 

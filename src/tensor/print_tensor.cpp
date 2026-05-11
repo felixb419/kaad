@@ -5,6 +5,8 @@
 #include <kaad/static_vector.hpp>                // for StaticVector
 #include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, StridesView
 #include <kaad/tensor/tensor.hpp>                // for Tensor
+#include <ostream>
+#include <span>
 
 namespace kaad {
 
