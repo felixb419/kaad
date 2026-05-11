@@ -31,8 +31,7 @@ class Graph {
 
     /**
      * @brief Returns a pointer to a node handle.
-     * @warning Will throw ArgumentError if @p node doesnt refer to
-     * correct graph.
+     * @throws kaad::ArgumentError if @p node doesnt refer to correct graph.
      * @param node Node handle of the relevant node.
      * @return Pointer to the Node.
      */

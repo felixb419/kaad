@@ -17,8 +17,8 @@ struct Transpose {
 
     static constexpr const char *OPERATION_NAME = "transpose";
 
-    /// @note will throw ShapeError if input.rank() less than 2 or throw
-    /// ArgumentError if perm is invalid.
+    /// @throws kaad::ShapeError If input.rank() less than 2.
+    /// @throws kaad::ArgumentError If perm is invalid.
     static std::pair<Shape, Strides>
     make_res_shape(std::array<INode *, 1> input,
                    std::span<const std::size_t> perm);

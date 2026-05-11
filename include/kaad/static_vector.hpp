@@ -170,7 +170,7 @@ template <typename T> class StaticVector {
     /*
      * @brief Removes elements from the end or adds new ones so:
      * @c size() == @p count.
-     * @note throws kaad::CapacityError if @p count > KAAD_MAX_RANK
+     * @throws kaad::CapacityError If @p count > @c KAAD_MAX_RANK.
      * @note If new elements are created they are value initialized.
      */
     void resize(size_type count) {
@@ -184,7 +184,8 @@ template <typename T> class StaticVector {
     }
 
     /// @brief Adds an element to the back
-    /// @note throws CapacityError if @c size() == KAAD_MAX_RANK before calling.
+    /// @throws kaad::CapacityError If @c size() == @c KAAD_MAX_RANK before
+    /// calling.
     void push_back(value_type value) {
 
         if (this->size_ >= KAAD_MAX_RANK) {

@@ -23,8 +23,8 @@ struct Matmul {
     /**
      * @brief Broadcasts @p lhs and @p rhs according to matrix
      * multiplication, additional axes will be treated as batch
-     * axes, will throw BroadcastError if @p lhs and @p rhs are not
-     * compatible.
+     * axes.
+     * @throws kaad::BroadcastError If @p lhs and @p rhs are not compatible.
      */
     static Shape make_res_shape(ShapeView lhs, ShapeView rhs);
 

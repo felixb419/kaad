@@ -40,7 +40,7 @@ struct Strided {
 
     static constexpr const char *OPERATION_NAME = "binary flexible";
 
-    /// @note Will throw BroadcastError if shapes are incompatible according to
+    /// @throws kaad::BroadcastError If shapes are incompatible according to
     /// numpy broadcasting rules.
     static Shape make_res_shape(std::array<INode *, 2> inputs) {
         return Policy::make_res_shape(inputs);

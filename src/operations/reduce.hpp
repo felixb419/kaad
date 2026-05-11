@@ -33,8 +33,9 @@ template <ReductionPolicy Policy> struct Reduce {
 
     static constexpr const char *OPERATION_NAME = Policy::OPERATION_NAME;
 
-    /// @note Will throw ArgumentError if @p axis is not a valid index
-    /// of input.shape(), and ShapeError if input.rank() is less than 2.
+    /// @throws kaad::ArgumentError If @p axis is not a valid index
+    /// of input.shape().
+    /// @throws kaad::ShapeError If input.rank() is less than 2.
     static Shape make_res_shape(std::array<INode *, 1> input, std::size_t axis,
                                 bool keep_rank) {
         return internal::make_res_shape_impl(input, axis, keep_rank);
