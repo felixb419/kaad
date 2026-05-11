@@ -91,14 +91,14 @@ Node abs(Graph &rec, Node input);
  * specified @p start and with with a shape specified by @p shape.
  *
  * @ingroup unary_operators
- * @pre @p shape and @p shape need to have the same size.
+ * @pre @p shape and @p start need to have the same size.
  * @pre @p shape[i] + @p start[i] <= input_shape[i]
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @param shape The shape of the slice.
- * @param start The offset of the slice, will be padded with zeros.
- * @return A handle of the new node representing the sliced tensor.
+ * @param start The offset of the slice, will be padded with zeros on the right.
+ * @return A handle of the new node representing the slice.
  */
 Node slice(Graph &rec, Node input, Shape shape,
            StaticVector<std::size_t> start = {});
@@ -113,7 +113,7 @@ Node slice(Graph &rec, Node input, Shape shape,
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the scalar sum of all elements
- * of A.
+ * of @p input.
  */
 Node sum(Graph &rec, Node input);
 
@@ -183,8 +183,7 @@ Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
  * perm. If @p perm is empty, the tensor is fully transposed by reversing its
  * axes.
  *
- * @pre perm must have the same number of elements as @c input.shape() and
- * contain only valid indeces of @c input.shape().
+ * @pre perm must contain a valid permutation of the axes of @p input.
  *
  * @param rec The computation graph to which the node will be added.
  * @param input Handle of the input node.
@@ -206,7 +205,7 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm = {});
  * @ingroup binary_operators
  *
  * Computes the element-wise sum of two input tensor nodes @p lhs and @p rhs.
- * Both tensors must have the same shape or be broadcast-compatible.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -221,7 +220,8 @@ Node add(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise difference of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -237,7 +237,8 @@ Node sub(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise product of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -252,7 +253,8 @@ Node mul(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise quotient of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -267,7 +269,8 @@ Node div(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise power of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -282,7 +285,8 @@ Node pow(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise minimum of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -297,7 +301,8 @@ Node min(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise maximum of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -312,7 +317,8 @@ Node max(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * Computes the element-wise dot product of two input tensor nodes @p lhs and
- * @p rhs. Both tensors must have the same shape or be broadcast-compatible.
+ * @p rhs.
+ * @pre Inputs must have rank-1 or rank-0 (scalar).
  *
  * @param rec The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
@@ -327,9 +333,9 @@ Node dot(Graph &rec, Node lhs, Node rhs);
  * @ingroup binary_operators
  *
  * This operator supports standard matrix multiplication as well as batch
- * matrix multiplication. For 2-D inputs, it performs a classic matrix product.
- * For higher-rank tensors, the two leading axes are treated as batch
- * axes and are broadcast according to standard broadcasting rules before
+ * matrix multiplication. For rank-2 inputs, it performs a classic matrix
+ * multiplication. For higher-rank tensors, the leading axes are treated as
+ * batch axes and are broadcast according to standard broadcasting rules before
  * performing the matrix multiplication on the last two axes.
  *
  * @pre @p lhs and @p rhs need to have shapes compatible for matrix

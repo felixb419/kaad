@@ -25,10 +25,8 @@ class Graph {
     std::vector<std::unique_ptr<INode>>
         nodes; ///< Holds unique pointers pointing to computation nodes
 
-    /**
-     * @brief Get the last node in the graph.
-     * @return Handle of the node at the back of the node vector.
-     */
+    /// @brief Get the last node in the graph.
+    /// @return Handle of the node at the back of the node vector.
     [[nodiscard]] Node back_handle() noexcept;
 
     /**
@@ -58,11 +56,8 @@ class Graph {
      * @warning reset has to be called before nodes are evaluated.
      *
      * Accepts a variadic list of node handles, evaluates each one by calling
-     * its `eval()` method, and returns a std::array of pointers to their
+     * its `evaluate()` method, and returns a std::vector of pointers to their
      * resulting Tensor values in the same order.
-     *
-     * @tparam Nodes Variadic template parameter pack of Node
-     * types.
      *
      * @param nodes A list of handles of nodes to be evaluated.
      * @return An array of tensor views, each corresponding to the value
@@ -79,15 +74,13 @@ class Graph {
      *
      * Initializes the gradient of the output node `output` to 1 and performs
      * backpropagation through the graph. Returns a list of pointers to the
-     * gradient tensors corresponding to each input node in `wrt`.
-     *
-     * @tparam ptrs Variadic template parameter pack of Node types.
+     * gradient tensors corresponding to each input node in @p inputs.
      *
      * @param output Handle of the output node (target function) with respect
      * to which gradients are computed.
-     * @param wrt A list of input node handles for which the gradients are
+     * @param inputs A list of input node handles for which the gradients are
      * requested.
-     * @return An array of tensor views pointers representing the gradients
+     * @return An array of tensor views representing the gradients
      * df/dx for each input node.
      */
     std::vector<TensorViewConst> get_gradient(Node output,

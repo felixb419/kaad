@@ -1,11 +1,7 @@
 [FIX]
-            check why broadcast add fails on [3,2] + [1] (scalar is rank-1)
+            make value_mut only callable if node is input
 
 [REFACTOR]
-            reorder headers
-                4. remove unnecessary from .cpp and internal headers
-                5. go through public headers and make sure comments are good
-
         (?) move operation_concep to operations
         rename strided<BrodCastPolicy> to Broadcast
 
@@ -20,8 +16,9 @@
 (graph)     arena allocation
 
 [DOC]
-            Revise comments in public headers
-                put term definitions in the header class comment (axis, extent, ...)
+            put term definitions in the header class comment (axis, extent, ...)
+
+            Rework kaad.hpp mainpage
 
             Add Pages for:
                 what is backward autodiff

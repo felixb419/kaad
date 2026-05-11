@@ -145,6 +145,7 @@ template <typename T> class StaticVector {
     /// @return KAAD_MAX_RANK.
     [[nodiscard]] size_type max_size() const noexcept { return KAAD_MAX_RANK; }
 
+    /// @return True if vector is empty false otherwise.
     [[nodiscard]] bool empty() const noexcept { return this->size_ == 0; }
 
     [[nodiscard]] const_reference operator[](size_type idx) const {
@@ -161,12 +162,17 @@ template <typename T> class StaticVector {
         return this->elements_[idx];
     }
 
-    /// @return The element at index this->size() - 1 - @p idx.
+    /// @return The element at index @c size() - 1 - @p idx.
     reference from_back(size_type idx) {
         return this->elements_[this->size_ - 1 - idx];
     }
 
-    /// @note If new elements are created they are value initialized.
+    /*
+     * @brief Removes elements from the end or adds new ones so:
+     * @c size() == @p count.
+     * @note throws kaad::CapacityError if @p count > KAAD_MAX_RANK
+     * @note If new elements are created they are value initialized.
+     */
     void resize(size_type count) {
 
         if (count > KAAD_MAX_RANK) {
@@ -177,6 +183,8 @@ template <typename T> class StaticVector {
         this->resize(count, UNCHECKED);
     }
 
+    /// @brief Adds an element to the back
+    /// @note throws CapacityError if @c size() == KAAD_MAX_RANK before calling.
     void push_back(value_type value) {
 
         if (this->size_ >= KAAD_MAX_RANK) {
@@ -206,6 +214,7 @@ template <typename T> class StaticVector {
         return this->elements_.data() + this->size_;
     }
 
+    /// @return immutable view of the elements of the vector.
     [[nodiscard]] view_type view() const noexcept {
         return {this->elements_.data(), this->elements_.size()};
     }

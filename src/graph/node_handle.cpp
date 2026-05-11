@@ -8,7 +8,7 @@
 #include <kaad/tensor/tensor.hpp>      // for TensorViewConst, TensorViewMut
 #include <kaad/tensor/tensor_view.hpp> // for TensorView, operator<<
 #include <ostream>
-#include <vector>                      // for vector
+#include <vector> // for vector
 
 namespace kaad {
 
