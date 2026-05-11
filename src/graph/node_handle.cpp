@@ -41,6 +41,10 @@ namespace kaad {
         throw ArgumentError("idx_ of this handle is invalid");
     }
 
+    if (!this->is_input()) {
+        throw LogicError("calling value_mut is only allowed on input nodes");
+    }
+
     return this->origin_->nodes[this->idx()].get()->value_mut();
 }
 

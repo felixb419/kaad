@@ -48,6 +48,7 @@ class Node {
     /// @return An immutable view of the value tensor.
     [[nodiscard]] TensorViewConst value() const;
 
+    /// @throws kaad::LogicError if called on a non-input node.
     /// @return An mutable view of the value tensor.
     [[nodiscard]] TensorViewMut value_mut();
 

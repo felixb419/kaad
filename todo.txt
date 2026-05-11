@@ -1,5 +1,4 @@
 [FIX]
-            make value_mut only callable if node is input
 
 [REFACTOR]
         (?) move operation_concep to operations
