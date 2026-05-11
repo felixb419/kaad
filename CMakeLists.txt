@@ -16,7 +16,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Option flags
 option(ENABLE_SANITIZERS "Enable ASan + UBSan" ON)
 option(USE_CLANG_TIDY "Enable clang-tidy" ON)
-option(USE_IWYU "Enable IWYU" ON)
+option(USE_CLANG_TIDY_FIX "Enable clang-tidy --fix" OFF)
 option(KAAD_BUILD_TESTS "Build tests" ON)
 option(KAAD_BUILD_EXAMPLES "Build examples" ON)
 
@@ -32,22 +32,23 @@ if (ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 if (USE_CLANG_TIDY)
+
     find_program(CLANG_TIDY_EXE NAMES clang-tidy)
 
-    if(CLANG_TIDY_EXE)
-        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-header-filter=.")
+    set(CLANG_TIDY_ARGS
+        -header-filter=.
+    )
+
+    if (USE_CLANG_TIDY_FIX)
+        list(APPEND CLANG_TIDY_ARGS -fix)    
     endif()
-endif()
 
-if(USE_IWYU)
-  find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+    if(CLANG_TIDY_EXE)
+        set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};${CLANG_TIDY_ARGS}")
+    endif()
 
-  if(IWYU_PATH)
-    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE "${IWYU_PATH}")
-  endif()
 
 endif()
-
 
 # Add subdirectories
 add_subdirectory(src)

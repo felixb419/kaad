@@ -4,6 +4,7 @@ set -euo pipefail
 RELEASE=false
 CLEAN=false
 FAST=false
+FIX=false
 
 usage() {
     cat <<EOF
@@ -11,6 +12,8 @@ Usage: $(basename "$0") [--release] [--clean] [--fast] [--help]
 
   --clean     Delete build/ directory before building
   --release   Build in release mode
+  --fast      Builds without running clang-tidy
+  --fix       Builds with clang-tidy --fix
   --help      Show this help message
 EOF
 }
@@ -29,6 +32,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --fast)
         FAST=true
+        shift
+        ;;
+    --fix)
+        FIX=true
         shift
         ;;
     --help)
@@ -69,7 +76,12 @@ fi
 # Turn off iwyu, clang-tidy and sanitizers
 if $FAST; then
     cmake -DUSE_CLANG_TIDY=OFF ..
-    cmake -DUSE_IWYU=OFF ..
+fi
+
+# Enable the --fix flag for clang-tidy (doesnt affect wheter clang-tidy is run at all)
+if $FIX; then
+    echo "SET FIX"
+    cmake -DUSE_CLANG_TIDY_FIX=ON ..
 fi
 
 # Build everything

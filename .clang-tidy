@@ -11,6 +11,9 @@ Checks: >
 
   readability-*,
 
+  misc-include-cleaner
+  misc-include-fixer
+
 
 WarningsAsErrors: '*'
 
