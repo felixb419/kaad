@@ -157,6 +157,9 @@ class Tensor {
     /// @return Length of the shape array.
     [[nodiscard]] size_type rank() const noexcept;
 
+    /// @return Extent of tensor along specified axis (shape[@p axis]).
+    [[nodiscard]] Extent extent(size_type axis) const noexcept;
+
     /// @brief Get shape of the tensor.
     /// @return Read-only span representing the extent of the tensor along every
     /// axis.

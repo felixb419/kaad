@@ -39,7 +39,7 @@ Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
     // make sure slice is not too large
     for (std::size_t i = 0; i < inp.rank(); i++) {
 
-        if (shape[i] + start[i] > inp.shape[i]) {
+        if (shape[i] + start[i] > inp.extent(i)) {
 
             throw ArgumentError("axis " + std::to_string(i) +
                                 " of slice is too large with an extent of " +

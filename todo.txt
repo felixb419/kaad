@@ -4,7 +4,6 @@
 
 [FEAT]
 (tensor)    Tensor(std::vector<Scalar> &&)
-(tensor)    Tensor::size(size_t i);
             StaticVector::MAX_SIZE
 (tensor)    Tensor::MAX_RANK
 

@@ -1,8 +1,8 @@
 #include "transpose.hpp"
 
-#include <algorithm>                     // for __all_of_fn, __sort_fn, adja...
-#include <cstddef>
+#include <algorithm> // for __all_of_fn, __sort_fn, adja...
 #include <array>
+#include <cstddef>
 #include <kaad/exceptions.hpp>           // for ArgumentError, ShapeError
 #include <kaad/graph/internal/inode.hpp> // for INode
 #include <kaad/scalar.hpp>               // for Scalar

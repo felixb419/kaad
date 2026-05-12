@@ -174,6 +174,10 @@ Tensor::size_type Tensor::rank() const noexcept {
 
 ShapeView Tensor::shape() const noexcept { return this->shape_; }
 
+[[nodiscard]] Extent Tensor::extent(size_type axis) const noexcept {
+    return this->shape_[axis];
+}
+
 StridesView Tensor::strides() const noexcept { return this->strides_; }
 
 std::span<Scalar> Tensor::elements() noexcept { return this->elements_; }

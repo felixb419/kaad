@@ -54,6 +54,11 @@ template <MUTABILITY M> struct TensorView {
     /// @copydoc Tensor::rank
     [[nodiscard]] size_type rank() const { return this->shape.size(); }
 
+    /// @copydoc Tensor::extent
+    [[nodiscard]] Extent extent(size_type axis) const noexcept {
+        return this->shape[axis];
+    }
+
     /// @copydoc Tensor::scalar
     [[nodiscard]] bool scalar() const noexcept { return this->rank() == 0; }
 
