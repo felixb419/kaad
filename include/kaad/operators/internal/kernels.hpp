@@ -22,13 +22,15 @@ namespace kaad::operations::kernels {
 /**
  * @brief Concept requiring a kernel to have:
  * 1. 'value_type' alias
- * 2. static void Op(const value_type&, const value_type&, value_type&);
- * 3. static void Grad(const value_type&, value_type&, const value_type&,
+ * 2. static const char *OPERATION_NAME;
+ * 3. static void Op(const value_type&, const value_type&, value_type&);
+ * 4. static void Grad(const value_type&, value_type&, const value_type&,
  *                   value_type&, const value_type&, const value_type&);
  * @ingroup binary_kernels
  */
 template <class Kernel>
 concept Binary = requires { typename Kernel::value_type; } && requires {
+    { Kernel::OPERATION_NAME } -> std::convertible_to<const char *>;
     {
         Kernel::op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<const typename Kernel::value_type &>(),
@@ -61,12 +63,14 @@ template <Binary Kernel> constexpr bool binary_noexcept() {
 /**
  * @brief Concept requiring a kernel to have:
  * 1. 'value_type' alias
- * 2. static void Op(const value_type&, value_type&);
- * 3. static void Grad(const value_type&, value_type&, const value_type&, const
+ * 2. static const char *OPERATION_NAME;
+ * 3. static void Op(const value_type&, value_type&);
+ * 4. static void Grad(const value_type&, value_type&, const value_type&, const
  * value_type&);
  */
 template <class Kernel>
 concept Unary = requires { typename Kernel::value_type; } && requires {
+    { Kernel::OPERATION_NAME } -> std::convertible_to<const char *>;
     {
         Kernel::op(std::declval<const typename Kernel::value_type &>(),
                    std::declval<typename Kernel::value_type &>())
@@ -95,6 +99,8 @@ template <Unary Kernel> constexpr bool unary_noexcept() {
 template <typename T> struct Add {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Add";
+
     /// Forward op: res = lhs + rhs.
     constexpr static void op(T lhs, T rhs, T &res) noexcept { res = lhs + rhs; }
 
@@ -111,6 +117,8 @@ template <typename T> struct Add {
 /// @ingroup binary_kernels
 template <typename T> struct Sub {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Sub";
 
     /// Forward op: res = lhs - rhs.
     constexpr static void op(T lhs, T rhs, T &res) noexcept { res = lhs - rhs; }
@@ -129,6 +137,8 @@ template <typename T> struct Sub {
 template <typename T> struct Mul {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Mul";
+
     /// Forward op: res = lhs * rhs.
     constexpr static void op(T lhs, T rhs, T &res) noexcept { res = lhs * rhs; }
 
@@ -145,6 +155,8 @@ template <typename T> struct Mul {
 template <typename T> struct Div {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Div";
+
     /// Forward op: res = lhs / rhs.
     constexpr static void op(T lhs, T rhs, T &res) noexcept { res = lhs / rhs; }
 
@@ -160,6 +172,8 @@ template <typename T> struct Div {
 /// @ingroup binary_kernels
 template <typename T> struct Pow {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Pow";
 
     /// Forward op: res = lhs ^ rhs.
     constexpr static void op(T lhs, T rhs, T &res) noexcept {
@@ -179,6 +193,8 @@ template <typename T> struct Pow {
 template <typename T> struct Dot {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Dot";
+
     /// Forward op: res += lhs + rhs.
     constexpr static void op(T lhs, T rhs, T &res) noexcept {
         res += lhs * rhs;
@@ -196,6 +212,8 @@ template <typename T> struct Dot {
 /// @ingroup binary_kernels
 template <typename T> struct Min {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Min";
 
     /// Forward op: res = min(lhs, rhs)
     constexpr static void op(T lhs, T rhs, T &res) noexcept {
@@ -216,6 +234,8 @@ template <typename T> struct Min {
 template <typename T> struct Max {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Max";
+
     /// Forward op: res = max(lhs, rhs)
     constexpr static void op(T lhs, T rhs, T &res) noexcept {
         res = lhs > rhs ? lhs : rhs;
@@ -235,6 +255,8 @@ template <typename T> struct Max {
 template <typename T> struct NoOp {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "NoOp";
+
     /// Forward op: res = inp
     constexpr static void op(T inp, T &res) noexcept { res = inp; }
 
@@ -249,6 +271,8 @@ template <typename T> struct NoOp {
 /// @ingroup unary_kernels
 template <typename T> struct Neg {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Neg";
 
     /// Forward op: res = -inp
     constexpr static void op(T inp, T &res) noexcept { res = -inp; }
@@ -265,6 +289,8 @@ template <typename T> struct Neg {
 template <typename T> struct Square {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Square";
+
     /// Forward op: res = inp ^ 2
     constexpr static void op(T inp, T &res) noexcept { res = inp * inp; }
 
@@ -279,6 +305,8 @@ template <typename T> struct Square {
 /// @ingroup unary_kernels
 template <typename T> struct Sqrt {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Sqrt";
 
     /// Forward op: res = sqrt(inp)
     constexpr static void op(T inp, T &res) noexcept { res = std::sqrt(inp); }
@@ -295,6 +323,8 @@ template <typename T> struct Sqrt {
 template <typename T> struct Log {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Log";
+
     /// Forward op: res = log(inp)
     constexpr static void op(T inp, T &res) noexcept { res = std::log(inp); }
 
@@ -310,6 +340,8 @@ template <typename T> struct Log {
 template <typename T> struct Exp {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Exp";
+
     /// Forward op: res = e ^ inp
     constexpr static void op(T inp, T &res) noexcept { res = std::exp(inp); }
 
@@ -324,6 +356,8 @@ template <typename T> struct Exp {
 /// @ingroup unary_kernels
 template <typename T> struct Abs {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Abs";
 
     /// Forward op: res = | inp |
     constexpr static void op(T inp, T &res) noexcept { res = std::abs(inp); }

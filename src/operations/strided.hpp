@@ -26,7 +26,7 @@ template <kernels::Binary Kernel, FlexiblePolicy Policy> struct Strided {
 
     static constexpr std::size_t ARITY = 2;
 
-    static constexpr const char *OPERATION_NAME = "binary flexible";
+    static constexpr const char *OPERATION_NAME = Kernel::OPERATION_NAME;
 
     /// @throws kaad::BroadcastError If shapes are incompatible according to
     /// numpy broadcasting rules.

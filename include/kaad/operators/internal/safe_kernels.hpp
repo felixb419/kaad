@@ -41,6 +41,8 @@ template <typename T> static inline const T MIN_EXP = std::log(MIN_FINITE<T>);
 template <typename T> struct SafeDiv {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Div";
+
     /// Forward op: res = lhs / max(rhs, EPSILON)
     constexpr static void op(T lhs, T rhs, T &res) noexcept {
         res =
@@ -65,6 +67,8 @@ template <typename T> struct SafeDiv {
 /// @ingroup binary_kernels
 template <typename T> struct SafePow {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Pow";
 
     /// Forward op: res = e ^ (rhs * log(abs(lhs)))
     constexpr static void op(T lhs, T rhs, T &res) noexcept {
@@ -114,6 +118,8 @@ template <typename T> struct SafePow {
 template <typename T> struct SafeSqrt {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Sqrt";
+
     /// Forward op: res = sqrt(max(inp, 0))
     constexpr static void op(T inp, T &res) noexcept {
         res = std::sqrt(std::max(inp, T(0)));
@@ -131,6 +137,8 @@ template <typename T> struct SafeSqrt {
 template <typename T> struct SafeLog {
     using value_type = T;
 
+    constexpr static const char *OPERATION_NAME = "Log";
+
     /// Forward op: res = log(max(inp, EPSILON))
     constexpr static void op(T inp, T &res) noexcept {
         res = std::log(std::max(inp, EPSILON<T>));
@@ -147,6 +155,8 @@ template <typename T> struct SafeLog {
 /// @ingroup unary_kernels
 template <typename T> struct SafeExp {
     using value_type = T;
+
+    constexpr static const char *OPERATION_NAME = "Exp";
 
     /// Forward op: res = e ^ (max(MIN_EXP, min(MAX_EXP, inp)))
     constexpr static void op(T inp, T &res) noexcept {

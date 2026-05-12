@@ -12,7 +12,7 @@ struct Pointwise {
 
         static constexpr std::size_t ARITY = 2;
 
-        static constexpr const char *OPERATION_NAME = "binary pointwise";
+        static constexpr const char *OPERATION_NAME = Kernel::OPERATION_NAME;
 
         /// @note Throws ShapeError if shapes differ; scalar inputs are
         /// broadcast automatically.

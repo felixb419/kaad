@@ -3,7 +3,6 @@
 [REFACTOR]
 
 [FEAT]
-(operations) operation names in kernels
 (tensor)    Tensor(std::vector<Scalar> &&)
 (tensor)    Tensor::size(size_t i);
             StaticVector::MAX_SIZE
