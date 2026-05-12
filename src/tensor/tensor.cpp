@@ -46,7 +46,7 @@ Tensor::size_type Tensor::compute_size(ShapeView shape) {
     }
 
     size_type len = 1;
-    for (extent ext : shape) {
+    for (Extent ext : shape) {
         len *= ext;
     }
     return len;

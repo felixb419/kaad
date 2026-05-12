@@ -22,7 +22,7 @@ void print_tensor_values(std::ostream &stream, std::span<int> cords,
         }
         stream << elements[idx];
     } else {
-        extent ext = shape[idx];
+        Extent ext = shape[idx];
         stream << "[";
         indent++;
         // iterate for extent of current axis

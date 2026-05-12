@@ -37,9 +37,9 @@ struct Matmul {
         const Scalar *rhs_begin;
         Scalar *res_begin;
 
-        stride lhs_col_step;  ///< Step size between columns of lhs.
-        stride rhs_row_step;  ///< Step size between rows of rhs.
-        extent extent_shared; ///< Length of the shared axis of lhs and rhs.
+        Stride lhs_col_step;  ///< Step size between columns of lhs.
+        Stride rhs_row_step;  ///< Step size between rows of rhs.
+        Extent extent_shared; ///< Length of the shared axis of lhs and rhs.
 
         Strides eff_lhs; ///< Broadcasted strides for lhs.
         Strides eff_rhs; ///< Broadcasted strides for rhs.

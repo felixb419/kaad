@@ -6,10 +6,10 @@
 namespace kaad {
 
 /// Alias for the size of a shape along a singular tensor axis.
-using extent = std::size_t;
+using Extent = std::size_t;
 
 /// Alias for an owning tensor shape.
-using Shape = StaticVector<extent>;
+using Shape = StaticVector<Extent>;
 
 /// Empty Shape object (scalar).
 static constexpr Shape SCALAR_SHAPE{};
@@ -18,10 +18,10 @@ static constexpr Shape SCALAR_SHAPE{};
 using ShapeView = Shape::view_type;
 
 /// Alias for a singular stride along a singular tensor axis.
-using stride = std::size_t;
+using Stride = std::size_t;
 
 /// Alias for owning tensor strides.
-using Strides = StaticVector<stride>;
+using Strides = StaticVector<Stride>;
 
 /// Alias for non-owning immutable tensor strides.
 using StridesView = Strides::view_type;
