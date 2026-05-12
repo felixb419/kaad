@@ -38,6 +38,9 @@ class Tensor {
     using iterator = IteratorImpl<MUTABLE>;
     using const_iterator = IteratorImpl<IMMUTABLE>;
 
+    static constexpr const std::size_t MAX_RANK =
+        std::min(Shape::MAX_SIZE, Strides::MAX_SIZE);
+
   private:
     Shape shape_;     ///< Array containing the size of the tensor
                       ///< along each axis.
