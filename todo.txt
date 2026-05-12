@@ -3,8 +3,6 @@
 [REFACTOR]
 
 [FEAT]
-(tensor)    Tensor(std::vector<Scalar> &&)
-            StaticVector::MAX_SIZE
 (tensor)    Tensor::MAX_RANK
 
 [PERF]
@@ -31,6 +29,7 @@
 
 [LATER]
 (operations) make operations use std::mdspan as soon as available
+(graph)     Add a way to move values to input nodes without copying
 (graph) (?) Add system for inference
 (tensor)    make Tensor variant with compile time shape
 (tensor)(?) combine shape and stride into shape struct

@@ -28,6 +28,8 @@ template <typename T> class StaticVector {
 
     using view_type = std::span<const value_type>;
 
+    static constexpr const std::size_t MAX_SIZE = KAAD_MAX_RANK;
+
   private:
     std::array<value_type, KAAD_MAX_RANK> elements_{};
 
