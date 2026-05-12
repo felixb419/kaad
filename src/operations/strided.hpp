@@ -13,17 +13,6 @@
 
 namespace kaad::operations {
 
-struct BroadcastPolicy {
-
-    static Shape make_res_shape(ShapeView lhs, ShapeView rhs);
-
-    static Shape make_res_shape(std::array<INode *, 2> inputs);
-
-    static void init_strides(std::array<INode *, 2> inputs, INode *result,
-                             Strides &eff_lhs, Strides &eff_rhs,
-                             Strides &eff_res);
-};
-
 template <class Policy>
 concept FlexiblePolicy =
     requires(std::array<INode *, 2> inputs, INode *result, Strides &eff_lhs,
@@ -33,8 +22,7 @@ concept FlexiblePolicy =
         Policy::init_strides(inputs, result, eff_lhs, eff_rhs, eff_res);
     };
 
-template <kernels::Binary Kernel, FlexiblePolicy Policy = BroadcastPolicy>
-struct Strided {
+template <kernels::Binary Kernel, FlexiblePolicy Policy> struct Strided {
 
     static constexpr std::size_t ARITY = 2;
 
@@ -192,7 +180,5 @@ struct Strided {
                 std::make_index_sequence<KAAD_MAX_RANK>())[result->rank() - 1]};
     }
 };
-
-static_assert(Operation<Strided<kernels::Add<Scalar>>>);
 
 } // namespace kaad::operations

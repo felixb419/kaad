@@ -1,18 +1,14 @@
 #pragma once
 
-#include "strided.hpp"
-#include <array>                                 // for array
-#include <kaad/operators/internal/kernels.hpp>   // for Mul
-#include <kaad/scalar.hpp>                       // for Scalar
+#include "strided.hpp"                           // for Strided
+#include <kaad/graph/internal/inode.hpp>         // for INode
 #include <kaad/tensor/internal/tensor_types.hpp> // for Strides, Shape
-
-namespace kaad {
-class INode;
-}
 
 namespace kaad::operations {
 
-struct OuterProductPolicy {
+struct BroadcastPolicy {
+
+    static Shape make_res_shape(ShapeView lhs, ShapeView rhs);
 
     static Shape make_res_shape(std::array<INode *, 2> inputs);
 
@@ -21,8 +17,9 @@ struct OuterProductPolicy {
                              Strides &eff_res);
 };
 
-using OuterProduct = Strided<kernels::Mul<Scalar>, OuterProductPolicy>;
+template <kernels::Binary Kernel>
+using Broadcast = Strided<Kernel, BroadcastPolicy>;
 
-static_assert(Operation<OuterProduct>);
+static_assert(Operation<Broadcast<kernels::Add<Scalar>>>);
 
 } // namespace kaad::operations

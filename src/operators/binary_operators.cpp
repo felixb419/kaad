@@ -1,8 +1,8 @@
 #include <kaad/operators/operators.hpp> // for add, div, max, min, mul
 
+#include "../operations/broadcast.hpp"         // for Broadcast
 #include "../operations/operation_concept.hpp" // for Operation
 #include "../operations/pointwise.hpp"         // for Pointwise
-#include "../operations/strided.hpp"           // for Strided
 #include <array>                               // for array
 #include <kaad/exceptions.hpp>        // for BroadcastError, make_gra...
 #include <kaad/graph/graph.hpp>       // for Graph, binary_operator
@@ -36,9 +36,9 @@ Node binary_operator(Graph &rec, Node lhs, Node rhs, const char *opName) {
 
         try {
 
-            // fall back on flexible operation
+            // fall back on broadcast operation
             rec.nodes.push_back(
-                std::make_unique<OperatorNode<operations::Strided<Kernel>>>(
+                std::make_unique<OperatorNode<operations::Broadcast<Kernel>>>(
                     std::array{lhs_ptr, rhs_ptr}));
 
         } catch (BroadcastError &err) {

@@ -1,7 +1,6 @@
 [FIX]
 
 [REFACTOR]
-        rename strided<BrodCastPolicy> to Broadcast
 
 [FEAT]
 (operations) operation names in kernels

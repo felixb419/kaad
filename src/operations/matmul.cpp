@@ -1,6 +1,6 @@
 #include "matmul.hpp"
 
-#include "strided.hpp"                   // for BroadcastPolicy
+#include "broadcast.hpp"                 // for BroadcastPolicy
 #include <algorithm>                     // for __copy_fn, copy, max
 #include <array>                         // for array
 #include <cstddef>                       // for size_t
