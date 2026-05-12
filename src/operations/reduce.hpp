@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graph/operation_concept.hpp"        // for Operation
+#include "../operations/operation_concept.hpp"   // for Operation
 #include "../operations/reduction_policies.hpp"  // for MeanPolicy, SumPolicy
 #include <array>                                 // for array
 #include <cstddef>                               // for size_t

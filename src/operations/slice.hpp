@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graph/operation_concept.hpp"        // for Operation
+#include "../operations/operation_concept.hpp"   // for Operation
 #include <array>                                 // for array
 #include <cstddef>                               // for size_t
 #include <kaad/graph/internal/inode.hpp>         // for INode

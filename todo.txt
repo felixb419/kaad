@@ -1,7 +1,6 @@
 [FIX]
 
 [REFACTOR]
-        (?) move operation_concep to operations
         rename strided<BrodCastPolicy> to Broadcast
 
 [FEAT]

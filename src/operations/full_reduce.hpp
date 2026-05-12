@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../graph/operation_concept.hpp"
+#include "../operations/operation_concept.hpp"
 #include "../operations/reduction_policies.hpp"
 #include <cstdint>
 #include <kaad/graph/internal/inode.hpp>

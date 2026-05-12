@@ -1,12 +1,12 @@
 #include <kaad/operators/operators.hpp> // for add, div, max, min, mul
 
-#include "../graph/operation_concept.hpp" // for Operation
-#include "../operations/pointwise.hpp"    // for Pointwise
-#include "../operations/strided.hpp"      // for Strided
-#include <array>                          // for array
-#include <kaad/exceptions.hpp>            // for BroadcastError, make_gra...
-#include <kaad/graph/graph.hpp>           // for Graph, binary_operator
-#include <kaad/graph/node_handle.hpp>     // for Node
+#include "../operations/operation_concept.hpp" // for Operation
+#include "../operations/pointwise.hpp"         // for Pointwise
+#include "../operations/strided.hpp"           // for Strided
+#include <array>                               // for array
+#include <kaad/exceptions.hpp>        // for BroadcastError, make_gra...
+#include <kaad/graph/graph.hpp>       // for Graph, binary_operator
+#include <kaad/graph/node_handle.hpp> // for Node
 #include <kaad/operators/internal/kernels.hpp> // for Add, Max, Min, Mul, Sub
 #include <kaad/operators/internal/safe_kernels.hpp> // for SafeDiv, SafePow
 #include <kaad/scalar.hpp>                          // for Scalar

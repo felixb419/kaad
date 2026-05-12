@@ -1,6 +1,6 @@
 #include <kaad/operators/operators.hpp> // for abs, exp, log, negative, sqrt
 
-#include "../graph/operation_concept.hpp"           // for Operation
+#include "../operations/operation_concept.hpp"      // for Operation
 #include "../operations/pointwise.hpp"              // for Pointwise
 #include <array>                                    // for array
 #include <kaad/graph/graph.hpp>                     // for Graph, unary_operator
