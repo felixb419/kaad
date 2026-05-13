@@ -20,6 +20,7 @@ add_library(kaad
     ./operators/unary_operators.cpp
     ./tensor/print_tensor.cpp
     ./tensor/tensor.cpp
+    ./tensor/tensor_view.cpp
 )
 
 # Public headers location

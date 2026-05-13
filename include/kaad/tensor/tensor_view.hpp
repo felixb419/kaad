@@ -12,13 +12,10 @@
 
 namespace kaad {
 
-/// @brief A non-owning view of a tensor object, mutability is dependant on the
-/// constness of @p T.
-/// @tparam T Element type.
-template <MUTABILITY M> struct TensorView {
-    static constexpr bool IS_MUT = (M == MUTABLE);
-
-    using value_type = std::conditional_t<IS_MUT, Scalar, const Scalar>;
+/// @brief A non-owning immutable view of a tensor object.
+class TensorView {
+  public:
+    using value_type = const Scalar;
     using reference = value_type &;
     using const_reference = const value_type &;
     using pointer = value_type *;
@@ -26,14 +23,15 @@ template <MUTABILITY M> struct TensorView {
     using difference_type = std::ptrdiff_t;
     using size_type = std::size_t;
 
-    using iterator = std::conditional_t<IS_MUT, IteratorImpl<MUTABLE>,
-                                        IteratorImpl<IMMUTABLE>>;
+    using iterator = IteratorImpl<IMMUTABLE>;
 
-    ShapeView shape;     ///< Dimensions of the tensor.
-    StridesView strides; ///< Strides of the tensor (steps needed to move
-                         ///< one element along each axis).
-    std::span<value_type> elements; ///< Elements of the tensor.
+  private:
+    ShapeView shape_;     ///< Dimensions of the tensor.
+    StridesView strides_; ///< Strides of the tensor (steps needed to move
+                          ///< one element along each axis).
+    std::span<value_type> elements_; ///< Elements of the tensor.
 
+  public:
     /**
      * @brief Default constructor.
      */
@@ -48,125 +46,57 @@ template <MUTABILITY M> struct TensorView {
      * @param len Length of the element array.
      */
     TensorView(ShapeView shape, StridesView strides,
-               std::span<value_type> elements)
-        : shape(shape), strides(strides), elements(elements) {}
+               std::span<value_type> elements);
 
-    /// @copydoc Tensor::rank
-    [[nodiscard]] size_type rank() const { return this->shape.size(); }
+    /// @brief Get shape of the tensor.
+    /// @return Read-only span representing the extent of the tensor along every
+    /// axis.
+    [[nodiscard]] ShapeView shape() const noexcept;
 
-    /// @copydoc Tensor::extent
-    [[nodiscard]] Extent extent(size_type axis) const noexcept {
-        return this->shape[axis];
-    }
-
-    /// @copydoc Tensor::scalar
-    [[nodiscard]] bool scalar() const noexcept { return this->rank() == 0; }
-
-    /// @copydoc Tensor::begin
-    [[nodiscard]] iterator begin() const noexcept {
-        return {this->shape, this->strides, this->elements, false};
-    }
-
-    /// @copydoc Tensor::end
-    [[nodiscard]] iterator end() noexcept {
-        return {this->shape, this->strides, this->elements, true};
-    }
-
-    /// @copydoc Tensor::size
-    [[nodiscard]] size_type size() const noexcept {
-        return this->elements.size();
-    }
-
-    /// @copydoc Tensor::empty
-    [[nodiscard]] bool empty() const noexcept { return this->elements.empty(); }
-
-    /// @copydoc Tensor::data
-    [[nodiscard]] pointer data() noexcept { return this->elements.data(); }
-
-    /// @copydoc Tensor::data
-    [[nodiscard]] const_pointer data() const noexcept {
-        return this->elements.data();
-    }
+    /// @brief Get strides of the tensor.
+    /// @return Read-only span representing the strides array.
+    [[nodiscard]] StridesView strides() const noexcept;
 
     /**
-     * @brief Get a transposed copy of the view.
-     * @param shape_buff The new shape will be stored in this.
-     * @param strides_buff The new strides will be stored in this.
-     * @note The memory of @p shape_buff has to be manually freed.
-     * @return View with transposed shape and strides.
+     * @copybrief Tensor::elements()
+     * @note If the tensor has been transposed the physical and logical
+     * order of elements can differ.
+     * @return Read-only span representing the elements.
      */
-    TensorView<M> transpose(Shape &shape_buff, Strides &strides_buff) const {
+    [[nodiscard]] std::span<const value_type> elements() const noexcept;
 
-        std::size_t rank = this->rank();
+    /// @brief Get rank of the tensor.
+    /// @return Length of the shape array.
+    [[nodiscard]] size_type rank() const;
 
-        shape_buff.resize(rank);
-        std::ranges::reverse_copy(this->shape, shape_buff.begin());
+    /// @return Extent of tensor along specified axis (shape[@p axis]).
+    [[nodiscard]] Extent extent(size_type axis) const noexcept;
 
-        strides_buff.resize(rank);
-        std::ranges::reverse_copy(this->strides, strides_buff.begin());
-
-        TensorView<M> out = *this;
-
-        out.shape = ShapeView(shape_buff);
-        out.strides = ShapeView(strides_buff);
-
-        return out;
-    }
+    /// @return True if tensor is a scalar false otherwise.
+    [[nodiscard]] bool scalar() const noexcept;
 
     /**
-     * @brief Get a copy of the view transposed according to @p perm.
-     * @pre @p perm has size equal to @c rank() and doesnt contain
-     * duplicates values or values >= @c rank().
-     * @param shape_buff The new shape will be stored in this.
-     * @param strides_buff The new strides will be stored in this.
-     * @param perm Permutation for transposition.
-     * @note The memory of @p shape_buff has to be manually freed.
-     * @return View with transposed shape and strides.
+     * @brief Returns an iterator to the first logical element.
+     * @note Iterates in logical (transposed) order; use @c data() for
+     * contiguous raw access.
+     * @return Read iterator to the first element.
      */
-    TensorView<M> transpose(Shape &shape_buff, Strides &strides_buff,
-                            std::span<const std::size_t> perm) const {
-
-        std::size_t rank = this->rank();
-
-        shape_buff.resize(rank);
-        strides_buff.resize(rank);
-
-        for (std::size_t i = 0; i < this->rank(); i++) {
-            shape_buff[i] = this->shape[perm[i]];
-            strides_buff[i] = this->strides[perm[i]];
-        }
-
-        TensorView<M> out = *this;
-
-        out.shape = ShapeView(shape_buff);
-        out.strides = ShapeView(strides_buff);
-
-        return out;
-    }
+    [[nodiscard]] iterator begin() const noexcept;
 
     /**
-     * @brief Get a copy of the view with the last 2 axes transposed.
-     * @param shape_buff The new shape will be stored in this.
-     * @param strides_buff The new strides will be stored in this.
-     * @note The memory of @p shape_buff has to be manually freed.
-     * @return View with transposed shape and strides.
+     * @brief Returns an iterator to one past the last logical element.
+     * @note Iterates in logical (transposed) order; use @c data() for
+     * contiguous raw access.
+     * @return Read iterator to one past the last element.
      */
-    TensorView<M> transpose_2d(Shape &shape_buff, Strides &strides_buff) {
+    [[nodiscard]] iterator end() noexcept;
 
-        shape_buff = Shape(this->shape);
-        std::swap(shape_buff.from_back(0), shape_buff.from_back(1));
+    /// @brief Get number of elements in the tensor.
+    /// @return Length of the element array.
+    [[nodiscard]] size_type size() const noexcept;
 
-        strides_buff = Strides(this->strides);
-
-        std::swap(strides_buff.from_back(0), strides_buff.from_back(1));
-
-        TensorView<M> out = *this;
-
-        out.shape = ShapeView(shape_buff);
-        out.strides = ShapeView(strides_buff);
-
-        return out;
-    }
+    /// @return True if tensor has no elements, false otherwise.
+    [[nodiscard]] bool empty() const noexcept;
 };
 
 /**
@@ -176,18 +106,6 @@ template <MUTABILITY M> struct TensorView {
  * @param view The tensor view to print.
  * @return std::ostream& The updated output stream.
  */
-template <MUTABILITY M>
-std::ostream &operator<<(std::ostream &stream, const TensorView<M> &tensor) {
-    print_tensor_impl(stream, tensor.shape, tensor.strides, tensor.elements);
-    return stream;
-}
-
-/// @copybrief TensorView
-/// Provides immutable access to the elements.
-using TensorViewConst = TensorView<IMMUTABLE>;
-
-/// @copybrief TensorView
-/// Provides mutable access to the elements.
-using TensorViewMut = TensorView<MUTABLE>;
+std::ostream &operator<<(std::ostream &stream, const TensorView &tensor);
 
 } // namespace kaad
