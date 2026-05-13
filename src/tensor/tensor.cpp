@@ -1,6 +1,7 @@
+#include "kaad/static_vector.hpp"
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
-#include <cstdint>
 #include <iostream>
 #include <kaad/exceptions.hpp>
 #include <kaad/scalar.hpp>
@@ -8,7 +9,6 @@
 #include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
-#include <random>
 #include <span>
 #include <string>
 #include <vector>
@@ -30,7 +30,7 @@ Strides Tensor::compute_strides(ShapeView shape) {
         strides[idx] = shape[idx + 1] * strides[idx + 1];
     }
 
-    for (size_type i = 0; i < strides.size(); i++) {
+    for (std::size_t i = 0; i < strides.size(); i++) {
         if (shape[i] <= 1) {
             strides[i] = 0;
         }
@@ -39,13 +39,13 @@ Strides Tensor::compute_strides(ShapeView shape) {
     return strides;
 }
 
-Tensor::size_type Tensor::compute_size(ShapeView shape) {
+std::size_t Tensor::compute_size(ShapeView shape) {
 
     if (shape.empty()) {
         return 1;
     }
 
-    size_type len = 1;
+    std::size_t len = 1;
     for (Extent ext : shape) {
         len *= ext;
     }
@@ -64,172 +64,65 @@ Strides checked_strides(StridesView strides, ShapeView shape) {
     return {strides};
 }
 
-std::vector<Scalar> checked_elements(std::span<const Scalar> elements,
-                                     ShapeView shape) {
-
-    Tensor::size_type implied_len = Tensor::compute_size(shape);
-    if (implied_len != elements.size()) {
-        throw ShapeError("size of elements param (" +
-                         std::to_string(elements.size()) +
-                         ") must be equal to size implied by shape param (" +
-                         std::to_string(implied_len) + ")");
-    }
-
-    return {elements.begin(), elements.end()};
-}
-
-Tensor::Tensor() : elements_{0} {}
-
 Tensor::Tensor(ShapeView shape)
-    : shape_(shape), strides_(Tensor::compute_strides(shape_)),
-      elements_(Tensor::compute_size(shape_)) {}
-
-Tensor::Tensor(std::span<const Scalar> elements)
-    : shape_(static_cast<std::size_t>(elements.size())),
-      strides_(Tensor::compute_strides(shape_)),
-      elements_(elements.begin(), elements.end()) {}
+    : shape(shape), strides(Tensor::compute_strides(shape)),
+      size(Tensor::compute_size(shape)) {}
 
 Tensor::Tensor(ShapeView shape, StridesView strides)
-    : shape_(shape), strides_(checked_strides(strides, shape)),
-      elements_(Tensor::compute_size(shape_)) {}
+    : shape(shape), strides(checked_strides(strides, shape)),
+      size(Tensor::compute_size(shape)) {}
 
-Tensor::Tensor(ShapeView shape, std::span<const Scalar> elements)
-    : shape_(shape), strides_(Tensor::compute_strides(shape_)),
-      elements_(checked_elements(elements, shape)) {}
-
-Tensor::Tensor(ShapeView shape, StridesView strides,
-               std::span<const Scalar> elements)
-    : shape_(shape), strides_(checked_strides(strides, shape)),
-      elements_(checked_elements(elements, shape)) {}
-
-Tensor Tensor::full(ShapeView shape, Scalar fill_value) {
-    Tensor out(ShapeView(shape.begin(), shape.end()));
-    std::fill(out.data(), out.data() + out.size(), fill_value);
-
-    return out;
+TensorView Tensor::view() const noexcept {
+    return {this->shape, this->strides, std::span{this->data, this->size}};
 }
 
-Tensor Tensor::zeros(ShapeView shape) {
-    return Tensor(ShapeView(shape.begin(), shape.end()));
-}
-
-Tensor Tensor::ones(ShapeView shape) {
-    Tensor out(ShapeView(shape.begin(), shape.end()));
-    std::fill(out.data(), out.data() + out.size(), 1);
-
-    return out;
-}
-
-Tensor Tensor::sequential(ShapeView shape, Scalar starting_value) {
-    Tensor out(ShapeView(shape.begin(), shape.end()));
-
-    for (Scalar &elem : out) {
-        elem = starting_value++;
-    }
-
-    return out;
-}
-
-Tensor Tensor::linspace(ShapeView shape, Scalar start, Scalar step) {
-    Tensor out(ShapeView(shape.begin(), shape.end()));
-
-    Scalar value = start;
-    for (Scalar &elem : out) {
-        elem = value;
-        value += step;
-    }
-
-    return out;
-}
-
-Tensor Tensor::rand(ShapeView shape, Scalar min, Scalar max) {
-
-    std::uniform_real_distribution<Scalar> dist{min, max};
-
-    Tensor out(ShapeView(shape.begin(), shape.end()));
-    for (size_type i = 0; i < out.size(); i++) {
-        out.data()[i] = dist(Tensor::get_rng());
-    }
-
-    return out;
-}
-
-Tensor Tensor::randn(ShapeView shape, Scalar mean, Scalar std) {
-
-    std::normal_distribution<Scalar> dist{mean, std};
-
-    Tensor out(ShapeView(shape.begin(), shape.end()));
-    for (size_type i = 0; i < out.size(); i++) {
-        out.data()[i] = dist(Tensor::get_rng());
-    }
-
-    return out;
-}
-
-void Tensor::rng_seed(uint64_t seed) { Tensor::get_rng().seed(seed); }
-
-Tensor::size_type Tensor::rank() const noexcept {
-    return static_cast<size_type>(this->shape_.size());
-}
-
-ShapeView Tensor::shape() const noexcept { return this->shape_; }
-
-[[nodiscard]] Extent Tensor::extent(size_type axis) const noexcept {
-    return this->shape_[axis];
-}
-
-StridesView Tensor::strides() const noexcept { return this->strides_; }
-
-std::span<Scalar> Tensor::elements() noexcept { return this->elements_; }
-
-std::span<const Scalar> Tensor::elements() const noexcept {
-    return this->elements_;
+std::size_t Tensor::rank() const noexcept {
+    return static_cast<std::size_t>(this->shape.size());
 }
 
 bool Tensor::scalar() const noexcept { return this->rank() == 0; }
 
-Tensor::iterator Tensor::begin() noexcept {
-    return {this->shape_, this->strides_, this->elements_, false};
+Tensor Tensor::transpose(StaticVector<std::size_t> perm) const {
+
+    // if perm is not given, its filled so that shape is reversed
+    if (perm.empty()) {
+
+        perm.resize(this->rank());
+
+        std::size_t val = this->rank();
+        for (auto &elem : perm) {
+            elem = --val;
+        }
+    }
+
+    assert(perm.size() == this->rank());
+
+    Tensor out;
+    out.data = this->data;
+    out.size = this->size;
+
+    for (std::size_t i = 0; i < this->rank(); i++) {
+        out.shape[i] = this->shape[perm[i]];
+        out.strides[i] = this->strides[perm[i]];
+    }
+
+    return out;
 }
 
-Tensor::const_iterator Tensor::begin() const noexcept {
-    return {this->shape_, this->strides_, this->elements_, false};
-}
+Tensor Tensor::transpose_2d() const {
 
-Tensor::iterator Tensor::end() noexcept {
-    return {this->shape_, this->strides_, this->elements_, true};
-}
+    Tensor out(*this);
 
-Tensor::const_iterator Tensor::end() const noexcept {
-    return {this->shape_, this->strides_, this->elements_, true};
-}
+    std::swap(out.shape.from_back(0), out.shape.from_back(1));
+    std::swap(out.strides.from_back(0), out.strides.from_back(1));
 
-Tensor::size_type Tensor::size() const noexcept {
-    return static_cast<size_type>(this->elements_.size());
-}
-
-bool Tensor::empty() const noexcept { return this->elements_.empty(); }
-
-Tensor::pointer Tensor::data() noexcept {
-    return static_cast<pointer>(this->elements_.data());
-}
-
-Tensor::const_pointer Tensor::data() const noexcept {
-    return static_cast<const_pointer>(this->elements_.data());
-}
-
-TensorViewConst Tensor::view() const noexcept {
-    return {this->shape_, this->strides_, this->elements()};
-}
-
-TensorViewMut Tensor::view_mut() noexcept {
-    return {this->shape_, this->strides_, this->elements()};
+    return out;
 }
 
 std::ostream &operator<<(std::ostream &stream, const Tensor &tensor) {
 
-    print_tensor_impl(stream, tensor.shape(), tensor.strides(),
-                      tensor.elements());
+    print_tensor_impl(stream, tensor.shape, tensor.strides,
+                      std::span{tensor.data, tensor.size});
 
     return stream;
 }
