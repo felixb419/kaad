@@ -39,6 +39,15 @@ class Graph {
 
   public:
     /**
+     * @brief Resets all node values and gradients in the computation graph.
+     *
+     * Calls the `reset()` method on each node in the graph, zeroing out their
+     * associated value and gradient tensors. This is typically used before a
+     * new forward pass.
+     */
+    void reset();
+
+    /**
      * @brief Constructs an evaluated node with no inputs and adds it to the
      * graph.
      *
@@ -62,7 +71,7 @@ class Graph {
      * @return An array of tensor views, each corresponding to the value
      * of the evaluated node.
      */
-    std::vector<TensorViewConst> evaluate(std::span<const Node> nodes);
+    std::vector<TensorView> evaluate(std::span<const Node> nodes);
 
     /**
      * @brief Computes gradients of the computation graph with respect to the
@@ -82,17 +91,8 @@ class Graph {
      * @return An array of tensor views representing the gradients
      * df/dx for each input node.
      */
-    std::vector<TensorViewConst> get_gradient(Node output,
-                                              std::span<const Node> inputs);
-
-    /**
-     * @brief Resets all node values and gradients in the computation graph.
-     *
-     * Calls the `reset()` method on each node in the graph, zeroing out their
-     * associated value and gradient tensors. This is typically used before a
-     * new forward pass.
-     */
-    void reset();
+    std::vector<TensorView> get_gradient(Node output,
+                                         std::span<const Node> inputs);
 
     friend class Node;
 

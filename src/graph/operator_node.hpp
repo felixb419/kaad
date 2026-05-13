@@ -70,8 +70,8 @@ template <Operation operation> class OperatorNode : public INode {
     void reset() override {
         this->is_evaluated_ = false;
 
-        std::ranges::fill(this->value_.elements(), Tensor::value_type{});
-        std::ranges::fill(this->gradient_.elements(), Tensor::value_type{});
+        std::fill_n(this->value.data, this->value.size, Scalar{});
+        std::fill_n(this->gradient.data, this->gradient.size, Scalar{});
     }
 };
 

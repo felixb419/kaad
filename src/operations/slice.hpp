@@ -78,8 +78,8 @@ struct Slice {
         BackwardParams(std::array<INode *, 1> input, INode *result,
                        ShapeView shape, std::span<const std::size_t> start)
             : ForwardParams(input, result, shape, start),
-              d_inp_begin(input[0]->gradient_mut().data()),
-              d_res_begin(result->gradient().data()) {}
+              d_inp_begin(input[0]->gradient.data),
+              d_res_begin(result->gradient.data) {}
     };
 
     template <std::size_t res_rank, std::size_t axis>

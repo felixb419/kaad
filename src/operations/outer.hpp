@@ -7,7 +7,7 @@
 #include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad {
-class INode;
+struct INode;
 }
 
 namespace kaad::operations {

@@ -1,10 +1,10 @@
 #include "outer.hpp"
+#include "kaad/tensor/tensor.hpp"
 
 #include <algorithm>
 #include <array>
 #include <kaad/graph/internal/inode.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 
 namespace kaad::operations {
 
@@ -25,9 +25,9 @@ void OuterProductPolicy::init_strides(std::array<INode *, 2> inputs,
                                       INode *result, Strides &eff_lhs,
                                       Strides &eff_rhs, Strides &eff_res) {
 
-    TensorViewConst lhs = inputs[0]->value();
-    TensorViewConst rhs = inputs[1]->value();
-    TensorViewMut res = result->value_mut();
+    const Tensor &lhs = inputs[0]->value;
+    const Tensor &rhs = inputs[1]->value;
+    const Tensor &res = result->value;
 
     eff_lhs.resize(res.rank());
     eff_rhs.resize(res.rank());

@@ -6,10 +6,8 @@
 #include <kaad/exceptions.hpp>
 #include <kaad/graph/internal/inode.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/static_vector.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 #include <string>
 #include <utility>
 
@@ -18,7 +16,7 @@ namespace kaad::operations::internal {
 Shape make_res_shape_impl(std::array<INode *, 1> input, std::size_t axis,
                           bool keep_rank) {
 
-    TensorViewConst inp = input[0]->value();
+    const Tensor &inp = input[0]->value;
 
     if (std::cmp_greater_equal(axis, inp.rank())) {
 
@@ -63,13 +61,13 @@ void fwdparams_ctr_impl(const Scalar *&inp_begin, Scalar *&res_begin,
                         INode *result, std::size_t reduction_axis,
                         bool keep_rank) {
 
-    TensorViewConst inp = input[0]->value();
-    TensorViewConst res = result->value();
+    const Tensor &inp = input[0]->value;
+    const Tensor &res = result->value;
 
-    inp_begin = input[0]->value().data();
+    inp_begin = inp.data;
 
-    res_begin = result->value_mut().data();
-    res_end = result->value().data() + result->value().size();
+    res_begin = res.data;
+    res_end = res.data + res.size;
 
     eff_inp = inp.strides;
 

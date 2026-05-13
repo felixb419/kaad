@@ -4,7 +4,6 @@
 #include <kaad/scalar.hpp>
 #include <kaad/static_vector.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor.hpp>
 #include <ostream>
 #include <span>
 
@@ -58,7 +57,7 @@ void print_tensor_impl(std::ostream &stream, ShapeView shape,
     if (!shape.empty()) {
 
         stream << shape[0];
-        for (Tensor::size_type i = 1; i < shape.size(); i++) {
+        for (std::size_t i = 1; i < shape.size(); i++) {
             stream << ", " << shape[i];
         }
     }

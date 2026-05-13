@@ -21,7 +21,7 @@ class InputNode : public INode {
     void acc_input_gradients() noexcept override {}
 
     void reset() override {
-        std::ranges::fill(this->gradient_.elements(), Tensor::value_type{});
+        std::fill_n(this->gradient.data, this->gradient.size, Scalar{});
     }
 };
 

@@ -15,7 +15,7 @@
 
 namespace kaad {
 
-class INode;
+struct INode;
 template <Operation operation> class OperatorNode;
 
 template <operations::kernels::Binary Kernel>

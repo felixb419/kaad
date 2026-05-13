@@ -1,4 +1,5 @@
 #include "transpose.hpp"
+#include "kaad/tensor/tensor.hpp"
 
 #include <algorithm>
 #include <array>
@@ -8,7 +9,6 @@
 #include <kaad/scalar.hpp>
 #include <kaad/static_vector.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 #include <span>
 #include <string>
 #include <utility>
@@ -32,7 +32,7 @@ std::pair<Shape, Strides>
 Transpose::make_res_shape(std::array<INode *, 1> input,
                           std::span<const std::size_t> perm) {
 
-    TensorViewConst inp = input[0]->value();
+    const Tensor &inp = input[0]->value;
 
     if (inp.rank() < 2) {
         throw ShapeError("input.rank() hast to be > 1, input.rank()=" +
@@ -61,9 +61,9 @@ Transpose::make_res_shape(std::array<INode *, 1> input,
 Transpose::ForwardParams::ForwardParams(
     std::array<INode *, 1> input, INode *result,
     [[maybe_unused]] std::span<const std::size_t> perm)
-    : inp_begin(input[0]->value().data()),
-      inp_end(input[0]->value().data() + input[0]->value().size()),
-      res_begin(result->value_mut().data()) {}
+    : inp_begin(input[0]->value.data),
+      inp_end(input[0]->value.data + input[0]->value.size),
+      res_begin(result->value.data) {}
 
 void Transpose::forward(const ForwardParams &params) {
     std::copy(params.inp_begin, params.inp_end, params.res_begin);

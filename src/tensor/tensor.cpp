@@ -4,14 +4,12 @@
 #include <cstddef>
 #include <iostream>
 #include <kaad/exceptions.hpp>
-#include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/print_tensor.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <span>
 #include <string>
-#include <vector>
 
 namespace kaad {
 

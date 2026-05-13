@@ -1,4 +1,5 @@
 #include "slice.hpp"
+#include "kaad/tensor/tensor.hpp"
 
 #include <array>
 #include <cstddef>
@@ -6,7 +7,6 @@
 #include <kaad/graph/internal/inode.hpp>
 #include <kaad/static_vector.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 #include <span>
 #include <string>
 
@@ -15,7 +15,7 @@ namespace kaad::operations {
 Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
                             StaticVector<std::size_t> start) {
 
-    TensorViewConst inp = input[0]->value();
+    const Tensor &inp = input[0]->value;
 
     if (shape.size() != inp.rank()) {
 
@@ -39,7 +39,7 @@ Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
     // make sure slice is not too large
     for (std::size_t i = 0; i < inp.rank(); i++) {
 
-        if (shape[i] + start[i] > inp.extent(i)) {
+        if (shape[i] + start[i] > inp.shape[i]) {
 
             throw ArgumentError("axis " + std::to_string(i) +
                                 " of slice is too large with an extent of " +
@@ -54,9 +54,9 @@ Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
 Slice::ForwardParams::ForwardParams(std::array<INode *, 1> input, INode *result,
                                     [[maybe_unused]] ShapeView shape,
                                     std::span<const std::size_t> start)
-    : inp_begin(input[0]->value().data()),
-      res_begin(result->value_mut().data()), eff_inp(input[0]->value().strides),
-      eff_res(result->value().strides), res_shape(result->shape()) {
+    : inp_begin(input[0]->value.data), res_begin(result->value.data),
+      eff_inp(input[0]->value.strides), eff_res(result->value.strides),
+      res_shape(result->shape()) {
 
     this->inp_start_offset = start;
     for (std::size_t i = 0; i < start.size(); i++) {

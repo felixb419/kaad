@@ -111,10 +111,9 @@ template <ReductionPolicy Policy> struct Reduce {
         BackwardParams(std::array<INode *, 1> input, INode *result,
                        std::size_t reduction_axis, bool keep_rank)
             : ForwardParams(input, result, reduction_axis, keep_rank),
-              d_inp_begin(input[0]->gradient_mut().data()),
-              d_inp_end(input[0]->gradient().data() +
-                        input[0]->gradient().size()),
-              d_res_begin(result->gradient().data()) {}
+              d_inp_begin(input[0]->gradient.data),
+              d_inp_end(input[0]->gradient.data + input[0]->gradient.size),
+              d_res_begin(result->gradient.data) {}
     };
 
     template <std::size_t inp_rank, std::size_t axis>

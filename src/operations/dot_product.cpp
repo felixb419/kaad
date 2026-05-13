@@ -106,8 +106,8 @@ void DotProduct::backward<RHS_IS_SCALAR>(
 DotProduct::Dispatch DotProduct::dispatch(std::array<INode *, 2> inputs,
                                           [[maybe_unused]] INode *result) {
 
-    bool lhs_scalar = inputs[0]->value().scalar();
-    bool rhs_scalar = inputs[1]->value().scalar();
+    bool lhs_scalar = inputs[0]->value.scalar();
+    bool rhs_scalar = inputs[1]->value.scalar();
 
     if (lhs_scalar) {
         return {.forward = forward<LHS_IS_SCALAR>,

@@ -222,7 +222,6 @@ template <typename T> class StaticVector {
         return {this->elements_.data(), this->elements_.size()};
     }
 
-    template <MUTABILITY M> friend struct TensorView;
     template <MUTABILITY M> friend class IteratorImpl;
 };
 

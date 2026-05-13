@@ -49,11 +49,10 @@ template <kernels::Binary Kernel, FlexiblePolicy Policy> struct Strided {
             default; ///< Needed because operations::Outer uses it.
 
         ForwardParams(std::array<INode *, 2> inputs, INode *result)
-            : lhs_begin(inputs[0]->value().data()),
-              rhs_begin(inputs[1]->value().data()),
-              res_begin(result->value_mut().data()), eff_lhs(result->rank()),
-              eff_rhs(result->rank()), eff_res(result->rank()),
-              res_shape(result->shape()) {
+            : lhs_begin(inputs[0]->value.data),
+              rhs_begin(inputs[1]->value.data), res_begin(result->value.data),
+              eff_lhs(result->rank()), eff_rhs(result->rank()),
+              eff_res(result->rank()), res_shape(result->shape()) {
 
             Policy::init_strides(inputs, result, this->eff_lhs, this->eff_rhs,
                                  this->eff_res);
@@ -104,9 +103,9 @@ template <kernels::Binary Kernel, FlexiblePolicy Policy> struct Strided {
 
         BackwardParams(std::array<INode *, 2> inputs, INode *result)
             : ForwardParams(inputs, result),
-              d_lhs_begin(inputs[0]->gradient_mut().data()),
-              d_rhs_begin(inputs[1]->gradient_mut().data()),
-              d_res_begin(result->gradient().data()) {}
+              d_lhs_begin(inputs[0]->gradient.data),
+              d_rhs_begin(inputs[1]->gradient.data),
+              d_res_begin(result->gradient.data) {}
     };
 
     template <std::size_t res_rank, std::size_t axis = 0>

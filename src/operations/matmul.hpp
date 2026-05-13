@@ -50,8 +50,7 @@ struct Matmul {
 
         ForwardParams() = default;
 
-        ForwardParams(TensorViewConst lhs, TensorViewConst rhs,
-                      TensorViewMut res);
+        ForwardParams(const Tensor &lhs, const Tensor &rhs, const Tensor &res);
 
         ForwardParams(std::array<INode *, 2> inputs, INode *result);
     };

@@ -47,9 +47,9 @@ struct Transpose {
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
                        [[maybe_unused]] std::span<const std::size_t> perm)
-            : d_inp_begin(input[0]->gradient_mut().data()),
-              d_inp_end(input[0]->gradient().data() + input[0]->value().size()),
-              d_res_begin(result->gradient().data()) {}
+            : d_inp_begin(input[0]->gradient.data),
+              d_inp_end(input[0]->gradient.data + input[0]->value.size),
+              d_res_begin(result->gradient.data) {}
     };
 
     using backward_fn = void (*)(const BackwardParams &params);

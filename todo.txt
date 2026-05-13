@@ -1,4 +1,10 @@
 [FIX]
+(graph)   tensor element allocation
+(graph)   way to fill input nodes
+            fix tests and examples
+            reenable tests and examples
+
+(tensor) make tensor.hpp no longer a public header
 
 [REFACTOR]
 
@@ -28,6 +34,7 @@
 
 [LATER]
 (operations) make operations use std::mdspan as soon as available
+(graph)     make tensors share memory if possible
 (graph)     Add a way to move values to input nodes without copying
 (graph) (?) Add system for inference
 (tensor)    make Tensor variant with compile time shape

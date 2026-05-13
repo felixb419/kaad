@@ -32,24 +32,12 @@ namespace kaad {
 
 [[nodiscard]] ShapeView Node::shape() const { return this->node()->shape(); }
 
-[[nodiscard]] TensorViewConst Node::value() const {
-    return this->node()->value();
+[[nodiscard]] TensorView Node::value() const {
+    return this->node()->value.view();
 }
 
-[[nodiscard]] TensorViewMut Node::value_mut() {
-    if (this->idx() >= this->origin_->nodes.size()) {
-        throw ArgumentError("idx_ of this handle is invalid");
-    }
-
-    if (!this->is_input()) {
-        throw LogicError("calling value_mut is only allowed on input nodes");
-    }
-
-    return this->origin_->nodes[this->idx()].get()->value_mut();
-}
-
-[[nodiscard]] TensorViewConst Node::gradient() const {
-    return this->node()->gradient();
+[[nodiscard]] TensorView Node::gradient() const {
+    return this->node()->gradient.view();
 }
 
 [[nodiscard]] bool Node::is_evaluated() const {

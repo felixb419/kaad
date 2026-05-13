@@ -9,7 +9,7 @@
 namespace kaad {
 
 class Graph;
-class INode;
+struct INode;
 
 /// @brief Immutable handle class for a INode.
 class Node {
@@ -45,15 +45,11 @@ class Node {
     /// @return The shape of the nodes value and gradient tensors.
     [[nodiscard]] ShapeView shape() const;
 
-    /// @return An immutable view of the value tensor.
-    [[nodiscard]] TensorViewConst value() const;
+    /// @return A view of the value tensor.
+    [[nodiscard]] TensorView value() const;
 
-    /// @throws kaad::LogicError if called on a non-input node.
-    /// @return An mutable view of the value tensor.
-    [[nodiscard]] TensorViewMut value_mut();
-
-    /// @return An mutable view of the gradient tensor.
-    [[nodiscard]] TensorViewConst gradient() const;
+    /// @return A view of the gradient tensor.
+    [[nodiscard]] TensorView gradient() const;
 
     /// @return True if node is evaluated false otherwise.
     [[nodiscard]] bool is_evaluated() const;

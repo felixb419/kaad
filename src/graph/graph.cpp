@@ -31,43 +31,43 @@ INode *Graph::get_node(Node node) {
     return this->nodes[node.idx_].get();
 }
 
-Node Graph::add_input_node(ShapeView value_shape) {
-    this->nodes.push_back(std::make_unique<InputNode>(value_shape));
-
-    return Node(this->nodes.size() - 1, this);
-}
-
-std::vector<TensorViewConst> Graph::evaluate(std::span<const Node> nodes) {
-
-    std::vector<TensorViewConst> values(nodes.size());
-
-    for (std::size_t i = 0; i < nodes.size(); i++) {
-        INode *node_ptr = this->get_node(nodes[i]);
-        node_ptr->evaluate();
-        values[i] = node_ptr->value();
-    }
-
-    return values;
-}
-
 void Graph::reset() {
     for (std::unique_ptr<INode> &node : this->nodes) {
         (*node).reset();
     }
 }
 
-std::vector<TensorViewConst> Graph::get_gradient(Node output,
-                                                 std::span<const Node> inputs) {
+Node Graph::add_input_node(ShapeView value_shape) {
+    this->nodes.push_back(std::make_unique<InputNode>(value_shape));
+
+    return Node(this->nodes.size() - 1, this);
+}
+
+std::vector<TensorView> Graph::evaluate(std::span<const Node> nodes) {
+
+    std::vector<TensorView> values(nodes.size());
+
+    for (std::size_t i = 0; i < nodes.size(); i++) {
+        INode *node_ptr = this->get_node(nodes[i]);
+        node_ptr->evaluate();
+        values[i] = node_ptr->value.view();
+    }
+
+    return values;
+}
+
+std::vector<TensorView> Graph::get_gradient(Node output,
+                                            std::span<const Node> inputs) {
 
     INode *output_node = this->get_node(output);
-    std::ranges::fill(output_node->gradient_mut().elements, 1.0);
+    std::fill_n(output_node->gradient.data, output_node->gradient.size, 1.0);
 
     output_node->acc_input_gradients();
 
-    std::vector<TensorViewConst> partials(inputs.size());
+    std::vector<TensorView> partials(inputs.size());
 
     for (std::size_t i = 0; i < inputs.size(); i++) {
-        partials[i] = this->get_node(inputs[i])->gradient();
+        partials[i] = this->get_node(inputs[i])->gradient.view();
     }
 
     return partials;

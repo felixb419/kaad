@@ -22,7 +22,7 @@ inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
     return diff <= abs_tol + (rel_tol * scale);
 }
 
-inline bool check_tensor(const char *label, kaad::TensorViewConst tensor,
+inline bool check_tensor(const char *label, kaad::TensorView tensor,
                          kaad::ShapeView shape_correct,
                          std::span<const kaad::Scalar> elements_correct) {
     constexpr bool SCALAR_IS_DOUBLE = std::same_as<kaad::Scalar, double>;
@@ -34,12 +34,11 @@ inline bool check_tensor(const char *label, kaad::TensorViewConst tensor,
         return false;
     }
 
-    if (!std::ranges::equal(shape_correct, tensor.shape)) {
+    if (!std::ranges::equal(shape_correct, tensor.shape())) {
         return false;
     }
 
-    if (!std::equal(shape_correct.begin(), shape_correct.end(),
-                    tensor.shape.data())) {
+    if (!std::ranges::equal(shape_correct, tensor.shape())) {
         return false;
     }
 

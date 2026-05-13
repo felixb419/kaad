@@ -18,11 +18,11 @@ struct Pointwise {
         /// broadcast automatically.
         static Shape make_res_shape(std::array<INode *, 2> inputs) {
 
-            ShapeView lhs_shape = inputs[0]->value().shape;
-            ShapeView rhs_shape = inputs[1]->value().shape;
+            ShapeView lhs_shape = inputs[0]->value.shape;
+            ShapeView rhs_shape = inputs[1]->value.shape;
 
-            StridesView lhs_strides = inputs[0]->value().strides;
-            StridesView rhs_strides = inputs[1]->value().strides;
+            StridesView lhs_strides = inputs[0]->value.strides;
+            StridesView rhs_strides = inputs[1]->value.strides;
 
             bool shapes_match = std::ranges::equal(lhs_shape, rhs_shape) &&
                                 std::ranges::equal(lhs_strides, rhs_strides);
@@ -60,10 +60,10 @@ struct Pointwise {
             const Scalar *res_end;
 
             ForwardParams(std::array<INode *, 2> inputs, INode *result)
-                : lhs_begin(inputs[0]->value().data()),
-                  rhs_begin(inputs[1]->value().data()),
-                  res_begin(result->value_mut().data()),
-                  res_end(result->value().data() + result->value().size()) {}
+                : lhs_begin(inputs[0]->value.data),
+                  rhs_begin(inputs[1]->value.data),
+                  res_begin(result->value.data),
+                  res_end(result->value.data + result->value.size) {}
         };
 
         using forward_fn = void (*)(const ForwardParams &params);
@@ -111,9 +111,9 @@ struct Pointwise {
 
             BackwardParams(std::array<INode *, 2> inputs, INode *result)
                 : ForwardParams(inputs, result),
-                  d_lhs_begin(inputs[0]->gradient_mut().data()),
-                  d_rhs_begin(inputs[1]->gradient_mut().data()),
-                  d_res_begin(result->gradient().data()) {};
+                  d_lhs_begin(inputs[0]->gradient.data),
+                  d_rhs_begin(inputs[1]->gradient.data),
+                  d_res_begin(result->gradient.data) {};
         };
 
         using backward_fn = void (*)(const BackwardParams &params);
@@ -163,8 +163,8 @@ struct Pointwise {
         static Dispatch dispatch(std::array<INode *, 2> inputs,
                                  [[maybe_unused]] INode *result) {
 
-            bool lhs_scalar = inputs[0]->value().scalar();
-            bool rhs_scalar = inputs[1]->value().scalar();
+            bool lhs_scalar = inputs[0]->value.scalar();
+            bool rhs_scalar = inputs[1]->value.scalar();
 
             if (lhs_scalar) {
                 return {.forward = forward<LHS_IS_SCALAR>,
@@ -190,7 +190,7 @@ struct Pointwise {
         static constexpr const char *OPERATION_NAME = "uinary pointwise";
 
         static Shape make_res_shape(std::array<INode *, 1> inputs) {
-            return inputs[0]->value().shape;
+            return inputs[0]->value.shape;
         }
 
         struct ForwardParams {
@@ -201,9 +201,9 @@ struct Pointwise {
             const Scalar *res_end;
 
             ForwardParams(std::array<INode *, 1> inputs, INode *result)
-                : inp_begin(inputs[0]->value().data()),
-                  res_begin(result->value_mut().data()),
-                  res_end(result->value().data() + result->value().size()) {}
+                : inp_begin(inputs[0]->value.data),
+                  res_begin(result->value.data),
+                  res_end(result->value.data + result->value.size) {}
         };
 
         using forward_fn = void (*)(const ForwardParams &params);
@@ -231,11 +231,11 @@ struct Pointwise {
             const Scalar *res_end;
 
             BackwardParams(std::array<INode *, 1> inputs, INode *result)
-                : inp_begin(inputs[0]->value().data()),
-                  d_inp_begin(inputs[0]->gradient_mut().data()),
-                  res_begin(result->value().data()),
-                  d_res_begin(result->gradient().data()),
-                  res_end(result->value().data() + result->value().size()) {}
+                : inp_begin(inputs[0]->value.data),
+                  d_inp_begin(inputs[0]->gradient.data),
+                  res_begin(result->value.data),
+                  d_res_begin(result->gradient.data),
+                  res_end(result->value.data + result->value.size) {}
         };
 
         using backward_fn = void (*)(const BackwardParams &params);

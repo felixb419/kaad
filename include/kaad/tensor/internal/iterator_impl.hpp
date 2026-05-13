@@ -11,8 +11,6 @@
 
 namespace kaad {
 
-class Tensor;
-
 template <MUTABILITY M> class IteratorImpl {
     static constexpr bool IS_MUT = M == MUTABLE;
 

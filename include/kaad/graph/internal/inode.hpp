@@ -7,49 +7,35 @@
 
 namespace kaad {
 
-class INode {
-  protected:
-    Tensor value_;
-    Tensor gradient_;
+struct INode {
+    Tensor value;
+    Tensor gradient;
 
     INode(std::pair<ShapeView, StridesView> shape_pair)
-        : value_(shape_pair.first, shape_pair.second),
-          gradient_(shape_pair.first, shape_pair.second) {
+        : value(shape_pair.first, shape_pair.second),
+          gradient(shape_pair.first, shape_pair.second) {
 
-        if (this->value_.empty()) {
+        if (this->value.size == 0) {
             throw CapacityError(
                 "a tensor with no elements is not valid for a node, "
-                "value_.size()=" +
-                std::to_string(this->value_.size()) +
-                ", value_.shape()=" + to_string(this->value_.shape()));
+                "value.size()=" +
+                std::to_string(this->value.size) +
+                ", value.shape()=" + to_string(this->value.shape));
         }
     }
 
     INode(ShapeView shape)
         : INode(std::pair{shape, Tensor::compute_strides(shape)}) {}
 
-  public:
     virtual ~INode() = default;
 
     [[nodiscard]] virtual const char *operation_name() const noexcept = 0;
 
     [[nodiscard]] std::size_t rank() const noexcept {
-        return this->value_.rank();
+        return this->value.rank();
     }
 
-    [[nodiscard]] ShapeView shape() const { return this->value_.shape(); }
-
-    [[nodiscard]] TensorViewConst value() const { return this->value_.view(); }
-
-    [[nodiscard]] TensorViewMut value_mut() { return this->value_.view_mut(); }
-
-    [[nodiscard]] TensorViewConst gradient() const {
-        return this->gradient_.view();
-    }
-
-    [[nodiscard]] TensorViewMut gradient_mut() {
-        return this->gradient_.view_mut();
-    }
+    [[nodiscard]] ShapeView shape() const { return this->value.shape; }
 
     [[nodiscard]] virtual bool is_evaluated() const noexcept = 0;
 

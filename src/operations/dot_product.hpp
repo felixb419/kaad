@@ -31,11 +31,10 @@ struct DotProduct {
         const Scalar *rhs_end;
 
         ForwardParams(std::array<INode *, 2> inputs, INode *result)
-            : lhs_begin(inputs[0]->value().data()),
-              rhs_begin(inputs[1]->value().data()),
-              res_begin(result->value_mut().data()),
-              lhs_end(inputs[0]->value().data() + inputs[0]->value().size()),
-              rhs_end(inputs[1]->value().data() + inputs[1]->value().size()) {}
+            : lhs_begin(inputs[0]->value.data),
+              rhs_begin(inputs[1]->value.data), res_begin(result->value.data),
+              lhs_end(inputs[0]->value.data + inputs[0]->value.size),
+              rhs_end(inputs[1]->value.data + inputs[1]->value.size) {}
     };
 
     using forward_fn = void (*)(const ForwardParams &params);
@@ -52,9 +51,9 @@ struct DotProduct {
 
         BackwardParams(std::array<INode *, 2> inputs, INode *result)
             : ForwardParams(inputs, result),
-              d_lhs_begin(inputs[0]->gradient_mut().data()),
-              d_rhs_begin(inputs[1]->gradient_mut().data()),
-              d_res_begin(result->gradient().data()) {}
+              d_lhs_begin(inputs[0]->gradient.data),
+              d_rhs_begin(inputs[1]->gradient.data),
+              d_res_begin(result->gradient.data) {}
     };
 
     using backward_fn = void (*)(const BackwardParams &params);

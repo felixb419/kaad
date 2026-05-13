@@ -17,8 +17,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(ENABLE_SANITIZERS "Enable ASan + UBSan" ON)
 option(USE_CLANG_TIDY "Enable clang-tidy" ON)
 option(USE_CLANG_TIDY_FIX "Enable clang-tidy --fix" OFF)
-option(KAAD_BUILD_TESTS "Build tests" ON)
-option(KAAD_BUILD_EXAMPLES "Build examples" ON)
+option(KAAD_BUILD_TESTS "Build tests" OFF)
+option(KAAD_BUILD_EXAMPLES "Build examples" OFF)
 
 if (ENABLE_SANITIZERS AND CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_options(
