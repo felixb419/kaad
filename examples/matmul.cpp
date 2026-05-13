@@ -1,8 +1,8 @@
-#include <algorithm> // for __fill_fn, fill
-#include <array>     // for array
-#include <iostream>  // for basic_ostream, operator<<
+#include <algorithm>
+#include <array>
+#include <iostream>
 #include <kaad/kaad.hpp>
-#include <span> // for span
+#include <span>
 
 int main() {
     // Create computation graph.

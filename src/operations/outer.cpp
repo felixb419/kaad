@@ -1,10 +1,10 @@
 #include "outer.hpp"
 
-#include <algorithm>                             // for __copy_fn, copy
+#include <algorithm>
 #include <array>
-#include <kaad/graph/internal/inode.hpp>         // for INode
-#include <kaad/tensor/internal/tensor_types.hpp> // for Strides, Shape, ShapeView
-#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
+#include <kaad/graph/internal/inode.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
+#include <kaad/tensor/tensor_view.hpp>
 
 namespace kaad::operations {
 

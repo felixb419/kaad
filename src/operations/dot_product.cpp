@@ -1,12 +1,12 @@
 #include "dot_product.hpp"
 
-#include <algorithm>                             // for __equal_fn, equal
+#include <algorithm>
 #include <array>
-#include <kaad/enums.hpp>                        // for ScalarOrder
-#include <kaad/exceptions.hpp>                   // for ShapeError, to_string
-#include <kaad/graph/internal/inode.hpp>         // for INode
-#include <kaad/scalar.hpp>                       // for Scalar
-#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, SCALAR_SHAPE, Shape
+#include <kaad/enums.hpp>
+#include <kaad/exceptions.hpp>
+#include <kaad/graph/internal/inode.hpp>
+#include <kaad/scalar.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad::operations {
 

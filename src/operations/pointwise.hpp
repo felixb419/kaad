@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../graph/operator_node.hpp" // for Operation
+#include "../graph/operator_node.hpp"
 #include <cstdint>
-#include <kaad/enums.hpp>                      // for ScalarOrder
-#include <kaad/operators/internal/kernels.hpp> // for BinaryKernel, bin_kerne...
+#include <kaad/enums.hpp>
+#include <kaad/operators/internal/kernels.hpp>
 
 namespace kaad::operations {
 

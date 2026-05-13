@@ -1,13 +1,13 @@
-#include <kaad/operators/operators.hpp> // for dot
+#include <kaad/operators/operators.hpp>
 
-#include "../graph/operator_node.hpp"    // for OperatorNode
-#include "../operations/dot_product.hpp" // for DotProduct
-#include <array>                         // for array
-#include <kaad/exceptions.hpp>           // for ShapeError, make_graph...
-#include <kaad/graph/graph.hpp>          // for Graph, dot
-#include <kaad/graph/node_handle.hpp>    // for Node
-#include <memory>                        // for unique_ptr, make_unique
-#include <vector>                        // for vector
+#include "../graph/operator_node.hpp"
+#include "../operations/dot_product.hpp"
+#include <array>
+#include <kaad/exceptions.hpp>
+#include <kaad/graph/graph.hpp>
+#include <kaad/graph/node_handle.hpp>
+#include <memory>
+#include <vector>
 
 namespace kaad {
 

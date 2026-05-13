@@ -1,17 +1,17 @@
-#include <algorithm> // for fill
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>                              // for char_traits, ostream
-#include <kaad/exceptions.hpp>                   // for ShapeError
-#include <kaad/scalar.hpp>                       // for Scalar
-#include <kaad/tensor/internal/print_tensor.hpp> // for print_tensor_impl
-#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, Strides, StridesView
+#include <iostream>
+#include <kaad/exceptions.hpp>
+#include <kaad/scalar.hpp>
+#include <kaad/tensor/internal/print_tensor.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp>
-#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
+#include <kaad/tensor/tensor_view.hpp>
 #include <random>
-#include <span>   // for span
-#include <string> // for operator+, basic_string, to_...
-#include <vector> // for allocator, vector
+#include <span>
+#include <string>
+#include <vector>
 
 namespace kaad {
 

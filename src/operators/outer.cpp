@@ -1,12 +1,12 @@
-#include <kaad/operators/operators.hpp> // for outer
+#include <kaad/operators/operators.hpp>
 
-#include "../graph/operator_node.hpp"    // for OperatorNode
-#include "../operations/outer.hpp"       // for OuterProduct
-#include <array>                         // for array
-#include <kaad/graph/graph.hpp>          // for Graph, outer
-#include <kaad/graph/node_handle.hpp>    // for Node
-#include <memory>                        // for unique_ptr, make_unique
-#include <vector>                        // for vector
+#include "../graph/operator_node.hpp"
+#include "../operations/outer.hpp"
+#include <array>
+#include <kaad/graph/graph.hpp>
+#include <kaad/graph/node_handle.hpp>
+#include <memory>
+#include <vector>
 
 namespace kaad {
 

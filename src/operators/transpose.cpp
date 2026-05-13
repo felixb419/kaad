@@ -1,15 +1,15 @@
-#include <kaad/operators/operators.hpp> // for transpose
+#include <kaad/operators/operators.hpp>
 
-#include "../graph/operator_node.hpp"    // for OperatorNode
-#include "../operations/transpose.hpp"   // for Transpose
-#include <array>                         // for array
-#include <cstddef>                       // for size_t
-#include <kaad/graph/graph.hpp>          // for Graph, transpose
-#include <kaad/graph/internal/inode.hpp> // for INode
-#include <kaad/graph/node_handle.hpp>    // for Node
-#include <kaad/static_vector.hpp>        // for StaticVector
-#include <memory>                        // for unique_ptr, make_unique
-#include <vector>                        // for vector
+#include "../graph/operator_node.hpp"
+#include "../operations/transpose.hpp"
+#include <array>
+#include <cstddef>
+#include <kaad/graph/graph.hpp>
+#include <kaad/graph/internal/inode.hpp>
+#include <kaad/graph/node_handle.hpp>
+#include <kaad/static_vector.hpp>
+#include <memory>
+#include <vector>
 
 namespace kaad {
 

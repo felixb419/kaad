@@ -1,13 +1,13 @@
-#include <kaad/operators/operators.hpp> // for matmul
+#include <kaad/operators/operators.hpp>
 
-#include "../graph/operator_node.hpp"    // for OperatorNode
-#include "../operations/matmul.hpp"      // for Matmul
-#include <array>                         // for array
-#include <kaad/exceptions.hpp>           // for BroadcastError, make_graph_e...
-#include <kaad/graph/graph.hpp>          // for Graph, matmul
-#include <kaad/graph/node_handle.hpp>    // for Node
-#include <memory>                        // for unique_ptr, make_unique
-#include <vector>                        // for vector
+#include "../graph/operator_node.hpp"
+#include "../operations/matmul.hpp"
+#include <array>
+#include <kaad/exceptions.hpp>
+#include <kaad/graph/graph.hpp>
+#include <kaad/graph/node_handle.hpp>
+#include <memory>
+#include <vector>
 
 namespace kaad {
 

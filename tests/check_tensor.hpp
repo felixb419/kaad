@@ -1,14 +1,14 @@
 #pragma once
 
-#include <algorithm> // for equal
+#include <algorithm>
 #include <concepts>
 #include <cstdint>
 #include <iostream>
-#include <kaad/scalar.hpp> // for Scalar
+#include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor.hpp> // for Tensor
+#include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
-#include <span> // for span
+#include <span>
 
 inline bool equal_tol(kaad::Scalar lhs, kaad::Scalar rhs, kaad::Scalar abs_tol,
                       kaad::Scalar rel_tol) {

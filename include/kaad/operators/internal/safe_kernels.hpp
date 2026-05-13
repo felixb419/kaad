@@ -1,8 +1,8 @@
 #pragma once
 
-#include <cmath>   // for log, exp, copysign, floor, round, sqrt, lround
-#include <cstdlib> // for abs
-#include <limits>  // for numeric_limits
+#include <cmath>
+#include <cstdlib>
+#include <limits>
 
 /**
  * @namespace kaad::operations::kernels

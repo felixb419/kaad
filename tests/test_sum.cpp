@@ -1,14 +1,14 @@
-#include "check_tensor.hpp" // for check_tensor
-#include <array>            // for array
-#include <cassert>          // for assert
+#include "check_tensor.hpp"
+#include <array>
+#include <cassert>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor_view.hpp>
-#include <numeric> // for iota
-#include <span>    // for span
+#include <numeric>
+#include <span>
 
 /**
  * @brief This tests taking the sum of a tensor.

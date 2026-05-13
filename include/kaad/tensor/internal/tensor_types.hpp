@@ -1,7 +1,7 @@
 #pragma once
 
-#include <kaad/max_rank.hpp>      // for KAAD_MAX_RANK
-#include <kaad/static_vector.hpp> // for StaticVector
+#include <kaad/max_rank.hpp>
+#include <kaad/static_vector.hpp>
 
 namespace kaad {
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstddef>                               // for size_t
-#include <cstdint>                               // for uint32_t
-#include <iostream>                              // for ostream
-#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView
-#include <kaad/tensor/tensor_view.hpp> // for TensorViewConst, TensorViewMut
+#include <cstddef>
+#include <cstdint>
+#include <iostream>
+#include <kaad/tensor/internal/tensor_types.hpp>
+#include <kaad/tensor/tensor_view.hpp>
 
 namespace kaad {
 

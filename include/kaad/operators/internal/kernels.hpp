@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cmath>   // for log, pow, exp, sqrt
-#include <cstdlib> // for abs
+#include <cmath>
+#include <cstdlib>
 
 /**
  * @namespace kaad::operations::kernels

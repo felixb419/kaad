@@ -1,9 +1,9 @@
 #pragma once
 
-#include <iostream>                              // for ostream
-#include <kaad/scalar.hpp>                       // for Scalar
-#include <kaad/tensor/internal/tensor_types.hpp> // for ShapeView, StridesView
-#include <span>                                  // for span
+#include <iostream>
+#include <kaad/scalar.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
+#include <span>
 
 namespace kaad {
 

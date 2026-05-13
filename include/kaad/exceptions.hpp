@@ -1,10 +1,10 @@
 #pragma once
 
-#include <cstddef>     // for size_t
-#include <ranges>      // for range
-#include <stdexcept>   // for runtime_error
-#include <string>      // for basic_string, string, to_string
-#include <string_view> // for string_view
+#include <cstddef>
+#include <ranges>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 
 namespace kaad {
 

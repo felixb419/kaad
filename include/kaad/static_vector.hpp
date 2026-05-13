@@ -1,12 +1,12 @@
 #pragma once
 
-#include <array>   // for array
-#include <cassert> // for assert
+#include <array>
+#include <cassert>
 #include <cstdint>
 #include <kaad/enums.hpp>
 #include <kaad/exceptions.hpp>
-#include <kaad/max_rank.hpp> // for KAAD_MAX_RANK
-#include <span>              // for span
+#include <kaad/max_rank.hpp>
+#include <span>
 
 namespace kaad {
 

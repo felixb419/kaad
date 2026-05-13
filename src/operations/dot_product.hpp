@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../operations/operation_concept.hpp"   // for Operation
-#include <array>                                 // for array
-#include <cstddef>                               // for size_t
-#include <kaad/enums.hpp>                        // for ScalarOrder
-#include <kaad/graph/internal/inode.hpp>         // for INode
-#include <kaad/scalar.hpp>                       // for Scalar
-#include <kaad/tensor/internal/tensor_types.hpp> // for Shape
+#include "../operations/operation_concept.hpp"
+#include <array>
+#include <cstddef>
+#include <kaad/enums.hpp>
+#include <kaad/graph/internal/inode.hpp>
+#include <kaad/scalar.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad::operations {
 

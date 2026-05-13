@@ -1,15 +1,15 @@
-#include <kaad/operators/operators.hpp> // for slice
+#include <kaad/operators/operators.hpp>
 
-#include "../graph/operator_node.hpp"            // for OperatorNode
-#include "../operations/slice.hpp"               // for Slice
-#include <array>                                 // for array
-#include <cstddef>                               // for size_t
-#include <kaad/graph/graph.hpp>                  // for Graph, slice
-#include <kaad/graph/node_handle.hpp>            // for Node
-#include <kaad/static_vector.hpp>                // for StaticVector
-#include <kaad/tensor/internal/tensor_types.hpp> // for Shape
-#include <memory>                                // for unique_ptr, make_unique
-#include <vector>                                // for vector
+#include "../graph/operator_node.hpp"
+#include "../operations/slice.hpp"
+#include <array>
+#include <cstddef>
+#include <kaad/graph/graph.hpp>
+#include <kaad/graph/node_handle.hpp>
+#include <kaad/static_vector.hpp>
+#include <kaad/tensor/internal/tensor_types.hpp>
+#include <memory>
+#include <vector>
 
 namespace kaad {
 
