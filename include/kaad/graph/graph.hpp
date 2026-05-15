@@ -25,6 +25,9 @@ class Graph {
     std::vector<std::unique_ptr<INode>>
         nodes; ///< Holds unique pointers pointing to computation nodes
 
+    std::vector<Scalar> tensor_buff; ///< Block of memory for value and gradient
+                                     ///< tensors in nodes.
+
     /// @brief Get the last node in the graph.
     /// @return Handle of the node at the back of the node vector.
     [[nodiscard]] Node back_handle() noexcept;
@@ -38,6 +41,9 @@ class Graph {
     [[nodiscard]] INode *get_node(Node node);
 
   public:
+    /// @brief Allocate memory for the value and gradient tensor for all nodes.
+    void allocate();
+
     /**
      * @brief Resets all node values and gradients in the computation graph.
      *

@@ -1,5 +1,4 @@
 [FIX]
-(graph)   tensor element allocation
 (graph)   way to fill input nodes
             fix tests and examples
             reenable tests and examples
@@ -11,7 +10,6 @@
 [FEAT]
 
 [PERF]
-(graph)     arena allocation
 
 [DOC]
             put term definitions in the header class comment (axis, extent, ...)

@@ -74,6 +74,8 @@ int main() {
 
     // NOLINTEND(readability-magic-numbers)
 
+    rec.allocate();
+
     kaad::Node a_t = transpose(rec, input_a);
 
     kaad::Node a_sum = sum(rec, a_t, 2, true);

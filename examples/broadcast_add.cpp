@@ -36,6 +36,9 @@ int main() {
     kaad::Node ab_plus_c = add(rec, a_plus_b, input_c); // [3,2] + [1] -> [3,2]
     kaad::Node res = add(rec, ab_plus_c, input_d); // [3,2] + [2,3,1] -> [2,3,2]
 
+    // allocate memory for the tensors
+    rec.allocate();
+
     // Reset the graph.
     rec.reset();
 

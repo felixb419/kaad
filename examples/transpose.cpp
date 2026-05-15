@@ -22,6 +22,9 @@ int main() {
 
     // NOLINTEND(readability-magic-numbers)
 
+    // allocate memory for the tensors
+    rec.allocate();
+
     // Reset the graph.
     rec.reset();
 

@@ -6,7 +6,9 @@
 #include <kaad/exceptions.hpp>
 #include <kaad/graph/internal/inode.hpp>
 #include <kaad/graph/node_handle.hpp>
+#include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
+#include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <memory>
 #include <span>
@@ -29,6 +31,28 @@ INode *Graph::get_node(Node node) {
     }
 
     return this->nodes[node.idx_].get();
+}
+
+void Graph::allocate() {
+
+    std::size_t total_elements = 0;
+
+    for (auto &node_ptr : this->nodes) {
+
+        total_elements += node_ptr->value.size + node_ptr->gradient.size;
+    }
+
+    this->tensor_buff.resize(total_elements);
+
+    Scalar *buffer_iter = this->tensor_buff.data();
+    for (auto &node_ptr : this->nodes) {
+
+        node_ptr->value.data = buffer_iter;
+        buffer_iter += node_ptr->value.size;
+
+        node_ptr->gradient.data = buffer_iter;
+        buffer_iter += node_ptr->gradient.size;
+    }
 }
 
 void Graph::reset() {

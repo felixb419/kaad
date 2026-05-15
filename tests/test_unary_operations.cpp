@@ -146,6 +146,8 @@ int main() { // NOLINT(bugprone-exception-escape)
 
     kaad::Node res = a_transp;
 
+    rec.allocate();
+
     rec.reset();
 
     rec.evaluate(std::array{res});

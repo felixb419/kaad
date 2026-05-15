@@ -30,6 +30,9 @@ int main() {
     kaad::Node dot_ab = dot(rec, input_a, input_b); // [5] * [5] -> [1]
     kaad::Node res = dot(rec, dot_ab, input_c);     // [1] * [5] -> [1]
 
+    // allocate memory for the tensors
+    rec.allocate();
+
     // Reset the graph.
     rec.reset();
 

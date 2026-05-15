@@ -92,6 +92,8 @@ int main() {
 
     // NOLINTEND(readability-magic-numbers)
 
+    rec.allocate();
+
     rec.reset();
 
     rec.evaluate(std::array{res});

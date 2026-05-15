@@ -108,6 +108,8 @@ int main() {
     kaad::Node ab_plus_c = add(rec, a_plus_b, input_c);
     kaad::Node res = add(rec, ab_plus_c, input_d);
 
+    rec.allocate();
+
     rec.reset();
 
     rec.evaluate(std::array{res});
