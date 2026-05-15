@@ -44,6 +44,16 @@ namespace kaad {
     return this->node()->gradient.view();
 }
 
+Scalar *Node::data_mut() {
+
+    if (!this->is_input()) {
+
+        throw LogicError("data_mut may not be called on not input nodes");
+    }
+
+    return this->node_mut()->value.data;
+}
+
 [[nodiscard]] bool Node::is_evaluated() const {
     return this->node()->is_evaluated();
 }

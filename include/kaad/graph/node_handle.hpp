@@ -55,6 +55,10 @@ class Node {
     /// @return A view of the gradient tensor.
     [[nodiscard]] TensorView gradient() const;
 
+    /// @return Pointer to the underlying elements.
+    /// @throws kaad::LogicError If is_input() is false.
+    Scalar *data_mut();
+
     /// @return True if node is evaluated false otherwise.
     [[nodiscard]] bool is_evaluated() const;
 
