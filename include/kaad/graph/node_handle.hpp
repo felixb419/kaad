@@ -42,6 +42,10 @@ class Node {
     /// @return The rank of the nodes value and gradient tensors.
     [[nodiscard]] std::size_t rank() const;
 
+    /// @return Number of elements in the value tensor (the gradient tensor has
+    /// the same size).
+    [[nodiscard]] std::size_t size() const;
+
     /// @return The shape of the nodes value and gradient tensors.
     [[nodiscard]] ShapeView shape() const;
 

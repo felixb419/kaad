@@ -30,6 +30,10 @@ namespace kaad {
 
 [[nodiscard]] std::size_t Node::rank() const { return this->node()->rank(); }
 
+[[nodiscard]] std::size_t Node::size() const {
+    return this->node()->value.size;
+}
+
 [[nodiscard]] ShapeView Node::shape() const { return this->node()->shape(); }
 
 [[nodiscard]] TensorView Node::value() const {
