@@ -6,7 +6,6 @@
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 #include <numeric>
 #include <span>
 
@@ -50,8 +49,6 @@ print_all("c", c, grad_c)
 print_all("res", res, grad_res)
 */
 // clang-format on
-
-// NOLINTBEGIN(readability-magic-numbers)
 
 kaad::Shape a_shape = {4, 2};
 std::array<kaad::Scalar, 8> a_val = {20.0, 21.0, 22.0, 23.0,
@@ -142,23 +139,17 @@ int main() {
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{4, 2});
-    kaad::TensorViewMut a_view = input_a.value_mut();
-    std::iota(a_view.begin(), a_view.end(), 20);
-
     kaad::Node input_b = rec.add_input_node(kaad::Shape{3, 6});
-    kaad::TensorViewMut b_view = input_b.value_mut();
-    std::iota(b_view.begin(), b_view.end(), 45);
-
     kaad::Node input_c = rec.add_input_node(kaad::Shape{2});
-    kaad::TensorViewMut c_view = input_c.value_mut();
-    std::iota(c_view.begin(), c_view.end(), 380);
 
     kaad::Node prod_ab = outer(rec, input_a, transpose(rec, input_b));
     kaad::Node res = outer(rec, prod_ab, input_c);
 
-    // NOLINTEND(readability-magic-numbers)
-
     rec.allocate();
+
+    std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 20);
+    std::iota(input_b.data_mut(), input_a.data_mut() + input_a.size(), 45);
+    std::iota(input_c.data_mut(), input_a.data_mut() + input_a.size(), 380);
 
     rec.reset();
 

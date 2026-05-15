@@ -8,28 +8,14 @@ int main() {
     // Create computation graph.
     kaad::Graph rec;
 
-    // NOLINTBEGIN(readability-magic-numbers)
-
     // Add input nodes to the graph.
     kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 2});
-    std::span<float> a_vals =
-        input_a.value_mut()
-            .elements; // span to represent the element array of a
-    std::ranges::fill(a_vals, 10);
 
     kaad::Node input_b = rec.add_input_node(kaad::Shape{3, 2});
-    std::span<float> b_vals = input_b.value_mut().elements;
-    std::ranges::fill(b_vals, 30);
 
     kaad::Node input_c = rec.add_input_node(kaad::Shape{});
-    std::span<float> c_vals = input_c.value_mut().elements;
-    std::ranges::fill(c_vals, 50);
 
     kaad::Node input_d = rec.add_input_node(kaad::Shape{2, 3, 1});
-    std::span<float> d_vals = input_d.value_mut().elements;
-    std::ranges::fill(d_vals, 20);
-
-    // NOLINTEND(readability-magic-numbers)
 
     // Add computation nodes to graph via operators.
     kaad::Node a_plus_b = add(rec, input_a, input_b); // [3,2] + [3,2] -> [3,2]
@@ -38,6 +24,13 @@ int main() {
 
     // allocate memory for the tensors
     rec.allocate();
+
+    // Fill input nodes with values,
+    // get mutable pointer to node values with .data_mut().
+    std::fill_n(input_a.data_mut(), input_a.size(), 10);
+    std::fill_n(input_b.data_mut(), input_a.size(), 30);
+    std::fill_n(input_c.data_mut(), input_a.size(), 50);
+    std::fill_n(input_d.data_mut(), input_a.size(), 20);
 
     // Reset the graph.
     rec.reset();

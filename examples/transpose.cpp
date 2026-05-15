@@ -8,22 +8,18 @@ int main() {
     // Create computation graph.
     kaad::Graph rec;
 
-    // NOLINTBEGIN(readability-magic-numbers)
-
     // Add input nodes to the graph.
     kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
-    std::span<float> a_vals =
-        input_a.value_mut()
-            .elements; // span to represent the element array of a
-    std::iota(a_vals.begin(), a_vals.end(), 0);
 
     // Add computation nodes to graph via operators.
     kaad::Node res = transpose(rec, input_a); // [3,5,2] -> [2,5,3]
 
-    // NOLINTEND(readability-magic-numbers)
-
     // allocate memory for the tensors
     rec.allocate();
+
+    // Fill input nodes with values,
+    // get mutable pointer to node values with .data_mut().
+    std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 0);
 
     // Reset the graph.
     rec.reset();

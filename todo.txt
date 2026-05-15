@@ -6,6 +6,7 @@
 (tensor) make tensor.hpp no longer a public header
 
 [REFACTOR]
+            change add_input_node to operator input(rec, shape)
 
 [FEAT]
 
@@ -32,6 +33,7 @@
 
 [LATER]
 (operations) make operations use std::mdspan as soon as available
+(operations) make transpose use same memory as input instead of copying
 (graph)     make tensors share memory if possible
 (graph)     Add a way to move values to input nodes without copying
 (graph) (?) Add system for inference

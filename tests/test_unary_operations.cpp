@@ -6,7 +6,6 @@
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 #include <numeric>
 #include <span>
 
@@ -53,8 +52,6 @@ grad_a, grad_res = tape.gradient(res, [a, res])
 print_all("a", a, grad_a)
 print_all("res", res, grad_res)
  */
-
-// NOLINTBEGIN(readability-magic-numbers)
 
 kaad::Shape a_shape{5, 2, 5, 10};
 std::array<kaad::Scalar, 500> a_val{
@@ -129,16 +126,13 @@ std::array<kaad::Scalar, 40> res_grad{
     1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
     1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-int main() { // NOLINT(bugprone-exception-escape)
+int main() {
 
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{5, 2, 5, 10});
-    kaad::TensorViewMut a_view = input_a.value_mut();
-    std::iota(a_view.begin(), a_view.end(), 250);
 
     kaad::Node a_slice = kaad::slice(rec, input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
-    // NOLINTEND(readability-magic-numbers)
     kaad::Node a_sqrt = kaad::sqrt(rec, a_slice);
     kaad::Node a_full_transp = kaad::transpose(rec, a_sqrt);
     kaad::Node a_mean_dim = kaad::mean(rec, a_full_transp, 0);
@@ -147,6 +141,8 @@ int main() { // NOLINT(bugprone-exception-escape)
     kaad::Node res = a_transp;
 
     rec.allocate();
+
+    std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 250);
 
     rec.reset();
 

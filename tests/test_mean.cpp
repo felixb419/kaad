@@ -6,7 +6,6 @@
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor_view.hpp>
 #include <numeric>
 #include <span>
 
@@ -48,8 +47,6 @@ print_all("a", a, grad_a)
 print_all("res", res, grad_res)
 */
 
-// NOLINTBEGIN(readability-magic-numbers)
-
 kaad::Shape a_shape{3, 5, 2};
 std::array<kaad::Scalar, 30> a_val{
     50.0, 51.0, 52.0, 53.0, 54.0, 55.0, 56.0, 57.0, 58.0, 59.0,
@@ -75,16 +72,14 @@ int main() {
     kaad::Graph rec;
 
     kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
-    kaad::TensorViewMut a_view = input_a.value_mut();
-    std::iota(a_view.begin(), a_view.end(), 50);
-
-    // NOLINTEND(readability-magic-numbers)
 
     kaad::Node a_mean = mean(rec, input_a, 2, true);
     kaad::Node a_mean2 = mean(rec, a_mean, 1);
     kaad::Node res = mean(rec, a_mean2);
 
     rec.allocate();
+
+    std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 50);
 
     rec.reset();
 
