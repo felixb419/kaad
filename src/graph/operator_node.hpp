@@ -68,6 +68,13 @@ class OperatorNode : MetadataBase<operation>, public INode {
 
     [[nodiscard]] bool is_input() const noexcept override { return false; }
 
+    void reset() override {
+        this->is_evaluated_ = false;
+
+        std::fill_n(this->value.data, this->value.size, Scalar{});
+        std::fill_n(this->gradient.data, this->gradient.size, Scalar{});
+    }
+
     void evaluate() override {
         if (!this->is_evaluated_) {
 
@@ -92,13 +99,6 @@ class OperatorNode : MetadataBase<operation>, public INode {
                 ptr->acc_input_gradients();
             }
         }
-    }
-
-    void reset() override {
-        this->is_evaluated_ = false;
-
-        std::fill_n(this->value.data, this->value.size, Scalar{});
-        std::fill_n(this->gradient.data, this->gradient.size, Scalar{});
     }
 };
 

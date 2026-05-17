@@ -45,15 +45,6 @@ class Graph {
     void allocate();
 
     /**
-     * @brief Resets all node values and gradients in the computation graph.
-     *
-     * Calls the `reset()` method on each node in the graph, zeroing out their
-     * associated value and gradient tensors. This is typically used before a
-     * new forward pass.
-     */
-    void reset();
-
-    /**
      * @brief Constructs an evaluated node with no inputs and adds it to the
      * graph.
      *
@@ -64,6 +55,15 @@ class Graph {
      * @return A handle of the newly created InputNode.
      */
     [[nodiscard]] Node add_input_node(ShapeView value_shape);
+
+    /**
+     * @brief Resets all node values and gradients in the computation graph.
+     *
+     * Calls the `reset()` method on each node in the graph, zeroing out their
+     * associated value and gradient tensors. This is typically used before a
+     * new forward pass.
+     */
+    void reset();
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.

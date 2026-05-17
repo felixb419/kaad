@@ -55,16 +55,16 @@ void Graph::allocate() {
     }
 }
 
-void Graph::reset() {
-    for (std::unique_ptr<INode> &node : this->nodes) {
-        (*node).reset();
-    }
-}
-
 Node Graph::add_input_node(ShapeView value_shape) {
     this->nodes.push_back(std::make_unique<InputNode>(value_shape));
 
     return Node(this->nodes.size() - 1, this);
+}
+
+void Graph::reset() {
+    for (std::unique_ptr<INode> &node : this->nodes) {
+        (*node).reset();
+    }
 }
 
 std::vector<TensorView> Graph::evaluate(std::span<const Node> nodes) {

@@ -41,14 +41,14 @@ struct INode {
 
     [[nodiscard]] virtual bool is_input() const noexcept = 0;
 
+    /// Reset evaluated_ flag, fill value and gradient tensor with 0.
+    virtual void reset() = 0;
+
     /// Evaluates the node's value Tensor.
     virtual void evaluate() = 0;
 
     /// Accumulate the nodes's gradient Tensor.
     virtual void acc_input_gradients() = 0;
-
-    /// Reset evaluated_ flag, fill value and gradient tensor with 0.
-    virtual void reset() = 0;
 };
 
 } // namespace kaad
