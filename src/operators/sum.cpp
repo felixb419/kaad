@@ -28,7 +28,8 @@ Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank) {
 
         rec.nodes.push_back(
             std::make_unique<OperatorNode<operations::ReduceSum>>(
-                std::array{rec.get_node(input)}, axis, keep_rank));
+                std::array{rec.get_node(input)},
+                operations::ReduceSum::Metadata{axis, keep_rank}));
     }
 
     catch (ShapeError &err) {

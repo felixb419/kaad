@@ -9,7 +9,25 @@
 
 namespace kaad {
 
-template <Operation operation> class OperatorNode : public INode {
+/// Trait to check if an operation class needs a metadata.
+template <typename T, typename = void> struct HasMetadata : std::false_type {};
+
+/// @copydoc HasMetadata
+template <Operation operation>
+struct HasMetadata<operation, std::void_t<typename operation::Metadata>>
+    : std::true_type {};
+
+/// Empty struct if operation::Metadata is not present
+template <Operation operation, typename = void> struct MetadataBase {};
+
+/// Struct containing Metadata if operation::Metadata is present.
+template <Operation operation>
+struct MetadataBase<operation, std::void_t<typename operation::Metadata>> {
+    operation::Metadata metadata_;
+};
+
+template <Operation operation>
+class OperatorNode : MetadataBase<operation>, public INode {
   private:
     std::array<INode *, operation::ARITY> inputs_;
 
@@ -24,12 +42,21 @@ template <Operation operation> class OperatorNode : public INode {
     bool is_evaluated_ = false;
 
   public:
-    template <typename... ExtraParams>
+    OperatorNode(const std::array<INode *, operation::ARITY> &inputs)
+        requires(!HasMetadata<operation>::value)
+        : INode(operation::make_res_shape(inputs)), inputs_(inputs),
+          fp_(inputs, this), bp_(inputs, this),
+          functions_(operation::dispatch(inputs, this)) {}
+
+    template <Operation op = operation>
     OperatorNode(const std::array<INode *, operation::ARITY> &inputs,
-                 ExtraParams... extra)
-        : INode(operation::make_res_shape(inputs, extra...)), inputs_(inputs),
-          fp_(inputs, this, extra...), bp_(inputs, this, extra...),
-          functions_(operation::dispatch(inputs, this, extra...)) {}
+                 op::Metadata &&mdata)
+        requires(HasMetadata<operation>::value)
+        : MetadataBase<operation>(std::move(mdata)),
+          INode(operation::make_res_shape(inputs, this->metadata_)),
+          inputs_(inputs), fp_(inputs, this, this->metadata_),
+          bp_(inputs, this, this->metadata_),
+          functions_(operation::dispatch(inputs, this, this->metadata_)) {}
 
     [[nodiscard]] const char *operation_name() const noexcept override {
         return operation::OPERATION_NAME;

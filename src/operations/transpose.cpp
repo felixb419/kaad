@@ -29,10 +29,10 @@ bool all_below(std::span<const std::size_t> vals,
 }
 
 std::pair<Shape, Strides>
-Transpose::make_res_shape(std::array<INode *, 1> input,
-                          std::span<const std::size_t> perm) {
+Transpose::make_res_shape(std::array<INode *, 1> input, const Metadata &mdata) {
 
     const Tensor &inp = input[0]->value;
+    std::span<const std::size_t> perm = mdata.perm;
 
     if (inp.rank() < 2) {
         throw ShapeError("input.rank() hast to be > 1, input.rank()=" +
@@ -58,14 +58,15 @@ Transpose::make_res_shape(std::array<INode *, 1> input,
     return {res_shape, res_strides};
 }
 
-Transpose::ForwardParams::ForwardParams(
-    std::array<INode *, 1> input, INode *result,
-    [[maybe_unused]] std::span<const std::size_t> perm)
+Transpose::ForwardParams::ForwardParams(std::array<INode *, 1> input,
+                                        INode *result,
+                                        [[maybe_unused]] const Metadata &mdata)
     : inp_begin(input[0]->value.data),
       inp_end(input[0]->value.data + input[0]->value.size),
       res_begin(result->value.data) {}
 
 void Transpose::forward(const ForwardParams &params) {
+    // TODO: Remove std::copy and make input and res alias
     std::copy(params.inp_begin, params.inp_end, params.res_begin);
 }
 
@@ -83,7 +84,7 @@ void Transpose::backward(const BackwardParams &params) {
 Transpose::Dispatch
 Transpose::dispatch([[maybe_unused]] std::array<INode *, 1> input,
                     [[maybe_unused]] INode *result,
-                    [[maybe_unused]] std::span<const std::size_t> perm) {
+                    [[maybe_unused]] const Metadata &mdata) {
 
     return {.forward = forward, .backward = backward};
 }

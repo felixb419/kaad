@@ -28,17 +28,12 @@ concept HasMakeResShape =
     HasArity<operation> && (requires(std::array<INode *, operation::ARITY> inputs) {
         { operation::make_res_shape(inputs) } -> std::same_as<Shape>;
     } || 
-    // signature with one extra param
-    requires(std::array<INode *, operation::ARITY> inputs) {
-        { operation::make_res_shape(inputs, Any{}) } -> std::same_as<Shape>;
-    } || 
-    // signature with two extra params
-   requires(std::array<INode *, operation::ARITY> inputs) {
-        { operation::make_res_shape(inputs, Any{}, Any{}) } -> std::same_as<Shape>;
+    requires(std::array<INode *, operation::ARITY> inputs, operation::Metadata mdata) {
+        { operation::make_res_shape(inputs, mdata) } -> std::same_as<Shape>;
     } || 
     // signature with one extra param and return includes strides
-   requires(std::array<INode *, operation::ARITY> inputs) {
-        { operation::make_res_shape(inputs, Any{}) } -> std::same_as<std::pair<Shape, Strides>>;
+   requires(std::array<INode *, operation::ARITY> inputs, operation::Metadata mdata) {
+        { operation::make_res_shape(inputs, mdata) } -> std::same_as<std::pair<Shape, Strides>>;
     });
 
 template <class operation>
@@ -51,25 +46,14 @@ concept HasParams =
         {
             typename operation::BackwardParams(inputs, result)
         } -> std::same_as<typename operation::BackwardParams>;
-    } ||
-    // signature with one extra param
-    requires(std::array<INode *, operation::ARITY> inputs, INode *result) {
+    } || requires(std::array<INode *, operation::ARITY> inputs, INode *result,
+                  operation::Metadata mdata) {
         {
-            typename operation::ForwardParams(inputs, result, Any{})
+            typename operation::ForwardParams(inputs, result, mdata)
         } -> std::same_as<typename operation::ForwardParams>;
 
         {
-            typename operation::BackwardParams(inputs, result, Any{})
-        } -> std::same_as<typename operation::BackwardParams>;
-    } ||
-    // signature with two extra params
-    requires(std::array<INode *, operation::ARITY> inputs, INode *result) {
-        {
-            typename operation::ForwardParams(inputs, result, Any{}, Any{})
-        } -> std::same_as<typename operation::ForwardParams>;
-
-        {
-            typename operation::BackwardParams(inputs, result, Any{}, Any{})
+            typename operation::BackwardParams(inputs, result, mdata)
         } -> std::same_as<typename operation::BackwardParams>;
     };
 
@@ -93,16 +77,10 @@ concept HasDispatch =
                 operation::dispatch(inputs, result)
             } -> std::same_as<typename operation::Dispatch>;
         } ||
-        // signature with one extra param
-        requires(std::array<INode *, operation::ARITY> inputs, INode *result) {
+        requires(std::array<INode *, operation::ARITY> inputs, INode *result,
+                 operation::Metadata mdata) {
             {
-                operation::dispatch(inputs, result, Any{})
-            } -> std::same_as<typename operation::Dispatch>;
-        } ||
-        // signature with two extra params
-        requires(std::array<INode *, operation::ARITY> inputs, INode *result) {
-            {
-                operation::dispatch(inputs, result, Any{}, Any{})
+                operation::dispatch(inputs, result, mdata)
             } -> std::same_as<typename operation::Dispatch>;
         });
 

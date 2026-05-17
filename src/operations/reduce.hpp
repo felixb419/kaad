@@ -33,12 +33,22 @@ template <ReductionPolicy Policy> struct Reduce {
 
     static constexpr const char *OPERATION_NAME = Policy::OPERATION_NAME;
 
+    struct Metadata {
+
+        std::size_t reduction_axis;
+        bool keep_rank;
+
+        Metadata(std::size_t axis, bool keep_rank)
+            : reduction_axis(axis), keep_rank(keep_rank) {}
+    };
+
     /// @throws kaad::ArgumentError If @p axis is not a valid index
     /// of input.shape().
     /// @throws kaad::ShapeError If input.rank() is less than 2.
-    static Shape make_res_shape(std::array<INode *, 1> input, std::size_t axis,
-                                bool keep_rank) {
-        return internal::make_res_shape_impl(input, axis, keep_rank);
+    static Shape make_res_shape(std::array<INode *, 1> input,
+                                const Metadata &mdata) {
+        return internal::make_res_shape_impl(input, mdata.reduction_axis,
+                                             mdata.keep_rank);
     }
 
     struct ForwardParams {
@@ -56,11 +66,11 @@ template <ReductionPolicy Policy> struct Reduce {
         Scalar reduction_extent; ///< Extent of the axis reduced over.
 
         ForwardParams(std::array<INode *, 1> input, INode *result,
-                      std::size_t reduction_axis, bool keep_rank) {
+                      const Metadata &mdata) {
             internal::fwdparams_ctr_impl(
                 this->inp_begin, this->res_begin, this->res_end, this->eff_inp,
                 this->eff_res, this->inp_shape, this->reduction_extent, input,
-                result, reduction_axis, keep_rank);
+                result, mdata.reduction_axis, mdata.keep_rank);
         }
     };
 
@@ -109,8 +119,8 @@ template <ReductionPolicy Policy> struct Reduce {
         const Scalar *d_res_begin;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
-                       std::size_t reduction_axis, bool keep_rank)
-            : ForwardParams(input, result, reduction_axis, keep_rank),
+                       const Metadata &mdata)
+            : ForwardParams(input, result, mdata),
               d_inp_begin(input[0]->gradient.data),
               d_inp_end(input[0]->gradient.data + input[0]->gradient.size),
               d_res_begin(result->gradient.data) {}
@@ -182,8 +192,7 @@ template <ReductionPolicy Policy> struct Reduce {
 
     static Dispatch dispatch(std::array<INode *, 1> input,
                              [[maybe_unused]] INode *result,
-                             [[maybe_unused]] std::size_t reduction_axis,
-                             [[maybe_unused]] bool keep_rank) {
+                             [[maybe_unused]] const Metadata &mdata) {
         // -1 because of +1 in make table function
         return {
             .forward = make_forward_dispatch_table(

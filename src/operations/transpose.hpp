@@ -17,11 +17,16 @@ struct Transpose {
 
     static constexpr const char *OPERATION_NAME = "transpose";
 
+    struct Metadata {
+        StaticVector<std::size_t> perm;
+
+        Metadata(std::span<const std::size_t> perm) : perm(perm) {}
+    };
+
     /// @throws kaad::ShapeError If input.rank() less than 2.
     /// @throws kaad::ArgumentError If perm is invalid.
     static std::pair<Shape, Strides>
-    make_res_shape(std::array<INode *, 1> input,
-                   std::span<const std::size_t> perm);
+    make_res_shape(std::array<INode *, 1> input, const Metadata &mdata);
 
     struct ForwardParams {
 
@@ -31,7 +36,7 @@ struct Transpose {
         Scalar *res_begin;
 
         ForwardParams(std::array<INode *, 1> input, INode *result,
-                      std::span<const std::size_t> perm);
+                      const Metadata &mdata);
     };
 
     using forward_fn = void (*)(const ForwardParams &params);
@@ -46,7 +51,7 @@ struct Transpose {
         const Scalar *d_res_begin;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
-                       [[maybe_unused]] std::span<const std::size_t> perm)
+                       [[maybe_unused]] const Metadata &mdata)
             : d_inp_begin(input[0]->gradient.data),
               d_inp_end(input[0]->gradient.data + input[0]->value.size),
               d_res_begin(result->gradient.data) {}
@@ -62,7 +67,7 @@ struct Transpose {
     };
 
     static Dispatch dispatch(std::array<INode *, 1> input, INode *result,
-                             std::span<const std::size_t> perm);
+                             const Metadata &mdata);
 };
 
 static_assert(Operation<Transpose>);

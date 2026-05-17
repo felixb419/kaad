@@ -19,8 +19,17 @@ struct Slice {
 
     static constexpr const char *OPERATION_NAME = "slice";
 
-    static Shape make_res_shape(std::array<INode *, 1> input, ShapeView shape,
-                                StaticVector<std::size_t> start);
+    struct Metadata {
+
+        Shape res_shape;
+        StaticVector<std::size_t> res_start;
+
+        Metadata(ShapeView shape, std::span<const std::size_t> start)
+            : res_shape(shape), res_start(start) {}
+    };
+
+    static Shape make_res_shape(std::array<INode *, 1> input,
+                                const Metadata &mdata);
 
     struct ForwardParams {
 
@@ -36,8 +45,7 @@ struct Slice {
         Shape res_shape;
 
         ForwardParams(std::array<INode *, 1> input, INode *result,
-                      [[maybe_unused]] ShapeView shape,
-                      std::span<const std::size_t> start);
+                      const Metadata &mdata);
     };
 
     template <std::size_t res_rank, std::size_t axis>
@@ -76,8 +84,8 @@ struct Slice {
         const Scalar *d_res_begin;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
-                       ShapeView shape, std::span<const std::size_t> start)
-            : ForwardParams(input, result, shape, start),
+                       const Metadata &mdata)
+            : ForwardParams(input, result, mdata),
               d_inp_begin(input[0]->gradient.data),
               d_res_begin(result->gradient.data) {}
     };
@@ -138,10 +146,9 @@ struct Slice {
         backward_fn backward;
     };
 
-    static Dispatch
-    dispatch([[maybe_unused]] std::array<INode *, 1> input, INode *result,
-             [[maybe_unused]] ShapeView shape,
-             [[maybe_unused]] std::span<const std::size_t> start) {
+    static Dispatch dispatch([[maybe_unused]] std::array<INode *, 1> input,
+                             INode *result,
+                             [[maybe_unused]] const Metadata &mdata) {
         // -1 because of +1 in make table function
         return {
             .forward = make_forward_dispatch_table(

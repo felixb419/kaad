@@ -12,10 +12,12 @@
 
 namespace kaad::operations {
 
-Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
-                            StaticVector<std::size_t> start) {
+Shape Slice::make_res_shape(std::array<INode *, 1> input,
+                            const Metadata &mdata) {
 
     const Tensor &inp = input[0]->value;
+    ShapeView shape = mdata.res_shape;
+    Shape start = mdata.res_start;
 
     if (shape.size() != inp.rank()) {
 
@@ -52,14 +54,13 @@ Shape Slice::make_res_shape(std::array<INode *, 1> input, ShapeView shape,
 }
 
 Slice::ForwardParams::ForwardParams(std::array<INode *, 1> input, INode *result,
-                                    [[maybe_unused]] ShapeView shape,
-                                    std::span<const std::size_t> start)
+                                    const Metadata &mdata)
     : inp_begin(input[0]->value.data), res_begin(result->value.data),
       eff_inp(input[0]->value.strides), eff_res(result->value.strides),
       res_shape(result->shape()) {
 
-    this->inp_start_offset = start;
-    for (std::size_t i = 0; i < start.size(); i++) {
+    this->inp_start_offset = mdata.res_start;
+    for (std::size_t i = 0; i < mdata.res_start.size(); i++) {
         this->inp_start_offset[i] *= this->eff_inp[i];
     }
 }

@@ -17,7 +17,8 @@ Node slice(Graph &rec, Node input, Shape shape,
            StaticVector<std::size_t> start) {
 
     rec.nodes.push_back(std::make_unique<OperatorNode<operations::Slice>>(
-        std::array{rec.get_node(input)}, shape, start));
+        std::array{rec.get_node(input)},
+        operations::Slice::Metadata{shape, start}));
 
     return rec.back_handle();
 }

@@ -28,7 +28,8 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
     }
 
     rec.nodes.push_back(std::make_unique<OperatorNode<operations::Transpose>>(
-        std::array{rec.get_node(input)}, perm));
+        std::array{rec.get_node(input)},
+        operations::Transpose::Metadata(perm)));
 
     return rec.back_handle();
 }
