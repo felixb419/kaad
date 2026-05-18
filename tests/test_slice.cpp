@@ -85,7 +85,7 @@ int main() {
     kaad::Node a_t = kaad::transpose(rec, input_a);
     kaad::Node res = kaad::slice(rec, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 20);
 

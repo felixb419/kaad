@@ -44,6 +44,8 @@ struct Slice {
 
         Shape res_shape;
 
+        ForwardParams() = default;
+
         ForwardParams(std::array<INode *, 1> input, INode *result,
                       const Metadata &mdata);
     };
@@ -82,6 +84,8 @@ struct Slice {
 
         Scalar *d_inp_begin;
         const Scalar *d_res_begin;
+
+        BackwardParams() = default;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
                        const Metadata &mdata)

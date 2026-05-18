@@ -92,7 +92,7 @@ int main() {
     kaad::Node ab_plus_c = add(rec, a_plus_b, input_c);
     kaad::Node res = add(rec, ab_plus_c, input_d);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 200);
     std::iota(input_b.data_mut(), input_b.data_mut() + input_b.size(), 90);

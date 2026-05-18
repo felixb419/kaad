@@ -30,6 +30,8 @@ struct DotProduct {
         const Scalar *lhs_end;
         const Scalar *rhs_end;
 
+        ForwardParams() = default;
+
         ForwardParams(std::array<INode *, 2> inputs, INode *result)
             : lhs_begin(inputs[0]->value.data),
               rhs_begin(inputs[1]->value.data), res_begin(result->value.data),
@@ -48,6 +50,8 @@ struct DotProduct {
         Scalar *d_lhs_begin;
         Scalar *d_rhs_begin;
         const Scalar *d_res_begin;
+
+        BackwardParams() = default;
 
         BackwardParams(std::array<INode *, 2> inputs, INode *result)
             : ForwardParams(inputs, result),

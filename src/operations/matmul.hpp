@@ -106,6 +106,8 @@ struct Matmul {
         ForwardParams wrt_lhs;
         ForwardParams wrt_rhs;
 
+        BackwardParams() = default;
+
         BackwardParams(std::array<INode *, 2> inputs, INode *result);
     };
 

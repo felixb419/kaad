@@ -18,7 +18,7 @@ int main() {
     kaad::Node res = dot(rec, dot_ab, input_c);     // [1] * [5] -> [1]
 
     // allocate memory for the tensors
-    rec.allocate();
+    rec.init();
 
     // Fill input nodes with values,
     // get mutable pointer to node values with .data_mut().

@@ -41,6 +41,9 @@ struct INode {
 
     [[nodiscard]] virtual bool is_input() const noexcept = 0;
 
+    /// Initializes ForwardParams and BackwardParms.
+    virtual void init_params() = 0;
+
     /// Reset evaluated_ flag, fill value and gradient tensor with 0.
     virtual void reset() = 0;
 

@@ -20,7 +20,7 @@ int main() {
     kaad::Node res = matmul(rec, prod_ab, input_c);
 
     // allocate memory for the tensors
-    rec.allocate();
+    rec.init();
 
     // Fill input nodes with values,
     // get mutable pointer to node values with .data_mut().

@@ -145,11 +145,11 @@ int main() {
     kaad::Node prod_ab = outer(rec, input_a, transpose(rec, input_b));
     kaad::Node res = outer(rec, prod_ab, input_c);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 20);
-    std::iota(input_b.data_mut(), input_a.data_mut() + input_a.size(), 45);
-    std::iota(input_c.data_mut(), input_a.data_mut() + input_a.size(), 380);
+    std::iota(input_b.data_mut(), input_b.data_mut() + input_b.size(), 45);
+    std::iota(input_c.data_mut(), input_c.data_mut() + input_c.size(), 380);
 
     rec.reset();
 

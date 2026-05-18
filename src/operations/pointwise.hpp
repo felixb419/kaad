@@ -59,6 +59,8 @@ struct Pointwise {
 
             const Scalar *res_end;
 
+            ForwardParams() = default;
+
             ForwardParams(std::array<INode *, 2> inputs, INode *result)
                 : lhs_begin(inputs[0]->value.data),
                   rhs_begin(inputs[1]->value.data),
@@ -200,6 +202,8 @@ struct Pointwise {
 
             const Scalar *res_end;
 
+            ForwardParams() = default;
+
             ForwardParams(std::array<INode *, 1> inputs, INode *result)
                 : inp_begin(inputs[0]->value.data),
                   res_begin(result->value.data),
@@ -229,6 +233,8 @@ struct Pointwise {
             const Scalar *d_res_begin;
 
             const Scalar *res_end;
+
+            BackwardParams() = default;
 
             BackwardParams(std::array<INode *, 1> inputs, INode *result)
                 : inp_begin(inputs[0]->value.data),

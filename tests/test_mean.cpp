@@ -77,7 +77,7 @@ int main() {
     kaad::Node a_mean2 = mean(rec, a_mean, 1);
     kaad::Node res = mean(rec, a_mean2);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 50);
 

@@ -27,6 +27,8 @@ template <ReductionPolicy Policy> struct FullReduce {
 
         Scalar inp_size; ///< Number of elements in the input tensor.
 
+        ForwardParams() = default;
+
         ForwardParams(std::array<INode *, 1> input, INode *result)
             : inp_begin(input[0]->value.data),
               inp_end(input[0]->value.data + input[0]->value.size),
@@ -55,6 +57,8 @@ template <ReductionPolicy Policy> struct FullReduce {
         const Scalar *d_inp_end;
 
         const Scalar *d_res_begin;
+
+        BackwardParams() = default;
 
         BackwardParams(std::array<INode *, 1> input, INode *result)
             : ForwardParams(input, result),

@@ -45,7 +45,6 @@ class OperatorNode : MetadataBase<operation>, public INode {
     OperatorNode(const std::array<INode *, operation::ARITY> &inputs)
         requires(!HasMetadata<operation>::value)
         : INode(operation::make_res_shape(inputs)), inputs_(inputs),
-          fp_(inputs, this), bp_(inputs, this),
           functions_(operation::dispatch(inputs, this)) {}
 
     template <Operation op = operation>
@@ -54,8 +53,7 @@ class OperatorNode : MetadataBase<operation>, public INode {
         requires(HasMetadata<operation>::value)
         : MetadataBase<operation>(std::move(mdata)),
           INode(operation::make_res_shape(inputs, this->metadata_)),
-          inputs_(inputs), fp_(inputs, this, this->metadata_),
-          bp_(inputs, this, this->metadata_),
+          inputs_(inputs),
           functions_(operation::dispatch(inputs, this, this->metadata_)) {}
 
     [[nodiscard]] const char *operation_name() const noexcept override {
@@ -67,6 +65,22 @@ class OperatorNode : MetadataBase<operation>, public INode {
     }
 
     [[nodiscard]] bool is_input() const noexcept override { return false; }
+
+    void init_params() override {
+
+        if constexpr (HasMetadata<operation>::value) {
+
+            this->fp_ = typename operation::ForwardParams(this->inputs_, this,
+                                                          this->metadata_);
+            this->bp_ = typename operation::BackwardParams(this->inputs_, this,
+                                                           this->metadata_);
+
+        } else {
+
+            this->fp_ = typename operation::ForwardParams(this->inputs_, this);
+            this->bp_ = typename operation::BackwardParams(this->inputs_, this);
+        }
+    }
 
     void reset() override {
         this->is_evaluated_ = false;

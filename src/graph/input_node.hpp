@@ -16,6 +16,8 @@ class InputNode : public INode {
 
     [[nodiscard]] bool is_input() const noexcept override { return true; }
 
+    void init_params() noexcept override {}
+
     void evaluate() noexcept override {}
 
     void acc_input_gradients() noexcept override {}

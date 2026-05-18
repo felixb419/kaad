@@ -65,6 +65,8 @@ template <ReductionPolicy Policy> struct Reduce {
 
         Scalar reduction_extent; ///< Extent of the axis reduced over.
 
+        ForwardParams() = default;
+
         ForwardParams(std::array<INode *, 1> input, INode *result,
                       const Metadata &mdata) {
             internal::fwdparams_ctr_impl(
@@ -117,6 +119,8 @@ template <ReductionPolicy Policy> struct Reduce {
         const Scalar *d_inp_end;
 
         const Scalar *d_res_begin;
+
+        BackwardParams() = default;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
                        const Metadata &mdata)

@@ -40,9 +40,13 @@ class Graph {
      */
     [[nodiscard]] INode *get_node(Node node);
 
-  public:
     /// @brief Allocate memory for the value and gradient tensor for all nodes.
     void allocate();
+
+  public:
+    /// @brief Make the graph ready for calls to reset(), evaluate() and
+    /// get_gradient().
+    void init();
 
     /**
      * @brief Constructs an evaluated node with no inputs and adds it to the

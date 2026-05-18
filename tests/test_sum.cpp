@@ -73,7 +73,7 @@ int main() {
     kaad::Node a_sum2 = sum(rec, a_sum, 1);
     kaad::Node res = sum(rec, a_sum2);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 50);
 

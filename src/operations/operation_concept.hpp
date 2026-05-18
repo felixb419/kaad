@@ -38,7 +38,17 @@ concept HasMakeResShape =
 
 template <class operation>
 concept HasParams =
-    requires(std::array<INode *, operation::ARITY> inputs, INode *result) {
+    requires {
+        {
+            typename operation::ForwardParams()
+        } -> std::same_as<typename operation::ForwardParams>;
+
+        {
+            typename operation::BackwardParams()
+        } -> std::same_as<typename operation::BackwardParams>;
+
+    } &&
+    (requires(std::array<INode *, operation::ARITY> inputs, INode *result) {
         {
             typename operation::ForwardParams(inputs, result)
         } -> std::same_as<typename operation::ForwardParams>;
@@ -55,7 +65,7 @@ concept HasParams =
         {
             typename operation::BackwardParams(inputs, result, mdata)
         } -> std::same_as<typename operation::BackwardParams>;
-    };
+    });
 
 template <class operation>
 concept HasDispatch =

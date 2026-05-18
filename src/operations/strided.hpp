@@ -45,8 +45,7 @@ template <kernels::Binary Kernel, FlexiblePolicy Policy> struct Strided {
 
         Shape res_shape;
 
-        ForwardParams() =
-            default; ///< Needed because operations::Outer uses it.
+        ForwardParams() = default;
 
         ForwardParams(std::array<INode *, 2> inputs, INode *result)
             : lhs_begin(inputs[0]->value.data),
@@ -100,6 +99,8 @@ template <kernels::Binary Kernel, FlexiblePolicy Policy> struct Strided {
         Scalar *d_lhs_begin;
         Scalar *d_rhs_begin;
         const Scalar *d_res_begin;
+
+        BackwardParams() = default;
 
         BackwardParams(std::array<INode *, 2> inputs, INode *result)
             : ForwardParams(inputs, result),

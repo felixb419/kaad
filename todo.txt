@@ -1,8 +1,4 @@
 [FIX]
-(graph)   way to fill input nodes
-            fix tests and examples
-            reenable tests and examples
-
 (tensor) make tensor.hpp no longer a public header
 
 [REFACTOR]

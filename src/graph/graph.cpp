@@ -55,6 +55,15 @@ void Graph::allocate() {
     }
 }
 
+void Graph::init() {
+
+    this->allocate();
+
+    for (std::unique_ptr<INode> &node : this->nodes) {
+        node->init_params();
+    }
+}
+
 Node Graph::add_input_node(ShapeView value_shape) {
     this->nodes.push_back(std::make_unique<InputNode>(value_shape));
 

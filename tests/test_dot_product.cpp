@@ -79,11 +79,11 @@ int main() {
     kaad::Node dot_ab = dot(rec, input_a, input_b);
     kaad::Node res = dot(rec, dot_ab, input_c);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 40);
-    std::iota(input_b.data_mut(), input_a.data_mut() + input_a.size(), 90);
-    std::iota(input_c.data_mut(), input_a.data_mut() + input_a.size(), 150);
+    std::iota(input_b.data_mut(), input_b.data_mut() + input_b.size(), 90);
+    std::iota(input_c.data_mut(), input_c.data_mut() + input_c.size(), 150);
 
     rec.reset();
 

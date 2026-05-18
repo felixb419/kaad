@@ -68,7 +68,7 @@ int main() {
 
     kaad::Node res = transpose(rec, input_a);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 32);
 

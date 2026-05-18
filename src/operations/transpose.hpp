@@ -35,6 +35,8 @@ struct Transpose {
 
         Scalar *res_begin;
 
+        ForwardParams() = default;
+
         ForwardParams(std::array<INode *, 1> input, INode *result,
                       const Metadata &mdata);
     };
@@ -49,6 +51,8 @@ struct Transpose {
         const Scalar *d_inp_end;
 
         const Scalar *d_res_begin;
+
+        BackwardParams() = default;
 
         BackwardParams(std::array<INode *, 1> input, INode *result,
                        [[maybe_unused]] const Metadata &mdata)

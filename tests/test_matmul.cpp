@@ -118,11 +118,11 @@ int main() {
     kaad::Node prod_ab = matmul(rec, a_t, input_b);
     kaad::Node res = matmul(rec, prod_ab, input_c);
 
-    rec.allocate();
+    rec.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 200);
-    std::iota(input_b.data_mut(), input_a.data_mut() + input_a.size(), 900);
-    std::iota(input_c.data_mut(), input_a.data_mut() + input_a.size(), 100);
+    std::iota(input_b.data_mut(), input_b.data_mut() + input_b.size(), 900);
+    std::iota(input_c.data_mut(), input_c.data_mut() + input_c.size(), 100);
 
     rec.reset();
 
