@@ -44,62 +44,55 @@ class Graph {
     void allocate();
 
   public:
-    /// @brief Make the graph ready for calls to reset(), evaluate() and
-    /// get_gradient().
+    /**
+     * @brief Initializes the graph for execution.
+     *
+     * Must be called before using reset(), evaluate(), or get_gradient().
+     */
     void init();
 
     /**
      * @brief Constructs an evaluated node with no inputs and adds it to the
      * graph.
      *
-     * Creates a Tensor using the given shape, wraps it in a InputNode, and
-     * stores the node as a std::unique_ptr in the `nodes` container.
+     * Creates a Tensor using the given shape, wraps it in an InputNode, and
+     * stores the node in the graph.
      *
      * @param value_shape Shape of the tensor of the input node.
-     * @return A handle of the newly created InputNode.
+     * @return A handle to the newly created InputNode.
      */
     [[nodiscard]] Node add_input_node(ShapeView value_shape);
 
     /**
-     * @brief Resets all node values and gradients in the computation graph.
+     * @brief Resets all node values and gradients in the graph.
      *
-     * Calls the `reset()` method on each node in the graph, zeroing out their
-     * associated value and gradient tensors. This is typically used before a
-     * new forward pass.
+     * Must be called after init() and before each new call to evaluate().
+     * Clears all cached values and accumulated gradients.
      */
     void reset();
 
     /**
      * @brief Evaluates a list of nodes and returns their tensor values.
-     * @warning reset has to be called before nodes are evaluated.
      *
-     * Accepts a variadic list of node handles, evaluates each one by calling
-     * its `evaluate()` method, and returns a std::vector of pointers to their
-     * resulting Tensor values in the same order.
+     * Requires init() and a preceding call to reset().
+     * May only be called once per reset().
      *
-     * @param nodes A list of handles of nodes to be evaluated.
-     * @return An array of tensor views, each corresponding to the value
-     * of the evaluated node.
+     * @param nodes Handles of the nodes to evaluate.
+     * @return Tensor views of the evaluated node values, in the same order.
      */
     std::vector<TensorView> evaluate(std::span<const Node> nodes);
 
     /**
-     * @brief Computes gradients of the computation graph with respect to the
-     * given input nodes.
-     * @warning evaluate has to be called on @p output before this.
-     * @warning get_gradient should only be called once before resetting and
-     * evaluating again.
+     * @brief Computes gradients with respect to the given input nodes.
      *
-     * Initializes the gradient of the output node `output` to 1 and performs
-     * backpropagation through the graph. Returns a list of pointers to the
-     * gradient tensors corresponding to each input node in @p inputs.
+     * Requires init() and a preceding call to evaluate() on @p output.
+     * May only be called once per reset(); call reset() and evaluate() again
+     * before requesting another gradient.
      *
-     * @param output Handle of the output node (target function) with respect
-     * to which gradients are computed.
-     * @param inputs A list of input node handles for which the gradients are
+     * @param output Handle of the output node (target function).
+     * @param inputs Handles of the input nodes for which gradients are
      * requested.
-     * @return An array of tensor views representing the gradients
-     * df/dx for each input node.
+     * @return Tensor views representing df/dx for each input node.
      */
     std::vector<TensorView> get_gradient(Node output,
                                          std::span<const Node> inputs);
