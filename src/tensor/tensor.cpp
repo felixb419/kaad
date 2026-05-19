@@ -1,4 +1,4 @@
-#include <kaad/tensor/tensor.hpp>
+#include "kaad/tensor/internal/tensor.hpp"
 
 #include "kaad/tensor/internal/print_tensor.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"

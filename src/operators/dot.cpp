@@ -1,5 +1,3 @@
-#include <kaad/operators/operators.hpp>
-
 #include "../graph/operator_node.hpp"
 #include "../operations/dot_product.hpp"
 
@@ -7,6 +5,7 @@
 #include <kaad/exceptions.hpp>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
+#include <kaad/operators/operators.hpp>
 #include <memory>
 #include <vector>
 

@@ -1,11 +1,11 @@
 #pragma once
 
 #include "../operations/operation_concept.hpp"
+#include "kaad/tensor/internal/tensor.hpp"
 
 #include <cstdint>
 #include <kaad/enums.hpp>
 #include <kaad/graph/internal/inode.hpp>
-#include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 
 namespace kaad {

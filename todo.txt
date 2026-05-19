@@ -1,5 +1,4 @@
 [FIX]
-(tensor) make tensor.hpp no longer a public header
 
 [REFACTOR]
             change add_input_node to operator input(rec, shape)

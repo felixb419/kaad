@@ -1,8 +1,7 @@
-#include <kaad/tensor/tensor_view.hpp>
-
 #include "kaad/tensor/internal/print_tensor.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"
 
+#include <kaad/tensor/tensor_view.hpp>
 #include <ostream>
 #include <span>
 

@@ -1,7 +1,8 @@
 #pragma once
 
+#include "kaad/tensor/internal/tensor.hpp"
+
 #include <concepts>
-#include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <ranges>
 

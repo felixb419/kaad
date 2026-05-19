@@ -1,5 +1,3 @@
-#include <kaad/operators/operators.hpp>
-
 #include "../operations/broadcast.hpp"
 #include "../operations/operation_concept.hpp"
 #include "../operations/pointwise.hpp"
@@ -10,6 +8,7 @@
 #include <kaad/exceptions.hpp>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
+#include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <memory>
 #include <vector>

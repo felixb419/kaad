@@ -1,12 +1,13 @@
 #pragma once
 
+#include "kaad/tensor/internal/tensor.hpp"
+
 #include <algorithm>
 #include <concepts>
 #include <cstdint>
 #include <iostream>
 #include <kaad/scalar.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <span>
 

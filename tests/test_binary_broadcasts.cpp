@@ -1,11 +1,12 @@
 #include "check_tensor.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <array>
 #include <cassert>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
-#include "kaad/tensor/internal/tensor_types.hpp"
 #include <numeric>
 #include <span>
 

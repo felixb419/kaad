@@ -1,9 +1,10 @@
 #pragma once
 
+#include "kaad/tensor/internal/tensor.hpp"
+
 #include <kaad/graph/graph.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/tensor.hpp>
 
 /**
  * @mainpage KAAD Documentation
