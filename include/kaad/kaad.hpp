@@ -24,11 +24,11 @@
  * ## Getting Started
  * 1. Include the header file: `"kaad.hpp"`.
  * 2. Create a `kaad::Graph` object.
- * 3. Use the `add_input_node` member function to add leaf nodes (which hold
- * value and gradient tensors).
  * 4. Apply 'operators' to add operation nodes to the graph.
  *
  * Once the computation graph is built:
+ * 1. Use init() function to allocate tensor memory and initialize node
+ * parameters.
  * 1. Use `reset()` to reset all values of non-leaf nodes to 0 and reset all
  * gradients to 0.
  * 2. Call `eval()` on a `CompGraph` object to evaluate specific nodes.

@@ -7,11 +7,9 @@
 [PERF]
 
 [DOC]
-            put term definitions in the header class comment (axis, extent, ...)
-
-            Rework kaad.hpp mainpage
-
             Add Pages for:
+                max_rank
+                term definitions (axis, extent, ...)
                 what is backward autodiff
                 what is a computation graph
                 Node classes
