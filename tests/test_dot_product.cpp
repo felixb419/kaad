@@ -73,9 +73,9 @@ std::array<kaad::Scalar, 1> res_grad{1.0};
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{5});
-    kaad::Node input_b = rec.add_input_node(kaad::Shape{5});
-    kaad::Node input_c = rec.add_input_node(kaad::Shape{5});
+    kaad::Node input_a = input(rec, kaad::Shape{5});
+    kaad::Node input_b = input(rec, kaad::Shape{5});
+    kaad::Node input_c = input(rec, kaad::Shape{5});
 
     kaad::Node dot_ab = dot(rec, input_a, input_b);
     kaad::Node res = dot(rec, dot_ab, input_c);

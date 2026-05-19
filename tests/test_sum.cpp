@@ -66,7 +66,7 @@ std::array<kaad::Scalar, 1> res_grad = {1.0};
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
+    kaad::Node input_a = input(rec, kaad::Shape{3, 5, 2});
 
     kaad::Node a_t = transpose(rec, input_a);
 

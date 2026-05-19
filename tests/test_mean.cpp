@@ -72,7 +72,7 @@ std::array<kaad::Scalar, 1> res_grad{1.0};
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
+    kaad::Node input_a = input(rec, kaad::Shape{3, 5, 2});
 
     kaad::Node a_mean = mean(rec, input_a, 2, true);
     kaad::Node a_mean2 = mean(rec, a_mean, 1);

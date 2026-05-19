@@ -9,9 +9,9 @@ int main() {
     kaad::Graph rec;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{5});
-    kaad::Node input_b = rec.add_input_node(kaad::Shape{5});
-    kaad::Node input_c = rec.add_input_node(kaad::Shape{5});
+    kaad::Node input_a = input(rec, kaad::Shape{5});
+    kaad::Node input_b = input(rec, kaad::Shape{5});
+    kaad::Node input_c = input(rec, kaad::Shape{5});
 
     // Add computation nodes to graph via operators.
     kaad::Node dot_ab = dot(rec, input_a, input_b); // [5] * [5] -> [1]

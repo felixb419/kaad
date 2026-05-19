@@ -52,18 +52,6 @@ class Graph {
     void init();
 
     /**
-     * @brief Constructs an evaluated node with no inputs and adds it to the
-     * graph.
-     *
-     * Creates a Tensor using the given shape, wraps it in an InputNode, and
-     * stores the node in the graph.
-     *
-     * @param value_shape Shape of the tensor of the input node.
-     * @return A handle to the newly created InputNode.
-     */
-    [[nodiscard]] Node add_input_node(ShapeView value_shape);
-
-    /**
      * @brief Resets all node values and gradients in the graph.
      *
      * Must be called after init() and before each new call to evaluate().
@@ -99,6 +87,7 @@ class Graph {
 
     friend class Node;
 
+    friend Node input(Graph &rec, ShapeView shape);
     template <operations::kernels::Binary Kernel>
     friend Node binary_operator(Graph &rec, Node lhs, Node rhs,
                                 const char *opName);

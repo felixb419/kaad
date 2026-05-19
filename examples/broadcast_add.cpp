@@ -9,13 +9,13 @@ int main() {
     kaad::Graph rec;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 2});
+    kaad::Node input_a = input(rec, kaad::Shape{3, 2});
 
-    kaad::Node input_b = rec.add_input_node(kaad::Shape{3, 2});
+    kaad::Node input_b = input(rec, kaad::Shape{3, 2});
 
-    kaad::Node input_c = rec.add_input_node(kaad::Shape{});
+    kaad::Node input_c = input(rec, kaad::Shape{});
 
-    kaad::Node input_d = rec.add_input_node(kaad::Shape{2, 3, 1});
+    kaad::Node input_d = input(rec, kaad::Shape{2, 3, 1});
 
     // Add computation nodes to graph via operators.
     kaad::Node a_plus_b = add(rec, input_a, input_b); // [3,2] + [3,2] -> [3,2]

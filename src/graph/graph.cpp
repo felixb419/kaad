@@ -1,7 +1,5 @@
-#include "input_node.hpp"
 #include "kaad/graph/internal/inode.hpp"
 #include "kaad/tensor/internal/tensor.hpp"
-#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -62,12 +60,6 @@ void Graph::init() {
     for (std::unique_ptr<INode> &node : this->nodes) {
         node->init_params();
     }
-}
-
-Node Graph::add_input_node(ShapeView value_shape) {
-    this->nodes.push_back(std::make_unique<InputNode>(value_shape));
-
-    return Node(this->nodes.size() - 1, this);
 }
 
 void Graph::reset() {

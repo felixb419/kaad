@@ -131,7 +131,7 @@ int main() {
 
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{5, 2, 5, 10});
+    kaad::Node input_a = input(rec, kaad::Shape{5, 2, 5, 10});
 
     kaad::Node a_slice = kaad::slice(rec, input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
     kaad::Node a_sqrt = kaad::sqrt(rec, a_slice);

@@ -9,7 +9,7 @@ int main() {
     kaad::Graph rec;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5, 2});
+    kaad::Node input_a = input(rec, kaad::Shape{3, 5, 2});
 
     // Add computation nodes to graph via operators.
     kaad::Node res = transpose(rec, input_a); // [3,5,2] -> [2,5,3]

@@ -1,7 +1,6 @@
 [FIX]
 
 [REFACTOR]
-            change add_input_node to operator input(rec, shape)
 
 [FEAT]
 

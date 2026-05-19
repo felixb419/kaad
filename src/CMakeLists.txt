@@ -11,6 +11,7 @@ add_library(kaad
     ./operations/transpose.cpp
     ./operators/binary_operators.cpp
     ./operators/dot.cpp
+    ./operators/input.cpp
     ./operators/matmul.cpp
     ./operators/mean.cpp
     ./operators/outer.cpp

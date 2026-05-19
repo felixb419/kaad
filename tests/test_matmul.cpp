@@ -110,9 +110,9 @@ std::array<kaad::Scalar, 24> res_grad = {
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{5, 3});
-    kaad::Node input_b = rec.add_input_node(kaad::Shape{5, 8});
-    kaad::Node input_c = rec.add_input_node(kaad::Shape{2, 2, 8, 2});
+    kaad::Node input_a = input(rec, kaad::Shape{5, 3});
+    kaad::Node input_b = input(rec, kaad::Shape{5, 8});
+    kaad::Node input_c = input(rec, kaad::Shape{2, 2, 8, 2});
 
     kaad::Node a_t = transpose(rec, input_a);
 

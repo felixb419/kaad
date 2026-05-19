@@ -1,6 +1,5 @@
 #pragma once
 
-#include <initializer_list>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/static_vector.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
@@ -17,6 +16,16 @@ class Graph;
  * @defgroup unary_operators Unary operators.
  * @ingroup operators
  */
+
+/**
+ * @brief Adds an input node to the computation graph.
+ * @ingroup unary_operators
+ *
+ * @param rec The computation graph to which the node will be added.
+ * @param shape Shape of the node.
+ * @return A handle of the new input node.
+ */
+Node input(Graph &rec, ShapeView shape);
 
 /**
  * @brief Adds a unary negation node to the computation graph.

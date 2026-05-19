@@ -9,11 +9,11 @@ int main() {
     kaad::Graph rec;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{3, 5});
+    kaad::Node input_a = input(rec, kaad::Shape{3, 5});
 
-    kaad::Node input_b = rec.add_input_node(kaad::Shape{5, 8});
+    kaad::Node input_b = input(rec, kaad::Shape{5, 8});
 
-    kaad::Node input_c = rec.add_input_node(kaad::Shape{2, 2, 8, 2});
+    kaad::Node input_c = input(rec, kaad::Shape{2, 2, 8, 2});
 
     // Add computation nodes to graph via operators.
     kaad::Node prod_ab = matmul(rec, input_a, input_b);

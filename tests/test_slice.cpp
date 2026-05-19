@@ -81,7 +81,7 @@ std::array<kaad::Scalar, 16> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Graph rec;
 
-    kaad::Node input_a = rec.add_input_node(kaad::Shape{2, 3, 4, 5});
+    kaad::Node input_a = input(rec, kaad::Shape{2, 3, 4, 5});
 
     kaad::Node a_t = kaad::transpose(rec, input_a);
     kaad::Node res = kaad::slice(rec, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
