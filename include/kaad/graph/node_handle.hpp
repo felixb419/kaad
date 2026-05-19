@@ -62,7 +62,7 @@ class Node {
     /// @return True if node is evaluated false otherwise.
     [[nodiscard]] bool is_evaluated() const;
 
-    /// @return True if node is an @ref InputNode false otherwise.
+    /// @return True if node is an InputNode false otherwise.
     [[nodiscard]] bool is_input() const;
 
     friend constexpr auto operator<=>(Node, Node) = default;

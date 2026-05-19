@@ -40,10 +40,8 @@ class TensorView {
     /**
      * @brief Constructs a tensor view.
      * @param shape Pointer to the shape array.
-     * @param shape Pointer to the strides array.
-     * @param rank Length of the shape and stride arrays.
+     * @param strides Pointer to the strides array.
      * @param elements Pointer to the element array.
-     * @param len Length of the element array.
      */
     TensorView(ShapeView shape, StridesView strides,
                std::span<value_type> elements);
@@ -58,7 +56,7 @@ class TensorView {
     [[nodiscard]] StridesView strides() const noexcept;
 
     /**
-     * @copybrief Tensor::elements()
+     * @brief Get a std::span representing the elements array.
      * @note If the tensor has been transposed the physical and logical
      * order of elements can differ.
      * @return Read-only span representing the elements.
@@ -103,7 +101,7 @@ class TensorView {
  * @brief Overloads the stream output operator to print the tensor view.
  *
  * @param stream Output stream.
- * @param view The tensor view to print.
+ * @param tensor The tensor view to print.
  * @return std::ostream& The updated output stream.
  */
 std::ostream &operator<<(std::ostream &stream, const TensorView &tensor);

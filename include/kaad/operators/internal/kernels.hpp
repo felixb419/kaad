@@ -16,7 +16,7 @@ namespace kaad::operations::kernels {
 /// @defgroup binary_kernels Kernels that take two inputs.
 /// @ingroup kernels
 
-/// @defgroup unary_kernels
+/// @defgroup unary_kernels Kernels that take one input.
 /// @ingroup kernels
 
 /**
