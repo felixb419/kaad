@@ -1,12 +1,13 @@
 #include "reduce.hpp"
 
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <kaad/exceptions.hpp>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp>
 #include <string>
 #include <utility>

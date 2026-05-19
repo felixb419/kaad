@@ -1,10 +1,11 @@
-#include <kaad/operators/operators.hpp>
+#include "../operations/outer.hpp"
 
 #include "../graph/operator_node.hpp"
-#include "../operations/outer.hpp"
+
 #include <array>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
+#include <kaad/operators/operators.hpp>
 #include <memory>
 #include <vector>
 

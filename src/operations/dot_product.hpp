@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../operations/operation_concept.hpp"
+
 #include <array>
 #include <cstddef>
 #include <kaad/enums.hpp>

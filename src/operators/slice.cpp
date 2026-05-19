@@ -1,13 +1,14 @@
-#include <kaad/operators/operators.hpp>
+#include "../operations/slice.hpp"
 
 #include "../graph/operator_node.hpp"
-#include "../operations/slice.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <array>
 #include <cstddef>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
+#include <kaad/operators/operators.hpp>
 #include <kaad/static_vector.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <memory>
 #include <vector>
 

@@ -1,9 +1,10 @@
-#include <kaad/tensor/internal/print_tensor.hpp>
+#include "kaad/tensor/internal/print_tensor.hpp"
+
+#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <cstddef>
 #include <kaad/scalar.hpp>
 #include <kaad/static_vector.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <ostream>
 #include <span>
 

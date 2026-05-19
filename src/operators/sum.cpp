@@ -3,6 +3,7 @@
 #include "../graph/operator_node.hpp"
 #include "../operations/full_reduce.hpp"
 #include "../operations/reduce.hpp"
+
 #include <array>
 #include <cstddef>
 #include <kaad/exceptions.hpp>

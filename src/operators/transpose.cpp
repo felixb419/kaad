@@ -2,10 +2,11 @@
 
 #include "../graph/operator_node.hpp"
 #include "../operations/transpose.hpp"
+#include "kaad/graph/internal/inode.hpp"
+
 #include <array>
 #include <cstddef>
 #include <kaad/graph/graph.hpp>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/static_vector.hpp>
 #include <memory>

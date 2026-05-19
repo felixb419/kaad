@@ -1,13 +1,14 @@
 #include <kaad/graph/graph.hpp>
 
 #include "input_node.hpp"
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <kaad/exceptions.hpp>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <memory>

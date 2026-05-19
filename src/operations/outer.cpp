@@ -1,10 +1,11 @@
 #include "outer.hpp"
-#include "kaad/tensor/tensor.hpp"
+
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <algorithm>
 #include <array>
-#include <kaad/graph/internal/inode.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
+#include <kaad/tensor/tensor.hpp>
 
 namespace kaad::operations {
 

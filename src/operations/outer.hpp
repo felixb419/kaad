@@ -1,6 +1,7 @@
 #pragma once
 
 #include "strided.hpp"
+
 #include <array>
 #include <kaad/operators/internal/kernels.hpp>
 #include <kaad/scalar.hpp>

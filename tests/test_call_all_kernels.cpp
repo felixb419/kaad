@@ -1,5 +1,5 @@
-#include <kaad/operators/internal/kernels.hpp>
-#include <kaad/operators/internal/safe_kernels.hpp>
+#include "kaad/operators/internal/kernels.hpp"
+#include "kaad/operators/internal/safe_kernels.hpp"
 #include <kaad/scalar.hpp>
 
 int main() {

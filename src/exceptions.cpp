@@ -1,5 +1,6 @@
-#include <cstddef>
 #include <kaad/exceptions.hpp>
+
+#include <cstddef>
 #include <string>
 #include <string_view>
 

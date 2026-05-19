@@ -2,6 +2,7 @@
 
 #include "../operations/operation_concept.hpp"
 #include "../operations/reduction_policies.hpp"
+
 #include <array>
 #include <cstddef>
 #include <kaad/graph/internal/inode.hpp>

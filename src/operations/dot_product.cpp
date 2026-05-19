@@ -1,12 +1,13 @@
 #include "dot_product.hpp"
 
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <algorithm>
 #include <array>
 #include <kaad/enums.hpp>
 #include <kaad/exceptions.hpp>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad::operations {
 

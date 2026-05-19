@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../operations/operation_concept.hpp"
+
 #include <cstdint>
 #include <kaad/enums.hpp>
 #include <kaad/graph/internal/inode.hpp>

@@ -2,6 +2,7 @@
 
 #include "../graph/operator_node.hpp"
 #include "../operations/matmul.hpp"
+
 #include <array>
 #include <kaad/exceptions.hpp>
 #include <kaad/graph/graph.hpp>
