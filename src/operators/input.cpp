@@ -9,11 +9,11 @@
 
 namespace kaad {
 
-Node input(Graph &rec, ShapeView shape) {
+Node input(Graph &graph, ShapeView shape) {
 
-    rec.nodes.push_back(std::make_unique<InputNode>(shape));
+    graph.nodes.push_back(std::make_unique<InputNode>(shape));
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad

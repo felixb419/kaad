@@ -64,25 +64,25 @@ std::array<kaad::Scalar, 1> res_val = {1935.0};
 std::array<kaad::Scalar, 1> res_grad = {1.0};
 
 int main() {
-    kaad::Graph rec;
+    kaad::Graph graph;
 
-    kaad::Node input_a = input(rec, kaad::Shape{3, 5, 2});
+    kaad::Node input_a = input(graph, kaad::Shape{3, 5, 2});
 
-    kaad::Node a_t = transpose(rec, input_a);
+    kaad::Node a_t = transpose(graph, input_a);
 
-    kaad::Node a_sum = sum(rec, a_t, 2, true);
-    kaad::Node a_sum2 = sum(rec, a_sum, 1);
-    kaad::Node res = sum(rec, a_sum2);
+    kaad::Node a_sum = sum(graph, a_t, 2, true);
+    kaad::Node a_sum2 = sum(graph, a_sum, 1);
+    kaad::Node res = sum(graph, a_sum2);
 
-    rec.init();
+    graph.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 50);
 
-    rec.reset();
+    graph.reset();
 
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
-    rec.get_gradient(res, std::array{input_a});
+    graph.get_gradient(res, std::array{input_a});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

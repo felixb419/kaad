@@ -71,26 +71,26 @@ std::array<kaad::Scalar, 1> res_val{14690800.0};
 std::array<kaad::Scalar, 1> res_grad{1.0};
 
 int main() {
-    kaad::Graph rec;
+    kaad::Graph graph;
 
-    kaad::Node input_a = input(rec, kaad::Shape{5});
-    kaad::Node input_b = input(rec, kaad::Shape{5});
-    kaad::Node input_c = input(rec, kaad::Shape{5});
+    kaad::Node input_a = input(graph, kaad::Shape{5});
+    kaad::Node input_b = input(graph, kaad::Shape{5});
+    kaad::Node input_c = input(graph, kaad::Shape{5});
 
-    kaad::Node dot_ab = dot(rec, input_a, input_b);
-    kaad::Node res = dot(rec, dot_ab, input_c);
+    kaad::Node dot_ab = dot(graph, input_a, input_b);
+    kaad::Node res = dot(graph, dot_ab, input_c);
 
-    rec.init();
+    graph.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 40);
     std::iota(input_b.data_mut(), input_b.data_mut() + input_b.size(), 90);
     std::iota(input_c.data_mut(), input_c.data_mut() + input_c.size(), 150);
 
-    rec.reset();
+    graph.reset();
 
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
-    rec.get_gradient(res, std::array{input_a, input_b, input_c});
+    graph.get_gradient(res, std::array{input_a, input_b, input_c});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

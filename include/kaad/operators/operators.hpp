@@ -21,77 +21,77 @@ class Graph;
  * @brief Adds an input node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param shape Shape of the node.
  * @return A handle of the new input node.
  */
-Node input(Graph &rec, ShapeView shape);
+Node input(Graph &graph, ShapeView shape);
 
 /**
  * @brief Adds a unary negation node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the negated tensor,
  *         with the same shape as @p input
  */
-Node negative(Graph &rec, Node input);
+Node negative(Graph &graph, Node input);
 
 /**
  * @brief Adds a unary square node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the element-wise square of
  * @p input, with the same shape as the input tensor.
  */
-Node square(Graph &rec, Node input);
+Node square(Graph &graph, Node input);
 
 /**
  * @brief Adds a unary square root node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the element-wise square root
  * of @p input, with the same shape as the input tensor.
  */
-Node sqrt(Graph &rec, Node input);
+Node sqrt(Graph &graph, Node input);
 
 /**
  * @brief Adds a unary logarithm node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the element-wise logarithm
  * of @p input, with the same shape as the input tensor.
  */
-Node log(Graph &rec, Node input);
+Node log(Graph &graph, Node input);
 
 /**
  * @brief Adds a unary exponent node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the element-wise exponent
  * of @p input, with the same shape as the input tensor.
  */
-Node exp(Graph &rec, Node input);
+Node exp(Graph &graph, Node input);
 
 /**
  * @brief Adds a unary absolute value node to the computation graph.
  * @ingroup unary_operators
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the element-wise absolute
  * value of @p input, with the same shape as the input tensor.
  */
-Node abs(Graph &rec, Node input);
+Node abs(Graph &graph, Node input);
 
 /**
  * @brief Adds a slice node to the computation graph.
@@ -103,13 +103,13 @@ Node abs(Graph &rec, Node input);
  * @pre @p shape and @p start need to have the same size.
  * @pre @p shape[i] + @p start[i] <= input_shape[i]
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @param shape The shape of the slice.
  * @param start The offset of the slice, will be padded with zeros on the right.
  * @return A handle of the new node representing the slice.
  */
-Node slice(Graph &rec, Node input, Shape shape,
+Node slice(Graph &graph, Node input, Shape shape,
            StaticVector<std::size_t> start = {});
 
 /**
@@ -119,12 +119,12 @@ Node slice(Graph &rec, Node input, Shape shape,
  * Computes the sum of all elements in the input tensor node @p input,
  * producing a scalar tensor node containing the total sum.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the scalar sum of all elements
  * of @p input.
  */
-Node sum(Graph &rec, Node input);
+Node sum(Graph &graph, Node input);
 
 /**
  * @brief Adds a sum node to the computation graph that sums elements along a
@@ -138,7 +138,7 @@ Node sum(Graph &rec, Node input);
  * the output shape.
  * - If @p keep_rank is true, the @p axis is retained with an extent of 1.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @param axis The axis along which to sum.
  * @param keep_rank If true, retains the summed axis with an extent of 1; if
@@ -146,7 +146,7 @@ Node sum(Graph &rec, Node input);
  * @return A handle of the new node representing the tensor after summation
  * along the specified axis.
  */
-Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
+Node sum(Graph &graph, Node input, std::size_t axis, bool keep_rank = false);
 
 /**
  * @brief Adds a unary mean node to the computation graph.
@@ -155,12 +155,12 @@ Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
  * Computes the mean (average) of all elements in the input tensor node @p
  * input, producing a scalar tensor node containing the total average.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @return A handle of the new node representing the scalar mean of all
  * elements of @p input.
  */
-Node mean(Graph &rec, Node input);
+Node mean(Graph &graph, Node input);
 
 /**
  * @brief Adds a mean node to the computation graph that computes the mean along
@@ -174,7 +174,7 @@ Node mean(Graph &rec, Node input);
  * the output shape.
  * - If @p keep_rank is true, the axis @p axis is retained with an extent of 1.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @param axis The axis along which to compute the mean.
  * @param keep_rank If true, retains the mean-reduced axis with an extent of 1;
@@ -182,7 +182,7 @@ Node mean(Graph &rec, Node input);
  * @return A handle of the new node representing the tensor after mean
  * reduction along the specified axis.
  */
-Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
+Node mean(Graph &graph, Node input, std::size_t axis, bool keep_rank = false);
 
 /**
  * @brief Adds a unary transpose node to the computation graph.
@@ -194,7 +194,7 @@ Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
  *
  * @pre perm must contain a valid permutation of the axes of @p input.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param input Handle of the input node.
  * @param perm An optional initializer list specifying the permutation of axes.
  * If not provided or empty, a full transpose (reverse of all axes) is
@@ -202,7 +202,7 @@ Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank = false);
  * @return A handle of the new node representing the transposed tensor, with
  * shape adjusted according to @p perm or full transpose.
  */
-Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm = {});
+Node transpose(Graph &graph, Node input, StaticVector<std::size_t> perm = {});
 
 /**
  * @defgroup binary_operators Binary operators.
@@ -216,13 +216,13 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm = {});
  * Computes the element-wise sum of two input tensor nodes @p lhs and @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise sum of @p lhs
  * and @p rhs.
  */
-Node add(Graph &rec, Node lhs, Node rhs);
+Node add(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary subtratction node to the computation graph.
@@ -232,13 +232,13 @@ Node add(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise difference of
  * @p lhs and @p rhs.
  */
-Node sub(Graph &rec, Node lhs, Node rhs);
+Node sub(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary multiplication node to the computation
@@ -249,13 +249,13 @@ Node sub(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise product of
  * @p lhs and @p rhs.
  */
-Node mul(Graph &rec, Node lhs, Node rhs);
+Node mul(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary division node to the computation graph.
@@ -265,13 +265,13 @@ Node mul(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise quotient of
  * @p lhs and @p rhs.
  */
-Node div(Graph &rec, Node lhs, Node rhs);
+Node div(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary power node to the computation graph.
@@ -281,13 +281,13 @@ Node div(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise power of
  * @p lhs and @p rhs.
  */
-Node pow(Graph &rec, Node lhs, Node rhs);
+Node pow(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary minimum node to the computation graph.
@@ -297,13 +297,13 @@ Node pow(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise minimum of
  * @p lhs and @p rhs.
  */
-Node min(Graph &rec, Node lhs, Node rhs);
+Node min(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary maximum node to the computation graph.
@@ -313,13 +313,13 @@ Node min(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Both tensors must have the same shape or be broadcast-compatible.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise maximum of
  * @p lhs and @p rhs.
  */
-Node max(Graph &rec, Node lhs, Node rhs);
+Node max(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a binary dot product node to the computation graph.
@@ -329,13 +329,13 @@ Node max(Graph &rec, Node lhs, Node rhs);
  * @p rhs.
  * @pre Inputs must have rank-1 or rank-0 (scalar).
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the element-wise dot product
  * of @p lhs and @p rhs.
  */
-Node dot(Graph &rec, Node lhs, Node rhs);
+Node dot(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a matrix multiplication node to the computation graph.
@@ -350,13 +350,13 @@ Node dot(Graph &rec, Node lhs, Node rhs);
  * @pre @p lhs and @p rhs need to have shapes compatible for matrix
  * multiplication.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A handle of the new node representing the matrix product of @p lhs
  * and @p rhs.
  */
-Node matmul(Graph &rec, Node lhs, Node rhs);
+Node matmul(Graph &graph, Node lhs, Node rhs);
 
 /**
  * @brief Adds a generalized outer product node to the computation graph.
@@ -374,12 +374,12 @@ Node matmul(Graph &rec, Node lhs, Node rhs);
  * lhs and an element from @p rhs, preserving the full structure of both input
  * tensors.
  *
- * @param rec The computation graph to which the node will be added.
+ * @param graph The computation graph to which the node will be added.
  * @param lhs Handle of the first input node.
  * @param rhs Handle of the second input node.
  * @return A Handle of the new node representing the generalized outer product
  * of @p lhs and @p rhs.
  */
-Node outer(Graph &rec, Node lhs, Node rhs);
+Node outer(Graph &graph, Node lhs, Node rhs);
 
 } // namespace kaad

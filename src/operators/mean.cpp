@@ -13,37 +13,37 @@
 
 namespace kaad {
 
-Node mean(Graph &rec, Node input) {
+Node mean(Graph &graph, Node input) {
 
-    rec.nodes.push_back(
+    graph.nodes.push_back(
         std::make_unique<OperatorNode<operations::FullReduceMean>>(
-            std::array{rec.get_node(input)}));
+            std::array{graph.get_node(input)}));
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
-Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank) {
+Node mean(Graph &graph, Node input, std::size_t axis, bool keep_rank) {
 
     try {
 
-        rec.nodes.push_back(
+        graph.nodes.push_back(
             std::make_unique<OperatorNode<operations::ReduceMean>>(
-                std::array{rec.get_node(input)},
+                std::array{graph.get_node(input)},
                 operations::ReduceMean::Metadata{axis, keep_rank}));
     }
 
     catch (ShapeError &err) {
         // input has rank-1
-        return mean(rec, input);
+        return mean(graph, input);
     }
 
     catch (ArgumentError &err) {
         // axis is not a valid index
         throw ArgumentError(
-            make_graph_errmsg(rec.nodes.size(), "mean", err.what()));
+            make_graph_errmsg(graph.nodes.size(), "mean", err.what()));
     }
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad

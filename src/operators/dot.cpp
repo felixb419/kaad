@@ -11,21 +11,21 @@
 
 namespace kaad {
 
-Node dot(Graph &rec, Node lhs, Node rhs) {
+Node dot(Graph &graph, Node lhs, Node rhs) {
 
     try {
 
-        rec.nodes.push_back(
+        graph.nodes.push_back(
             std::make_unique<OperatorNode<operations::DotProduct>>(
-                std::array{rec.get_node(lhs), rec.get_node(rhs)}));
+                std::array{graph.get_node(lhs), graph.get_node(rhs)}));
 
     } catch (ShapeError &err) {
 
         throw ShapeError(
-            make_graph_errmsg(rec.nodes.size(), "dot", err.what()));
+            make_graph_errmsg(graph.nodes.size(), "dot", err.what()));
     }
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad

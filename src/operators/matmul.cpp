@@ -12,20 +12,21 @@
 
 namespace kaad {
 
-Node matmul(Graph &rec, Node lhs, Node rhs) {
+Node matmul(Graph &graph, Node lhs, Node rhs) {
 
     try {
 
-        rec.nodes.push_back(std::make_unique<OperatorNode<operations::Matmul>>(
-            std::array{rec.get_node(lhs), rec.get_node(rhs)}));
+        graph.nodes.push_back(
+            std::make_unique<OperatorNode<operations::Matmul>>(
+                std::array{graph.get_node(lhs), graph.get_node(rhs)}));
 
     } catch (BroadcastError &err) {
 
         throw BroadcastError(
-            make_graph_errmsg(rec.nodes.size(), "matmul", err.what()));
+            make_graph_errmsg(graph.nodes.size(), "matmul", err.what()));
     }
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad

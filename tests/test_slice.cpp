@@ -79,22 +79,22 @@ std::array<kaad::Scalar, 16> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                                          1.0, 1.0, 1.0, 1.0};
 
 int main() {
-    kaad::Graph rec;
+    kaad::Graph graph;
 
-    kaad::Node input_a = input(rec, kaad::Shape{2, 3, 4, 5});
+    kaad::Node input_a = input(graph, kaad::Shape{2, 3, 4, 5});
 
-    kaad::Node a_t = kaad::transpose(rec, input_a);
-    kaad::Node res = kaad::slice(rec, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
+    kaad::Node a_t = kaad::transpose(graph, input_a);
+    kaad::Node res = kaad::slice(graph, a_t, {4, 2, 2, 1}, {1, 2, 0, 1});
 
-    rec.init();
+    graph.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 20);
 
-    rec.reset();
+    graph.reset();
 
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
-    rec.get_gradient(res, std::array{input_a});
+    graph.get_gradient(res, std::array{input_a});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

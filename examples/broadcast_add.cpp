@@ -6,24 +6,27 @@
 
 int main() {
     // Create computation graph.
-    kaad::Graph rec;
+    kaad::Graph graph;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = input(rec, kaad::Shape{3, 2});
+    kaad::Node input_a = input(graph, kaad::Shape{3, 2});
 
-    kaad::Node input_b = input(rec, kaad::Shape{3, 2});
+    kaad::Node input_b = input(graph, kaad::Shape{3, 2});
 
-    kaad::Node input_c = input(rec, kaad::Shape{});
+    kaad::Node input_c = input(graph, kaad::Shape{});
 
-    kaad::Node input_d = input(rec, kaad::Shape{2, 3, 1});
+    kaad::Node input_d = input(graph, kaad::Shape{2, 3, 1});
 
     // Add computation nodes to graph via operators.
-    kaad::Node a_plus_b = add(rec, input_a, input_b); // [3,2] + [3,2] -> [3,2]
-    kaad::Node ab_plus_c = add(rec, a_plus_b, input_c); // [3,2] + [1] -> [3,2]
-    kaad::Node res = add(rec, ab_plus_c, input_d); // [3,2] + [2,3,1] -> [2,3,2]
+    kaad::Node a_plus_b =
+        add(graph, input_a, input_b); // [3,2] + [3,2] -> [3,2]
+    kaad::Node ab_plus_c =
+        add(graph, a_plus_b, input_c); // [3,2] + [1] -> [3,2]
+    kaad::Node res =
+        add(graph, ab_plus_c, input_d); // [3,2] + [2,3,1] -> [2,3,2]
 
     // allocate memory for the tensors
-    rec.init();
+    graph.init();
 
     // Fill input nodes with values,
     // get mutable pointer to node values with .data_mut().
@@ -33,13 +36,13 @@ int main() {
     std::fill_n(input_d.data_mut(), input_a.size(), 20);
 
     // Reset the graph.
-    rec.reset();
+    graph.reset();
 
     // Evaluate 'res'.
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
     // Compute the gradient of res w.r.t. to a, b, c and d.
-    rec.get_gradient(res, std::array{input_a, input_b, input_c, input_d});
+    graph.get_gradient(res, std::array{input_a, input_b, input_c, input_d});
 
     // Print values of nodes.
     std::cout << "A:\n" << input_a << '\n';

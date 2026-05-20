@@ -129,27 +129,28 @@ std::array<kaad::Scalar, 40> res_grad{
 
 int main() {
 
-    kaad::Graph rec;
+    kaad::Graph graph;
 
-    kaad::Node input_a = input(rec, kaad::Shape{5, 2, 5, 10});
+    kaad::Node input_a = input(graph, kaad::Shape{5, 2, 5, 10});
 
-    kaad::Node a_slice = kaad::slice(rec, input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
-    kaad::Node a_sqrt = kaad::sqrt(rec, a_slice);
-    kaad::Node a_full_transp = kaad::transpose(rec, a_sqrt);
-    kaad::Node a_mean_dim = kaad::mean(rec, a_full_transp, 0);
-    kaad::Node a_transp = kaad::transpose(rec, a_mean_dim, {2, 0, 1});
+    kaad::Node a_slice =
+        kaad::slice(graph, input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
+    kaad::Node a_sqrt = kaad::sqrt(graph, a_slice);
+    kaad::Node a_full_transp = kaad::transpose(graph, a_sqrt);
+    kaad::Node a_mean_dim = kaad::mean(graph, a_full_transp, 0);
+    kaad::Node a_transp = kaad::transpose(graph, a_mean_dim, {2, 0, 1});
 
     kaad::Node res = a_transp;
 
-    rec.init();
+    graph.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 250);
 
-    rec.reset();
+    graph.reset();
 
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
-    rec.get_gradient(res, std::array{input_a});
+    graph.get_gradient(res, std::array{input_a});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

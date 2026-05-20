@@ -6,29 +6,29 @@
 
 int main() {
     // Create computation graph.
-    kaad::Graph rec;
+    kaad::Graph graph;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = input(rec, kaad::Shape{3, 5, 2});
+    kaad::Node input_a = input(graph, kaad::Shape{3, 5, 2});
 
     // Add computation nodes to graph via operators.
-    kaad::Node res = transpose(rec, input_a); // [3,5,2] -> [2,5,3]
+    kaad::Node res = transpose(graph, input_a); // [3,5,2] -> [2,5,3]
 
     // allocate memory for the tensors
-    rec.init();
+    graph.init();
 
     // Fill input nodes with values,
     // get mutable pointer to node values with .data_mut().
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 0);
 
     // Reset the graph.
-    rec.reset();
+    graph.reset();
 
     // Evaluate 'res'.
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
     // Compute the gradient of res w.r.t. to a.
-    rec.get_gradient(res, std::array{input_a});
+    graph.get_gradient(res, std::array{input_a});
 
     // Print values of nodes.
     std::cout << "A:\n" << input_a << '\n';

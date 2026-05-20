@@ -70,23 +70,23 @@ std::array<kaad::Scalar, 1> res_val{64.5};
 std::array<kaad::Scalar, 1> res_grad{1.0};
 
 int main() {
-    kaad::Graph rec;
+    kaad::Graph graph;
 
-    kaad::Node input_a = input(rec, kaad::Shape{3, 5, 2});
+    kaad::Node input_a = input(graph, kaad::Shape{3, 5, 2});
 
-    kaad::Node a_mean = mean(rec, input_a, 2, true);
-    kaad::Node a_mean2 = mean(rec, a_mean, 1);
-    kaad::Node res = mean(rec, a_mean2);
+    kaad::Node a_mean = mean(graph, input_a, 2, true);
+    kaad::Node a_mean2 = mean(graph, a_mean, 1);
+    kaad::Node res = mean(graph, a_mean2);
 
-    rec.init();
+    graph.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 50);
 
-    rec.reset();
+    graph.reset();
 
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
-    rec.get_gradient(res, std::array{input_a});
+    graph.get_gradient(res, std::array{input_a});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

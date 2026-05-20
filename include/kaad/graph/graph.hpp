@@ -87,22 +87,23 @@ class Graph {
 
     friend class Node;
 
-    friend Node input(Graph &rec, ShapeView shape);
+    friend Node input(Graph &graph, ShapeView shape);
     template <operations::kernels::Binary Kernel>
-    friend Node binary_operator(Graph &rec, Node lhs, Node rhs,
+    friend Node binary_operator(Graph &graph, Node lhs, Node rhs,
                                 const char *opName);
     template <operations::kernels::Unary Kernel>
-    friend Node unary_operator(Graph &rec, Node input);
-    friend Node dot(Graph &rec, Node lhs, Node rhs);
-    friend Node matmul(Graph &rec, Node lhs, Node rhs);
-    friend Node mean(Graph &rec, Node input);
-    friend Node mean(Graph &rec, Node input, std::size_t axis, bool keep_rank);
-    friend Node outer(Graph &rec, Node lhs, Node rhs);
-    friend Node slice(Graph &rec, Node input, Shape shape,
+    friend Node unary_operator(Graph &graph, Node input);
+    friend Node dot(Graph &graph, Node lhs, Node rhs);
+    friend Node matmul(Graph &graph, Node lhs, Node rhs);
+    friend Node mean(Graph &graph, Node input);
+    friend Node mean(Graph &graph, Node input, std::size_t axis,
+                     bool keep_rank);
+    friend Node outer(Graph &graph, Node lhs, Node rhs);
+    friend Node slice(Graph &graph, Node input, Shape shape,
                       StaticVector<std::size_t> start);
-    friend Node sum(Graph &rec, Node input);
-    friend Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank);
-    friend Node transpose(Graph &rec, Node input,
+    friend Node sum(Graph &graph, Node input);
+    friend Node sum(Graph &graph, Node input, std::size_t axis, bool keep_rank);
+    friend Node transpose(Graph &graph, Node input,
                           StaticVector<std::size_t> perm);
 };
 

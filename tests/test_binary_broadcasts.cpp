@@ -80,31 +80,31 @@ std::array<kaad::Scalar, 12> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                                          1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
 int main() {
-    kaad::Graph rec;
+    kaad::Graph graph;
 
-    kaad::Node input_a = input(rec, kaad::Shape{2, 3});
-    kaad::Node input_b = input(rec, kaad::Shape{3, 2});
-    kaad::Node input_c = input(rec, kaad::SCALAR_SHAPE);
-    kaad::Node input_d = input(rec, kaad::Shape{2, 3, 1});
+    kaad::Node input_a = input(graph, kaad::Shape{2, 3});
+    kaad::Node input_b = input(graph, kaad::Shape{3, 2});
+    kaad::Node input_c = input(graph, kaad::SCALAR_SHAPE);
+    kaad::Node input_d = input(graph, kaad::Shape{2, 3, 1});
 
-    kaad::Node a_t = transpose(rec, input_a);
+    kaad::Node a_t = transpose(graph, input_a);
 
-    kaad::Node a_plus_b = add(rec, a_t, input_b);
-    kaad::Node ab_plus_c = add(rec, a_plus_b, input_c);
-    kaad::Node res = add(rec, ab_plus_c, input_d);
+    kaad::Node a_plus_b = add(graph, a_t, input_b);
+    kaad::Node ab_plus_c = add(graph, a_plus_b, input_c);
+    kaad::Node res = add(graph, ab_plus_c, input_d);
 
-    rec.init();
+    graph.init();
 
     std::iota(input_a.data_mut(), input_a.data_mut() + input_a.size(), 200);
     std::iota(input_b.data_mut(), input_b.data_mut() + input_b.size(), 90);
     std::iota(input_c.data_mut(), input_c.data_mut() + input_c.size(), 30);
     std::iota(input_d.data_mut(), input_d.data_mut() + input_d.size(), 0);
 
-    rec.reset();
+    graph.reset();
 
-    rec.evaluate(std::array{res});
+    graph.evaluate(std::array{res});
 
-    rec.get_gradient(res, std::array{input_a, input_b, input_d, res});
+    graph.get_gradient(res, std::array{input_a, input_b, input_d, res});
 
     // Check a
     assert(check_tensor("a value", input_a.value(), a_shape, a_val));

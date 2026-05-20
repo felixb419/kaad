@@ -11,13 +11,13 @@
 
 namespace kaad {
 
-Node outer(Graph &rec, Node lhs, Node rhs) {
+Node outer(Graph &graph, Node lhs, Node rhs) {
 
-    rec.nodes.push_back(
+    graph.nodes.push_back(
         std::make_unique<OperatorNode<operations::OuterProduct>>(
-            std::array{rec.get_node(lhs), rec.get_node(rhs)}));
+            std::array{graph.get_node(lhs), graph.get_node(rhs)}));
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad

@@ -15,37 +15,37 @@ namespace kaad {
 template <Operation operation> class OperatorNode;
 
 template <operations::kernels::Unary Kernel>
-Node unary_operator(Graph &rec, Node input) {
+Node unary_operator(Graph &graph, Node input) {
 
-    rec.nodes.push_back(
+    graph.nodes.push_back(
         std::make_unique<OperatorNode<operations::Pointwise::Unary<Kernel>>>(
-            std::array{rec.get_node(input)}));
+            std::array{graph.get_node(input)}));
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
-Node negative(Graph &rec, Node input) {
-    return unary_operator<operations::kernels::Neg<Scalar>>(rec, input);
+Node negative(Graph &graph, Node input) {
+    return unary_operator<operations::kernels::Neg<Scalar>>(graph, input);
 }
 
-Node square(Graph &rec, Node input) {
-    return unary_operator<operations::kernels::Square<Scalar>>(rec, input);
+Node square(Graph &graph, Node input) {
+    return unary_operator<operations::kernels::Square<Scalar>>(graph, input);
 }
 
-Node sqrt(Graph &rec, Node input) {
-    return unary_operator<operations::kernels::SafeSqrt<Scalar>>(rec, input);
+Node sqrt(Graph &graph, Node input) {
+    return unary_operator<operations::kernels::SafeSqrt<Scalar>>(graph, input);
 }
 
-Node log(Graph &rec, Node input) {
-    return unary_operator<operations::kernels::SafeLog<Scalar>>(rec, input);
+Node log(Graph &graph, Node input) {
+    return unary_operator<operations::kernels::SafeLog<Scalar>>(graph, input);
 }
 
-Node exp(Graph &rec, Node input) {
-    return unary_operator<operations::kernels::SafeExp<Scalar>>(rec, input);
+Node exp(Graph &graph, Node input) {
+    return unary_operator<operations::kernels::SafeExp<Scalar>>(graph, input);
 }
 
-Node abs(Graph &rec, Node input) {
-    return unary_operator<operations::kernels::Abs<Scalar>>(rec, input);
+Node abs(Graph &graph, Node input) {
+    return unary_operator<operations::kernels::Abs<Scalar>>(graph, input);
 }
 
 } // namespace kaad

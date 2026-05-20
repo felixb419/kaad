@@ -14,9 +14,9 @@
 
 namespace kaad {
 
-Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
+Node transpose(Graph &graph, Node input, StaticVector<std::size_t> perm) {
 
-    INode *inp_ptr = rec.get_node(input);
+    INode *inp_ptr = graph.get_node(input);
 
     if (perm.empty()) {
 
@@ -28,11 +28,11 @@ Node transpose(Graph &rec, Node input, StaticVector<std::size_t> perm) {
         }
     }
 
-    rec.nodes.push_back(std::make_unique<OperatorNode<operations::Transpose>>(
-        std::array{rec.get_node(input)},
+    graph.nodes.push_back(std::make_unique<OperatorNode<operations::Transpose>>(
+        std::array{graph.get_node(input)},
         operations::Transpose::Metadata(perm)));
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad

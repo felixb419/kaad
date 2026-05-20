@@ -13,37 +13,37 @@
 
 namespace kaad {
 
-Node sum(Graph &rec, Node input) {
+Node sum(Graph &graph, Node input) {
 
-    rec.nodes.push_back(
+    graph.nodes.push_back(
         std::make_unique<OperatorNode<operations::FullReduceSum>>(
-            std::array{rec.get_node(input)}));
+            std::array{graph.get_node(input)}));
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
-Node sum(Graph &rec, Node input, std::size_t axis, bool keep_rank) {
+Node sum(Graph &graph, Node input, std::size_t axis, bool keep_rank) {
 
     try {
 
-        rec.nodes.push_back(
+        graph.nodes.push_back(
             std::make_unique<OperatorNode<operations::ReduceSum>>(
-                std::array{rec.get_node(input)},
+                std::array{graph.get_node(input)},
                 operations::ReduceSum::Metadata{axis, keep_rank}));
     }
 
     catch (ShapeError &err) {
         // input has rank-1
-        return sum(rec, input);
+        return sum(graph, input);
     }
 
     catch (ArgumentError &err) {
         // axis is not a valid index
         throw ArgumentError(
-            make_graph_errmsg(rec.nodes.size(), "sum", err.what()));
+            make_graph_errmsg(graph.nodes.size(), "sum", err.what()));
     }
 
-    return rec.back_handle();
+    return graph.back_handle();
 }
 
 } // namespace kaad
