@@ -1,11 +1,11 @@
 #pragma once
 
+#include "kaad/graph/operators/internal/kernels.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 #include "strided.hpp"
 
 #include <array>
-#include <kaad/operators/internal/kernels.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad {
 struct INode;

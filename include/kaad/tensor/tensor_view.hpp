@@ -1,13 +1,14 @@
 #pragma once
 
+#include "kaad/tensor/internal/iterator_impl.hpp"
+#include "kaad/tensor/internal/print_tensor.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <algorithm>
 #include <cstddef>
 #include <iostream>
 #include <kaad/enums.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/iterator_impl.hpp>
-#include <kaad/tensor/internal/print_tensor.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <span>
 
 namespace kaad {

@@ -2,9 +2,9 @@
 
 #include "../operations/operation_concept.hpp"
 #include "../operations/reduction_policies.hpp"
+#include "kaad/graph/internal/inode.hpp"
 
 #include <cstdint>
-#include <kaad/graph/internal/inode.hpp>
 
 namespace kaad::operations {
 

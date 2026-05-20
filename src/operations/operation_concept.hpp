@@ -1,8 +1,9 @@
 #pragma once
 
+#include "kaad/graph/internal/inode.hpp"
+
 #include <array>
 #include <concepts>
-#include <kaad/graph/internal/inode.hpp>
 
 namespace kaad {
 

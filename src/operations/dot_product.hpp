@@ -1,13 +1,13 @@
 #pragma once
 
 #include "../operations/operation_concept.hpp"
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <array>
 #include <cstddef>
 #include <kaad/enums.hpp>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad::operations {
 

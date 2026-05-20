@@ -5,7 +5,6 @@
 #include <cassert>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
-#include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <numeric>
 #include <span>
@@ -72,11 +71,11 @@ std::array<kaad::Scalar, 1> res_grad{1.0};
 int main() {
     kaad::Graph graph;
 
-    kaad::Node input_a = input(graph, kaad::Shape{3, 5, 2});
+    kaad::Node input_a = graph.input(kaad::Shape{3, 5, 2});
 
-    kaad::Node a_mean = mean(graph, input_a, 2, true);
-    kaad::Node a_mean2 = mean(graph, a_mean, 1);
-    kaad::Node res = mean(graph, a_mean2);
+    kaad::Node a_mean = graph.mean(input_a, 2, true);
+    kaad::Node a_mean2 = graph.mean(a_mean, 1);
+    kaad::Node res = graph.mean(a_mean2);
 
     graph.init();
 

@@ -6,7 +6,6 @@
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/kaad.hpp>
 #include <kaad/max_rank.hpp>
-#include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/static_vector.hpp>
 #include <kaad/tensor/tensor_view.hpp>

@@ -1,21 +1,20 @@
-#include "../operations/transpose.hpp"
+#include "../../operations/transpose.hpp"
 
-#include "../graph/operator_node.hpp"
+#include "../../graph/operator_node.hpp"
 #include "kaad/graph/internal/inode.hpp"
 
 #include <array>
 #include <cstddef>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
-#include <kaad/operators/operators.hpp>
 #include <kaad/static_vector.hpp>
 #include <vector>
 
 namespace kaad {
 
-Node transpose(Graph &graph, Node input, StaticVector<std::size_t> perm) {
+Node Graph::transpose(Node input, StaticVector<std::size_t> perm) {
 
-    INode *inp_ptr = graph.get_node(input);
+    INode *inp_ptr = this->get_node(input);
 
     if (perm.empty()) {
 
@@ -27,11 +26,11 @@ Node transpose(Graph &graph, Node input, StaticVector<std::size_t> perm) {
         }
     }
 
-    graph.nodes.push_back(new OperatorNode<operations::Transpose>(
-        std::array{graph.get_node(input)},
+    this->nodes.push_back(new OperatorNode<operations::Transpose>(
+        std::array{this->get_node(input)},
         operations::Transpose::Metadata(perm)));
 
-    return graph.back_handle();
+    return Node(this->nodes.size() - 1, this);
 }
 
 } // namespace kaad

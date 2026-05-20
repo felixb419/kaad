@@ -1,10 +1,10 @@
 #pragma once
 
 #include "../graph/operator_node.hpp"
+#include "kaad/graph/operators/internal/kernels.hpp"
 
 #include <cstdint>
 #include <kaad/enums.hpp>
-#include <kaad/operators/internal/kernels.hpp>
 
 namespace kaad::operations {
 

@@ -9,10 +9,10 @@ int main() {
     kaad::Graph graph;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = input(graph, kaad::Shape{3, 5, 2});
+    kaad::Node input_a = graph.input(kaad::Shape{3, 5, 2});
 
     // Add computation nodes to graph via operators.
-    kaad::Node res = transpose(graph, input_a); // [3,5,2] -> [2,5,3]
+    kaad::Node res = graph.transpose(input_a); // [3,5,2] -> [2,5,3]
 
     // allocate memory for the tensors
     graph.init();

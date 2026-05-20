@@ -2,6 +2,16 @@ add_library(kaad
     ./exceptions.cpp
     ./graph/graph.cpp
     ./graph/node_handle.cpp
+    ./graph/operators/binary_operators.cpp
+    ./graph/operators/dot.cpp
+    ./graph/operators/input.cpp
+    ./graph/operators/matmul.cpp
+    ./graph/operators/mean.cpp
+    ./graph/operators/outer.cpp
+    ./graph/operators/slice.cpp
+    ./graph/operators/sum.cpp
+    ./graph/operators/transpose.cpp
+    ./graph/operators/unary_operators.cpp
     ./operations/broadcast.cpp
     ./operations/dot_product.cpp
     ./operations/matmul.cpp
@@ -9,16 +19,6 @@ add_library(kaad
     ./operations/reduce.cpp
     ./operations/slice.cpp
     ./operations/transpose.cpp
-    ./operators/binary_operators.cpp
-    ./operators/dot.cpp
-    ./operators/input.cpp
-    ./operators/matmul.cpp
-    ./operators/mean.cpp
-    ./operators/outer.cpp
-    ./operators/slice.cpp
-    ./operators/sum.cpp
-    ./operators/transpose.cpp
-    ./operators/unary_operators.cpp
     ./tensor/print_tensor.cpp
     ./tensor/tensor.cpp
     ./tensor/tensor_view.cpp

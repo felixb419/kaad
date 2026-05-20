@@ -5,7 +5,6 @@
 #include <cassert>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
-#include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <numeric>
 #include <span>
@@ -82,16 +81,16 @@ std::array<kaad::Scalar, 12> res_grad = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 int main() {
     kaad::Graph graph;
 
-    kaad::Node input_a = input(graph, kaad::Shape{2, 3});
-    kaad::Node input_b = input(graph, kaad::Shape{3, 2});
-    kaad::Node input_c = input(graph, kaad::SCALAR_SHAPE);
-    kaad::Node input_d = input(graph, kaad::Shape{2, 3, 1});
+    kaad::Node input_a = graph.input(kaad::Shape{2, 3});
+    kaad::Node input_b = graph.input(kaad::Shape{3, 2});
+    kaad::Node input_c = graph.input(kaad::SCALAR_SHAPE);
+    kaad::Node input_d = graph.input(kaad::Shape{2, 3, 1});
 
-    kaad::Node a_t = transpose(graph, input_a);
+    kaad::Node a_t = graph.transpose(input_a);
 
-    kaad::Node a_plus_b = add(graph, a_t, input_b);
-    kaad::Node ab_plus_c = add(graph, a_plus_b, input_c);
-    kaad::Node res = add(graph, ab_plus_c, input_d);
+    kaad::Node a_plus_b = graph.add(a_t, input_b);
+    kaad::Node ab_plus_c = graph.add(a_plus_b, input_c);
+    kaad::Node res = graph.add(ab_plus_c, input_d);
 
     graph.init();
 

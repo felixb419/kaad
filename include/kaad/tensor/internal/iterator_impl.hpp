@@ -1,10 +1,11 @@
 #pragma once
 
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <algorithm>
 #include <iterator>
 #include <kaad/enums.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <span>
 #include <type_traits>
 #include <vector>

@@ -1,8 +1,9 @@
 #pragma once
 
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <iostream>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <span>
 
 namespace kaad {

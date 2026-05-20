@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../operations/operation_concept.hpp"
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <array>
 #include <cstddef>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/max_rank.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/static_vector.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 #include <utility>
 

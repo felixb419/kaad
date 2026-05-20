@@ -5,7 +5,6 @@
 #include <cassert>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
-#include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <numeric>
 #include <span>
@@ -66,13 +65,13 @@ std::array<kaad::Scalar, 1> res_grad = {1.0};
 int main() {
     kaad::Graph graph;
 
-    kaad::Node input_a = input(graph, kaad::Shape{3, 5, 2});
+    kaad::Node input_a = graph.input(kaad::Shape{3, 5, 2});
 
-    kaad::Node a_t = transpose(graph, input_a);
+    kaad::Node a_t = graph.transpose(input_a);
 
-    kaad::Node a_sum = sum(graph, a_t, 2, true);
-    kaad::Node a_sum2 = sum(graph, a_sum, 1);
-    kaad::Node res = sum(graph, a_sum2);
+    kaad::Node a_sum = graph.sum(a_t, 2, true);
+    kaad::Node a_sum2 = graph.sum(a_sum, 1);
+    kaad::Node res = graph.sum(a_sum2);
 
     graph.init();
 

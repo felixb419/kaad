@@ -9,21 +9,19 @@ int main() {
     kaad::Graph graph;
 
     // Add input nodes to the graph.
-    kaad::Node input_a = input(graph, kaad::Shape{3, 2});
+    kaad::Node input_a = graph.input(kaad::Shape{3, 2});
 
-    kaad::Node input_b = input(graph, kaad::Shape{3, 2});
+    kaad::Node input_b = graph.input(kaad::Shape{3, 2});
 
-    kaad::Node input_c = input(graph, kaad::Shape{});
+    kaad::Node input_c = graph.input(kaad::Shape{});
 
-    kaad::Node input_d = input(graph, kaad::Shape{2, 3, 1});
+    kaad::Node input_d = graph.input(kaad::Shape{2, 3, 1});
 
     // Add computation nodes to graph via operators.
-    kaad::Node a_plus_b =
-        add(graph, input_a, input_b); // [3,2] + [3,2] -> [3,2]
-    kaad::Node ab_plus_c =
-        add(graph, a_plus_b, input_c); // [3,2] + [1] -> [3,2]
+    kaad::Node a_plus_b = graph.add(input_a, input_b); // [3,2] + [3,2] -> [3,2]
+    kaad::Node ab_plus_c = graph.add(a_plus_b, input_c); // [3,2] + [1] -> [3,2]
     kaad::Node res =
-        add(graph, ab_plus_c, input_d); // [3,2] + [2,3,1] -> [2,3,2]
+        graph.add(ab_plus_c, input_d); // [3,2] + [2,3,1] -> [2,3,2]
 
     // allocate memory for the tensors
     graph.init();

@@ -1,15 +1,15 @@
 #pragma once
 
 #include "../operations/operation_concept.hpp"
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/graph/operators/internal/kernels.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <array>
 #include <concepts>
 #include <cstddef>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/max_rank.hpp>
-#include <kaad/operators/internal/kernels.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <utility>
 
 namespace kaad::operations {

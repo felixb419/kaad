@@ -2,13 +2,13 @@
 
 #include "../operations/operation_concept.hpp"
 #include "../operations/reduction_policies.hpp"
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <array>
 #include <cstddef>
-#include <kaad/graph/internal/inode.hpp>
 #include <kaad/max_rank.hpp>
 #include <kaad/scalar.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <type_traits>
 #include <utility>
 

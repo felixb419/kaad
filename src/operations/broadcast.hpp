@@ -1,9 +1,8 @@
 #pragma once
 
+#include "kaad/graph/internal/inode.hpp"
+#include "kaad/tensor/internal/tensor_types.hpp"
 #include "strided.hpp"
-
-#include <kaad/graph/internal/inode.hpp>
-#include <kaad/tensor/internal/tensor_types.hpp>
 
 namespace kaad::operations {
 

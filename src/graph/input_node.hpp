@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kaad/graph/internal/inode.hpp>
+#include "kaad/graph/internal/inode.hpp"
 
 namespace kaad {
 

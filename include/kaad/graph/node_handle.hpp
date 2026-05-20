@@ -1,9 +1,10 @@
 #pragma once
 
+#include "kaad/tensor/internal/tensor_types.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
-#include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor_view.hpp>
 
 namespace kaad {

@@ -14,10 +14,6 @@
 
 namespace kaad {
 
-Node Graph::back_handle() noexcept {
-    return Node(this->nodes.size() - 1, this);
-}
-
 INode *Graph::get_node(Node node) {
     if (node.origin_ != this) {
         throw ArgumentError("node does not belong to this instance of Graph");

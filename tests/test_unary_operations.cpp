@@ -5,7 +5,6 @@
 #include <cassert>
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
-#include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
 #include <numeric>
 #include <span>
@@ -131,14 +130,13 @@ int main() {
 
     kaad::Graph graph;
 
-    kaad::Node input_a = input(graph, kaad::Shape{5, 2, 5, 10});
+    kaad::Node input_a = graph.input(kaad::Shape{5, 2, 5, 10});
 
-    kaad::Node a_slice =
-        kaad::slice(graph, input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
-    kaad::Node a_sqrt = kaad::sqrt(graph, a_slice);
-    kaad::Node a_full_transp = kaad::transpose(graph, a_sqrt);
-    kaad::Node a_mean_dim = kaad::mean(graph, a_full_transp, 0);
-    kaad::Node a_transp = kaad::transpose(graph, a_mean_dim, {2, 0, 1});
+    kaad::Node a_slice = graph.slice(input_a, {5, 2, 4, 3}, {0, 0, 1, 5});
+    kaad::Node a_sqrt = graph.sqrt(a_slice);
+    kaad::Node a_full_transp = graph.transpose(a_sqrt);
+    kaad::Node a_mean_dim = graph.mean(a_full_transp, 0);
+    kaad::Node a_transp = graph.transpose(a_mean_dim, {2, 0, 1});
 
     kaad::Node res = a_transp;
 
