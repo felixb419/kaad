@@ -25,8 +25,8 @@ int main() {
     // Fill input nodes with values,
     // get mutable pointer to node values with .data_mut().
     std::fill_n(input_a.data_mut(), input_a.size(), 10);
-    std::fill_n(input_b.data_mut(), input_a.size(), 50);
-    std::fill_n(input_c.data_mut(), input_a.size(), 20);
+    std::fill_n(input_b.data_mut(), input_b.size(), 50);
+    std::fill_n(input_c.data_mut(), input_c.size(), 20);
 
     // Reset the graph.
     graph.reset();
