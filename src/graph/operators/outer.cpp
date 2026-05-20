@@ -1,6 +1,5 @@
-#include "../../operations/outer.hpp"
-
 #include "../../graph/operator_node.hpp"
+#include "../../operations/outer.hpp"
 
 #include <array>
 #include <kaad/graph/graph.hpp>

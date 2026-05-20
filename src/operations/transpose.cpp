@@ -1,8 +1,7 @@
-#include "transpose.hpp"
-
 #include "kaad/graph/internal/inode.hpp"
 #include "kaad/tensor/internal/tensor.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"
+#include "transpose.hpp"
 
 #include <algorithm>
 #include <array>

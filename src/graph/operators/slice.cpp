@@ -1,6 +1,5 @@
-#include "../../operations/slice.hpp"
-
 #include "../../graph/operator_node.hpp"
+#include "../../operations/slice.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <array>

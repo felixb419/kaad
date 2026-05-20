@@ -1,6 +1,5 @@
-#include "../../operations/matmul.hpp"
-
 #include "../../graph/operator_node.hpp"
+#include "../../operations/matmul.hpp"
 
 #include <array>
 #include <kaad/exceptions.hpp>
