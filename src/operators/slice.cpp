@@ -9,7 +9,6 @@
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/static_vector.hpp>
-#include <memory>
 #include <vector>
 
 namespace kaad {
@@ -17,7 +16,7 @@ namespace kaad {
 Node slice(Graph &graph, Node input, Shape shape,
            StaticVector<std::size_t> start) {
 
-    graph.nodes.push_back(std::make_unique<OperatorNode<operations::Slice>>(
+    graph.nodes.push_back(new OperatorNode<operations::Slice>(
         std::array{graph.get_node(input)},
         operations::Slice::Metadata{shape, start}));
 

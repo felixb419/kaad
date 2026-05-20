@@ -5,13 +5,12 @@
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
-#include <memory>
 
 namespace kaad {
 
 Node input(Graph &graph, ShapeView shape) {
 
-    graph.nodes.push_back(std::make_unique<InputNode>(shape));
+    graph.nodes.push_back(new InputNode(shape));
 
     return graph.back_handle();
 }

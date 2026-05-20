@@ -8,7 +8,6 @@
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/scalar.hpp>
 #include <kaad/tensor/tensor_view.hpp>
-#include <memory>
 #include <span>
 #include <string>
 #include <vector>
@@ -28,7 +27,7 @@ INode *Graph::get_node(Node node) {
                             "is not a valid index for this Graph");
     }
 
-    return this->nodes[node.idx_].get();
+    return this->nodes[node.idx_];
 }
 
 void Graph::allocate() {
@@ -57,13 +56,13 @@ void Graph::init() {
 
     this->allocate();
 
-    for (std::unique_ptr<INode> &node : this->nodes) {
+    for (INode *node : this->nodes) {
         node->init_params();
     }
 }
 
 void Graph::reset() {
-    for (std::unique_ptr<INode> &node : this->nodes) {
+    for (INode *node : this->nodes) {
         (*node).reset();
     }
 }

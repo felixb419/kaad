@@ -8,16 +8,14 @@
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
-#include <memory>
 #include <vector>
 
 namespace kaad {
 
 Node mean(Graph &graph, Node input) {
 
-    graph.nodes.push_back(
-        std::make_unique<OperatorNode<operations::FullReduceMean>>(
-            std::array{graph.get_node(input)}));
+    graph.nodes.push_back(new OperatorNode<operations::FullReduceMean>(
+        std::array{graph.get_node(input)}));
 
     return graph.back_handle();
 }
@@ -26,10 +24,9 @@ Node mean(Graph &graph, Node input, std::size_t axis, bool keep_rank) {
 
     try {
 
-        graph.nodes.push_back(
-            std::make_unique<OperatorNode<operations::ReduceMean>>(
-                std::array{graph.get_node(input)},
-                operations::ReduceMean::Metadata{axis, keep_rank}));
+        graph.nodes.push_back(new OperatorNode<operations::ReduceMean>(
+            std::array{graph.get_node(input)},
+            operations::ReduceMean::Metadata{axis, keep_rank}));
     }
 
     catch (ShapeError &err) {

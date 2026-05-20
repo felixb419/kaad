@@ -7,7 +7,6 @@
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
-#include <memory>
 #include <vector>
 
 namespace kaad {
@@ -16,9 +15,8 @@ Node matmul(Graph &graph, Node lhs, Node rhs) {
 
     try {
 
-        graph.nodes.push_back(
-            std::make_unique<OperatorNode<operations::Matmul>>(
-                std::array{graph.get_node(lhs), graph.get_node(rhs)}));
+        graph.nodes.push_back(new OperatorNode<operations::Matmul>(
+            std::array{graph.get_node(lhs), graph.get_node(rhs)}));
 
     } catch (BroadcastError &err) {
 

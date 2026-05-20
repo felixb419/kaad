@@ -22,7 +22,7 @@ namespace kaad {
         throw ArgumentError("idx_ of this handle is invalid");
     }
 
-    return this->origin_->nodes[this->idx()].get();
+    return this->origin_->nodes[this->idx()];
 }
 
 [[nodiscard]] const char *Node::operation_name() const {

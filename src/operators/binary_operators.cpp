@@ -10,7 +10,6 @@
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
-#include <memory>
 #include <vector>
 
 namespace kaad {
@@ -28,8 +27,7 @@ Node binary_operator(Graph &graph, Node lhs, Node rhs, const char *opName) {
 
         // try pointwise operation
         graph.nodes.push_back(
-            std::make_unique<
-                OperatorNode<operations::Pointwise::Binary<Kernel>>>(
+            new OperatorNode<operations::Pointwise::Binary<Kernel>>(
                 std::array{lhs_ptr, rhs_ptr}));
 
     } catch (ShapeError &) {
@@ -38,7 +36,7 @@ Node binary_operator(Graph &graph, Node lhs, Node rhs, const char *opName) {
 
             // fall back on broadcast operation
             graph.nodes.push_back(
-                std::make_unique<OperatorNode<operations::Broadcast<Kernel>>>(
+                new OperatorNode<operations::Broadcast<Kernel>>(
                     std::array{lhs_ptr, rhs_ptr}));
 
         } catch (BroadcastError &err) {

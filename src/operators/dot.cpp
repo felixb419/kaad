@@ -6,7 +6,6 @@
 #include <kaad/graph/graph.hpp>
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
-#include <memory>
 #include <vector>
 
 namespace kaad {
@@ -15,9 +14,8 @@ Node dot(Graph &graph, Node lhs, Node rhs) {
 
     try {
 
-        graph.nodes.push_back(
-            std::make_unique<OperatorNode<operations::DotProduct>>(
-                std::array{graph.get_node(lhs), graph.get_node(rhs)}));
+        graph.nodes.push_back(new OperatorNode<operations::DotProduct>(
+            std::array{graph.get_node(lhs), graph.get_node(rhs)}));
 
     } catch (ShapeError &err) {
 

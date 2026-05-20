@@ -5,7 +5,6 @@
 #include <kaad/operators/internal/kernels.hpp>
 #include <kaad/tensor/internal/tensor_types.hpp>
 #include <kaad/tensor/tensor_view.hpp>
-#include <memory>
 #include <span>
 #include <vector>
 
@@ -22,8 +21,8 @@ template <typename T> class StaticVector;
  */
 class Graph {
   private:
-    std::vector<std::unique_ptr<INode>>
-        nodes; ///< Holds unique pointers pointing to computation nodes
+    std::vector<INode *>
+        nodes; ///< Holds pointers pointing to computation nodes
 
     std::vector<Scalar> tensor_buff; ///< Block of memory for value and gradient
                                      ///< tensors in nodes.
@@ -44,6 +43,12 @@ class Graph {
     void allocate();
 
   public:
+    ~Graph() {
+        for (INode *ptr : this->nodes) {
+            delete ptr;
+        }
+    }
+
     /**
      * @brief Initializes the graph for execution.
      *

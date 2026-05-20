@@ -8,7 +8,6 @@
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/scalar.hpp>
-#include <memory>
 
 namespace kaad {
 
@@ -18,7 +17,7 @@ template <operations::kernels::Unary Kernel>
 Node unary_operator(Graph &graph, Node input) {
 
     graph.nodes.push_back(
-        std::make_unique<OperatorNode<operations::Pointwise::Unary<Kernel>>>(
+        new OperatorNode<operations::Pointwise::Unary<Kernel>>(
             std::array{graph.get_node(input)}));
 
     return graph.back_handle();

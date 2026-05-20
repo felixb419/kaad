@@ -9,7 +9,6 @@
 #include <kaad/graph/node_handle.hpp>
 #include <kaad/operators/operators.hpp>
 #include <kaad/static_vector.hpp>
-#include <memory>
 #include <vector>
 
 namespace kaad {
@@ -28,7 +27,7 @@ Node transpose(Graph &graph, Node input, StaticVector<std::size_t> perm) {
         }
     }
 
-    graph.nodes.push_back(std::make_unique<OperatorNode<operations::Transpose>>(
+    graph.nodes.push_back(new OperatorNode<operations::Transpose>(
         std::array{graph.get_node(input)},
         operations::Transpose::Metadata(perm)));
 
