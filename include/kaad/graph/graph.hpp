@@ -106,6 +106,15 @@ class Graph {
      */
     Node input(ShapeView shape);
 
+    /**
+     * @brief Adds multiple input nodes to the computation graph.
+     * @ingroup unary_operators
+     *
+     * @param shapes Shapes of the nodes.
+     * @return A vector containing the respecitve node handles.
+     */
+    std::vector<Node> input(std::span<ShapeView> shapes);
+
   private:
     template <operations::kernels::Binary Kernel>
     Node binary_operator(Node lhs, Node rhs);
