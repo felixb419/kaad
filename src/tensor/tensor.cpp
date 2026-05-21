@@ -79,6 +79,11 @@ std::size_t Tensor::rank() const noexcept {
 
 bool Tensor::scalar() const noexcept { return this->rank() == 0; }
 
+bool Tensor::is_contiguous() const noexcept {
+    Strides contiguous = Tensor::compute_strides(this->shape);
+    return std::ranges::equal(this->strides, contiguous);
+}
+
 Tensor Tensor::transpose(StaticVector<std::size_t> perm) const {
 
     // if perm is not given, its filled so that shape is reversed

@@ -66,6 +66,10 @@ class TensorView {
     /// @return True if tensor is a scalar false otherwise.
     [[nodiscard]] bool scalar() const noexcept;
 
+    /// @return True if the tensor elements are contiguous in memory, false
+    /// otherwise.
+    [[nodiscard]] bool is_contiguous() const noexcept;
+
     /**
      * @brief Returns an iterator to the first logical element.
      * @note Iterates in logical (transposed) order; use @c data() for

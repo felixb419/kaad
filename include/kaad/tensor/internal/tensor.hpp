@@ -42,6 +42,8 @@ struct Tensor {
 
     [[nodiscard]] bool scalar() const noexcept;
 
+    [[nodiscard]] bool is_contiguous() const noexcept;
+
     [[nodiscard]] Tensor transpose(StaticVector<std::size_t> perm = {}) const;
 
     [[nodiscard]] Tensor transpose_2d() const;

@@ -35,6 +35,10 @@ TensorView::elements() const noexcept {
     return this->origin_->rank() == 0;
 }
 
+[[nodiscard]] bool TensorView::is_contiguous() const noexcept {
+    return this->origin_->is_contiguous();
+}
+
 [[nodiscard]] TensorView::iterator TensorView::begin() const noexcept {
     return {this->origin_->shape, this->origin_->strides,
             std::span{this->origin_->data, this->origin_->size}, false};
