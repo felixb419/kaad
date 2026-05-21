@@ -3,19 +3,11 @@
 [REFACTOR]
 
 [FEAT]
+(graph)     Exception if data_mut is called before allocation
 
 [PERF]
 
 [DOC]
-            Add Pages for:
-                max_rank
-                term definitions (axis, extent, ...)
-                what is backward autodiff
-                what is a computation graph
-                Node classes
-                operators (broadcasting)
-                Tensors
-                    note that rand and randn require a working std::random_device failing fatally otherwise
 
 [CHORE]
 

@@ -1,11 +1,13 @@
 PROJECT_NAME           = "kaad"
 
 OUTPUT_DIRECTORY       = docs/doxygen
-GENERATE_HTML          = NO
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
 
-GENERATE_XML           = YES
+MARKDOWN_SUPPORT       = YES
 
-INPUT                  = include
+INPUT                  = include src docs
+FILE_PATTERNS          = *.hpp *.md
 RECURSIVE              = YES
 
 EXTRACT_ALL            = YES
@@ -16,3 +18,6 @@ EXTRACT_STATIC         = NO
 
 QUIET                  = YES
 WARNINGS               = YES
+
+USE_MATHJAX            = YES
+GENERATE_LATEX         = NO
