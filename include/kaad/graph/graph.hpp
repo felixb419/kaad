@@ -239,20 +239,37 @@ class Graph {
      * @brief Adds a matrix multiplication node to the computation graph.
      * @ingroup binary_operators
      *
-     * This operator supports standard matrix multiplication as well as
-     * batch matrix multiplication. For rank-2 inputs, it performs a classic
-     * matrix multiplication. For higher-rank tensors, the leading axes are
-     * treated as batch axes and are broadcast according to standard
-     * broadcasting rules before performing the matrix multiplication on the
-     * last two axes.
+     * This operator performs batched matrix multiplication.
+     * The shape semantics are split into two parts:
      *
-     * @pre @p lhs and @p rhs need to have shapes compatible for matrix
-     * multiplication.
+     * 1. **Matrix dimensions (last two axes)**
+     *    The last two axes of each input tensor are interpreted as matrices:
+     *    - lhs: (..., M, K)
+     *    - rhs: (..., K, N)
+     *
+     *    These dimensions must satisfy standard matrix multiplication rules:
+
+     *    - The inner dimensions must match (K == K)
+     *    - The result matrix shape is (..., M, N)
+     *
+     * 2. **Batch dimensions (all preceding axes)**
+     *    All axes before the last two are treated as batch dimensions.
+     *    These batch shapes must be broadcast-compatible.
+     *
+     *    Broadcasting is applied elementwise over batch dimensions before
+     *    performing independent matrix multiplications for each batch.
+     *
+     * @pre The last two dimensions of @p lhs and @p rhs must be compatible
+     *      for matrix multiplication.
+
+     * @pre The batch dimensions (all axes except the last two) must be
+     *      broadcast-compatible between @p lhs and @p rhs.
+
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
-     * @return A handle of the new node representing the matrix product of
-     * @p lhs and @p rhs.
+     * @return A handle of the new node representing the batched matrix product
+     *         of @p lhs and @p rhs.
      */
     Node matmul(Node lhs, Node rhs);
 
