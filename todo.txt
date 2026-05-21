@@ -3,11 +3,13 @@
 [REFACTOR]
 
 [FEAT]
-(graph)     Exception if data_mut is called before allocation
+(graph)     Graph::input(std::span<ShapeView>)
 
 [PERF]
 
 [DOC]
+input_operators doxygen group
+replace dimension with axis in broadcasting.md
 
 [CHORE]
 

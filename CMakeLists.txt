@@ -61,3 +61,47 @@ endif()
 if (KAAD_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
+
+
+# Install logic
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(TARGETS kaad
+
+    EXPORT kaadTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT kaadTargets
+    FILE kaadTargets.cmake
+    NAMESPACE kaad::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/kaad
+)
+
+set(CONFIG_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/kaad)
+
+configure_package_config_file(
+    cmake/kaadConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/kaadConfig.cmake
+    INSTALL_DESTINATION ${CONFIG_INSTALL_DIR}
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/kaadConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/kaadConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/kaadConfigVersion.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}
+)

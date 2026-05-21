@@ -31,6 +31,8 @@ target_include_directories(kaad
         $<INSTALL_INTERFACE:include>
 )
 
+add_library(kaad::kaad ALIAS kaad)
+
 # Compiler features attached to target
 target_compile_features(kaad PUBLIC cxx_std_20)
 
