@@ -1,4 +1,4 @@
-# Broadcasting Rules
+# Broadcasting Rules {#broadcasting}
 
 KAAD uses `compatible broadcasting semantics identical to NumPy` for all tensor operations that support broadcasting.
 

@@ -117,7 +117,8 @@ class Graph {
      *
      * Computes the element-wise sum of two input tensor nodes @p lhs and @p
      * rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -132,7 +133,8 @@ class Graph {
      *
      * Computes the element-wise difference of two input tensor nodes @p lhs and
      * @p rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -149,7 +151,8 @@ class Graph {
      *
      * Computes the element-wise product of two input tensor nodes @p lhs and
      * @p rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -164,7 +167,8 @@ class Graph {
      *
      * Computes the element-wise quotient of two input tensor nodes @p lhs and
      * @p rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -180,7 +184,8 @@ class Graph {
      *
      * Computes the element-wise power of two input tensor nodes @p lhs and
      * @p rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -195,7 +200,8 @@ class Graph {
      *
      * Computes the element-wise minimum of two input tensor nodes @p lhs and
      * @p rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -210,7 +216,8 @@ class Graph {
      *
      * Computes the element-wise maximum of two input tensor nodes @p lhs and
      * @p rhs.
-     * @pre Both tensors must have the same shape or be broadcast-compatible.
+     * @pre Both tensors must have the same shape or be broadcast-compatible
+     * (@ref broadcasting).
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
@@ -248,23 +255,25 @@ class Graph {
      *    - rhs: (..., K, N)
      *
      *    These dimensions must satisfy standard matrix multiplication rules:
-
+     *
      *    - The inner dimensions must match (K == K)
      *    - The result matrix shape is (..., M, N)
      *
      * 2. **Batch dimensions (all preceding axes)**
      *    All axes before the last two are treated as batch dimensions.
-     *    These batch shapes must be broadcast-compatible.
+     *    These batch shapes must be broadcast-compatible
+     *    (@ref broadcasting).
      *
      *    Broadcasting is applied elementwise over batch dimensions before
      *    performing independent matrix multiplications for each batch.
      *
      * @pre The last two dimensions of @p lhs and @p rhs must be compatible
      *      for matrix multiplication.
-
+     *
      * @pre The batch dimensions (all axes except the last two) must be
-     *      broadcast-compatible between @p lhs and @p rhs.
-
+     *      broadcast-compatible (@ref broadcasting)
+     *      between @p lhs and @p rhs.
+     *
      *
      * @param lhs Handle of the first input node.
      * @param rhs Handle of the second input node.
