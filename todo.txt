@@ -7,7 +7,6 @@
 [PERF]
 
 [DOC]
-replace dimension with axis in broadcasting.md
 
 [CHORE]
 
