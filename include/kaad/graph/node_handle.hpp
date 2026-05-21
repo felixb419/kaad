@@ -58,6 +58,7 @@ class Node {
 
     /// @return Pointer to the underlying elements.
     /// @throws kaad::LogicError If is_input() is false.
+    /// @throws kaad::LogicError If tensor memory is not allocated.
     Scalar *data_mut();
 
     /// @return True if node is evaluated false otherwise.

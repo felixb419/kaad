@@ -52,7 +52,14 @@ Scalar *Node::data_mut() {
         throw LogicError("data_mut may not be called on not input nodes");
     }
 
-    return this->node_mut()->value.data;
+    Scalar *data = this->node_mut()->value.data;
+
+    if (data == nullptr) {
+        throw LogicError(
+            "data_mut may not be called beofre tensor memory is allocated");
+    }
+
+    return data;
 }
 
 [[nodiscard]] bool Node::is_evaluated() const {
