@@ -91,15 +91,12 @@ class Graph {
 
     /// @defgroup operators Operators applied to Nodes on a computation graph.
 
-    /// @defgroup binary_operators Binary operators.
-    /// @ingroup operators
-
-    /// @defgroup unary_operators Unary operators.
+    /// @defgroup input_operators Operators that add input nodes to the graph.
     /// @ingroup operators
 
     /**
      * @brief Adds an input node to the computation graph.
-     * @ingroup unary_operators
+     * @ingroup input_operators
      *
      * @param shape Shape of the node.
      * @return A handle of the new input node.
@@ -108,7 +105,7 @@ class Graph {
 
     /**
      * @brief Adds multiple input nodes to the computation graph.
-     * @ingroup unary_operators
+     * @ingroup input_operators
      *
      * @param shapes Shapes of the nodes.
      * @return A vector containing the respecitve node handles.
@@ -120,6 +117,9 @@ class Graph {
     Node binary_operator(Node lhs, Node rhs);
 
   public:
+    /// @defgroup binary_operators Operators that take two inputs.
+    /// @ingroup operators
+
     /**
      * @brief Adds a binary addition node to the computation graph.
      * @ingroup binary_operators
@@ -322,6 +322,9 @@ class Graph {
     Node unary_operator(Node input);
 
   public:
+    /// @defgroup unary_operators Operators that take one input.
+    /// @ingroup operators
+
     /**
      * @brief Adds a unary negation node to the computation graph.
      * @ingroup unary_operators

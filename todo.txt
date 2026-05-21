@@ -7,7 +7,6 @@
 [PERF]
 
 [DOC]
-input_operators doxygen group
 replace dimension with axis in broadcasting.md
 
 [CHORE]
