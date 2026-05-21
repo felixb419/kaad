@@ -1,5 +1,5 @@
-#include "kaad/tensor/internal/print_tensor.hpp"
 #include "kaad/tensor/internal/tensor.hpp"
+#include "kaad/tensor/internal/print_tensor.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <algorithm>
@@ -71,9 +71,7 @@ Tensor::Tensor(ShapeView shape, StridesView strides)
     : shape(shape), strides(checked_strides(strides, shape)),
       size(Tensor::compute_size(shape)) {}
 
-TensorView Tensor::view() const noexcept {
-    return {this->shape, this->strides, std::span{this->data, this->size}};
-}
+TensorView Tensor::view() const noexcept { return {this}; }
 
 std::size_t Tensor::rank() const noexcept {
     return static_cast<std::size_t>(this->shape.size());

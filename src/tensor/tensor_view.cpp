@@ -1,4 +1,5 @@
 #include "kaad/tensor/internal/print_tensor.hpp"
+#include "kaad/tensor/internal/tensor.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"
 
 #include <kaad/tensor/tensor_view.hpp>
@@ -7,49 +8,49 @@
 
 namespace kaad {
 
-TensorView::TensorView(ShapeView shape, StridesView strides,
-                       std::span<value_type> elements)
-    : shape_(shape), strides_(strides), elements_(elements) {}
+TensorView::TensorView(const Tensor *tensor) : origin_(tensor) {}
 
 [[nodiscard]] ShapeView TensorView::shape() const noexcept {
-    return this->shape_;
+    return this->origin_->shape;
 }
 
 [[nodiscard]] StridesView TensorView::strides() const noexcept {
-    return this->strides_;
+    return this->origin_->strides;
 }
 
 [[nodiscard]] std::span<const TensorView::value_type>
 TensorView::elements() const noexcept {
-    return this->elements_;
+    return {this->origin_->data, this->origin_->size};
 }
 
 [[nodiscard]] TensorView::size_type TensorView::rank() const {
-    return this->shape_.size();
+    return this->origin_->shape.size();
 }
 
 [[nodiscard]] Extent TensorView::extent(size_type axis) const noexcept {
-    return this->shape_[axis];
+    return this->origin_->shape[axis];
 }
 
 [[nodiscard]] bool TensorView::scalar() const noexcept {
-    return this->rank() == 0;
+    return this->origin_->rank() == 0;
 }
 
 [[nodiscard]] TensorView::iterator TensorView::begin() const noexcept {
-    return {this->shape_, this->strides_, this->elements_, false};
+    return {this->origin_->shape, this->origin_->strides,
+            std::span{this->origin_->data, this->origin_->size}, false};
 }
 
 [[nodiscard]] TensorView::iterator TensorView::end() noexcept {
-    return {this->shape_, this->strides_, this->elements_, true};
+    return {this->origin_->shape, this->origin_->strides,
+            std::span{this->origin_->data, this->origin_->size}, true};
 }
 
 [[nodiscard]] TensorView::size_type TensorView::size() const noexcept {
-    return this->elements_.size();
+    return this->origin_->size;
 }
 
 [[nodiscard]] bool TensorView::empty() const noexcept {
-    return this->elements_.empty();
+    return this->origin_->size == 0;
 }
 
 std::ostream &operator<<(std::ostream &stream, const TensorView &tensor) {

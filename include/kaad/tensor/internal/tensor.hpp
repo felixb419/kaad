@@ -11,7 +11,7 @@
 
 namespace kaad {
 
-struct TensorView;
+class TensorView;
 
 /// @brief A class representing a multi-dimensional tensor.
 /// @c elements must be manually set after construction.

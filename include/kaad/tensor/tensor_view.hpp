@@ -1,10 +1,9 @@
 #pragma once
 
 #include "kaad/tensor/internal/iterator_impl.hpp"
-#include "kaad/tensor/internal/print_tensor.hpp"
+#include "kaad/tensor/internal/tensor.hpp"
 #include "kaad/tensor/internal/tensor_types.hpp"
 
-#include <algorithm>
 #include <cstddef>
 #include <iostream>
 #include <kaad/enums.hpp>
@@ -13,8 +12,13 @@
 
 namespace kaad {
 
+struct Tensor;
+
 /// @brief A non-owning immutable view of a tensor object.
 class TensorView {
+  private:
+    const Tensor *origin_; ///< Tensor the view is based on.
+
   public:
     using value_type = const Scalar;
     using reference = value_type &;
@@ -26,26 +30,14 @@ class TensorView {
 
     using iterator = IteratorImpl<IMMUTABLE>;
 
-  private:
-    ShapeView shape_;     ///< Dimensions of the tensor.
-    StridesView strides_; ///< Strides of the tensor (steps needed to move
-                          ///< one element along each axis).
-    std::span<value_type> elements_; ///< Elements of the tensor.
-
-  public:
-    /**
-     * @brief Default constructor.
-     */
+    /// @brief Default constructor.
     TensorView() = default;
 
     /**
      * @brief Constructs a tensor view.
-     * @param shape Pointer to the shape array.
-     * @param strides Pointer to the strides array.
-     * @param elements Pointer to the element array.
+     * @param tensor Pointer to the origin of the view.
      */
-    TensorView(ShapeView shape, StridesView strides,
-               std::span<value_type> elements);
+    TensorView(const Tensor *tensor);
 
     /// @brief Get shape of the tensor.
     /// @return Read-only span representing the extent of the tensor along every
