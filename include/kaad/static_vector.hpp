@@ -41,7 +41,7 @@ template <typename T> class StaticVector {
     static constexpr UncheckedType UNCHECKED{};
 
     // NOLINTBEGIN(readability-named-parameter)
-    StaticVector(size_type size, UncheckedType) {
+    StaticVector(size_type size, UncheckedType) noexcept {
 
         assert(size <= KAAD_MAX_RANK);
 
@@ -50,7 +50,7 @@ template <typename T> class StaticVector {
                   value_type{});
     }
 
-    void resize(size_type count, UncheckedType) {
+    void resize(size_type count, UncheckedType) noexcept {
 
         assert(count <= KAAD_MAX_RANK);
 
@@ -62,7 +62,7 @@ template <typename T> class StaticVector {
         this->size_ = count;
     }
 
-    void push_back(value_type value, UncheckedType) {
+    void push_back(value_type value, UncheckedType) noexcept {
 
         assert(this->size_ < KAAD_MAX_RANK);
 
@@ -109,7 +109,7 @@ template <typename T> class StaticVector {
                                 "bigger than maximum size (KAAD_MAX_RANK)");
         }
 
-        this->size_ = last - first;
+        this->size_ = std::distance(first, last);
         std::copy(first, last, elements_.data());
     }
 
