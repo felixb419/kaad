@@ -36,7 +36,7 @@ struct INode {
         return this->value.rank();
     }
 
-    [[nodiscard]] ShapeView shape() const { return this->value.shape; }
+    [[nodiscard]] ShapeView shape() const { return {this->value.shape}; }
 
     [[nodiscard]] virtual bool is_evaluated() const noexcept = 0;
 

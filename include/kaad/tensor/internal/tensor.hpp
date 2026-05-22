@@ -7,7 +7,6 @@
 #include <iostream>
 #include <kaad/enums.hpp>
 #include <kaad/scalar.hpp>
-#include <span>
 
 namespace kaad {
 

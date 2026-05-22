@@ -8,7 +8,6 @@
 #include <array>
 #include <cstddef>
 #include <kaad/exceptions.hpp>
-#include <span>
 
 namespace kaad::operations {
 

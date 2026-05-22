@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <kaad/exceptions.hpp>
 #include <kaad/static_vector.hpp>
-#include <span>
 #include <string>
 
 namespace kaad::operations {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <kaad/max_rank.hpp>
+#include <kaad/static_span.hpp>
 #include <kaad/static_vector.hpp>
 
 namespace kaad {
@@ -15,7 +16,7 @@ using Shape = StaticVector<Extent>;
 static constexpr Shape SCALAR_SHAPE{};
 
 /// Alias for non-owning immutable tensor shape.
-using ShapeView = Shape::view_type;
+using ShapeView = StaticSpan<Extent>;
 
 /// Alias for a singular stride along a singular tensor axis.
 using Stride = std::size_t;
@@ -24,6 +25,6 @@ using Stride = std::size_t;
 using Strides = StaticVector<Stride>;
 
 /// Alias for non-owning immutable tensor strides.
-using StridesView = Strides::view_type;
+using StridesView = StaticSpan<Stride>;
 
 } // namespace kaad
