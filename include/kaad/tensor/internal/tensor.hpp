@@ -25,7 +25,7 @@ struct Tensor {
     std::size_t size; ///< Number of elements.
 
     /// @return Strides array based on @p shape.
-    static Strides compute_strides(ShapeView shape);
+    static Strides compute_strides(ShapeView shape) noexcept;
 
     /// @return Number of tensor elements based on @p shape.
     static std::size_t compute_size(ShapeView shape);

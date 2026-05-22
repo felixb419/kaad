@@ -14,13 +14,13 @@
 
 namespace kaad {
 
-Strides Tensor::compute_strides(ShapeView shape) {
+Strides Tensor::compute_strides(ShapeView shape) noexcept {
 
     if (shape.empty()) {
         return Strides{};
     }
 
-    Strides strides(shape.size());
+    Strides strides(shape.size(), Strides::UNCHECKED);
     int idx = static_cast<int>(shape.size()) - 1;
 
     strides[idx--] = 1;
