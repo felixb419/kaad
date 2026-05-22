@@ -1,4 +1,6 @@
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
+#!/usr/bin/env bash
 
-cmake --install build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+
+cmake --install build --prefix ./install

@@ -11,8 +11,6 @@
 [CHORE]
 
 [BUILD]
-            Install support
-        (?) kaadConfig.cmake.in
 
 [LATER]
 (operations) make operations use std::mdspan as soon as available
