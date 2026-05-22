@@ -38,7 +38,7 @@ Strides Tensor::compute_strides(ShapeView shape) noexcept {
     return strides;
 }
 
-std::size_t Tensor::compute_size(ShapeView shape) {
+std::size_t Tensor::compute_size(ShapeView shape) noexcept {
 
     if (shape.empty()) {
         return 1;
